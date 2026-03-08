@@ -32,8 +32,10 @@ const prayerInfo = [
 ];
 
 function getCurrentAndNext(timings: TimingsData): { current: string | null; next: string | null } {
+  // Use Riyadh timezone for accurate comparison
   const now = new Date();
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const riyadhTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Riyadh' }));
+  const nowMinutes = riyadhTime.getHours() * 60 + riyadhTime.getMinutes();
   
   const times = prayerInfo.map(p => ({
     key: p.key,
