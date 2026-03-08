@@ -1,0 +1,44 @@
+{
+  "name": "عِتْرَة - Atraa",
+  "short_name": "عِتْرَة",
+  "description": "تطبيق إسلامي شامل - أوقات الصلاة، القبلة، الأدعية، التسبيح",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f0eb",
+  "theme_color": "#2d5a3d",
+  "orientation": "portrait",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "utilities"],
+  "shortcuts": [
+    {
+      "name": "الأدعية والزيارات",
+      "url": "/duas",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "التسبيح",
+      "url": "/tasbih",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "القبلة",
+      "url": "/qibla",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    }
+  ]
+}
