@@ -13,7 +13,7 @@ const HijriCountdown = () => {
   const [hijri, setHijri] = useState<HijriData | null>(null);
 
   useEffect(() => {
-    // Use the timings API which already returns hijri data
+    // Use the timings endpoint which reliably returns hijri date data
     fetch('https://api.aladhan.com/v1/timings?latitude=26.4207&longitude=50.0888&method=4&timezonestring=Asia/Riyadh&tune=2,2,0,0,-1,15,0,0,0,0')
       .then(res => res.json())
       .then(data => {
@@ -24,7 +24,7 @@ const HijriCountdown = () => {
             month: h.month.ar,
             monthNumber: parseInt(h.month.number),
             year: parseInt(h.year),
-            daysInMonth: h.month.days || 30,
+            daysInMonth: h.month.days ? parseInt(h.month.days) : 30,
           });
         }
       })

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 const AiPage = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-130px)] px-4 animate-fade-in">
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-130px)] px-6 animate-fade-in">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}

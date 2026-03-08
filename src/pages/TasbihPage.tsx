@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { RotateCcw, Vibrate, Volume2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -14,9 +14,17 @@ const TasbihPage = () => {
   const [mode, setMode] = useState<TasbihMode>('zahra');
   const [step, setStep] = useState(0);
   const [count, setCount] = useState(0);
-  const [openCount, setOpenCount] = useState(0);
+  const [openCount, setOpenCount] = useState(() => {
+    const saved = localStorage.getItem('atraa_open_tasbih');
+    return saved ? parseInt(saved, 10) : 0;
+  });
   const [vibration, setVibration] = useState(() => localStorage.getItem('atraa_tasbih_vibrate') !== 'false');
   const [sound, setSound] = useState(() => localStorage.getItem('atraa_tasbih_sound') === 'true');
+
+  // Persist open tasbih count
+  useEffect(() => {
+    localStorage.setItem('atraa_open_tasbih', String(openCount));
+  }, [openCount]);
 
   const current = tasbihatZahra[step];
   const totalAll = tasbihatZahra.reduce((s, t) => s + t.target, 0);
@@ -26,15 +34,17 @@ const TasbihPage = () => {
       navigator.vibrate(20);
     }
     if (sound) {
-      const ctx = new AudioContext();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.frequency.value = 800;
-      gain.gain.value = 0.1;
-      osc.start();
-      osc.stop(ctx.currentTime + 0.05);
+      try {
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 800;
+        gain.gain.value = 0.1;
+        osc.start();
+        osc.stop(ctx.currentTime + 0.05);
+      } catch {}
     }
   }, [vibration, sound]);
 
@@ -60,7 +70,9 @@ const TasbihPage = () => {
   const handleReset = () => {
     setStep(0);
     setCount(0);
-    setOpenCount(0);
+    if (mode === 'open') {
+      setOpenCount(0);
+    }
   };
 
   const toggleVibration = () => {
@@ -77,12 +89,24 @@ const TasbihPage = () => {
 
   const isComplete = mode === 'zahra' && step === tasbihatZahra.length - 1 && count >= current.target;
 
+  // Full-screen tap handler for open mode
+  const handleScreenTap = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    if (mode !== 'open') return;
+    // Don't trigger on buttons/controls
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-control]')) return;
+    handleTapOpen();
+  }, [mode, handleTapOpen]);
+
   return (
-    <div className="px-4 py-4 animate-fade-in min-h-[calc(100vh-130px)] flex flex-col">
+    <div
+      className="px-4 py-4 animate-fade-in min-h-[calc(100vh-130px)] flex flex-col select-none"
+      onClick={mode === 'open' ? handleScreenTap : undefined}
+    >
       {/* Mode selector */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-6" data-control>
         <button
-          onClick={() => { setMode('zahra'); handleReset(); }}
+          onClick={() => { setMode('zahra'); setStep(0); setCount(0); }}
           className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
             mode === 'zahra' ? 'islamic-gradient text-primary-foreground shadow-card' : 'bg-card border border-border text-foreground'
           }`}
@@ -90,7 +114,7 @@ const TasbihPage = () => {
           تسبيح الزهراء ❁
         </button>
         <button
-          onClick={() => { setMode('open'); handleReset(); }}
+          onClick={() => { setMode('open'); setStep(0); setCount(0); }}
           className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
             mode === 'open' ? 'islamic-gradient text-primary-foreground shadow-card' : 'bg-card border border-border text-foreground'
           }`}
@@ -100,15 +124,15 @@ const TasbihPage = () => {
       </div>
 
       {/* Settings strip */}
-      <div className="flex items-center justify-end gap-3 mb-6">
+      <div className="flex items-center justify-end gap-3 mb-6" data-control>
         <button onClick={toggleVibration} className={`p-2 rounded-xl transition-colors ${vibration ? 'bg-primary/10 text-primary' : 'text-muted-foreground'}`}>
-          <Vibrate className="w-4.5 h-4.5" />
+          <Vibrate className="w-[18px] h-[18px]" />
         </button>
         <button onClick={toggleSound} className={`p-2 rounded-xl transition-colors ${sound ? 'bg-primary/10 text-primary' : 'text-muted-foreground'}`}>
-          <Volume2 className="w-4.5 h-4.5" />
+          <Volume2 className="w-[18px] h-[18px]" />
         </button>
         <button onClick={handleReset} className="p-2 rounded-xl text-muted-foreground hover:text-foreground transition-colors">
-          <RotateCcw className="w-4.5 h-4.5" />
+          <RotateCcw className="w-[18px] h-[18px]" />
         </button>
       </div>
 
@@ -147,7 +171,7 @@ const TasbihPage = () => {
               <motion.button
                 whileTap={{ scale: 0.92 }}
                 onClick={handleTapZahra}
-                className="w-32 h-32 rounded-full islamic-gradient text-primary-foreground text-xl font-semibold shadow-elevated flex items-center justify-center active:opacity-90 transition-opacity select-none"
+                className="w-32 h-32 rounded-full islamic-gradient text-primary-foreground text-xl font-semibold shadow-elevated flex items-center justify-center active:opacity-90 transition-opacity"
               >
                 سبّح
               </motion.button>
@@ -157,14 +181,7 @@ const TasbihPage = () => {
           <>
             <p className="text-6xl font-bold text-foreground mb-2">{openCount}</p>
             <p className="text-sm text-muted-foreground mb-10">تسبيحة</p>
-
-            <motion.button
-              whileTap={{ scale: 0.92 }}
-              onClick={handleTapOpen}
-              className="w-36 h-36 rounded-full islamic-gradient text-primary-foreground text-xl font-semibold shadow-elevated flex items-center justify-center active:opacity-90 transition-opacity select-none"
-            >
-              سبّح
-            </motion.button>
+            <p className="text-xs text-muted-foreground/60">اضغط في أي مكان للتسبيح</p>
           </>
         )}
       </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Cloud, Sun, CloudRain, Thermometer } from 'lucide-react';
+import { Thermometer } from 'lucide-react';
 
 interface WeatherData {
   temp: number;
@@ -8,21 +8,34 @@ interface WeatherData {
 
 const WeatherWidget = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [cityLabel, setCityLabel] = useState('');
 
   useEffect(() => {
-    const city = localStorage.getItem('atraa_weather_city') || 'Qatif';
-    fetch(`https://wttr.in/${city}?format=j1`)
-      .then(res => res.json())
-      .then(data => {
-        if (data?.current_condition?.[0]) {
-          const cc = data.current_condition[0];
-          setWeather({
-            temp: Math.round(parseFloat(cc.temp_C)),
-            description: cc.lang_ar?.[0]?.value || cc.weatherDesc?.[0]?.value || '',
-          });
-        }
-      })
-      .catch(() => {});
+    const fetchWeather = () => {
+      const city = localStorage.getItem('atraa_weather_city') || 'Qatif';
+      setCityLabel(city);
+      fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`)
+        .then(res => res.json())
+        .then(data => {
+          if (data?.current_condition?.[0]) {
+            const cc = data.current_condition[0];
+            setWeather({
+              temp: Math.round(parseFloat(cc.temp_C)),
+              description: cc.lang_ar?.[0]?.value || cc.weatherDesc?.[0]?.value || '',
+            });
+          }
+        })
+        .catch(() => {});
+    };
+
+    fetchWeather();
+
+    // Listen for storage changes (city change from settings)
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'atraa_weather_city') fetchWeather();
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   return (
