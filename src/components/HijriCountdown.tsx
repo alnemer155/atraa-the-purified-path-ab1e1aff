@@ -15,18 +15,17 @@ const HijriCountdown = () => {
   const [adjustment, setAdjustment] = useState(() => getHijriAdjustment());
 
   const fetchHijri = (adj: number) => {
-    // Use the date endpoint with adjustment days offset
-    const today = new Date();
-    today.setDate(today.getDate() + adj);
-    const dd = String(today.getDate()).padStart(2, '0');
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const yyyy = today.getFullYear();
-    const dateStr = `${dd}-${mm}-${yyyy}`;
+    // Get the adjusted Gregorian date
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + adj);
+    const dd = String(targetDate.getDate()).padStart(2, '0');
+    const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const yyyy = targetDate.getFullYear();
 
-    fetch(`https://api.aladhan.com/v1/gpiToH/${dateStr}`)
+    fetch(`https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=26.4207&longitude=50.0888&method=4&timezonestring=Asia/Riyadh`)
       .then(res => res.json())
       .then(data => {
-        const h = data?.data?.hijri;
+        const h = data?.data?.date?.hijri;
         if (h) {
           setHijri({
             day: parseInt(h.day),
