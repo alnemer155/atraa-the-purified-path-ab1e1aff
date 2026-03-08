@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, MapPin } from 'lucide-react';
+import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, MapPin, Search, LocateFixed } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const cities = [
+const popularCities = [
   { value: 'Qatif', label: 'القطيف' },
   { value: 'Riyadh', label: 'الرياض' },
   { value: 'Jeddah', label: 'جدة' },
@@ -11,41 +11,66 @@ const cities = [
   { value: 'Medina', label: 'المدينة المنورة' },
   { value: 'Khobar', label: 'الخبر' },
   { value: 'Ahsa', label: 'الأحساء' },
+  { value: 'Saihat', label: 'سيهات' },
+  { value: 'Tarut', label: 'تاروت' },
 ];
 
 const SettingsPage = () => {
-  const [notifications, setNotifications] = useState(false);
+  const [notifications, setNotifications] = useState(() => {
+    return 'Notification' in window && Notification.permission === 'granted';
+  });
   const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('atraa_weather_city') || 'Qatif');
+  const [citySearch, setCitySearch] = useState('');
+  const [detecting, setDetecting] = useState(false);
 
   const toggleNotifications = async () => {
     if (!notifications && 'Notification' in window) {
       const perm = await Notification.requestPermission();
       if (perm === 'granted') {
         setNotifications(true);
-        // Register for periodic notifications
-        setupNotifications();
       }
     } else {
       setNotifications(!notifications);
     }
   };
 
-  const setupNotifications = () => {
-    // Salawat reminder every 15 minutes
-    if ('serviceWorker' in navigator && 'Notification' in window && Notification.permission === 'granted') {
-      setInterval(() => {
-        new Notification('عِتْرَة — صلوات', {
-          body: 'اللهم صلِّ على محمد وآل محمد',
-          icon: '/logo.png',
-        });
-      }, 15 * 60 * 1000);
-    }
-  };
-
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
     localStorage.setItem('atraa_weather_city', city);
+    // Dispatch storage event for same-tab listeners
+    window.dispatchEvent(new StorageEvent('storage', { key: 'atraa_weather_city', newValue: city }));
   };
+
+  const detectLocation = () => {
+    if (!('geolocation' in navigator)) return;
+    setDetecting(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const res = await fetch(`https://wttr.in/${pos.coords.latitude},${pos.coords.longitude}?format=j1`);
+          const data = await res.json();
+          const area = data?.nearest_area?.[0]?.areaName?.[0]?.value;
+          if (area) {
+            handleCityChange(area);
+          }
+        } catch {}
+        setDetecting(false);
+      },
+      () => setDetecting(false),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  const handleSearchSubmit = () => {
+    if (citySearch.trim()) {
+      handleCityChange(citySearch.trim());
+      setCitySearch('');
+    }
+  };
+
+  const filteredCities = citySearch
+    ? popularCities.filter(c => c.label.includes(citySearch) || c.value.toLowerCase().includes(citySearch.toLowerCase()))
+    : popularCities;
 
   return (
     <div className="px-4 py-4 space-y-4 animate-fade-in">
@@ -53,13 +78,10 @@ const SettingsPage = () => {
 
       {/* Notifications */}
       <div className="bg-card rounded-2xl shadow-card overflow-hidden">
-        <button
-          onClick={toggleNotifications}
-          className="w-full flex items-center justify-between p-4"
-        >
+        <button onClick={toggleNotifications} className="w-full flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
-              <Bell className="w-4.5 h-4.5 text-primary" />
+              <Bell className="w-[18px] h-[18px] text-primary" />
             </div>
             <div className="text-right">
               <p className="text-sm font-medium text-foreground">الإشعارات</p>
@@ -76,19 +98,42 @@ const SettingsPage = () => {
       <div className="bg-card rounded-2xl shadow-card p-4">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
-            <MapPin className="w-4.5 h-4.5 text-primary" />
+            <MapPin className="w-[18px] h-[18px] text-primary" />
           </div>
           <div className="text-right">
             <p className="text-sm font-medium text-foreground">مدينة الطقس</p>
             <p className="text-xs text-muted-foreground">اختر مدينتك لعرض الطقس</p>
           </div>
         </div>
+
+        {/* Search + Auto detect */}
+        <div className="flex gap-2 mb-3">
+          <div className="flex-1 flex items-center gap-2 bg-secondary rounded-xl px-3 py-2">
+            <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            <input
+              type="text"
+              value={citySearch}
+              onChange={(e) => setCitySearch(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
+              placeholder="ابحث عن مدينة..."
+              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+            />
+          </div>
+          <button
+            onClick={detectLocation}
+            disabled={detecting}
+            className="px-3 py-2 rounded-xl bg-primary/10 text-primary flex items-center gap-1.5 text-xs font-medium disabled:opacity-50"
+          >
+            <LocateFixed className={`w-4 h-4 ${detecting ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
+
         <div className="grid grid-cols-2 gap-2">
-          {cities.map(city => (
+          {filteredCities.map(city => (
             <button
               key={city.value}
               onClick={() => handleCityChange(city.value)}
-              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+              className={`px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                 selectedCity === city.value
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-secondary text-foreground'
@@ -105,7 +150,7 @@ const SettingsPage = () => {
         <Link to="/policies" className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
-              <Shield className="w-4.5 h-4.5 text-primary" />
+              <Shield className="w-[18px] h-[18px] text-primary" />
             </div>
             <p className="text-sm font-medium text-foreground">سياسة الخصوصية</p>
           </div>
@@ -114,7 +159,7 @@ const SettingsPage = () => {
         <Link to="/policies" className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
-              <FileText className="w-4.5 h-4.5 text-primary" />
+              <FileText className="w-[18px] h-[18px] text-primary" />
             </div>
             <p className="text-sm font-medium text-foreground">شروط الاستخدام</p>
           </div>
@@ -152,7 +197,7 @@ const SettingsPage = () => {
 
       {/* Version */}
       <p className="text-center text-xs text-muted-foreground pb-4">
-        عِتْرَة — الإصدار 2.1 (بناء 34)
+        عِتْرَة — الإصدار 2.1 (بناء 35)
       </p>
     </div>
   );

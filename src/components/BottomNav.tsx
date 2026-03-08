@@ -1,10 +1,22 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, BookOpen, Compass, Settings, MessageSquare, HandMetal } from 'lucide-react';
+import { Home, BookOpen, Compass, Settings, MessageSquare } from 'lucide-react';
+
+const TasbihIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="6" r="2.5" />
+    <circle cx="12" cy="12" r="2.5" />
+    <circle cx="12" cy="18" r="2.5" />
+    <circle cx="6" cy="9" r="2.5" />
+    <circle cx="18" cy="9" r="2.5" />
+    <circle cx="6" cy="15" r="2.5" />
+    <circle cx="18" cy="15" r="2.5" />
+  </svg>
+);
 
 const navItems = [
   { path: '/settings', label: 'الإعدادات', icon: Settings },
   { path: '/qibla', label: 'القبلة', icon: Compass },
-  { path: '/tasbih', label: 'التسبيح', icon: HandMetal },
+  { path: '/tasbih', label: 'التسبيح', icon: null, customIcon: TasbihIcon },
   { path: '/ai', label: 'الذكاء', icon: MessageSquare },
   { path: '/duas', label: 'الأدعية', icon: BookOpen },
   { path: '/', label: 'الرئيسية', icon: Home },
@@ -16,7 +28,7 @@ const BottomNav = () => {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       <div className="flex items-center justify-around px-1 py-1.5 max-w-lg mx-auto">
-        {navItems.map(({ path, label, icon: Icon }) => {
+        {navItems.map(({ path, label, icon: Icon, customIcon: CustomIcon }) => {
           const isActive = location.pathname === path;
           return (
             <NavLink
@@ -25,7 +37,11 @@ const BottomNav = () => {
               className="flex flex-col items-center gap-0.5 py-1 px-2 min-w-[48px]"
             >
               <div className={`p-1.5 rounded-xl transition-all duration-200 ${isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}>
-                <Icon className="w-4.5 h-4.5" />
+                {CustomIcon ? (
+                  <CustomIcon className="w-[18px] h-[18px]" />
+                ) : Icon ? (
+                  <Icon className="w-[18px] h-[18px]" />
+                ) : null}
               </div>
               <span className={`text-[9px] font-medium transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
                 {label}

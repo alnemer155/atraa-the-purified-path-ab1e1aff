@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PrayerTimes from '@/components/PrayerTimes';
 import WeatherWidget from '@/components/WeatherWidget';
 import HijriCountdown from '@/components/HijriCountdown';
+import DailyRecommendations from '@/components/DailyRecommendations';
 
 const dhikrPhrases = [
   'اللهم صلِّ على محمد وآل محمد',
@@ -38,7 +39,7 @@ const HomePage = () => {
 
   return (
     <div className="px-4 py-4 space-y-5 animate-fade-in">
-      {/* Greeting - no background */}
+      {/* Greeting */}
       <div className="py-2">
         <p className="text-lg font-semibold text-foreground mb-2">{getGreeting(user)}</p>
         <div className="h-6 overflow-hidden">
@@ -65,6 +66,9 @@ const HomePage = () => {
 
       {/* Prayer Times */}
       <PrayerTimes />
+
+      {/* Daily Recommendations */}
+      <DailyRecommendations />
     </div>
   );
 };
