@@ -9,6 +9,7 @@ import Registration from "./pages/Registration";
 import DuasPage from "./pages/DuasPage";
 import AiPage from "./pages/AiPage";
 import QiblaPage from "./pages/QiblaPage";
+import TasbihPage from "./pages/TasbihPage";
 import SettingsPage from "./pages/SettingsPage";
 import PoliciesPage from "./pages/PoliciesPage";
 import NotFound from "./pages/NotFound";
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/duas" element={<DuasPage />} />
             <Route path="/ai" element={<AiPage />} />
             <Route path="/qibla" element={<QiblaPage />} />
+            <Route path="/tasbih" element={<TasbihPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/policies" element={<PoliciesPage />} />
           </Route>

@@ -1,9 +1,10 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, BookOpen, Compass, Settings, MessageSquare } from 'lucide-react';
+import { Home, BookOpen, Compass, Settings, MessageSquare, HandMetal } from 'lucide-react';
 
 const navItems = [
   { path: '/settings', label: 'الإعدادات', icon: Settings },
   { path: '/qibla', label: 'القبلة', icon: Compass },
+  { path: '/tasbih', label: 'التسبيح', icon: HandMetal },
   { path: '/ai', label: 'الذكاء', icon: MessageSquare },
   { path: '/duas', label: 'الأدعية', icon: BookOpen },
   { path: '/', label: 'الرئيسية', icon: Home },
@@ -14,19 +15,19 @@ const BottomNav = () => {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-      <div className="flex items-center justify-around px-2 py-1.5 max-w-lg mx-auto">
+      <div className="flex items-center justify-around px-1 py-1.5 max-w-lg mx-auto">
         {navItems.map(({ path, label, icon: Icon }) => {
           const isActive = location.pathname === path;
           return (
             <NavLink
               key={path}
               to={path}
-              className="flex flex-col items-center gap-0.5 py-1 px-3 min-w-[56px]"
+              className="flex flex-col items-center gap-0.5 py-1 px-2 min-w-[48px]"
             >
               <div className={`p-1.5 rounded-xl transition-all duration-200 ${isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}>
-                <Icon className="w-5 h-5" />
+                <Icon className="w-4.5 h-4.5" />
               </div>
-              <span className={`text-[10px] font-medium transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
+              <span className={`text-[9px] font-medium transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
                 {label}
               </span>
             </NavLink>

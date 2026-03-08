@@ -1,17 +1,50 @@
 import { useState } from 'react';
-import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft } from 'lucide-react';
+import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+const cities = [
+  { value: 'Qatif', label: 'القطيف' },
+  { value: 'Riyadh', label: 'الرياض' },
+  { value: 'Jeddah', label: 'جدة' },
+  { value: 'Dammam', label: 'الدمام' },
+  { value: 'Mecca', label: 'مكة المكرمة' },
+  { value: 'Medina', label: 'المدينة المنورة' },
+  { value: 'Khobar', label: 'الخبر' },
+  { value: 'Ahsa', label: 'الأحساء' },
+];
 
 const SettingsPage = () => {
   const [notifications, setNotifications] = useState(false);
+  const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('atraa_weather_city') || 'Qatif');
 
   const toggleNotifications = async () => {
     if (!notifications && 'Notification' in window) {
       const perm = await Notification.requestPermission();
-      setNotifications(perm === 'granted');
+      if (perm === 'granted') {
+        setNotifications(true);
+        // Register for periodic notifications
+        setupNotifications();
+      }
     } else {
       setNotifications(!notifications);
     }
+  };
+
+  const setupNotifications = () => {
+    // Salawat reminder every 15 minutes
+    if ('serviceWorker' in navigator && 'Notification' in window && Notification.permission === 'granted') {
+      setInterval(() => {
+        new Notification('عِتْرَة — صلوات', {
+          body: 'اللهم صلِّ على محمد وآل محمد',
+          icon: '/logo.png',
+        });
+      }, 15 * 60 * 1000);
+    }
+  };
+
+  const handleCityChange = (city: string) => {
+    setSelectedCity(city);
+    localStorage.setItem('atraa_weather_city', city);
   };
 
   return (
@@ -30,13 +63,41 @@ const SettingsPage = () => {
             </div>
             <div className="text-right">
               <p className="text-sm font-medium text-foreground">الإشعارات</p>
-              <p className="text-xs text-muted-foreground">تنبيهات الأذان والأذكار</p>
+              <p className="text-xs text-muted-foreground">تنبيهات الأذان والصلوات</p>
             </div>
           </div>
           <div className={`w-11 h-6 rounded-full transition-colors flex items-center px-0.5 ${notifications ? 'bg-primary' : 'bg-border'}`}>
             <div className={`w-5 h-5 rounded-full bg-card shadow transition-transform ${notifications ? '-translate-x-5' : ''}`} />
           </div>
         </button>
+      </div>
+
+      {/* Weather City */}
+      <div className="bg-card rounded-2xl shadow-card p-4">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
+            <MapPin className="w-4.5 h-4.5 text-primary" />
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-medium text-foreground">مدينة الطقس</p>
+            <p className="text-xs text-muted-foreground">اختر مدينتك لعرض الطقس</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {cities.map(city => (
+            <button
+              key={city.value}
+              onClick={() => handleCityChange(city.value)}
+              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                selectedCity === city.value
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary text-foreground'
+              }`}
+            >
+              {city.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Links */}
@@ -91,7 +152,7 @@ const SettingsPage = () => {
 
       {/* Version */}
       <p className="text-center text-xs text-muted-foreground pb-4">
-        عِتْرَة — الإصدار 2.1
+        عِتْرَة — الإصدار 2.1 (بناء 34)
       </p>
     </div>
   );
