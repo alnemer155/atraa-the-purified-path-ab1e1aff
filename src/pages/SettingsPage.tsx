@@ -73,7 +73,8 @@ const SettingsPage = () => {
   const handleHijriChange = (val: number) => {
     setHijriAdj(val);
     setHijriAdjustment(val);
-    window.dispatchEvent(new StorageEvent('storage', { key: 'atraa_hijri_adjust', newValue: String(val) }));
+    // Dispatch custom event so HijriCountdown in same tab can react
+    window.dispatchEvent(new CustomEvent('hijri-adjust-changed', { detail: val }));
   };
 
   const filteredCities = citySearch
