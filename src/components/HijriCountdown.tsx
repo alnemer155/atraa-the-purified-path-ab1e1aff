@@ -14,55 +14,45 @@ const HijriCountdown = () => {
   const [hijri, setHijri] = useState<HijriData | null>(null);
   const [adjustment, setAdjustment] = useState(() => getHijriAdjustment());
 
+  const fetchHijri = (adj: number) => {
+    // Get the adjusted Gregorian date
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + adj);
+    const dd = String(targetDate.getDate()).padStart(2, '0');
+    const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const yyyy = targetDate.getFullYear();
+
+    fetch(`https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=26.4207&longitude=50.0888&method=4&timezonestring=Asia/Riyadh`)
+      .then(res => res.json())
+      .then(data => {
+        const h = data?.data?.date?.hijri;
+        if (h) {
+          setHijri({
+            day: parseInt(h.day),
+            month: h.month.ar,
+            monthNumber: parseInt(h.month.number),
+            year: parseInt(h.year),
+            daysInMonth: h.month.days ? parseInt(h.month.days) : 30,
+          });
+        }
+      })
+      .catch(() => {});
+  };
+
   useEffect(() => {
     const adj = getHijriAdjustment();
     setAdjustment(adj);
+    fetchHijri(adj);
 
-    fetch(`https://api.aladhan.com/v1/timings?latitude=26.4207&longitude=50.0888&method=0&timezonestring=Asia/Riyadh&adjustment=${adj}`)
-      .then(res => res.json())
-      .then(data => {
-        const h = data?.data?.date?.hijri;
-        if (h) {
-          setHijri({
-            day: parseInt(h.day),
-            month: h.month.ar,
-            monthNumber: parseInt(h.month.number),
-            year: parseInt(h.year),
-            daysInMonth: h.month.days ? parseInt(h.month.days) : 30,
-          });
-        }
-      })
-      .catch(() => {});
-
-    // Listen for hijri adjustment changes
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === 'atraa_hijri_adjust') {
-        const newAdj = parseInt(e.newValue || '0', 10);
-        setAdjustment(newAdj);
-      }
+    // Listen for hijri adjustment changes from settings (same tab)
+    const handleCustomEvent = (e: CustomEvent) => {
+      const newAdj = e.detail as number;
+      setAdjustment(newAdj);
+      fetchHijri(newAdj);
     };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+    window.addEventListener('hijri-adjust-changed', handleCustomEvent as EventListener);
+    return () => window.removeEventListener('hijri-adjust-changed', handleCustomEvent as EventListener);
   }, []);
-
-  // Refetch when adjustment changes
-  useEffect(() => {
-    fetch(`https://api.aladhan.com/v1/timings?latitude=26.4207&longitude=50.0888&method=0&timezonestring=Asia/Riyadh&adjustment=${adjustment}`)
-      .then(res => res.json())
-      .then(data => {
-        const h = data?.data?.date?.hijri;
-        if (h) {
-          setHijri({
-            day: parseInt(h.day),
-            month: h.month.ar,
-            monthNumber: parseInt(h.month.number),
-            year: parseInt(h.year),
-            daysInMonth: h.month.days ? parseInt(h.month.days) : 30,
-          });
-        }
-      })
-      .catch(() => {});
-  }, [adjustment]);
 
   const daysRemaining = hijri ? Math.max(0, hijri.daysInMonth - hijri.day) : 0;
 

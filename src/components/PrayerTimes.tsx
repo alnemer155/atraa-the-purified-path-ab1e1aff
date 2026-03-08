@@ -67,7 +67,7 @@ const PrayerTimes = () => {
   const [indicators, setIndicators] = useState<{ current: string | null; next: string | null }>({ current: null, next: null });
 
   useEffect(() => {
-    fetch('https://api.aladhan.com/v1/timings?latitude=26.4207&longitude=50.0888&method=0&timezonestring=Asia/Riyadh&tune=0,3,0,2,0,3,2,0,0')
+    fetch('https://api.aladhan.com/v1/timings?latitude=26.4207&longitude=50.0888&method=4&timezonestring=Asia/Riyadh&tune=2,2,0,0,-1,15,0,0,0,0')
       .then(res => res.json())
       .then(data => {
         const t = data.data.timings;
