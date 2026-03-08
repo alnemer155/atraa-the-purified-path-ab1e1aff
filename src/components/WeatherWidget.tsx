@@ -12,7 +12,27 @@ const WeatherWidget = () => {
 
   useEffect(() => {
     const fetchWeather = () => {
-      const city = localStorage.getItem('atraa_weather_city') || 'Qatif';
+      let city = localStorage.getItem('atraa_weather_city') || '';
+      
+      // If no city set, try geolocation first
+      if (!city && 'geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const coordCity = `${pos.coords.latitude},${pos.coords.longitude}`;
+            fetchFromCity(coordCity);
+          },
+          () => {
+            fetchFromCity('Qatif');
+          },
+          { enableHighAccuracy: true, timeout: 5000 }
+        );
+        return;
+      }
+      
+      fetchFromCity(city || 'Qatif');
+    };
+
+    const fetchFromCity = (city: string) => {
       setCityLabel(city);
       fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`)
         .then(res => res.json())
@@ -30,7 +50,6 @@ const WeatherWidget = () => {
 
     fetchWeather();
 
-    // Listen for storage changes (city change from settings)
     const handleStorage = (e: StorageEvent) => {
       if (e.key === 'atraa_weather_city') fetchWeather();
     };

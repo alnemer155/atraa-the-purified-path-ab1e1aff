@@ -1,6 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { RotateCcw, Vibrate, Volume2, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { saveTasbihState } from '@/lib/user';
 
 const tasbihatZahra = [
   { text: 'الله اكبر', target: 34 },
@@ -9,6 +10,23 @@ const tasbihatZahra = [
 ];
 
 type TasbihMode = 'zahra' | 'open';
+
+// Calm Islamic-style sound using gentle sine wave
+function playTasbihSound() {
+  try {
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.value = 440;
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.15);
+  } catch {}
+}
 
 const TasbihPage = () => {
   const [mode, setMode] = useState<TasbihMode>('zahra');
@@ -26,25 +44,21 @@ const TasbihPage = () => {
     localStorage.setItem('atraa_open_tasbih', String(openCount));
   }, [openCount]);
 
+  // Save tasbih state for homepage continuation
+  useEffect(() => {
+    const totalDone = tasbihatZahra.slice(0, step).reduce((s, t) => s + t.target, 0) + count;
+    if (totalDone > 0 || openCount > 0) {
+      saveTasbihState({ mode, step, count, openCount, timestamp: Date.now() });
+    }
+  }, [mode, step, count, openCount]);
+
   const current = tasbihatZahra[step];
   const totalAll = tasbihatZahra.reduce((s, t) => s + t.target, 0);
   const totalDone = tasbihatZahra.slice(0, step).reduce((s, t) => s + t.target, 0) + count;
 
   const doFeedback = useCallback(() => {
-    if (vibration && navigator.vibrate) navigator.vibrate(20);
-    if (sound) {
-      try {
-        const ctx = new AudioContext();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.frequency.value = 800;
-        gain.gain.value = 0.1;
-        osc.start();
-        osc.stop(ctx.currentTime + 0.05);
-      } catch {}
-    }
+    if (vibration && navigator.vibrate) navigator.vibrate(15);
+    if (sound) playTasbihSound();
   }, [vibration, sound]);
 
   const triggerPulse = useCallback(() => {
@@ -209,7 +223,6 @@ const TasbihPage = () => {
                 </motion.div>
               ) : (
                 <>
-                  {/* Current dhikr label */}
                   <motion.p
                     key={step}
                     initial={{ opacity: 0, y: 5 }}
@@ -221,7 +234,6 @@ const TasbihPage = () => {
 
                   {/* Counter ring */}
                   <div className="relative mb-4">
-                    {/* Pulse effect */}
                     {showPulse && (
                       <motion.div
                         initial={{ scale: 1, opacity: 0.4 }}
@@ -235,7 +247,6 @@ const TasbihPage = () => {
                       onClick={handleTapZahra}
                       className="relative w-36 h-36 rounded-full flex flex-col items-center justify-center active:opacity-90 transition-opacity"
                     >
-                      {/* SVG ring progress */}
                       <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 144 144">
                         <circle cx="72" cy="72" r="66" fill="none" stroke="hsl(var(--secondary))" strokeWidth="4" />
                         <circle
@@ -266,7 +277,6 @@ const TasbihPage = () => {
               exit={{ opacity: 0 }}
               className="flex flex-col items-center"
             >
-              {/* Counter ring for open */}
               <div className="relative mb-4">
                 {showPulse && (
                   <motion.div

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar } from 'lucide-react';
+import { getHijriAdjustment } from '@/lib/user';
 
 interface HijriData {
   day: number;
@@ -11,10 +12,13 @@ interface HijriData {
 
 const HijriCountdown = () => {
   const [hijri, setHijri] = useState<HijriData | null>(null);
+  const [adjustment, setAdjustment] = useState(() => getHijriAdjustment());
 
   useEffect(() => {
-    // Use the timings endpoint which reliably returns hijri date data
-    fetch('https://api.aladhan.com/v1/timings?latitude=26.4207&longitude=50.0888&method=4&timezonestring=Asia/Riyadh&tune=2,2,0,0,-1,15,0,0,0,0')
+    const adj = getHijriAdjustment();
+    setAdjustment(adj);
+
+    fetch(`https://api.aladhan.com/v1/timings?latitude=26.4207&longitude=50.0888&method=0&timezonestring=Asia/Riyadh&adjustment=${adj}`)
       .then(res => res.json())
       .then(data => {
         const h = data?.data?.date?.hijri;
@@ -29,7 +33,36 @@ const HijriCountdown = () => {
         }
       })
       .catch(() => {});
+
+    // Listen for hijri adjustment changes
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'atraa_hijri_adjust') {
+        const newAdj = parseInt(e.newValue || '0', 10);
+        setAdjustment(newAdj);
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
+
+  // Refetch when adjustment changes
+  useEffect(() => {
+    fetch(`https://api.aladhan.com/v1/timings?latitude=26.4207&longitude=50.0888&method=0&timezonestring=Asia/Riyadh&adjustment=${adjustment}`)
+      .then(res => res.json())
+      .then(data => {
+        const h = data?.data?.date?.hijri;
+        if (h) {
+          setHijri({
+            day: parseInt(h.day),
+            month: h.month.ar,
+            monthNumber: parseInt(h.month.number),
+            year: parseInt(h.year),
+            daysInMonth: h.month.days ? parseInt(h.month.days) : 30,
+          });
+        }
+      })
+      .catch(() => {});
+  }, [adjustment]);
 
   const daysRemaining = hijri ? Math.max(0, hijri.daysInMonth - hijri.day) : 0;
 

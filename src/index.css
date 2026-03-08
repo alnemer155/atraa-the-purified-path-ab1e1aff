@@ -146,4 +146,10 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  /* Religious text sections - bold weight for readability */
+  .religious-text {
+    font-weight: 700;
+    line-height: 2.2;
+  }
 }

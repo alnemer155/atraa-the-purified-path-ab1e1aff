@@ -3,6 +3,7 @@ import { parseDuasContent, type DuaItem } from '@/lib/duas-parser';
 import duasRaw from '@/data/duas-content.txt?raw';
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { saveLastReading } from '@/lib/user';
 
 const categoryLabels: Record<string, string> = {
   dua: 'الأدعية',
@@ -33,6 +34,17 @@ const DuasPage = () => {
     return result;
   }, [items, activeCategory, search]);
 
+  // Save last reading when an item is selected
+  const handleSelectItem = (item: DuaItem) => {
+    setSelectedItem(item);
+    saveLastReading({
+      id: item.id,
+      title: item.title,
+      category: item.category,
+      timestamp: Date.now(),
+    });
+  };
+
   // Detail view
   if (selectedItem) {
     const currentIndex = filtered.findIndex(i => i.id === selectedItem.id);
@@ -51,7 +63,6 @@ const DuasPage = () => {
               <ChevronLeft className="w-4 h-4" />
               رجوع
             </button>
-            {/* Font size controls */}
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setFontSize(s => Math.max(14, s - 2))}
@@ -74,8 +85,8 @@ const DuasPage = () => {
           <h1 className="text-xl font-semibold text-foreground mb-1">{selectedItem.title}</h1>
           <p className="text-xs text-primary font-medium mb-5">{categoryLabels[selectedItem.category]}</p>
           <div
-            className="bg-card rounded-2xl p-5 shadow-card text-foreground whitespace-pre-wrap"
-            style={{ fontSize: `${fontSize}px`, lineHeight: 2.2 }}
+            className="bg-card rounded-2xl p-5 shadow-card text-foreground whitespace-pre-wrap religious-text"
+            style={{ fontSize: `${fontSize}px` }}
           >
             {selectedItem.content}
           </div>
@@ -84,7 +95,7 @@ const DuasPage = () => {
         {/* Nav between items */}
         <div className="sticky bottom-[76px] px-4 py-3 flex items-center justify-between bg-background/90 backdrop-blur-xl border-t border-border">
           <button
-            onClick={() => hasNext && setSelectedItem(filtered[currentIndex + 1])}
+            onClick={() => hasNext && handleSelectItem(filtered[currentIndex + 1])}
             disabled={!hasNext}
             className="flex items-center gap-1 text-sm text-primary font-medium disabled:opacity-30"
           >
@@ -93,7 +104,7 @@ const DuasPage = () => {
           </button>
           <span className="text-xs text-muted-foreground">{currentIndex + 1} / {filtered.length}</span>
           <button
-            onClick={() => hasPrev && setSelectedItem(filtered[currentIndex - 1])}
+            onClick={() => hasPrev && handleSelectItem(filtered[currentIndex - 1])}
             disabled={!hasPrev}
             className="flex items-center gap-1 text-sm text-primary font-medium disabled:opacity-30"
           >
@@ -157,7 +168,7 @@ const DuasPage = () => {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.02, duration: 0.2 }}
-              onClick={() => setSelectedItem(item)}
+              onClick={() => handleSelectItem(item)}
               className="w-full text-right p-4 rounded-2xl bg-card border border-border hover:border-primary/30 transition-all shadow-card group"
             >
               <div className="flex items-start justify-between gap-3">
