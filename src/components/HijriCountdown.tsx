@@ -13,42 +13,22 @@ const HijriCountdown = () => {
   const [hijri, setHijri] = useState<HijriData | null>(null);
 
   useEffect(() => {
-    fetch('https://api.aladhan.com/v1/gpiToH')
+    // Use the timings API which already returns hijri data
+    fetch('https://api.aladhan.com/v1/timings?latitude=26.4207&longitude=50.0888&method=4&timezonestring=Asia/Riyadh&tune=2,2,0,0,-1,15,0,0,0,0')
       .then(res => res.json())
       .then(data => {
-        const h = data?.data?.hijri;
+        const h = data?.data?.date?.hijri;
         if (h) {
           setHijri({
             day: parseInt(h.day),
             month: h.month.ar,
             monthNumber: parseInt(h.month.number),
             year: parseInt(h.year),
-            daysInMonth: 30, // approximate
+            daysInMonth: h.month.days || 30,
           });
         }
       })
-      .catch(() => {
-        // Fallback: use today's date API
-        const today = new Date();
-        const dd = today.getDate();
-        const mm = today.getMonth() + 1;
-        const yy = today.getFullYear();
-        fetch(`https://api.aladhan.com/v1/gpiToH/${dd}-${mm}-${yy}`)
-          .then(r => r.json())
-          .then(data => {
-            const h = data?.data?.hijri;
-            if (h) {
-              setHijri({
-                day: parseInt(h.day),
-                month: h.month.ar,
-                monthNumber: parseInt(h.month.number),
-                year: parseInt(h.year),
-                daysInMonth: 30,
-              });
-            }
-          })
-          .catch(() => {});
-      });
+      .catch(() => {});
   }, []);
 
   const daysRemaining = hijri ? Math.max(0, hijri.daysInMonth - hijri.day) : 0;
