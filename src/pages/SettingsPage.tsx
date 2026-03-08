@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, MapPin, Search, LocateFixed, Info, User, Code2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { getUser } from '@/lib/user';
-import { useNavigate } from 'react-router-dom';
+import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, MapPin, Search, LocateFixed, Info, User, Code2, Calendar, Globe, Moon, Sparkles } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { getUser, getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
 
 const popularCities = [
   { value: 'Qatif', label: 'القطيف' },
@@ -17,34 +16,26 @@ const popularCities = [
   { value: 'Tarut', label: 'تاروت' },
 ];
 
-const SectionHeader = ({ icon: Icon, title, subtitle }: { icon: any; title: string; subtitle?: string }) => (
-  <div className="flex items-center gap-3 mb-3">
-    <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
-      <Icon className="w-[18px] h-[18px] text-primary" />
-    </div>
-    <div className="text-right">
-      <p className="text-sm font-medium text-foreground">{title}</p>
-      {subtitle && <p className="text-[11px] text-muted-foreground">{subtitle}</p>}
-    </div>
-  </div>
-);
-
 const SettingsPage = () => {
   const navigate = useNavigate();
   const user = getUser();
-  const [notifications, setNotifications] = useState(() => {
-    return 'Notification' in window && Notification.permission === 'granted';
-  });
+  
+  // Notification states
+  const [adhanNotif, setAdhanNotif] = useState(() => localStorage.getItem('atraa_notif_adhan') === 'true');
+  const [dhikrNotif, setDhikrNotif] = useState(() => localStorage.getItem('atraa_notif_dhikr') === 'true');
+  const [salawatNotif, setSalawatNotif] = useState(() => localStorage.getItem('atraa_notif_salawat') === 'true');
+  
   const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('atraa_weather_city') || 'Qatif');
   const [citySearch, setCitySearch] = useState('');
   const [detecting, setDetecting] = useState(false);
+  const [hijriAdj, setHijriAdj] = useState(() => getHijriAdjustment());
 
-  const toggleNotifications = async () => {
-    if (!notifications && 'Notification' in window) {
-      const perm = await Notification.requestPermission();
-      if (perm === 'granted') setNotifications(true);
-    } else {
-      setNotifications(!notifications);
+  const toggleNotif = (type: string, current: boolean, setter: (v: boolean) => void) => {
+    const next = !current;
+    setter(next);
+    localStorage.setItem(`atraa_notif_${type}`, String(next));
+    if (next && 'Notification' in window && Notification.permission !== 'granted') {
+      Notification.requestPermission();
     }
   };
 
@@ -79,9 +70,27 @@ const SettingsPage = () => {
     }
   };
 
+  const handleHijriChange = (val: number) => {
+    setHijriAdj(val);
+    setHijriAdjustment(val);
+    window.dispatchEvent(new StorageEvent('storage', { key: 'atraa_hijri_adjust', newValue: String(val) }));
+  };
+
   const filteredCities = citySearch
     ? popularCities.filter(c => c.label.includes(citySearch) || c.value.toLowerCase().includes(citySearch.toLowerCase()))
     : popularCities;
+
+  const NotifToggle = ({ label, subtitle, enabled, onToggle }: { label: string; subtitle: string; enabled: boolean; onToggle: () => void }) => (
+    <button onClick={onToggle} className="w-full flex items-center justify-between p-3.5">
+      <div className="text-right">
+        <p className="text-sm font-medium text-foreground">{label}</p>
+        <p className="text-[11px] text-muted-foreground">{subtitle}</p>
+      </div>
+      <div className={`w-11 h-6 rounded-full transition-colors flex items-center px-0.5 ${enabled ? 'bg-primary justify-start' : 'bg-border justify-end'}`}>
+        <div className="w-5 h-5 rounded-full bg-card shadow-sm" />
+      </div>
+    </button>
+  );
 
   return (
     <div className="px-4 py-4 space-y-5 animate-fade-in">
@@ -96,9 +105,10 @@ const SettingsPage = () => {
             </div>
             <div className="flex-1 text-right">
               <p className="text-sm font-semibold text-foreground">
-                {user.title && user.title !== 'none' ? `${user.title === 'سيد' || user.title === 'سيدة' || user.title === 'شيخ' ? user.title : user.title} ` : ''}{user.name}
+                {user.title && user.title !== 'none' ? `${user.title} ` : ''}{user.name}
               </p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">حساب محلي</p>
+              {user.email && <p className="text-[11px] text-muted-foreground mt-0.5">{user.email}</p>}
+              {!user.email && <p className="text-[11px] text-muted-foreground mt-0.5">حساب محلي</p>}
             </div>
             <button
               onClick={() => navigate('/register')}
@@ -110,33 +120,38 @@ const SettingsPage = () => {
         </div>
       )}
 
-      {/* Preferences section */}
+      {/* Notifications section */}
       <div className="space-y-3">
-        <p className="text-xs font-semibold text-muted-foreground px-1">التفضيلات</p>
-
-        {/* Notifications */}
-        <div className="bg-card rounded-2xl shadow-card overflow-hidden">
-          <button onClick={toggleNotifications} className="w-full flex items-center justify-between p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
-                <Bell className="w-[18px] h-[18px] text-primary" />
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-foreground">الإشعارات</p>
-                <p className="text-[11px] text-muted-foreground">تنبيهات الأذان والصلوات</p>
-              </div>
+        <p className="text-xs font-semibold text-muted-foreground px-1">الإشعارات</p>
+        <div className="bg-card rounded-2xl shadow-card overflow-hidden divide-y divide-border">
+          <div className="flex items-center gap-3 p-4 pb-2">
+            <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
+              <Bell className="w-[18px] h-[18px] text-primary" />
             </div>
-            <div className={`w-12 h-7 rounded-full transition-colors flex items-center px-0.5 ${notifications ? 'bg-primary justify-start' : 'bg-border justify-end'}`}>
-              <div className="w-6 h-6 rounded-full bg-card shadow-sm" />
-            </div>
-          </button>
+            <p className="text-sm font-medium text-foreground">إدارة الإشعارات</p>
+          </div>
+          <NotifToggle label="إشعارات الأذان" subtitle="تنبيه عند دخول وقت الصلاة" enabled={adhanNotif} onToggle={() => toggleNotif('adhan', adhanNotif, setAdhanNotif)} />
+          <NotifToggle label="تذكير الأذكار" subtitle="تذكير يومي بالأذكار" enabled={dhikrNotif} onToggle={() => toggleNotif('dhikr', dhikrNotif, setDhikrNotif)} />
+          <NotifToggle label="تذكير الصلوات" subtitle="الصلاة على محمد وآل محمد" enabled={salawatNotif} onToggle={() => toggleNotif('salawat', salawatNotif, setSalawatNotif)} />
         </div>
+      </div>
+
+      {/* Weather & Date section */}
+      <div className="space-y-3">
+        <p className="text-xs font-semibold text-muted-foreground px-1">الطقس والتاريخ</p>
 
         {/* Weather City */}
         <div className="bg-card rounded-2xl shadow-card p-4">
-          <SectionHeader icon={MapPin} title="مدينة الطقس" subtitle="اختر مدينتك لعرض حالة الطقس" />
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
+              <MapPin className="w-[18px] h-[18px] text-primary" />
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-medium text-foreground">مدينة الطقس</p>
+              <p className="text-[11px] text-muted-foreground">اختر مدينتك لعرض حالة الطقس</p>
+            </div>
+          </div>
 
-          {/* Search + Auto detect */}
           <div className="flex gap-2 mb-3">
             <div className="flex-1 flex items-center gap-2 bg-secondary rounded-xl px-3 py-2.5">
               <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
@@ -158,7 +173,6 @@ const SettingsPage = () => {
             </button>
           </div>
 
-          {/* Selected city indicator */}
           <div className="flex items-center gap-2 mb-3 px-1">
             <div className="w-1.5 h-1.5 rounded-full bg-primary" />
             <p className="text-[11px] text-muted-foreground">
@@ -178,6 +192,34 @@ const SettingsPage = () => {
                 }`}
               >
                 {city.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Hijri adjustment */}
+        <div className="bg-card rounded-2xl shadow-card p-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
+              <Calendar className="w-[18px] h-[18px] text-primary" />
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-medium text-foreground">تعديل التاريخ الهجري</p>
+              <p className="text-[11px] text-muted-foreground">تصحيح فرق الأيام في التاريخ الهجري</p>
+            </div>
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            {[-2, -1, 0, 1, 2].map(val => (
+              <button
+                key={val}
+                onClick={() => handleHijriChange(val)}
+                className={`w-12 h-10 rounded-xl text-sm font-medium transition-all ${
+                  hijriAdj === val
+                    ? 'islamic-gradient text-primary-foreground shadow-card'
+                    : 'bg-secondary text-foreground hover:bg-primary/10'
+                }`}
+              >
+                {val > 0 ? `+${val}` : val}
               </button>
             ))}
           </div>
@@ -206,6 +248,37 @@ const SettingsPage = () => {
             </div>
             <ChevronLeft className="w-4 h-4 text-muted-foreground" />
           </Link>
+        </div>
+      </div>
+
+      {/* Coming Soon */}
+      <div className="space-y-3">
+        <p className="text-xs font-semibold text-muted-foreground px-1">قريباً</p>
+        <div className="bg-card rounded-2xl shadow-card overflow-hidden divide-y divide-border">
+          <div className="flex items-center justify-between p-4 opacity-60">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center">
+                <Globe className="w-[18px] h-[18px] text-muted-foreground" />
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-medium text-foreground">English Language</p>
+                <p className="text-[11px] text-muted-foreground">دعم اللغة الإنجليزية</p>
+              </div>
+            </div>
+            <span className="text-[10px] font-medium text-accent-foreground bg-accent/20 px-2 py-0.5 rounded-full">قريباً</span>
+          </div>
+          <div className="flex items-center justify-between p-4 opacity-60">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center">
+                <Moon className="w-[18px] h-[18px] text-muted-foreground" />
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-medium text-foreground">الوضع الداكن</p>
+                <p className="text-[11px] text-muted-foreground">Dark Mode</p>
+              </div>
+            </div>
+            <span className="text-[10px] font-medium text-accent-foreground bg-accent/20 px-2 py-0.5 rounded-full">قريباً</span>
+          </div>
         </div>
       </div>
 
@@ -262,7 +335,7 @@ const SettingsPage = () => {
       {/* Version */}
       <div className="text-center pb-6 pt-2">
         <p className="text-xs text-muted-foreground">عِتْرَة</p>
-        <p className="text-[10px] text-muted-foreground/60 mt-0.5">الإصدار 2.1 · بناء 35</p>
+        <p className="text-[10px] text-muted-foreground/60 mt-0.5">الإصدار 2.1 · بناء 37</p>
       </div>
     </div>
   );
