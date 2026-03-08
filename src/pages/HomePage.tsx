@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { getUser, getGreeting } from '@/lib/user';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import PrayerTimes from '@/components/PrayerTimes';
-import DigitalTasbih from '@/components/DigitalTasbih';
+import WeatherWidget from '@/components/WeatherWidget';
+import HijriCountdown from '@/components/HijriCountdown';
 
 const dhikrPhrases = [
   'اللهم صلِّ على محمد وآل محمد',
@@ -37,18 +38,18 @@ const HomePage = () => {
 
   return (
     <div className="px-4 py-4 space-y-5 animate-fade-in">
-      {/* Greeting Section */}
-      <div className="rounded-2xl islamic-gradient p-5 text-primary-foreground shadow-elevated">
-        <p className="text-base font-semibold mb-3">{getGreeting(user)}</p>
-        <div className="h-7 overflow-hidden">
+      {/* Greeting - no background */}
+      <div className="py-2">
+        <p className="text-lg font-semibold text-foreground mb-2">{getGreeting(user)}</p>
+        <div className="h-6 overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.p
               key={dhikrIndex}
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.5 }}
-              className="text-sm opacity-90"
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4 }}
+              className="text-sm text-muted-foreground"
             >
               {dhikrPhrases[dhikrIndex]}
             </motion.p>
@@ -56,11 +57,14 @@ const HomePage = () => {
         </div>
       </div>
 
+      {/* Weather + Hijri Countdown */}
+      <div className="grid grid-cols-2 gap-3">
+        <WeatherWidget />
+        <HijriCountdown />
+      </div>
+
       {/* Prayer Times */}
       <PrayerTimes />
-
-      {/* Digital Tasbih */}
-      <DigitalTasbih />
     </div>
   );
 };

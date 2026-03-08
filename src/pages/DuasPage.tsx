@@ -1,13 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { parseDuasContent, type DuaItem } from '@/lib/duas-parser';
 import duasRaw from '@/data/duas-content.txt?raw';
-import { BookOpen, Star, Heart, ChevronLeft } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-const categoryLabels: Record<string, { label: string; icon: typeof BookOpen }> = {
-  dua: { label: 'الأدعية', icon: BookOpen },
-  ziyara: { label: 'الزيارات', icon: Star },
-  dhikr: { label: 'الأذكار', icon: Heart },
+const categoryLabels: Record<string, string> = {
+  dua: 'الأدعية',
+  ziyara: 'الزيارات',
+  dhikr: 'الأذكار',
 };
 
 const DuasPage = () => {
@@ -25,7 +25,7 @@ const DuasPage = () => {
   if (selectedItem) {
     return (
       <div className="animate-fade-in">
-        <div className="sticky top-[57px] z-30 bg-background/95 backdrop-blur-xl px-4 py-3 border-b border-border">
+        <div className="sticky top-[49px] z-30 bg-background/95 backdrop-blur-xl px-4 py-3 border-b border-border">
           <button
             onClick={() => setSelectedItem(null)}
             className="flex items-center gap-2 text-primary text-sm font-medium"
@@ -36,7 +36,7 @@ const DuasPage = () => {
         </div>
         <div className="px-4 py-4">
           <h1 className="text-xl font-semibold text-foreground mb-4">{selectedItem.title}</h1>
-          <div className="bg-card rounded-2xl p-5 shadow-card leading-8 text-foreground text-base whitespace-pre-wrap">
+          <div className="bg-card rounded-2xl p-5 shadow-card leading-[2.2] text-foreground text-base whitespace-pre-wrap">
             {selectedItem.content}
           </div>
         </div>
@@ -48,19 +48,18 @@ const DuasPage = () => {
     <div className="px-4 py-4 animate-fade-in">
       <h1 className="text-xl font-semibold text-foreground mb-4">الأدعية والزيارات والأذكار</h1>
 
-      {/* Category tabs */}
-      <div className="flex gap-2 mb-4 overflow-x-auto hide-scrollbar">
-        {Object.entries(categoryLabels).map(([key, { label, icon: Icon }]) => (
+      {/* Category tabs - no icons */}
+      <div className="flex gap-2 mb-4">
+        {Object.entries(categoryLabels).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setActiveCategory(key)}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
               activeCategory === key
                 ? 'islamic-gradient text-primary-foreground shadow-card'
                 : 'bg-card border border-border text-foreground'
             }`}
           >
-            <Icon className="w-4 h-4" />
             {label}
           </button>
         ))}
@@ -71,14 +70,14 @@ const DuasPage = () => {
         {filtered.map((item, i) => (
           <motion.button
             key={item.id}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.03 }}
+            transition={{ delay: i * 0.02 }}
             onClick={() => setSelectedItem(item)}
             className="w-full text-right p-4 rounded-xl bg-card border border-border hover:border-primary/30 transition-all shadow-card"
           >
             <p className="text-sm font-semibold text-foreground">{item.title}</p>
-            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.content.slice(0, 100)}...</p>
+            <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">{item.content.slice(0, 120)}...</p>
           </motion.button>
         ))}
         {filtered.length === 0 && (
