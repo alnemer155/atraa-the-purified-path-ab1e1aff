@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Sun, Sunrise, Moon, CloudSun } from 'lucide-react';
+import { Sun, Sunrise, Moon, CloudSun, Bell, BellOff } from 'lucide-react';
+import { requestNotificationPermission, schedulePrayerNotifications, getNotificationPermission } from '@/lib/notifications';
 
 interface TimingsData {
   Fajr: string;
