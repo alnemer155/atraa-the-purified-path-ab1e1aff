@@ -28,7 +28,7 @@ function toMinutes(time24: string): number {
 
 let scheduledTimers: ReturnType<typeof setTimeout>[] = [];
 
-export function schedulePrayerNotifications(timings: Record<string, string>) {
+export function schedulePrayerNotifications(timings: { [key: string]: string } | Record<string, any>) {
   // Clear any existing timers
   scheduledTimers.forEach(t => clearTimeout(t));
   scheduledTimers = [];
