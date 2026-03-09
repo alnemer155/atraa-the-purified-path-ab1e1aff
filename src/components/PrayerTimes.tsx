@@ -65,6 +65,7 @@ function getCurrentAndNext(timings: TimingsData): { current: string | null; next
 const PrayerTimes = () => {
   const [timings, setTimings] = useState<TimingsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [notifEnabled, setNotifEnabled] = useState(() => getNotificationPermission() === 'granted');
   const [indicators, setIndicators] = useState<{ current: string | null; next: string | null }>({ current: null, next: null });
 
   useEffect(() => {
