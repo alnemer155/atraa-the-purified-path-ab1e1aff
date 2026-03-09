@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Sun, Sunrise, Moon, CloudSun } from 'lucide-react';
+import { Sun, Sunrise, Moon, CloudSun, Bell, BellOff } from 'lucide-react';
+import { requestNotificationPermission, schedulePrayerNotifications, getNotificationPermission } from '@/lib/notifications';
 
 interface TimingsData {
   Fajr: string;
@@ -64,6 +65,7 @@ function getCurrentAndNext(timings: TimingsData): { current: string | null; next
 const PrayerTimes = () => {
   const [timings, setTimings] = useState<TimingsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [notifEnabled, setNotifEnabled] = useState(() => getNotificationPermission() === 'granted');
   const [indicators, setIndicators] = useState<{ current: string | null; next: string | null }>({ current: null, next: null });
 
   useEffect(() => {
@@ -74,9 +76,22 @@ const PrayerTimes = () => {
         setTimings(t);
         setIndicators(getCurrentAndNext(t));
         setLoading(false);
+        // Schedule notifications if permission granted
+        if (getNotificationPermission() === 'granted') {
+          schedulePrayerNotifications(t);
+        }
       })
       .catch(() => setLoading(false));
   }, []);
+
+  const handleToggleNotif = async () => {
+    if (notifEnabled) return; // Can't revoke from JS
+    const granted = await requestNotificationPermission();
+    setNotifEnabled(granted);
+    if (granted && timings) {
+      schedulePrayerNotifications(timings);
+    }
+  };
 
   // Update current/next every minute
   useEffect(() => {
@@ -89,7 +104,16 @@ const PrayerTimes = () => {
 
   return (
     <div className="rounded-2xl bg-card p-4 shadow-card">
-      <h2 className="text-base font-semibold text-foreground mb-3">أوقات الصلاة</h2>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-base font-semibold text-foreground">أوقات الصلاة</h2>
+        <button
+          onClick={handleToggleNotif}
+          className={`p-2 rounded-xl transition-colors ${notifEnabled ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+          title={notifEnabled ? 'الإشعارات مفعلة' : 'تفعيل إشعارات الصلاة'}
+        >
+          {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+        </button>
+      </div>
       {loading ? (
         <div className="grid grid-cols-3 gap-2">
           {[...Array(6)].map((_, i) => (

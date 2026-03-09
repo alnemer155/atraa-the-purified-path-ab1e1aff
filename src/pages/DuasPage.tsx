@@ -83,7 +83,8 @@ const DuasPage = () => {
         {/* Content */}
         <div className="flex-1 px-4 py-5">
           <h1 className="text-xl font-semibold text-foreground mb-1">{selectedItem.title}</h1>
-          <p className="text-xs text-primary font-medium mb-5">{categoryLabels[selectedItem.category]}</p>
+          <p className="text-xs text-primary font-medium mb-1">{categoryLabels[selectedItem.category]}</p>
+          <p className="text-[11px] text-muted-foreground mb-5">المصدر من تطبيق حقيبة المؤمن</p>
           <div
             className="bg-card rounded-2xl p-5 shadow-card text-foreground whitespace-pre-wrap religious-text"
             style={{ fontSize: `${fontSize}px` }}

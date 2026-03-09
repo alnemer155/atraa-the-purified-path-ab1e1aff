@@ -17,6 +17,7 @@ const DigitalTasbih = () => {
   const totalAll = tasbihat.reduce((s, t) => s + t.target, 0);
 
   const handleTap = useCallback(() => {
+    if (navigator.vibrate) navigator.vibrate(15);
     if (count + 1 >= current.target) {
       if (step + 1 < tasbihat.length) {
         setStep(step + 1);
