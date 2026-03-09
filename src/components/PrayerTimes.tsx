@@ -104,7 +104,16 @@ const PrayerTimes = () => {
 
   return (
     <div className="rounded-2xl bg-card p-4 shadow-card">
-      <h2 className="text-base font-semibold text-foreground mb-3">أوقات الصلاة</h2>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-base font-semibold text-foreground">أوقات الصلاة</h2>
+        <button
+          onClick={handleToggleNotif}
+          className={`p-2 rounded-xl transition-colors ${notifEnabled ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+          title={notifEnabled ? 'الإشعارات مفعلة' : 'تفعيل إشعارات الصلاة'}
+        >
+          {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+        </button>
+      </div>
       {loading ? (
         <div className="grid grid-cols-3 gap-2">
           {[...Array(6)].map((_, i) => (
