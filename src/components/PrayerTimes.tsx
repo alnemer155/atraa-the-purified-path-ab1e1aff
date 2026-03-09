@@ -76,9 +76,22 @@ const PrayerTimes = () => {
         setTimings(t);
         setIndicators(getCurrentAndNext(t));
         setLoading(false);
+        // Schedule notifications if permission granted
+        if (getNotificationPermission() === 'granted') {
+          schedulePrayerNotifications(t);
+        }
       })
       .catch(() => setLoading(false));
   }, []);
+
+  const handleToggleNotif = async () => {
+    if (notifEnabled) return; // Can't revoke from JS
+    const granted = await requestNotificationPermission();
+    setNotifEnabled(granted);
+    if (granted && timings) {
+      schedulePrayerNotifications(timings);
+    }
+  };
 
   // Update current/next every minute
   useEffect(() => {
