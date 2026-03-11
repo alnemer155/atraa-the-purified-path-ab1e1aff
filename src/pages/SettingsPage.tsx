@@ -14,8 +14,6 @@ const SettingsPage = () => {
   const [salawatNotif, setSalawatNotif] = useState(() => localStorage.getItem('atraa_notif_salawat') === 'true');
   
   const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('atraa_weather_city') || 'Qatif');
-  const [citySearch, setCitySearch] = useState('');
-  const [detecting, setDetecting] = useState(false);
   const [hijriAdj, setHijriAdj] = useState(() => getHijriAdjustment());
 
   const toggleNotif = (type: string, current: boolean, setter: (v: boolean) => void) => {
@@ -33,41 +31,11 @@ const SettingsPage = () => {
     window.dispatchEvent(new StorageEvent('storage', { key: 'atraa_weather_city', newValue: city }));
   };
 
-  const detectLocation = () => {
-    if (!('geolocation' in navigator)) return;
-    setDetecting(true);
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const res = await fetch(`https://wttr.in/${pos.coords.latitude},${pos.coords.longitude}?format=j1`);
-          const data = await res.json();
-          const area = data?.nearest_area?.[0]?.areaName?.[0]?.value;
-          if (area) handleCityChange(area);
-        } catch {}
-        setDetecting(false);
-      },
-      () => setDetecting(false),
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  };
-
-  const handleSearchSubmit = () => {
-    if (citySearch.trim()) {
-      handleCityChange(citySearch.trim());
-      setCitySearch('');
-    }
-  };
-
   const handleHijriChange = (val: number) => {
     setHijriAdj(val);
     setHijriAdjustment(val);
-    // Dispatch custom event so HijriCountdown in same tab can react
     window.dispatchEvent(new CustomEvent('hijri-adjust-changed', { detail: val }));
   };
-
-  const filteredCities = citySearch
-    ? popularCities.filter(c => c.label.includes(citySearch) || c.value.toLowerCase().includes(citySearch.toLowerCase()))
-    : popularCities;
 
   const NotifToggle = ({ label, subtitle, enabled, onToggle }: { label: string; subtitle: string; enabled: boolean; onToggle: () => void }) => (
     <button onClick={onToggle} className="w-full flex items-center justify-between p-3.5">
