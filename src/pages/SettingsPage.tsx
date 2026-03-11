@@ -1,20 +1,8 @@
 import { useState } from 'react';
-import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, MapPin, Search, LocateFixed, Info, User, Code2, Calendar, Globe, Moon, Sparkles } from 'lucide-react';
+import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUser, getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
-
-const popularCities = [
-  { value: 'Qatif', label: 'القطيف' },
-  { value: 'Riyadh', label: 'الرياض' },
-  { value: 'Jeddah', label: 'جدة' },
-  { value: 'Dammam', label: 'الدمام' },
-  { value: 'Mecca', label: 'مكة المكرمة' },
-  { value: 'Medina', label: 'المدينة المنورة' },
-  { value: 'Khobar', label: 'الخبر' },
-  { value: 'Ahsa', label: 'الأحساء' },
-  { value: 'Saihat', label: 'سيهات' },
-  { value: 'Tarut', label: 'تاروت' },
-];
+import CityPicker from '@/components/CityPicker';
 
 const SettingsPage = () => {
   const navigate = useNavigate();
