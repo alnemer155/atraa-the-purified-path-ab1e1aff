@@ -1,43 +1,109 @@
+import { ChevronLeft, Shield, FileText, Scale } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+const Section = ({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) => (
+  <div className="bg-card rounded-2xl shadow-card p-5">
+    <div className="flex items-center gap-3 mb-4">
+      <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
+        <Icon className="w-[18px] h-[18px] text-primary" />
+      </div>
+      <h2 className="text-base font-semibold text-foreground">{title}</h2>
+    </div>
+    <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">{children}</div>
+  </div>
+);
+
+const Item = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div className="bg-secondary/40 rounded-xl p-3">
+    <p className="text-xs font-semibold text-foreground mb-1">{title}</p>
+    <p className="text-[12px] text-muted-foreground leading-relaxed">{children}</p>
+  </div>
+);
+
 const PoliciesPage = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="px-4 py-4 space-y-6 animate-fade-in">
-      <h1 className="text-xl font-semibold text-foreground">السياسات</h1>
+    <div className="px-4 py-4 space-y-5 animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-foreground">السياسات والشروط</h1>
+        <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-secondary hover:bg-primary/10 transition-colors">
+          <ChevronLeft className="w-4 h-4 text-foreground" />
+        </button>
+      </div>
+
+      <div className="bg-primary-light rounded-xl p-3 flex items-start gap-2.5">
+        <Shield className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+        <p className="text-xs text-foreground leading-relaxed">
+          خصوصيتك أولوية. جميع بياناتك تُخزّن محلياً على جهازك فقط ولا تُرسل لأي خادم خارجي.
+        </p>
+      </div>
 
       {/* Privacy Policy */}
-      <div className="bg-card rounded-2xl shadow-card p-5">
-        <h2 className="text-base font-semibold text-foreground mb-3">سياسة الخصوصية</h2>
-        <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-          <p>نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية.</p>
-          <p><strong className="text-foreground">البيانات المحفوظة:</strong> يتم حفظ اسمك ولقبك وبريدك الإلكتروني (إن أُدخل) وإعداداتك على جهازك فقط (محلياً) ولا يتم إرسالها إلى أي خادم خارجي.</p>
-          <p><strong className="text-foreground">أوقات الصلاة:</strong> يتم جلب أوقات الصلاة من واجهة Aladhan API. المطور لا يتحكم في دقة البيانات المقدمة.</p>
-          <p><strong className="text-foreground">الطقس:</strong> يتم جلب بيانات الطقس بناءً على المدينة المختارة أو الموقع الجغرافي. يُستخدم الموقع فقط لتحديد المدينة ولا يتم تخزينه أو مشاركته.</p>
-          <p><strong className="text-foreground">اتجاه القبلة:</strong> يُستخدم الموقع الجغرافي لحساب اتجاه القبلة فقط، ولا يتم تخزينه أو إرساله لأي جهة.</p>
-          <p><strong className="text-foreground">الإشعارات:</strong> عند تفعيلها، تُرسل تذكيرات الأذان والأذكار والصلوات محلياً على جهازك. لا يتم جمع أي بيانات من خلال الإشعارات.</p>
-          <p><strong className="text-foreground">التسبيح والقراءة:</strong> يتم حفظ تقدمك في التسبيح وآخر قراءة محلياً على جهازك لتسهيل المتابعة.</p>
-          <p>لا نشارك أي بيانات مع أطراف ثالثة. جميع البيانات تبقى على جهازك.</p>
-        </div>
-      </div>
+      <Section icon={Shield} title="سياسة الخصوصية">
+        <Item title="البيانات المحفوظة">
+          يتم حفظ اسمك ولقبك وبريدك الإلكتروني (إن أُدخل) وإعداداتك على جهازك فقط (محلياً) ولا يتم إرسالها إلى أي خادم خارجي.
+        </Item>
+        <Item title="أوقات الصلاة">
+          يتم جلب أوقات الصلاة من واجهة Aladhan API. المطور لا يتحكم في دقة البيانات المقدمة.
+        </Item>
+        <Item title="الطقس والموقع">
+          يُستخدم الموقع الجغرافي لتحديد المدينة وحساب اتجاه القبلة فقط. لا يتم تخزينه أو مشاركته مع أي جهة.
+        </Item>
+        <Item title="الإشعارات">
+          عند تفعيلها، تُرسل التذكيرات محلياً على جهازك. لا يتم جمع أي بيانات من خلال الإشعارات.
+        </Item>
+        <Item title="التسبيح والقراءة">
+          يتم حفظ تقدمك محلياً على جهازك لتسهيل المتابعة.
+        </Item>
+        <Item title="مشاركة البيانات">
+          لا نشارك أي بيانات مع أطراف ثالثة. جميع البيانات تبقى على جهازك.
+        </Item>
+      </Section>
 
       {/* Terms of Use */}
-      <div className="bg-card rounded-2xl shadow-card p-5">
-        <h2 className="text-base font-semibold text-foreground mb-3">شروط الاستخدام</h2>
-        <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-          <p>باستخدامك لتطبيق عِتْرَة، فإنك توافق على الشروط التالية:</p>
-          <p><strong className="text-foreground">الغرض:</strong> التطبيق مخصص للاستخدام الشخصي في العبادات والأدعية والأذكار والزيارات.</p>
-          <p><strong className="text-foreground">المحتوى الديني:</strong> النصوص الدينية مأخوذة من مصادر موثوقة. يُنصح بالرجوع إلى العلماء والمراجع للتحقق والتأكد.</p>
-          <p><strong className="text-foreground">أوقات الصلاة:</strong> البيانات مقدمة من مصادر خارجية (Aladhan API) وقد تحتاج لتعديل يدوي. يمكنك ضبط التاريخ الهجري من الإعدادات.</p>
-          <p><strong className="text-foreground">الطقس:</strong> بيانات الطقس مقدمة من مصادر خارجية وتُعرض للاستدلال فقط.</p>
-          <p><strong className="text-foreground">اتجاه القبلة:</strong> يعتمد على حساسات الجهاز وقد يحتاج إلى معايرة. يُنصح بالتأكد من الاتجاه بطرق إضافية.</p>
-          <p><strong className="text-foreground">الإشعارات:</strong> تذكيرات الصلوات والأذكار تقريبية وقد تتأثر بإعدادات الجهاز ونظام التشغيل.</p>
-          <p><strong className="text-foreground">المسؤولية:</strong> التطبيق يُقدم كما هو بدون ضمانات. المطور غير مسؤول عن أي أخطاء في المحتوى أو البيانات.</p>
-        </div>
-      </div>
+      <Section icon={FileText} title="شروط الاستخدام">
+        <Item title="الغرض">
+          التطبيق مخصص للاستخدام الشخصي في العبادات والأدعية والأذكار والزيارات.
+        </Item>
+        <Item title="المحتوى الديني">
+          النصوص الدينية مأخوذة من مصادر موثوقة. يُنصح بالرجوع إلى العلماء والمراجع للتحقق والتأكد.
+        </Item>
+        <Item title="أوقات الصلاة والتاريخ الهجري">
+          البيانات مقدمة من مصادر خارجية (Aladhan API) وقد تحتاج لتعديل يدوي. يمكنك ضبط التاريخ الهجري من الإعدادات.
+        </Item>
+        <Item title="الطقس">
+          بيانات الطقس مقدمة من مصادر خارجية وتُعرض للاستدلال فقط.
+        </Item>
+        <Item title="اتجاه القبلة">
+          يعتمد على حساسات الجهاز وقد يحتاج إلى معايرة. يُنصح بالتأكد من الاتجاه بطرق إضافية.
+        </Item>
+        <Item title="الإشعارات">
+          تذكيرات الصلوات والأذكار تقريبية وقد تتأثر بإعدادات الجهاز ونظام التشغيل.
+        </Item>
+        <Item title="المسؤولية">
+          التطبيق يُقدم كما هو بدون ضمانات. المطور غير مسؤول عن أي أخطاء في المحتوى أو البيانات.
+        </Item>
+      </Section>
+
+      {/* Disclaimer */}
+      <Section icon={Scale} title="إخلاء المسؤولية">
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          تطبيق عِتْرَة يُقدم المحتوى الديني كمرجع مساعد وليس بديلاً عن المراجع الدينية المعتمدة. المطور يبذل جهده لضمان دقة المعلومات لكن لا يتحمل مسؤولية أي أخطاء قد ترد.
+        </p>
+      </Section>
 
       {/* Developer */}
       <div className="bg-card rounded-2xl shadow-card p-5">
-        <h2 className="text-base font-semibold text-foreground mb-2">المطوّر</h2>
-        <p className="text-sm text-muted-foreground">عبدالله بن جعفر (Abdullah Bin Jaafar)</p>
-        <p className="text-xs text-muted-foreground mt-2">للتواصل: a.jaafar.dev@gmail.com</p>
+        <h2 className="text-sm font-semibold text-foreground mb-1">المطوّر</h2>
+        <p className="text-xs text-muted-foreground">عبدالله بن جعفر (Abdullah Bin Jaafar)</p>
+        <p className="text-[11px] text-muted-foreground mt-2">للتواصل: a.jaafar.dev@gmail.com</p>
+      </div>
+
+      {/* Footer */}
+      <div className="text-center pb-6 pt-2">
+        <p className="text-[10px] text-muted-foreground/60">آخر تحديث: مارس ٢٠٢٦</p>
       </div>
     </div>
   );
