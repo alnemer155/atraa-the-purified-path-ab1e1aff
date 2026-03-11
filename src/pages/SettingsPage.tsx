@@ -97,62 +97,8 @@ const SettingsPage = () => {
       <div className="space-y-3">
         <p className="text-xs font-semibold text-muted-foreground px-1">الطقس والتاريخ</p>
 
-        {/* Weather City */}
-        <div className="bg-card rounded-2xl shadow-card p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
-              <MapPin className="w-[18px] h-[18px] text-primary" />
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-medium text-foreground">مدينة الطقس</p>
-              <p className="text-[11px] text-muted-foreground">اختر مدينتك لعرض حالة الطقس</p>
-            </div>
-          </div>
-
-          <div className="flex gap-2 mb-3">
-            <div className="flex-1 flex items-center gap-2 bg-secondary rounded-xl px-3 py-2.5">
-              <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              <input
-                type="text"
-                value={citySearch}
-                onChange={(e) => setCitySearch(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
-                placeholder="ابحث عن مدينة..."
-                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
-              />
-            </div>
-            <button
-              onClick={detectLocation}
-              disabled={detecting}
-              className="px-3 py-2.5 rounded-xl bg-primary/10 text-primary flex items-center gap-1.5 text-xs font-medium disabled:opacity-50 transition-opacity"
-            >
-              <LocateFixed className={`w-4 h-4 ${detecting ? 'animate-spin' : ''}`} />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2 mb-3 px-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-            <p className="text-[11px] text-muted-foreground">
-              المدينة الحالية: <span className="text-foreground font-medium">{popularCities.find(c => c.value === selectedCity)?.label || selectedCity}</span>
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {filteredCities.map(city => (
-              <button
-                key={city.value}
-                onClick={() => handleCityChange(city.value)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-medium transition-all ${
-                  selectedCity === city.value
-                    ? 'islamic-gradient text-primary-foreground shadow-card'
-                    : 'bg-secondary text-foreground hover:bg-primary/10 hover:text-primary'
-                }`}
-              >
-                {city.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* City Picker */}
+        <CityPicker selectedCity={selectedCity} onCityChange={handleCityChange} />
 
         {/* Hijri adjustment */}
         <div className="bg-card rounded-2xl shadow-card p-4">
