@@ -1,20 +1,8 @@
 import { useState } from 'react';
-import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, MapPin, Search, LocateFixed, Info, User, Code2, Calendar, Globe, Moon, Sparkles } from 'lucide-react';
+import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUser, getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
-
-const popularCities = [
-  { value: 'Qatif', label: 'القطيف' },
-  { value: 'Riyadh', label: 'الرياض' },
-  { value: 'Jeddah', label: 'جدة' },
-  { value: 'Dammam', label: 'الدمام' },
-  { value: 'Mecca', label: 'مكة المكرمة' },
-  { value: 'Medina', label: 'المدينة المنورة' },
-  { value: 'Khobar', label: 'الخبر' },
-  { value: 'Ahsa', label: 'الأحساء' },
-  { value: 'Saihat', label: 'سيهات' },
-  { value: 'Tarut', label: 'تاروت' },
-];
+import CityPicker from '@/components/CityPicker';
 
 const SettingsPage = () => {
   const navigate = useNavigate();
@@ -26,8 +14,6 @@ const SettingsPage = () => {
   const [salawatNotif, setSalawatNotif] = useState(() => localStorage.getItem('atraa_notif_salawat') === 'true');
   
   const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('atraa_weather_city') || 'Qatif');
-  const [citySearch, setCitySearch] = useState('');
-  const [detecting, setDetecting] = useState(false);
   const [hijriAdj, setHijriAdj] = useState(() => getHijriAdjustment());
 
   const toggleNotif = (type: string, current: boolean, setter: (v: boolean) => void) => {
@@ -45,41 +31,11 @@ const SettingsPage = () => {
     window.dispatchEvent(new StorageEvent('storage', { key: 'atraa_weather_city', newValue: city }));
   };
 
-  const detectLocation = () => {
-    if (!('geolocation' in navigator)) return;
-    setDetecting(true);
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const res = await fetch(`https://wttr.in/${pos.coords.latitude},${pos.coords.longitude}?format=j1`);
-          const data = await res.json();
-          const area = data?.nearest_area?.[0]?.areaName?.[0]?.value;
-          if (area) handleCityChange(area);
-        } catch {}
-        setDetecting(false);
-      },
-      () => setDetecting(false),
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  };
-
-  const handleSearchSubmit = () => {
-    if (citySearch.trim()) {
-      handleCityChange(citySearch.trim());
-      setCitySearch('');
-    }
-  };
-
   const handleHijriChange = (val: number) => {
     setHijriAdj(val);
     setHijriAdjustment(val);
-    // Dispatch custom event so HijriCountdown in same tab can react
     window.dispatchEvent(new CustomEvent('hijri-adjust-changed', { detail: val }));
   };
-
-  const filteredCities = citySearch
-    ? popularCities.filter(c => c.label.includes(citySearch) || c.value.toLowerCase().includes(citySearch.toLowerCase()))
-    : popularCities;
 
   const NotifToggle = ({ label, subtitle, enabled, onToggle }: { label: string; subtitle: string; enabled: boolean; onToggle: () => void }) => (
     <button onClick={onToggle} className="w-full flex items-center justify-between p-3.5">
@@ -141,62 +97,8 @@ const SettingsPage = () => {
       <div className="space-y-3">
         <p className="text-xs font-semibold text-muted-foreground px-1">الطقس والتاريخ</p>
 
-        {/* Weather City */}
-        <div className="bg-card rounded-2xl shadow-card p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
-              <MapPin className="w-[18px] h-[18px] text-primary" />
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-medium text-foreground">مدينة الطقس</p>
-              <p className="text-[11px] text-muted-foreground">اختر مدينتك لعرض حالة الطقس</p>
-            </div>
-          </div>
-
-          <div className="flex gap-2 mb-3">
-            <div className="flex-1 flex items-center gap-2 bg-secondary rounded-xl px-3 py-2.5">
-              <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              <input
-                type="text"
-                value={citySearch}
-                onChange={(e) => setCitySearch(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
-                placeholder="ابحث عن مدينة..."
-                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
-              />
-            </div>
-            <button
-              onClick={detectLocation}
-              disabled={detecting}
-              className="px-3 py-2.5 rounded-xl bg-primary/10 text-primary flex items-center gap-1.5 text-xs font-medium disabled:opacity-50 transition-opacity"
-            >
-              <LocateFixed className={`w-4 h-4 ${detecting ? 'animate-spin' : ''}`} />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2 mb-3 px-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-            <p className="text-[11px] text-muted-foreground">
-              المدينة الحالية: <span className="text-foreground font-medium">{popularCities.find(c => c.value === selectedCity)?.label || selectedCity}</span>
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {filteredCities.map(city => (
-              <button
-                key={city.value}
-                onClick={() => handleCityChange(city.value)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-medium transition-all ${
-                  selectedCity === city.value
-                    ? 'islamic-gradient text-primary-foreground shadow-card'
-                    : 'bg-secondary text-foreground hover:bg-primary/10 hover:text-primary'
-                }`}
-              >
-                {city.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* City Picker */}
+        <CityPicker selectedCity={selectedCity} onCityChange={handleCityChange} />
 
         {/* Hijri adjustment */}
         <div className="bg-card rounded-2xl shadow-card p-4">
