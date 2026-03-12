@@ -14,7 +14,127 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      quiz_answers: {
+        Row: {
+          answers: Json
+          created_at: string
+          id: string
+          participant_id: string
+          question_date: string
+          score: number
+        }
+        Insert: {
+          answers: Json
+          created_at?: string
+          id?: string
+          participant_id: string
+          question_date: string
+          score?: number
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          participant_id?: string
+          question_date?: string
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_answers_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_daily_questions: {
+        Row: {
+          created_at: string
+          id: string
+          question_date: string
+          questions: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          question_date: string
+          questions: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          question_date?: string
+          questions?: Json
+        }
+        Relationships: []
+      }
+      quiz_participants: {
+        Row: {
+          age: number
+          bio: string | null
+          bio_public: boolean | null
+          created_at: string
+          device_id: string
+          emoji: string
+          id: string
+          nickname: string
+          score: number | null
+        }
+        Insert: {
+          age: number
+          bio?: string | null
+          bio_public?: boolean | null
+          created_at?: string
+          device_id: string
+          emoji: string
+          id?: string
+          nickname: string
+          score?: number | null
+        }
+        Update: {
+          age?: number
+          bio?: string | null
+          bio_public?: boolean | null
+          created_at?: string
+          device_id?: string
+          emoji?: string
+          id?: string
+          nickname?: string
+          score?: number | null
+        }
+        Relationships: []
+      }
+      quiz_share_links: {
+        Row: {
+          created_at: string
+          id: string
+          participant_id: string
+          share_code: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          participant_id: string
+          share_code: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          participant_id?: string
+          share_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_share_links_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
