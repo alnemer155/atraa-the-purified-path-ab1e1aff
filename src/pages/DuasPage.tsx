@@ -34,7 +34,6 @@ const DuasPage = () => {
     return result;
   }, [items, activeCategory, search]);
 
-  // Save last reading when an item is selected
   const handleSelectItem = (item: DuaItem) => {
     setSelectedItem(item);
     saveLastReading({
@@ -71,7 +70,7 @@ const DuasPage = () => {
                 أ-
               </button>
               <button
-                onClick={() => setFontSize(s => Math.min(28, s + 2))}
+                onClick={() => setFontSize(s => Math.min(30, s + 2))}
                 className="w-7 h-7 rounded-lg bg-secondary text-foreground text-sm font-bold flex items-center justify-center"
               >
                 أ+
@@ -87,7 +86,7 @@ const DuasPage = () => {
           <p className="text-[11px] text-muted-foreground mb-5">المصدر من تطبيق حقيبة المؤمن</p>
           <div
             className="bg-card rounded-2xl p-5 shadow-card text-foreground whitespace-pre-wrap religious-text"
-            style={{ fontSize: `${fontSize}px` }}
+            style={{ fontSize: `${fontSize}px`, fontWeight: 400 }}
           >
             {selectedItem.content}
           </div>

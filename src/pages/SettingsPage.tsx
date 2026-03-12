@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon } from 'lucide-react';
+import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, MessageCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUser, getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
 import CityPicker from '@/components/CityPicker';
@@ -8,7 +8,6 @@ const SettingsPage = () => {
   const navigate = useNavigate();
   const user = getUser();
   
-  // Notification states
   const [adhanNotif, setAdhanNotif] = useState(() => localStorage.getItem('atraa_notif_adhan') === 'true');
   const [dhikrNotif, setDhikrNotif] = useState(() => localStorage.getItem('atraa_notif_dhikr') === 'true');
   const [salawatNotif, setSalawatNotif] = useState(() => localStorage.getItem('atraa_notif_salawat') === 'true');
@@ -96,11 +95,7 @@ const SettingsPage = () => {
       {/* Weather & Date section */}
       <div className="space-y-3">
         <p className="text-xs font-semibold text-muted-foreground px-1">الطقس والتاريخ</p>
-
-        {/* City Picker */}
         <CityPicker selectedCity={selectedCity} onCityChange={handleCityChange} />
-
-        {/* Hijri adjustment */}
         <div className="bg-card rounded-2xl shadow-card p-4">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
@@ -208,6 +203,13 @@ const SettingsPage = () => {
           </div>
 
           <div className="space-y-1.5">
+            <a href="https://whatsapp.com/channel/0029VbCNwblJZg466AM5CC2R" target="_blank" rel="noopener" className="flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary/50 transition-colors">
+              <div className="flex items-center gap-2.5">
+                <MessageCircle className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs text-foreground">قناة واتساب</span>
+              </div>
+              <span className="text-[11px] text-muted-foreground">قــناة عِتْرَةً</span>
+            </a>
             <a href="https://instagram.com/nr_aj5" target="_blank" rel="noopener" className="flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary/50 transition-colors">
               <div className="flex items-center gap-2.5">
                 <ExternalLink className="w-3.5 h-3.5 text-primary" />
@@ -238,7 +240,7 @@ const SettingsPage = () => {
       {/* Version */}
       <div className="text-center pb-6 pt-2">
         <p className="text-xs text-muted-foreground">عِتْرَة</p>
-        <p className="text-[10px] text-muted-foreground/60 mt-0.5">الإصدار 2.1 · بناء 35</p>
+        <p className="text-[10px] text-muted-foreground/60 mt-0.5">الإصدار 2.1 · بناء 41</p>
       </div>
     </div>
   );

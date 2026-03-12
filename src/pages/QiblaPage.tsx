@@ -119,7 +119,7 @@ const QiblaPage = () => {
       {/* Header */}
       <div className="text-center mb-4">
         <h1 className="text-xl font-semibold text-foreground mb-1">اتجاه القبلة</h1>
-        <p className="text-sm text-muted-foreground">الكعبة المشرّفة · بيت الله الحرام</p>
+        <p className="text-sm text-muted-foreground">الكعبة المشرّفة · بيت الله الحرام · مكة المكرمة</p>
       </div>
 
       {/* Compass */}

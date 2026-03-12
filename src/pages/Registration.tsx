@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { saveUser, getUser, type UserData } from '@/lib/user';
+import logo from '@/assets/logo.png';
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -38,9 +39,7 @@ const Registration = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8 animate-fade-in">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-2xl islamic-gradient flex items-center justify-center shadow-elevated">
-            <span className="text-3xl font-bold text-primary-foreground">ع</span>
-          </div>
+          <img src={logo} alt="عِتْرَة" className="w-20 h-20 mx-auto mb-4 rounded-2xl shadow-elevated object-contain" />
           <h1 className="text-2xl font-semibold text-foreground mb-2">
             {isEditing ? 'تعديل الملف الشخصي' : 'مرحباً بك في عِتْرَة'}
           </h1>
