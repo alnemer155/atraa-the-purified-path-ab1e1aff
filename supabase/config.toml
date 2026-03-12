@@ -1,0 +1,13 @@
+project_id = "gdhtmrythdczvhjfxgqs"
+
+[functions.quiz-register]
+verify_jwt = false
+
+[functions.quiz-questions]
+verify_jwt = false
+
+[functions.quiz-submit]
+verify_jwt = false
+
+[functions.quiz-share]
+verify_jwt = false

@@ -79,7 +79,7 @@ const HomePage = () => {
         <div className="space-y-2">
           {showTasbihResume && tasbihState && (
             <button
-              onClick={() => navigate('/tasbih')}
+              onClick={() => navigate('/library')}
               className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-card border border-border shadow-card hover:border-primary/30 transition-all text-right"
             >
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -100,7 +100,7 @@ const HomePage = () => {
 
           {showLastReading && lastReading && (
             <button
-              onClick={() => navigate('/duas')}
+              onClick={() => navigate('/library')}
               className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-card border border-border shadow-card hover:border-primary/30 transition-all text-right"
             >
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">

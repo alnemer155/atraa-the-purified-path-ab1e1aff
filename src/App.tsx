@@ -6,10 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AppLayout from "./components/AppLayout";
 import HomePage from "./pages/HomePage";
 import Registration from "./pages/Registration";
-import DuasPage from "./pages/DuasPage";
+import LibraryPage from "./pages/LibraryPage";
 import AiPage from "./pages/AiPage";
 import QiblaPage from "./pages/QiblaPage";
-import TasbihPage from "./pages/TasbihPage";
+import QuizPage from "./pages/QuizPage";
 import SettingsPage from "./pages/SettingsPage";
 import PoliciesPage from "./pages/PoliciesPage";
 import NotFound from "./pages/NotFound";
@@ -26,10 +26,11 @@ const App = () => (
           <Route path="/register" element={<Registration />} />
           <Route element={<AppLayout />}>
             <Route path="/" element={<HomePage />} />
-            <Route path="/duas" element={<DuasPage />} />
+            <Route path="/library" element={<LibraryPage />} />
             <Route path="/ai" element={<AiPage />} />
             <Route path="/qibla" element={<QiblaPage />} />
-            <Route path="/tasbih" element={<TasbihPage />} />
+            <Route path="/quiz" element={<QuizPage />} />
+            <Route path="/q/:shareCode" element={<QuizPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/policies" element={<PoliciesPage />} />
           </Route>
