@@ -10,7 +10,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { date } = await req.json();
+    const { date, age } = await req.json();
     
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -45,7 +45,22 @@ serve(async (req) => {
       ? `\n\nتجنب تكرار هذه الأسئلة السابقة:\n${previousQuestionTexts.join('\n')}`
       : '';
 
-    // Generate questions using Lovable AI Gateway
+    // Determine difficulty based on age
+    const playerAge = age || 18;
+    let difficultyInstruction = '';
+    if (playerAge < 18) {
+      difficultyInstruction = 'مستوى الأسئلة: سؤالان سهلان جداً، وسؤال سهل، وسؤال متوسط الصعوبة. مناسبة للناشئين والشباب.';
+    } else {
+      difficultyInstruction = 'مستوى الأسئلة: سؤال سهل، وسؤالان متوسطان، وسؤال صعب جداً. مناسبة للبالغين والمثقفين.';
+    }
+
+    // Check if today is Friday for a "rigged" easy question
+    const submissionDate = new Date(date + 'T12:00:00+03:00');
+    const isFriday = submissionDate.getDay() === 5;
+    const fridayInstruction = isFriday 
+      ? '\n\nملاحظة: اليوم جمعة مباركة! اجعل السؤال الأول سهلاً جداً وواضحاً كهدية للمشاركين.'
+      : '';
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -69,11 +84,13 @@ serve(async (req) => {
 - القرآن الكريم
 - المناسبات الدينية
 
+${difficultyInstruction}
+
 القواعد:
 - الأسئلة يجب أن تكون بالعربية الفصحى
 - كل سؤال له 4 خيارات مع إجابة صحيحة واحدة
-- الأسئلة يجب أن تكون متنوعة في الصعوبة
-- لا تكرر أسئلة سابقة${avoidList}`
+- تأكد من صحة الإجابات بدقة عالية
+- لا تكرر أسئلة سابقة${avoidList}${fridayInstruction}`
           },
           {
             role: "user",
@@ -125,14 +142,12 @@ serve(async (req) => {
       console.error("AI error:", aiResponse.status, errText);
       if (aiResponse.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded, try again later" }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (aiResponse.status === 402) {
         return new Response(JSON.stringify({ error: "Payment required" }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       throw new Error("AI generation failed");
@@ -147,13 +162,9 @@ serve(async (req) => {
 
     if (!questions || questions.length !== 4) throw new Error("Invalid questions format");
 
-    // Save to database
     const { error: insertError } = await supabase
       .from("quiz_daily_questions")
-      .insert({
-        question_date: date,
-        questions,
-      });
+      .insert({ question_date: date, questions });
 
     if (insertError) throw insertError;
 
@@ -163,8 +174,7 @@ serve(async (req) => {
   } catch (e) {
     console.error("questions error:", e);
     return new Response(JSON.stringify({ error: e.message || "Unknown error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });
