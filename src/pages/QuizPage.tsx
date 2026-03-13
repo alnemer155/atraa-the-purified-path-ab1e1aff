@@ -286,7 +286,7 @@ const QuizPage = () => {
     const answer = answerHistory.find(a => a.question_date === date);
     setSelectedDay({
       date,
-      questions: (qData?.questions || []) as QuizQuestion[],
+      questions: (qData?.questions || []) as unknown as QuizQuestion[],
       userAnswers: answer?.answers || null,
       score: answer?.score || 0,
       solved: !!answer,

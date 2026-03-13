@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atraa-v2.2-b36';
+const CACHE_NAME = 'atraa-v2.1-b42';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

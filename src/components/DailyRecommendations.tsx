@@ -31,7 +31,7 @@ const DailyRecommendations = () => {
         {recommendations.map(({ label, item }) => (
           <button
             key={item!.id}
-            onClick={() => navigate('/duas')}
+            onClick={() => navigate('/library')}
             className="w-full text-right p-3.5 rounded-2xl bg-card border border-border hover:border-primary/30 transition-all shadow-card"
           >
             <p className="text-[11px] text-primary font-medium mb-1">{label}</p>
