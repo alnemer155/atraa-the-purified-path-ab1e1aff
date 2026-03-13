@@ -11,6 +11,26 @@ interface TimingsData {
   Isha: string;
 }
 
+// City-specific prayer time configurations with coordinates and tune offsets
+const CITY_PRAYER_CONFIG: Record<string, { lat: number; lng: number; tune: string }> = {
+  // الأحساء
+  Ahsa: { lat: 25.3548, lng: 49.5870, tune: '10,10,8,8,8,23,0,24,0,0,0' },
+  // الرياض
+  Riyadh: { lat: 24.7136, lng: 46.6753, tune: '17,17,13,14,14,29,6,38,0,0,0' },
+  // جدة
+  Jeddah: { lat: 21.4858, lng: 39.1925, tune: '48,48,43,44,44,60,37,132,0,0,0' },
+  // الخبر
+  Khobar: { lat: 26.2172, lng: 50.1971, tune: '2,2,0,0,-1,15,0,0,0,0' },
+  // القطيف (default)
+  Qatif: { lat: 26.5196, lng: 50.0115, tune: '2,2,0,0,-1,15,0,0,0,0' },
+  Saihat: { lat: 26.4789, lng: 50.0437, tune: '2,2,0,0,-1,15,0,0,0,0' },
+  Tarut: { lat: 26.5667, lng: 50.0667, tune: '2,2,0,0,-1,15,0,0,0,0' },
+  Dammam: { lat: 26.3927, lng: 49.9777, tune: '2,2,0,0,-1,15,0,0,0,0' },
+  Jubail: { lat: 27.0046, lng: 49.6222, tune: '2,2,0,0,-1,15,0,0,0,0' },
+};
+
+const DEFAULT_CONFIG = { lat: 26.4207, lng: 50.0888, tune: '2,2,0,0,-1,15,0,0,0,0' };
+
 function to12Hour(time24: string): string {
   const [h, m] = time24.split(':').map(Number);
   const period = h >= 12 ? 'م' : 'ص';
@@ -33,7 +53,6 @@ const prayerInfo = [
 ];
 
 function getCurrentAndNext(timings: TimingsData): { current: string | null; next: string | null } {
-  // Use Riyadh timezone for accurate comparison
   const now = new Date();
   const riyadhTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Riyadh' }));
   const nowMinutes = riyadhTime.getHours() * 60 + riyadhTime.getMinutes();
@@ -69,23 +88,44 @@ const PrayerTimes = () => {
   const [indicators, setIndicators] = useState<{ current: string | null; next: string | null }>({ current: null, next: null });
 
   useEffect(() => {
-    fetch('https://api.aladhan.com/v1/timings?latitude=26.4207&longitude=50.0888&method=4&timezonestring=Asia/Riyadh&tune=2,2,0,0,-1,15,0,0,0,0')
+    const city = localStorage.getItem('atraa_weather_city') || 'Qatif';
+    const config = CITY_PRAYER_CONFIG[city] || DEFAULT_CONFIG;
+    const url = `https://api.aladhan.com/v1/timings?latitude=${config.lat}&longitude=${config.lng}&method=4&timezonestring=Asia/Riyadh&tune=${config.tune}`;
+
+    fetch(url)
       .then(res => res.json())
       .then(data => {
         const t = data.data.timings;
         setTimings(t);
         setIndicators(getCurrentAndNext(t));
         setLoading(false);
-        // Schedule notifications if permission granted
         if (getNotificationPermission() === 'granted') {
           schedulePrayerNotifications(t);
         }
       })
       .catch(() => setLoading(false));
+
+    // Listen for city changes
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'atraa_weather_city' && e.newValue) {
+        const newConfig = CITY_PRAYER_CONFIG[e.newValue] || DEFAULT_CONFIG;
+        const newUrl = `https://api.aladhan.com/v1/timings?latitude=${newConfig.lat}&longitude=${newConfig.lng}&method=4&timezonestring=Asia/Riyadh&tune=${newConfig.tune}`;
+        fetch(newUrl)
+          .then(res => res.json())
+          .then(data => {
+            const t = data.data.timings;
+            setTimings(t);
+            setIndicators(getCurrentAndNext(t));
+          })
+          .catch(() => {});
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   const handleToggleNotif = async () => {
-    if (notifEnabled) return; // Can't revoke from JS
+    if (notifEnabled) return;
     const granted = await requestNotificationPermission();
     setNotifEnabled(granted);
     if (granted && timings) {
@@ -93,7 +133,6 @@ const PrayerTimes = () => {
     }
   };
 
-  // Update current/next every minute
   useEffect(() => {
     if (!timings) return;
     const interval = setInterval(() => {
@@ -136,7 +175,6 @@ const PrayerTimes = () => {
                     : 'bg-primary-light'
                 }`}
               >
-                {/* Badge */}
                 {(isCurrent || isNext) && (
                   <span className={`absolute -top-2 text-[9px] font-semibold px-2 py-0.5 rounded-full ${
                     isCurrent

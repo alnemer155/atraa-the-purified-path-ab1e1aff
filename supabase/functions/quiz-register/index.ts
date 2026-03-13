@@ -14,15 +14,13 @@ serve(async (req) => {
 
     if (!device_id || !nickname || !emoji || !age) {
       return new Response(JSON.stringify({ error: "Missing required fields" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    if (age < 5 || age > 60) {
-      return new Response(JSON.stringify({ error: "Age must be between 5 and 60" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+    if (age < 12 || age > 60) {
+      return new Response(JSON.stringify({ error: "العمر يجب أن يكون بين ١٢ و ٦٠ سنة" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -31,7 +29,6 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Check if already registered
     const { data: existing } = await supabase
       .from("quiz_participants")
       .select("*")
@@ -46,14 +43,7 @@ serve(async (req) => {
 
     const { data, error } = await supabase
       .from("quiz_participants")
-      .insert({
-        device_id,
-        nickname,
-        emoji,
-        bio: bio || null,
-        bio_public: bio_public || false,
-        age,
-      })
+      .insert({ device_id, nickname, emoji, bio: bio || null, bio_public: bio_public || false, age })
       .select()
       .single();
 
@@ -65,8 +55,7 @@ serve(async (req) => {
   } catch (e) {
     console.error("register error:", e);
     return new Response(JSON.stringify({ error: e.message || "Unknown error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

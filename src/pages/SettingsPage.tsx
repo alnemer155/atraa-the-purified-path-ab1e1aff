@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, MessageCircle } from 'lucide-react';
+import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, MessageCircle, Share2, Download, Copy, Check, Smartphone } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUser, getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
 import CityPicker from '@/components/CityPicker';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const SettingsPage = () => {
   const navigate = useNavigate();
@@ -11,9 +12,13 @@ const SettingsPage = () => {
   const [adhanNotif, setAdhanNotif] = useState(() => localStorage.getItem('atraa_notif_adhan') === 'true');
   const [dhikrNotif, setDhikrNotif] = useState(() => localStorage.getItem('atraa_notif_dhikr') === 'true');
   const [salawatNotif, setSalawatNotif] = useState(() => localStorage.getItem('atraa_notif_salawat') === 'true');
+  const [quizNotif, setQuizNotif] = useState(() => localStorage.getItem('atraa_notif_quiz') === 'true');
+  const [duaNotif, setDuaNotif] = useState(() => localStorage.getItem('atraa_notif_dua') === 'true');
   
   const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('atraa_weather_city') || 'Qatif');
   const [hijriAdj, setHijriAdj] = useState(() => getHijriAdjustment());
+  const [shareCopied, setShareCopied] = useState(false);
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
 
   const toggleNotif = (type: string, current: boolean, setter: (v: boolean) => void) => {
     const next = !current;
@@ -34,6 +39,16 @@ const SettingsPage = () => {
     setHijriAdj(val);
     setHijriAdjustment(val);
     window.dispatchEvent(new CustomEvent('hijri-adjust-changed', { detail: val }));
+  };
+
+  const handleShareApp = async () => {
+    const shareText = 'عِتْرَةً منصة إسلامية شيعية تهدف إلى تقديم المحتوى الديني بصورة حديثة ومنظمة، تجمع بين الفائدة وسهولة الاستخدام.\n\nاكتشفه وجرب الآن: https://atraa.xyz';
+    if (navigator.share) {
+      try { await navigator.share({ text: shareText }); return; } catch {}
+    }
+    await navigator.clipboard.writeText(shareText);
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
   };
 
   const NotifToggle = ({ label, subtitle, enabled, onToggle }: { label: string; subtitle: string; enabled: boolean; onToggle: () => void }) => (
@@ -88,7 +103,9 @@ const SettingsPage = () => {
           </div>
           <NotifToggle label="إشعارات الأذان" subtitle="تنبيه عند دخول وقت الصلاة" enabled={adhanNotif} onToggle={() => toggleNotif('adhan', adhanNotif, setAdhanNotif)} />
           <NotifToggle label="تذكير الأذكار" subtitle="تذكير يومي بالأذكار" enabled={dhikrNotif} onToggle={() => toggleNotif('dhikr', dhikrNotif, setDhikrNotif)} />
-          <NotifToggle label="تذكير الصلوات" subtitle="الصلاة على محمد وآل محمد" enabled={salawatNotif} onToggle={() => toggleNotif('salawat', salawatNotif, setSalawatNotif)} />
+          <NotifToggle label="الصلاة على النبي" subtitle="الصلاة على محمد وآل محمد" enabled={salawatNotif} onToggle={() => toggleNotif('salawat', salawatNotif, setSalawatNotif)} />
+          <NotifToggle label="إشعارات المسابقة" subtitle="تنبيه قبل بدء الأسئلة اليومية" enabled={quizNotif} onToggle={() => toggleNotif('quiz', quizNotif, setQuizNotif)} />
+          <NotifToggle label="دعاء اليوم" subtitle="تذكير يومي بقراءة دعاء مقترح" enabled={duaNotif} onToggle={() => toggleNotif('dua', duaNotif, setDuaNotif)} />
         </div>
       </div>
 
@@ -123,6 +140,98 @@ const SettingsPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Share & Install */}
+      <div className="space-y-3">
+        <p className="text-xs font-semibold text-muted-foreground px-1">مشاركة وتحميل</p>
+        <div className="bg-card rounded-2xl shadow-card overflow-hidden divide-y divide-border">
+          <button onClick={handleShareApp} className="w-full flex items-center justify-between p-4 hover:bg-secondary/50 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
+                <Share2 className="w-[18px] h-[18px] text-primary" />
+              </div>
+              <p className="text-sm font-medium text-foreground">مشاركة التطبيق</p>
+            </div>
+            {shareCopied ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4 text-muted-foreground" />}
+          </button>
+          <button onClick={() => setShowInstallGuide(true)} className="w-full flex items-center justify-between p-4 hover:bg-secondary/50 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
+                <Download className="w-[18px] h-[18px] text-primary" />
+              </div>
+              <p className="text-sm font-medium text-foreground">تحميل التطبيق</p>
+            </div>
+            <Smartphone className="w-4 h-4 text-muted-foreground" />
+          </button>
+        </div>
+      </div>
+
+      {/* PWA Install Guide Modal */}
+      <AnimatePresence>
+        {showInstallGuide && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 backdrop-blur-sm px-5"
+            onClick={() => setShowInstallGuide(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-card rounded-2xl p-5 shadow-elevated max-w-sm w-full max-h-[80vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-lg font-semibold text-foreground mb-4 text-center">تحميل التطبيق</h2>
+              
+              {/* Android */}
+              <div className="mb-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-lg">🤖</span>
+                  <h3 className="text-sm font-semibold text-foreground">أندرويد (Samsung, Huawei, وغيرها)</h3>
+                </div>
+                <ol className="space-y-2 text-xs text-muted-foreground leading-relaxed pr-4">
+                  <li className="flex gap-2"><span className="text-primary font-bold">1.</span>افتح الموقع في متصفح Chrome</li>
+                  <li className="flex gap-2"><span className="text-primary font-bold">2.</span>اضغط على أيقونة القائمة ⋮ (ثلاث نقاط) في الأعلى</li>
+                  <li className="flex gap-2"><span className="text-primary font-bold">3.</span>اختر "إضافة إلى الشاشة الرئيسية" أو "تثبيت التطبيق"</li>
+                  <li className="flex gap-2"><span className="text-primary font-bold">4.</span>اضغط "إضافة" وسيظهر التطبيق على شاشتك الرئيسية</li>
+                </ol>
+              </div>
+
+              {/* iOS */}
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-lg">🍎</span>
+                  <h3 className="text-sm font-semibold text-foreground">آيفون (iOS 26 / Safari)</h3>
+                </div>
+                <ol className="space-y-2 text-xs text-muted-foreground leading-relaxed pr-4">
+                  <li className="flex gap-2"><span className="text-primary font-bold">1.</span>افتح الموقع في متصفح Safari</li>
+                  <li className="flex gap-2">
+                    <span className="text-primary font-bold">2.</span>
+                    <span>اضغط على أيقونة المشاركة <span className="inline-block px-1.5 py-0.5 bg-secondary rounded text-[10px] font-mono">⬆️</span> في شريط الأدوات السفلي</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary font-bold">3.</span>
+                    <span>مرر للأسفل واضغط "إضافة إلى الشاشة الرئيسية" <span className="inline-block px-1.5 py-0.5 bg-secondary rounded text-[10px] font-mono">➕</span></span>
+                  </li>
+                  <li className="flex gap-2"><span className="text-primary font-bold">4.</span>اضغط "إضافة" في الأعلى وسيظهر التطبيق كأيقونة مستقلة</li>
+                </ol>
+                <div className="mt-2 p-2.5 rounded-xl bg-accent/10">
+                  <p className="text-[11px] text-accent-foreground leading-relaxed">💡 في iOS 26، التطبيقات المثبتة من Safari تعمل بشكل مستقل كتطبيق كامل مع دعم الإشعارات</p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowInstallGuide(false)}
+                className="w-full py-2.5 rounded-xl bg-secondary text-foreground text-sm font-medium"
+              >
+                حسناً
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Legal section */}
       <div className="space-y-3">
@@ -240,7 +349,7 @@ const SettingsPage = () => {
       {/* Version */}
       <div className="text-center pb-6 pt-2">
         <p className="text-xs text-muted-foreground">عِتْرَة</p>
-        <p className="text-[10px] text-muted-foreground/60 mt-0.5">الإصدار 2.1 · بناء 41</p>
+        <p className="text-[10px] text-muted-foreground/60 mt-0.5">الإصدار 2.1 · بناء 42</p>
       </div>
     </div>
   );
