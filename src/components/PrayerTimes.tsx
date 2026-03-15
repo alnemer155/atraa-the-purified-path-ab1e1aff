@@ -29,6 +29,7 @@ const CITY_PRAYER_CONFIG: Record<string, { lat: number; lng: number; tune: strin
   Jubail: { lat: 27.0046, lng: 49.6222, tune: '2,2,0,0,-1,15,0,0,0,0' },
 };
 
+const SUPPORTED_CITIES = new Set(Object.keys(CITY_PRAYER_CONFIG));
 const DEFAULT_CONFIG = { lat: 26.4207, lng: 50.0888, tune: '2,2,0,0,-1,15,0,0,0,0' };
 
 function to12Hour(time24: string): string {
