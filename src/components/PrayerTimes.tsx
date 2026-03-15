@@ -86,6 +86,9 @@ const PrayerTimes = () => {
   const [loading, setLoading] = useState(true);
   const [notifEnabled, setNotifEnabled] = useState(() => getNotificationPermission() === 'granted');
   const [indicators, setIndicators] = useState<{ current: string | null; next: string | null }>({ current: null, next: null });
+  const [selectedCity] = useState(() => localStorage.getItem('atraa_weather_city') || 'Qatif');
+  const [currentCity, setCurrentCity] = useState(selectedCity);
+  const isSupported = SUPPORTED_CITIES.has(currentCity);
 
   useEffect(() => {
     const city = localStorage.getItem('atraa_weather_city') || 'Qatif';
