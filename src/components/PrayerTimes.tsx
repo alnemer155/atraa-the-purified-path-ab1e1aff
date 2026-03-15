@@ -151,15 +151,24 @@ const PrayerTimes = () => {
     <div className="rounded-2xl bg-card p-4 shadow-card">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-base font-semibold text-foreground">أوقات الصلاة</h2>
-        <button
-          onClick={handleToggleNotif}
-          className={`p-2 rounded-xl transition-colors ${notifEnabled ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-          title={notifEnabled ? 'الإشعارات مفعلة' : 'تفعيل إشعارات الصلاة'}
-        >
-          {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-        </button>
+        {isSupported && (
+          <button
+            onClick={handleToggleNotif}
+            className={`p-2 rounded-xl transition-colors ${notifEnabled ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+            title={notifEnabled ? 'الإشعارات مفعلة' : 'تفعيل إشعارات الصلاة'}
+          >
+            {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+          </button>
+        )}
       </div>
-      {loading ? (
+      {!isSupported ? (
+        <div className="flex flex-col items-center gap-2 py-6">
+          <span className="text-3xl">⏳</span>
+          <p className="text-sm text-muted-foreground text-center leading-relaxed">
+            سيتم دعم هذه المدينة <span className="font-semibold text-foreground">{currentCity}</span> بإذن الله قريباً
+          </p>
+        </div>
+      ) : loading ? (
         <div className="grid grid-cols-3 gap-2">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="h-16 rounded-xl bg-secondary animate-pulse" />
