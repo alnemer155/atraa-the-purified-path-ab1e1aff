@@ -128,6 +128,9 @@ const HomePage = () => {
       {/* Prayer Times */}
       <PrayerTimes />
 
+      {/* Wallpapers */}
+      <WallpapersSection />
+
       {/* Daily Recommendations */}
       <DailyRecommendations />
     </div>
