@@ -111,7 +111,9 @@ const PrayerTimes = () => {
     // Listen for city changes
     const handleStorage = (e: StorageEvent) => {
       if (e.key === 'atraa_weather_city' && e.newValue) {
-        const newConfig = CITY_PRAYER_CONFIG[e.newValue] || DEFAULT_CONFIG;
+        setCurrentCity(e.newValue);
+        const newConfig = CITY_PRAYER_CONFIG[e.newValue];
+        if (!newConfig) return; // unsupported
         const newUrl = `https://api.aladhan.com/v1/timings?latitude=${newConfig.lat}&longitude=${newConfig.lng}&method=4&timezonestring=Asia/Riyadh&tune=${newConfig.tune}`;
         fetch(newUrl)
           .then(res => res.json())
