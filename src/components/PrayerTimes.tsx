@@ -29,6 +29,7 @@ const CITY_PRAYER_CONFIG: Record<string, { lat: number; lng: number; tune: strin
   Jubail: { lat: 27.0046, lng: 49.6222, tune: '2,2,0,0,-1,15,0,0,0,0' },
 };
 
+const SUPPORTED_CITIES = new Set(Object.keys(CITY_PRAYER_CONFIG));
 const DEFAULT_CONFIG = { lat: 26.4207, lng: 50.0888, tune: '2,2,0,0,-1,15,0,0,0,0' };
 
 function to12Hour(time24: string): string {
@@ -86,6 +87,9 @@ const PrayerTimes = () => {
   const [loading, setLoading] = useState(true);
   const [notifEnabled, setNotifEnabled] = useState(() => getNotificationPermission() === 'granted');
   const [indicators, setIndicators] = useState<{ current: string | null; next: string | null }>({ current: null, next: null });
+  const [selectedCity] = useState(() => localStorage.getItem('atraa_weather_city') || 'Qatif');
+  const [currentCity, setCurrentCity] = useState(selectedCity);
+  const isSupported = SUPPORTED_CITIES.has(currentCity);
 
   useEffect(() => {
     const city = localStorage.getItem('atraa_weather_city') || 'Qatif';
@@ -108,7 +112,9 @@ const PrayerTimes = () => {
     // Listen for city changes
     const handleStorage = (e: StorageEvent) => {
       if (e.key === 'atraa_weather_city' && e.newValue) {
-        const newConfig = CITY_PRAYER_CONFIG[e.newValue] || DEFAULT_CONFIG;
+        setCurrentCity(e.newValue);
+        const newConfig = CITY_PRAYER_CONFIG[e.newValue];
+        if (!newConfig) return; // unsupported
         const newUrl = `https://api.aladhan.com/v1/timings?latitude=${newConfig.lat}&longitude=${newConfig.lng}&method=4&timezonestring=Asia/Riyadh&tune=${newConfig.tune}`;
         fetch(newUrl)
           .then(res => res.json())
@@ -145,15 +151,24 @@ const PrayerTimes = () => {
     <div className="rounded-2xl bg-card p-4 shadow-card">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-base font-semibold text-foreground">أوقات الصلاة</h2>
-        <button
-          onClick={handleToggleNotif}
-          className={`p-2 rounded-xl transition-colors ${notifEnabled ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-          title={notifEnabled ? 'الإشعارات مفعلة' : 'تفعيل إشعارات الصلاة'}
-        >
-          {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-        </button>
+        {isSupported && (
+          <button
+            onClick={handleToggleNotif}
+            className={`p-2 rounded-xl transition-colors ${notifEnabled ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+            title={notifEnabled ? 'الإشعارات مفعلة' : 'تفعيل إشعارات الصلاة'}
+          >
+            {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+          </button>
+        )}
       </div>
-      {loading ? (
+      {!isSupported ? (
+        <div className="flex flex-col items-center gap-2 py-6">
+          <span className="text-3xl">⏳</span>
+          <p className="text-sm text-muted-foreground text-center leading-relaxed">
+            سيتم دعم هذه المدينة <span className="font-semibold text-foreground">{currentCity}</span> بإذن الله قريباً
+          </p>
+        </div>
+      ) : loading ? (
         <div className="grid grid-cols-3 gap-2">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="h-16 rounded-xl bg-secondary animate-pulse" />

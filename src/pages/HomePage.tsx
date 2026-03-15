@@ -7,6 +7,7 @@ import PrayerTimes from '@/components/PrayerTimes';
 import WeatherWidget from '@/components/WeatherWidget';
 import HijriCountdown from '@/components/HijriCountdown';
 import DailyRecommendations from '@/components/DailyRecommendations';
+import WallpapersSection from '@/components/WallpapersSection';
 
 const dhikrPhrases = [
   'اللهم صلِّ على محمد وآل محمد',
@@ -126,6 +127,9 @@ const HomePage = () => {
 
       {/* Prayer Times */}
       <PrayerTimes />
+
+      {/* Wallpapers */}
+      <WallpapersSection />
 
       {/* Daily Recommendations */}
       <DailyRecommendations />
