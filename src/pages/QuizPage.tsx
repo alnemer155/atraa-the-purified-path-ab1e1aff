@@ -338,7 +338,7 @@ const QuizPage = () => {
 
         {/* Header */}
         <div className="text-center mb-6">
-          <img src={quizLogo} alt="مسابقة عترة" className="w-28 h-28 mx-auto mb-4 rounded-3xl object-contain shadow-elevated" />
+          <img src={quizFace} alt="مسابقة عترة" className="w-28 h-28 mx-auto mb-4 rounded-3xl object-contain shadow-elevated" />
           <h1 className="text-xl font-bold text-foreground">التسجيل في المسابقة</h1>
           <p className="text-xs text-muted-foreground mt-1.5">سجّل الآن واستعد لتحدي المعرفة الدينية</p>
         </div>
@@ -547,7 +547,7 @@ const QuizPage = () => {
 
         {/* Logo small */}
         <div className="flex justify-center mb-4">
-          <img src={quizLogo} alt="مسابقة عترة" className="w-16 h-16 rounded-2xl object-contain shadow-card" />
+          <img src={quizFace} alt="مسابقة عترة" className="w-16 h-16 rounded-2xl object-contain shadow-card" />
         </div>
 
         {/* Progress steps */}
@@ -706,7 +706,7 @@ const QuizPage = () => {
       {/* Hero header */}
       <div className="text-center mb-6">
         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring' }}>
-          <img src={quizLogo} alt="مسابقة عترة" className="w-32 h-32 mx-auto mb-4 rounded-3xl object-contain shadow-elevated" />
+          <img src={quizFace} alt="مسابقة عترة" className="w-32 h-32 mx-auto mb-4 rounded-3xl object-contain shadow-elevated" />
         </motion.div>
         <h1 className="text-xl font-black text-foreground mb-1.5">مسابقة عِتْرَة</h1>
         <p className="text-sm text-muted-foreground leading-relaxed">أسئلة دينية وثقافية عن أهل البيت عليهم السلام</p>
