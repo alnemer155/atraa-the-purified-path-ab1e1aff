@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, MessageCircle, Share2, Download, Copy, Check, Smartphone, LogOut } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, MessageCircle, Share2, Download, Copy, Check, Smartphone, LogOut, MailCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUser, getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
 import CityPicker from '@/components/CityPicker';
@@ -26,6 +26,71 @@ const SettingsPage = () => {
   const [hijriAdj, setHijriAdj] = useState(() => getHijriAdjustment());
   const [shareCopied, setShareCopied] = useState(false);
   const [showInstallGuide, setShowInstallGuide] = useState(false);
+  const [emailNotif, setEmailNotif] = useState(false);
+  const [emailNotifLoading, setEmailNotifLoading] = useState(false);
+
+  // Load email notification preference
+  useEffect(() => {
+    const loadEmailPref = async () => {
+      const userEmail = user?.email;
+      if (!userEmail) return;
+      const { data } = await supabase
+        .from('email_notification_prefs')
+        .select('*')
+        .eq('email', userEmail)
+        .maybeSingle();
+      if (data) {
+        setEmailNotif(true);
+      }
+    };
+    loadEmailPref();
+  }, []);
+
+  const toggleEmailNotif = async () => {
+    const userEmail = user?.email;
+    if (!userEmail) {
+      toast.error('يرجى تسجيل الدخول أولاً للحصول على إشعارات البريد');
+      return;
+    }
+    setEmailNotifLoading(true);
+    try {
+      if (emailNotif) {
+        await supabase.from('email_notification_prefs').delete().eq('email', userEmail);
+        setEmailNotif(false);
+        toast.success('تم إلغاء إشعارات البريد');
+      } else {
+        const deviceId = localStorage.getItem('atraa_device_id') || crypto.randomUUID();
+        await supabase.from('email_notification_prefs').upsert({
+          email: userEmail,
+          device_id: deviceId,
+          adhan: adhanNotif,
+          dhikr: dhikrNotif,
+          salawat: salawatNotif,
+          quiz: quizNotif,
+          dua: duaNotif,
+        }, { onConflict: 'email' });
+        setEmailNotif(true);
+        toast.success('تم تفعيل إشعارات البريد الإلكتروني');
+      }
+    } catch {
+      toast.error('حدث خطأ');
+    }
+    setEmailNotifLoading(false);
+  };
+
+  // Sync email prefs when toggles change
+  const toggleNotifWithEmail = async (type: string, current: boolean, setter: (v: boolean) => void) => {
+    const next = !current;
+    setter(next);
+    localStorage.setItem(`atraa_notif_${type}`, String(next));
+    if (next && 'Notification' in window && Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+    // Sync to email prefs if email notif is enabled
+    if (emailNotif && user?.email) {
+      await supabase.from('email_notification_prefs').update({ [type]: next, updated_at: new Date().toISOString() }).eq('email', user.email);
+    }
+  };
 
   const toggleNotif = (type: string, current: boolean, setter: (v: boolean) => void) => {
     const next = !current;
