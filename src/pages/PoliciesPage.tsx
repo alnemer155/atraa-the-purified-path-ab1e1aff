@@ -117,7 +117,7 @@ const PoliciesPage = () => {
       </div>
 
       <div className="text-center pb-6 pt-2">
-        <p className="text-[10px] text-muted-foreground/60">آخر تحديث: مارس ٢٠٢٦ · الإصدار 2.1</p>
+        <p className="text-[10px] text-muted-foreground/60">آخر تحديث: مارس ٢٠٢٦ · الإصدار v3.0</p>
       </div>
     </div>
   );

@@ -42,7 +42,7 @@ const SettingsPage = () => {
   };
 
   const handleShareApp = async () => {
-    const shareText = 'عِتْرَةً منصة إسلامية شيعية تهدف إلى تقديم المحتوى الديني بصورة حديثة ومنظمة، تجمع بين الفائدة وسهولة الاستخدام.\n\nاكتشفه وجرب الآن: https://atraa.xyz';
+    const shareText = 'عِتَرَةً منصة إسلامية شيعية تهدف إلى تقديم المحتوى الديني بصورة حديثة ومنظمة، تجمع بين الفائدة وسهولة الاستخدام.\n\nاكتشفه وجرب الآن: https://atraa.xyz';
     if (navigator.share) {
       try { await navigator.share({ text: shareText }); return; } catch {}
     }
@@ -348,8 +348,8 @@ const SettingsPage = () => {
 
       {/* Version */}
       <div className="text-center pb-6 pt-2">
-        <p className="text-xs text-muted-foreground">عِتْرَة</p>
-        <p className="text-[10px] text-muted-foreground/60 mt-0.5">الإصدار 2.1 · بناء 42</p>
+        <p className="text-xs text-muted-foreground">عِتَرَةً</p>
+        <p className="text-[10px] text-muted-foreground/60 mt-0.5">الإصدار v3.0 · بناء 100</p>
       </div>
     </div>
   );
