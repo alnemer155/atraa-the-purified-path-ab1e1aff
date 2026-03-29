@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, MessageCircle, Share2, Download, Copy, Check, Smartphone, LogOut, MailCheck, Send } from 'lucide-react';
+import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, MessageCircle, Share2, Download, Copy, Check, Smartphone, LogOut, MailCheck, Send, Sparkles, Heart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUser, getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
 import CityPicker from '@/components/CityPicker';
@@ -8,15 +8,27 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-const stagger = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
+const fadeUp = {
+  hidden: { opacity: 0, y: 14 },
+  visible: (i: number = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.05, duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] as const } }),
 };
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-};
+/* ─── Glass Card ─── */
+const GlassCard = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
+  <div className={`bg-card/80 backdrop-blur-sm rounded-2xl border border-border/40 shadow-card ${className}`}>
+    {children}
+  </div>
+);
+
+/* ─── Section Header ─── */
+const SectionHeader = ({ icon: Icon, label }: { icon: any; label: string }) => (
+  <div className="flex items-center gap-2 px-1 mb-2.5">
+    <div className="w-6 h-6 rounded-lg islamic-gradient flex items-center justify-center">
+      <Icon className="w-3 h-3 text-primary-foreground" />
+    </div>
+    <p className="text-[11px] font-bold text-muted-foreground tracking-wide">{label}</p>
+  </div>
+);
 
 const SettingsPage = () => {
   const navigate = useNavigate();
@@ -123,168 +135,172 @@ const SettingsPage = () => {
     navigate('/register');
   };
 
-  const NotifToggle = ({ label, subtitle, enabled, onToggle }: { label: string; subtitle: string; enabled: boolean; onToggle: () => void }) => (
-    <button onClick={onToggle} className="w-full flex items-center justify-between p-3 active:bg-secondary/30 transition-colors">
-      <div className="text-right flex-1 min-w-0">
-        <p className="text-[13px] font-medium text-foreground">{label}</p>
-        <p className="text-[10px] text-muted-foreground mt-0.5">{subtitle}</p>
+  const NotifToggle = ({ label, subtitle, emoji, enabled, onToggle }: { label: string; subtitle: string; emoji: string; enabled: boolean; onToggle: () => void }) => (
+    <motion.button whileTap={{ scale: 0.98 }} onClick={onToggle} className="w-full flex items-center justify-between p-3.5 active:bg-secondary/20 transition-colors">
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        <span className="text-base flex-shrink-0">{emoji}</span>
+        <div className="text-right flex-1 min-w-0">
+          <p className="text-[13px] font-semibold text-foreground">{label}</p>
+          <p className="text-[10px] text-muted-foreground/70 mt-0.5">{subtitle}</p>
+        </div>
       </div>
-      <div className={`w-10 h-[22px] rounded-full transition-all duration-200 flex items-center px-0.5 flex-shrink-0 mr-3 ${enabled ? 'bg-primary justify-start' : 'bg-border/80 justify-end'}`}>
-        <motion.div layout className="w-[18px] h-[18px] rounded-full bg-card shadow-sm" />
+      <div className={`w-11 h-[26px] rounded-full transition-all duration-300 flex items-center px-0.5 flex-shrink-0 mr-2 ${enabled ? 'bg-primary justify-start' : 'bg-border/60 justify-end'}`}>
+        <motion.div layout transition={{ type: 'spring' as const, stiffness: 500, damping: 30 }} className="w-[22px] h-[22px] rounded-full bg-card shadow-sm" />
       </div>
-    </button>
+    </motion.button>
   );
 
   return (
     <motion.div
-      className="px-4 py-4 space-y-4 animate-fade-in"
-      variants={stagger}
+      className="px-4 py-5 pb-32 space-y-5"
       initial="hidden"
       animate="visible"
     >
       {/* Header */}
-      <motion.div variants={fadeUp} className="flex items-center gap-2 py-1">
-        <div className="w-8 h-8 rounded-xl islamic-gradient flex items-center justify-center shadow-sm">
-          <User className="w-4 h-4 text-primary-foreground" />
+      <motion.div variants={fadeUp} custom={0} className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-2xl islamic-gradient flex items-center justify-center shadow-elevated">
+          <User className="w-5 h-5 text-primary-foreground" />
         </div>
-        <h1 className="text-lg font-bold text-foreground">الإعدادات</h1>
+        <div>
+          <h1 className="text-lg font-black text-foreground">الإعدادات</h1>
+          <p className="text-[10px] text-muted-foreground">تخصيص التجربة وإدارة الحساب</p>
+        </div>
       </motion.div>
 
       {/* User card */}
       {user && (
-        <motion.div variants={fadeUp} className="bg-card rounded-2xl shadow-card border border-border/30 p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl islamic-gradient flex items-center justify-center shadow-card">
-              <span className="text-lg">{user.title === 'سيد' ? '🧕🏻' : '👤'}</span>
+        <motion.div variants={fadeUp} custom={1}>
+          <GlassCard className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 rounded-2xl islamic-gradient flex items-center justify-center shadow-elevated">
+                <span className="text-2xl">{user.title === 'سيد' ? '🧕🏻' : '👤'}</span>
+              </div>
+              <div className="flex-1 text-right min-w-0">
+                <p className="text-sm font-bold text-foreground truncate">
+                  {user.title && user.title !== 'none' ? `${user.title} ` : ''}{user.name}
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{user.email || 'حساب محلي'}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <motion.button whileTap={{ scale: 0.9 }}
+                  onClick={() => navigate('/register')}
+                  className="px-3.5 py-2 rounded-xl bg-primary/8 text-xs font-semibold text-primary hover:bg-primary/15 transition-all">
+                  تعديل
+                </motion.button>
+                <motion.button whileTap={{ scale: 0.85 }}
+                  onClick={handleSignOut}
+                  className="w-9 h-9 rounded-xl bg-destructive/8 hover:bg-destructive/15 flex items-center justify-center transition-all">
+                  <LogOut className="w-4 h-4 text-destructive" />
+                </motion.button>
+              </div>
             </div>
-            <div className="flex-1 text-right min-w-0">
-              <p className="text-sm font-semibold text-foreground truncate">
-                {user.title && user.title !== 'none' ? `${user.title} ` : ''}{user.name}
-              </p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{user.email || 'حساب محلي'}</p>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => navigate('/register')}
-                className="px-3 py-1.5 rounded-xl bg-secondary/60 text-xs font-medium text-foreground hover:bg-primary/8 hover:text-primary transition-colors"
-              >
-                تعديل
-              </button>
-              <button
-                onClick={handleSignOut}
-                className="p-1.5 rounded-xl bg-destructive/10 hover:bg-destructive/15 transition-colors"
-              >
-                <LogOut className="w-3.5 h-3.5 text-destructive" />
-              </button>
-            </div>
-          </div>
+          </GlassCard>
         </motion.div>
       )}
 
       {/* Notifications Section */}
-      <motion.div variants={fadeUp} className="space-y-2">
-        <div className="flex items-center gap-2 px-1">
-          <Bell className="w-3.5 h-3.5 text-primary" />
-          <p className="text-[11px] font-semibold text-muted-foreground">الإشعارات</p>
-        </div>
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/15">
-          <NotifToggle label="إشعارات الأذان" subtitle="تنبيه عند دخول وقت الصلاة" enabled={adhanNotif} onToggle={() => toggleNotifWithEmail('adhan', adhanNotif, setAdhanNotif)} />
-          <NotifToggle label="تذكير الأذكار" subtitle="أذكار الصباح والمساء" enabled={dhikrNotif} onToggle={() => toggleNotifWithEmail('dhikr', dhikrNotif, setDhikrNotif)} />
-          <NotifToggle label="الصلاة على النبي" subtitle="اللهم صلّ على محمد وآله" enabled={salawatNotif} onToggle={() => toggleNotifWithEmail('salawat', salawatNotif, setSalawatNotif)} />
-          <NotifToggle label="إشعارات المسابقة" subtitle="تنبيه قبل بدء الأسئلة" enabled={quizNotif} onToggle={() => toggleNotifWithEmail('quiz', quizNotif, setQuizNotif)} />
-          <NotifToggle label="دعاء اليوم" subtitle="تذكير يومي بدعاء مقترح" enabled={duaNotif} onToggle={() => toggleNotifWithEmail('dua', duaNotif, setDuaNotif)} />
-        </div>
+      <motion.div variants={fadeUp} custom={2}>
+        <SectionHeader icon={Bell} label="الإشعارات" />
+        <GlassCard className="overflow-hidden divide-y divide-border/15">
+          <NotifToggle emoji="🕌" label="إشعارات الأذان" subtitle="تنبيه عند دخول وقت الصلاة" enabled={adhanNotif} onToggle={() => toggleNotifWithEmail('adhan', adhanNotif, setAdhanNotif)} />
+          <NotifToggle emoji="📿" label="تذكير الأذكار" subtitle="أذكار الصباح والمساء" enabled={dhikrNotif} onToggle={() => toggleNotifWithEmail('dhikr', dhikrNotif, setDhikrNotif)} />
+          <NotifToggle emoji="🤲🏻" label="الصلاة على النبي" subtitle="اللهم صلّ على محمد وآله" enabled={salawatNotif} onToggle={() => toggleNotifWithEmail('salawat', salawatNotif, setSalawatNotif)} />
+          <NotifToggle emoji="🏆" label="إشعارات المسابقة" subtitle="تنبيه قبل بدء الأسئلة" enabled={quizNotif} onToggle={() => toggleNotifWithEmail('quiz', quizNotif, setQuizNotif)} />
+          <NotifToggle emoji="🌙" label="دعاء اليوم" subtitle="تذكير يومي بدعاء مقترح" enabled={duaNotif} onToggle={() => toggleNotifWithEmail('dua', duaNotif, setDuaNotif)} />
+        </GlassCard>
       </motion.div>
 
       {/* Email Notifications */}
-      <motion.div variants={fadeUp}>
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden">
-          <button
+      <motion.div variants={fadeUp} custom={3}>
+        <GlassCard className="overflow-hidden">
+          <motion.button whileTap={{ scale: 0.98 }}
             onClick={toggleEmailNotif}
             disabled={emailNotifLoading}
-            className="w-full flex items-center justify-between p-3.5 active:bg-secondary/30 transition-colors disabled:opacity-50"
-          >
+            className="w-full flex items-center justify-between p-4 active:bg-secondary/20 transition-colors disabled:opacity-50">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
-                <MailCheck className="w-4 h-4 text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center">
+                <MailCheck className="w-5 h-5 text-primary" />
               </div>
               <div className="text-right">
-                <p className="text-[13px] font-medium text-foreground">
+                <p className="text-[13px] font-semibold text-foreground">
                   {emailNotif ? 'إشعارات البريد مفعّلة' : 'تفعيل إشعارات البريد'}
                 </p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
+                <p className="text-[10px] text-muted-foreground/70 mt-0.5">
                   {user?.email || 'يرجى تسجيل الدخول أولاً'}
                 </p>
               </div>
             </div>
-            <div className={`w-10 h-[22px] rounded-full transition-all duration-200 flex items-center px-0.5 ${emailNotif ? 'bg-primary justify-start' : 'bg-border/80 justify-end'}`}>
-              <motion.div layout className="w-[18px] h-[18px] rounded-full bg-card shadow-sm" />
+            <div className={`w-11 h-[26px] rounded-full transition-all duration-300 flex items-center px-0.5 ${emailNotif ? 'bg-primary justify-start' : 'bg-border/60 justify-end'}`}>
+              <motion.div layout transition={{ type: 'spring' as const, stiffness: 500, damping: 30 }} className="w-[22px] h-[22px] rounded-full bg-card shadow-sm" />
             </div>
-          </button>
-        </div>
+          </motion.button>
+        </GlassCard>
       </motion.div>
 
       {/* Location & Date */}
-      <motion.div variants={fadeUp} className="space-y-2">
-        <div className="flex items-center gap-2 px-1">
-          <Calendar className="w-3.5 h-3.5 text-primary" />
-          <p className="text-[11px] font-semibold text-muted-foreground">الطقس والتاريخ</p>
-        </div>
-        <CityPicker selectedCity={selectedCity} onCityChange={handleCityChange} />
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
-              <Calendar className="w-4 h-4 text-primary" />
+      <motion.div variants={fadeUp} custom={4}>
+        <SectionHeader icon={Calendar} label="الطقس والتاريخ" />
+        <div className="space-y-3">
+          <CityPicker selectedCity={selectedCity} onCityChange={handleCityChange} />
+          <GlassCard className="p-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-primary" />
+              </div>
+              <div className="text-right">
+                <p className="text-[13px] font-semibold text-foreground">تعديل التاريخ الهجري</p>
+                <p className="text-[10px] text-muted-foreground/70">تصحيح فرق الأيام</p>
+              </div>
             </div>
-            <div className="text-right">
-              <p className="text-[13px] font-medium text-foreground">تعديل التاريخ الهجري</p>
-              <p className="text-[10px] text-muted-foreground">تصحيح فرق الأيام</p>
+            <div className="flex items-center justify-center gap-2">
+              {[-2, -1, 0, 1, 2].map(val => (
+                <motion.button whileTap={{ scale: 0.9 }}
+                  key={val}
+                  onClick={() => handleHijriChange(val)}
+                  className={`w-13 h-11 rounded-xl text-sm font-semibold transition-all ${
+                    hijriAdj === val
+                      ? 'islamic-gradient text-primary-foreground shadow-elevated'
+                      : 'bg-secondary/50 text-foreground hover:bg-primary/8 border border-border/30'
+                  }`}
+                  style={{ width: 52, height: 44 }}
+                >
+                  {val > 0 ? `+${val}` : val}
+                </motion.button>
+              ))}
             </div>
-          </div>
-          <div className="flex items-center justify-center gap-1.5">
-            {[-2, -1, 0, 1, 2].map(val => (
-              <button
-                key={val}
-                onClick={() => handleHijriChange(val)}
-                className={`w-12 h-10 rounded-xl text-sm font-medium transition-all ${
-                  hijriAdj === val
-                    ? 'islamic-gradient text-primary-foreground shadow-card'
-                    : 'bg-secondary/50 text-foreground hover:bg-primary/8'
-                }`}
-              >
-                {val > 0 ? `+${val}` : val}
-              </button>
-            ))}
-          </div>
+          </GlassCard>
         </div>
       </motion.div>
 
       {/* Share & Install */}
-      <motion.div variants={fadeUp} className="space-y-2">
-        <div className="flex items-center gap-2 px-1">
-          <Share2 className="w-3.5 h-3.5 text-primary" />
-          <p className="text-[11px] font-semibold text-muted-foreground">مشاركة وتحميل</p>
-        </div>
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/15">
-          <button onClick={handleShareApp} className="w-full flex items-center justify-between p-3.5 hover:bg-secondary/30 transition-colors active:bg-secondary/50">
+      <motion.div variants={fadeUp} custom={5}>
+        <SectionHeader icon={Share2} label="مشاركة وتحميل" />
+        <GlassCard className="overflow-hidden divide-y divide-border/15">
+          <motion.button whileTap={{ scale: 0.98 }} onClick={handleShareApp} className="w-full flex items-center justify-between p-4 hover:bg-secondary/20 transition-colors">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
-                <Share2 className="w-4 h-4 text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center">
+                <Share2 className="w-4.5 h-4.5 text-primary" />
               </div>
-              <p className="text-[13px] font-medium text-foreground">مشاركة التطبيق</p>
+              <div className="text-right">
+                <p className="text-[13px] font-semibold text-foreground">مشاركة التطبيق</p>
+                <p className="text-[10px] text-muted-foreground/70 mt-0.5">شارك عِتَرَةً مع أصدقائك</p>
+              </div>
             </div>
-            {shareCopied ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground/40" />}
-          </button>
-          <button onClick={() => setShowInstallGuide(true)} className="w-full flex items-center justify-between p-3.5 hover:bg-secondary/30 transition-colors active:bg-secondary/50">
+            {shareCopied ? <Check className="w-4 h-4 text-primary" /> : <ChevronLeft className="w-4 h-4 text-muted-foreground/30" />}
+          </motion.button>
+          <motion.button whileTap={{ scale: 0.98 }} onClick={() => setShowInstallGuide(true)} className="w-full flex items-center justify-between p-4 hover:bg-secondary/20 transition-colors">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
-                <Download className="w-4 h-4 text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center">
+                <Download className="w-4.5 h-4.5 text-primary" />
               </div>
-              <p className="text-[13px] font-medium text-foreground">تحميل التطبيق</p>
+              <div className="text-right">
+                <p className="text-[13px] font-semibold text-foreground">تحميل التطبيق</p>
+                <p className="text-[10px] text-muted-foreground/70 mt-0.5">إضافة إلى الشاشة الرئيسية</p>
+              </div>
             </div>
-            <Smartphone className="w-3.5 h-3.5 text-muted-foreground/40" />
-          </button>
-        </div>
+            <ChevronLeft className="w-4 h-4 text-muted-foreground/30" />
+          </motion.button>
+        </GlassCard>
       </motion.div>
 
       {/* PWA Install Guide */}
@@ -294,192 +310,178 @@ const SettingsPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/25 backdrop-blur-sm px-5"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/25 backdrop-blur-md px-5"
             onClick={() => setShowInstallGuide(false)}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: 0.85, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-card rounded-3xl p-5 shadow-elevated max-w-sm w-full max-h-[80vh] overflow-y-auto border border-border/30"
+              exit={{ scale: 0.85, opacity: 0 }}
+              transition={{ type: 'spring' as const, stiffness: 350, damping: 25 }}
+              className="bg-card rounded-3xl p-6 shadow-elevated max-w-sm w-full max-h-[80vh] overflow-y-auto border border-border/40"
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="text-base font-bold text-foreground mb-4 text-center">تحميل التطبيق</h2>
+              <div className="text-center mb-5">
+                <div className="w-14 h-14 rounded-2xl islamic-gradient flex items-center justify-center mx-auto mb-3 shadow-elevated">
+                  <Smartphone className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <h2 className="text-base font-black text-foreground">تحميل التطبيق</h2>
+                <p className="text-[11px] text-muted-foreground mt-1">أضف التطبيق لشاشتك الرئيسية</p>
+              </div>
               
-              <div className="mb-5">
-                <div className="flex items-center gap-2 mb-2.5">
-                  <span className="text-base">🤖</span>
-                  <h3 className="text-sm font-semibold text-foreground">أندرويد</h3>
+              {[
+                {
+                  emoji: '🤖', title: 'أندرويد',
+                  steps: ['افتح الموقع في Chrome', 'اضغط ⋮ ثم "إضافة إلى الشاشة الرئيسية"', 'اضغط "إضافة" وسيظهر كتطبيق']
+                },
+                {
+                  emoji: '🍎', title: 'آيفون (Safari)',
+                  steps: ['افتح الموقع في Safari', 'اضغط ⬆️ ثم "إضافة إلى الشاشة الرئيسية"', 'اضغط "إضافة" وسيعمل كتطبيق مستقل']
+                }
+              ].map((platform) => (
+                <div key={platform.title} className="mb-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-lg">{platform.emoji}</span>
+                    <h3 className="text-sm font-bold text-foreground">{platform.title}</h3>
+                  </div>
+                  <div className="space-y-2 pr-1">
+                    {platform.steps.map((step, i) => (
+                      <div key={i} className="flex items-start gap-2.5">
+                        <div className="w-5 h-5 rounded-lg islamic-gradient flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-[10px] font-black text-primary-foreground">{i + 1}</span>
+                        </div>
+                        <p className="text-[12px] text-muted-foreground leading-relaxed">{step}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <ol className="space-y-1.5 text-[11px] text-muted-foreground leading-relaxed pr-4">
-                  <li className="flex gap-2"><span className="text-primary font-bold">1.</span>افتح الموقع في Chrome</li>
-                  <li className="flex gap-2"><span className="text-primary font-bold">2.</span>اضغط ⋮ ثم "إضافة إلى الشاشة الرئيسية"</li>
-                  <li className="flex gap-2"><span className="text-primary font-bold">3.</span>اضغط "إضافة" وسيظهر كتطبيق</li>
-                </ol>
-              </div>
+              ))}
 
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-2.5">
-                  <span className="text-base">🍎</span>
-                  <h3 className="text-sm font-semibold text-foreground">آيفون (Safari)</h3>
-                </div>
-                <ol className="space-y-1.5 text-[11px] text-muted-foreground leading-relaxed pr-4">
-                  <li className="flex gap-2"><span className="text-primary font-bold">1.</span>افتح الموقع في Safari</li>
-                  <li className="flex gap-2"><span className="text-primary font-bold">2.</span>اضغط ⬆️ ثم "إضافة إلى الشاشة الرئيسية"</li>
-                  <li className="flex gap-2"><span className="text-primary font-bold">3.</span>اضغط "إضافة" وسيعمل كتطبيق مستقل</li>
-                </ol>
-              </div>
-
-              <button
+              <motion.button whileTap={{ scale: 0.97 }}
                 onClick={() => setShowInstallGuide(false)}
-                className="w-full py-2.5 rounded-xl bg-secondary/60 text-foreground text-sm font-medium"
-              >
+                className="w-full py-3 rounded-2xl bg-secondary/60 text-foreground text-sm font-semibold">
                 حسناً
-              </button>
+              </motion.button>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Legal */}
-      <motion.div variants={fadeUp} className="space-y-2">
-        <div className="flex items-center gap-2 px-1">
-          <Shield className="w-3.5 h-3.5 text-primary" />
-          <p className="text-[11px] font-semibold text-muted-foreground">قانوني</p>
-        </div>
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/15">
-          <Link to="/policies" className="flex items-center justify-between p-3.5 hover:bg-secondary/30 transition-colors">
+      <motion.div variants={fadeUp} custom={6}>
+        <SectionHeader icon={Shield} label="قانوني" />
+        <GlassCard className="overflow-hidden divide-y divide-border/15">
+          <Link to="/policies" className="flex items-center justify-between p-4 hover:bg-secondary/20 transition-colors">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
-                <Shield className="w-4 h-4 text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center">
+                <Shield className="w-4.5 h-4.5 text-primary" />
               </div>
-              <p className="text-[13px] font-medium text-foreground">سياسة الخصوصية</p>
+              <p className="text-[13px] font-semibold text-foreground">سياسة الخصوصية</p>
             </div>
-            <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground/30" />
+            <ChevronLeft className="w-4 h-4 text-muted-foreground/30" />
           </Link>
-          <Link to="/policies" className="flex items-center justify-between p-3.5 hover:bg-secondary/30 transition-colors">
+          <Link to="/policies" className="flex items-center justify-between p-4 hover:bg-secondary/20 transition-colors">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
-                <FileText className="w-4 h-4 text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center">
+                <FileText className="w-4.5 h-4.5 text-primary" />
               </div>
-              <p className="text-[13px] font-medium text-foreground">شروط الاستخدام</p>
+              <p className="text-[13px] font-semibold text-foreground">شروط الاستخدام</p>
             </div>
-            <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground/30" />
+            <ChevronLeft className="w-4 h-4 text-muted-foreground/30" />
           </Link>
-        </div>
+        </GlassCard>
       </motion.div>
 
       {/* Disclaimer */}
-      <motion.div variants={fadeUp} className="bg-gold-light/50 rounded-2xl p-3.5 flex items-start gap-2.5 border border-border/20">
-        <Info className="w-3.5 h-3.5 text-accent-foreground flex-shrink-0 mt-0.5" />
-        <p className="text-[11px] text-foreground leading-relaxed">
-          المطور لا يتحكم في أوقات الصلاة. البيانات مقدمة من واجهة Aladhan API. للملاحظات والتصحيحات يرجى التواصل عبر البريد.
-        </p>
+      <motion.div variants={fadeUp} custom={7}>
+        <GlassCard className="p-4 !bg-accent/5 !border-accent/15">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-xl bg-accent/15 flex items-center justify-center flex-shrink-0">
+              <Info className="w-4 h-4 text-accent-foreground" />
+            </div>
+            <p className="text-[11px] text-foreground leading-relaxed">
+              المطور لا يتحكم في أوقات الصلاة. البيانات مقدمة من واجهة Aladhan API. للملاحظات والتصحيحات يرجى التواصل عبر البريد.
+            </p>
+          </div>
+        </GlassCard>
       </motion.div>
 
       {/* About */}
-      <motion.div variants={fadeUp} className="space-y-2">
-        <div className="flex items-center gap-2 px-1">
-          <Code2 className="w-3.5 h-3.5 text-primary" />
-          <p className="text-[11px] font-semibold text-muted-foreground">حول التطبيق</p>
-        </div>
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 rounded-xl islamic-gradient flex items-center justify-center">
-              <Code2 className="w-4 h-4 text-primary-foreground" />
+      <motion.div variants={fadeUp} custom={8}>
+        <SectionHeader icon={Code2} label="حول التطبيق" />
+        <GlassCard className="p-5">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-2xl islamic-gradient flex items-center justify-center shadow-elevated">
+              <Code2 className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-foreground">عبدالله بن جعفر</p>
+              <p className="text-sm font-bold text-foreground">عبدالله بن جعفر</p>
               <p className="text-[10px] text-muted-foreground">المطوّر</p>
             </div>
           </div>
 
           <div className="space-y-0.5">
             {/* Contact Form Button */}
-            <button
+            <motion.button whileTap={{ scale: 0.97 }}
               onClick={() => setShowContactForm(true)}
-              className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary/30 transition-colors active:scale-[0.98]"
-            >
-              <div className="flex items-center gap-2">
-                <Send className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs font-medium text-foreground">التواصل السريع</span>
+              className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-secondary/20 transition-colors">
+              <div className="flex items-center gap-2.5">
+                <Send className="w-4 h-4 text-primary" />
+                <span className="text-xs font-semibold text-foreground">التواصل السريع</span>
               </div>
-              <span className="text-[10px] text-muted-foreground">شكوى · استفسار · طلب</span>
-            </button>
+              <span className="text-[10px] text-muted-foreground bg-secondary/60 px-2.5 py-1 rounded-lg">شكوى · استفسار · طلب</span>
+            </motion.button>
 
-            <a href="https://ajaafar.dev" target="_blank" rel="noopener" className="flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary/30 transition-colors">
-              <div className="flex items-center gap-2">
-                <Globe className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs text-foreground">موقع المطوّر</span>
-              </div>
-              <span className="text-[10px] text-muted-foreground">ajaafar.dev</span>
-            </a>
-            <a href="https://whatsapp.com/channel/0029VbCNwblJZg466AM5CC2R" target="_blank" rel="noopener" className="flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary/30 transition-colors">
-              <div className="flex items-center gap-2">
-                <MessageCircle className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs text-foreground">قناة واتساب</span>
-              </div>
-              <span className="text-[10px] text-muted-foreground">قــناة عِتْرَةً</span>
-            </a>
-            <a href="https://instagram.com/nr_aj5" target="_blank" rel="noopener" className="flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary/30 transition-colors">
-              <div className="flex items-center gap-2">
-                <ExternalLink className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs text-foreground">Instagram</span>
-              </div>
-              <span className="text-[10px] text-muted-foreground">@nr_aj5</span>
-            </a>
-            <a href="mailto:a.jaafar.dev@gmail.com" className="flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary/30 transition-colors">
-              <div className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs text-foreground">البريد الإلكتروني</span>
-              </div>
-              <span className="text-[10px] text-muted-foreground">a.jaafar.dev@gmail.com</span>
-            </a>
+            {[
+              { href: 'https://ajaafar.dev', icon: Globe, label: 'موقع المطوّر', value: 'ajaafar.dev' },
+              { href: 'https://whatsapp.com/channel/0029VbCNwblJZg466AM5CC2R', icon: MessageCircle, label: 'قناة واتساب', value: 'قــناة عِتْرَةً' },
+              { href: 'https://instagram.com/nr_aj5', icon: ExternalLink, label: 'Instagram', value: '@nr_aj5' },
+              { href: 'mailto:a.jaafar.dev@gmail.com', icon: Mail, label: 'البريد الإلكتروني', value: 'a.jaafar.dev@gmail.com' },
+            ].map(({ href, icon: Icon, label, value }) => (
+              <a key={href} href={href} target="_blank" rel="noopener"
+                className="flex items-center justify-between p-3 rounded-xl hover:bg-secondary/20 transition-colors">
+                <div className="flex items-center gap-2.5">
+                  <Icon className="w-4 h-4 text-primary" />
+                  <span className="text-xs font-medium text-foreground">{label}</span>
+                </div>
+                <span className="text-[10px] text-muted-foreground">{value}</span>
+              </a>
+            ))}
           </div>
 
-          <p className="text-[9px] text-muted-foreground/60 mt-2 px-1">البريد مخصص للاقتراحات والمشاكل التقنية فقط.</p>
-        </div>
+          <p className="text-[9px] text-muted-foreground/50 mt-3 px-1">البريد مخصص للاقتراحات والمشاكل التقنية فقط.</p>
+        </GlassCard>
       </motion.div>
 
       {/* Languages */}
-      <motion.div variants={fadeUp} className="space-y-2">
-        <div className="flex items-center gap-2 px-1">
-          <Globe className="w-3.5 h-3.5 text-primary" />
-          <p className="text-[11px] font-semibold text-muted-foreground">اللغات</p>
-        </div>
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/15">
-          <div className="flex items-center justify-between p-3.5">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl islamic-gradient flex items-center justify-center">
-                <span className="text-xs font-bold text-primary-foreground">ع</span>
+      <motion.div variants={fadeUp} custom={9}>
+        <SectionHeader icon={Globe} label="اللغات" />
+        <GlassCard className="overflow-hidden divide-y divide-border/15">
+          {[
+            { code: 'ع', name: 'العربية', label: 'اللغة الأساسية', active: true },
+            { code: 'EN', name: 'English (British)', label: 'الإنجليزية البريطانية', active: true },
+          ].map(lang => (
+            <div key={lang.code} className="flex items-center justify-between p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl islamic-gradient flex items-center justify-center">
+                  <span className="text-xs font-bold text-primary-foreground">{lang.code}</span>
+                </div>
+                <div className="text-right">
+                  <p className="text-[13px] font-semibold text-foreground">{lang.name}</p>
+                  <p className="text-[10px] text-muted-foreground/70">{lang.label}</p>
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-[13px] font-medium text-foreground">العربية</p>
-                <p className="text-[10px] text-muted-foreground">اللغة الأساسية</p>
-              </div>
+              <span className="text-[9px] font-bold text-primary bg-primary/8 px-2.5 py-1 rounded-full">مفعّل</span>
             </div>
-            <span className="text-[9px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">مفعّل</span>
-          </div>
-          <div className="flex items-center justify-between p-3.5">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-secondary/60 flex items-center justify-center">
-                <span className="text-xs font-bold text-muted-foreground">EN</span>
-              </div>
-              <div className="text-right">
-                <p className="text-[13px] font-medium text-foreground">English (British)</p>
-                <p className="text-[10px] text-muted-foreground">الإنجليزية البريطانية</p>
-              </div>
-            </div>
-            <span className="text-[9px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">مفعّل</span>
-          </div>
+          ))}
           {[
             { code: 'FR', name: 'Français', label: 'الفرنسية' },
             { code: 'فا', name: 'فارسی', label: 'الفارسية' },
             { code: 'DE', name: 'Deutsch', label: 'الألمانية' },
           ].map(lang => (
-            <div key={lang.code} className="flex items-center justify-between p-3.5 opacity-40">
+            <div key={lang.code} className="flex items-center justify-between p-4 opacity-35">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-secondary/60 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-secondary/50 flex items-center justify-center">
                   <span className="text-xs font-bold text-muted-foreground">{lang.code}</span>
                 </div>
                 <div className="text-right">
@@ -487,16 +489,19 @@ const SettingsPage = () => {
                   <p className="text-[10px] text-muted-foreground">{lang.label}</p>
                 </div>
               </div>
-              <span className="text-[9px] font-semibold text-accent-foreground bg-accent/15 px-2 py-0.5 rounded-full">قريباً</span>
+              <span className="text-[9px] font-bold text-accent-foreground bg-accent/15 px-2.5 py-1 rounded-full">قريباً</span>
             </div>
           ))}
-        </div>
+        </GlassCard>
       </motion.div>
 
       {/* Version */}
-      <motion.div variants={fadeUp} className="text-center pb-6 pt-1">
-        <p className="text-[11px] text-muted-foreground">عِتَرَةً</p>
-        <p className="text-[9px] text-muted-foreground/50 mt-0.5">v3.3 · بناء 160</p>
+      <motion.div variants={fadeUp} custom={10} className="text-center pb-8 pt-2">
+        <div className="flex items-center justify-center gap-1.5 mb-1">
+          <Heart className="w-3 h-3 text-primary" />
+          <p className="text-[11px] font-semibold text-foreground">عِتَرَةً</p>
+        </div>
+        <p className="text-[9px] text-muted-foreground/40 font-mono tabular-nums">v3.3 · بناء 160</p>
       </motion.div>
 
       {/* Contact Form Modal */}
