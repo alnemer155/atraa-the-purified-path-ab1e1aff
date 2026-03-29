@@ -19,57 +19,49 @@ const BottomNav = () => {
       className="fixed bottom-0 left-0 right-0 z-50"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
-      {/* Frosted glass background */}
-      <div className="bg-card/70 backdrop-blur-xl border-t border-border/40 shadow-[0_-4px_20px_-4px_hsl(var(--foreground)/0.06)]">
-        <div className="flex items-center justify-around px-2 py-1.5 max-w-lg mx-auto">
-          {navItems.map(({ path, label, icon: Icon }) => {
-            const isActive = location.pathname === path;
-            return (
-              <NavLink
-                key={path}
-                to={path}
-                className="relative flex flex-col items-center gap-[3px] py-1 px-1.5 min-w-[44px] group"
-              >
-                {/* Active pill indicator */}
-                <div className="relative">
+      {/* Apple Glass effect */}
+      <div className="mx-3 mb-2 rounded-[22px] border border-border/30 shadow-[0_8px_32px_-8px_hsl(var(--foreground)/0.12),inset_0_1px_0_0_hsl(var(--card)/0.6)] overflow-hidden">
+        <div className="bg-card/60 backdrop-blur-2xl backdrop-saturate-[1.8]">
+          <div className="flex items-center justify-around px-1 py-1.5">
+            {navItems.map(({ path, label, icon: Icon }) => {
+              const isActive = location.pathname === path;
+              return (
+                <NavLink
+                  key={path}
+                  to={path}
+                  className="relative flex flex-col items-center gap-[2px] py-1.5 px-2 min-w-[48px] group"
+                >
+                  {/* Active background pill */}
                   {isActive && (
                     <motion.div
-                      layoutId="nav-pill"
-                      className="absolute -inset-x-1 -inset-y-0.5 rounded-2xl islamic-gradient opacity-90"
-                      transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+                      layoutId="glass-pill"
+                      className="absolute inset-0 rounded-2xl bg-primary/12"
+                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
                   )}
-                  <div
-                    className={`relative p-[7px] rounded-2xl transition-all duration-200 ${
-                      isActive
-                        ? 'text-primary-foreground scale-105'
-                        : 'text-muted-foreground group-hover:text-foreground'
+
+                  <div className="relative z-10">
+                    <Icon
+                      className={`w-[20px] h-[20px] transition-all duration-200 ${
+                        isActive
+                          ? 'text-primary'
+                          : 'text-muted-foreground/70 group-hover:text-foreground/80'
+                      }`}
+                      strokeWidth={isActive ? 2.3 : 1.7}
+                    />
+                  </div>
+
+                  <span
+                    className={`relative z-10 text-[9px] leading-none font-semibold transition-all duration-200 ${
+                      isActive ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-foreground/60'
                     }`}
                   >
-                    <Icon className="w-[19px] h-[19px]" strokeWidth={isActive ? 2.2 : 1.8} />
-                  </div>
-                </div>
-
-                {/* Label */}
-                <span
-                  className={`text-[9px] leading-none font-semibold transition-all duration-200 ${
-                    isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground/70'
-                  }`}
-                >
-                  {label}
-                </span>
-
-                {/* Active dot */}
-                {isActive && (
-                  <motion.div
-                    layoutId="nav-dot"
-                    className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary"
-                    transition={{ type: 'spring', stiffness: 500, damping: 32 }}
-                  />
-                )}
-              </NavLink>
-            );
-          })}
+                    {label}
+                  </span>
+                </NavLink>
+              );
+            })}
+          </div>
         </div>
       </div>
     </nav>
