@@ -1,9 +1,16 @@
 import { useState } from 'react';
-import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, MessageCircle, Share2, Download, Copy, Check, Smartphone } from 'lucide-react';
+import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, MessageCircle, Share2, Download, Copy, Check, Smartphone, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUser, getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
 import CityPicker from '@/components/CityPicker';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0 },
+};
 
 const SettingsPage = () => {
   const navigate = useNavigate();
@@ -51,6 +58,13 @@ const SettingsPage = () => {
     setTimeout(() => setShareCopied(false), 2000);
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem('atraa_user');
+    toast.success('تم تسجيل الخروج');
+    navigate('/register');
+  };
+
   const NotifToggle = ({ label, subtitle, enabled, onToggle }: { label: string; subtitle: string; enabled: boolean; onToggle: () => void }) => (
     <button onClick={onToggle} className="w-full flex items-center justify-between p-3.5 active:bg-secondary/30 transition-colors">
       <div className="text-right">
@@ -64,14 +78,19 @@ const SettingsPage = () => {
   );
 
   return (
-    <div className="px-4 py-4 space-y-4 animate-fade-in">
-      <h1 className="text-lg font-bold text-foreground">الإعدادات</h1>
+    <motion.div
+      className="px-4 py-4 space-y-4 animate-fade-in"
+      initial="hidden"
+      animate="show"
+      transition={{ staggerChildren: 0.05 }}
+    >
+      <motion.h1 variants={fadeUp} className="text-lg font-bold text-foreground">الإعدادات</motion.h1>
 
       {/* User card */}
       {user && (
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 p-4">
+        <motion.div variants={fadeUp} className="bg-card rounded-2xl shadow-card border border-border/30 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl islamic-gradient flex items-center justify-center shadow-card">
+            <div className="w-12 h-12 rounded-2xl islamic-gradient flex items-center justify-center shadow-card">
               <User className="w-5 h-5 text-primary-foreground" />
             </div>
             <div className="flex-1 text-right min-w-0">
@@ -80,22 +99,30 @@ const SettingsPage = () => {
               </p>
               <p className="text-[10px] text-muted-foreground mt-0.5">{user.email || 'حساب محلي'}</p>
             </div>
-            <button
-              onClick={() => navigate('/register')}
-              className="px-3 py-1.5 rounded-lg bg-secondary/60 text-xs font-medium text-foreground hover:bg-primary/8 hover:text-primary transition-colors"
-            >
-              تعديل
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => navigate('/register')}
+                className="px-3 py-1.5 rounded-xl bg-secondary/60 text-xs font-medium text-foreground hover:bg-primary/8 hover:text-primary transition-colors"
+              >
+                تعديل
+              </button>
+              <button
+                onClick={handleSignOut}
+                className="p-1.5 rounded-xl bg-destructive/10 hover:bg-destructive/15 transition-colors"
+              >
+                <LogOut className="w-3.5 h-3.5 text-destructive" />
+              </button>
+            </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Notifications */}
-      <div className="space-y-2">
+      <motion.div variants={fadeUp} className="space-y-2">
         <p className="text-[11px] font-semibold text-muted-foreground px-1">الإشعارات</p>
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/30">
+        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/20">
           <div className="flex items-center gap-3 p-4 pb-2">
-            <div className="w-8 h-8 rounded-lg bg-primary/8 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
               <Bell className="w-4 h-4 text-primary" />
             </div>
             <p className="text-sm font-medium text-foreground">إدارة الإشعارات</p>
@@ -106,15 +133,15 @@ const SettingsPage = () => {
           <NotifToggle label="إشعارات المسابقة" subtitle="تنبيه قبل بدء الأسئلة" enabled={quizNotif} onToggle={() => toggleNotif('quiz', quizNotif, setQuizNotif)} />
           <NotifToggle label="دعاء اليوم" subtitle="تذكير يومي بقراءة دعاء مقترح" enabled={duaNotif} onToggle={() => toggleNotif('dua', duaNotif, setDuaNotif)} />
         </div>
-      </div>
+      </motion.div>
 
       {/* Location & Date */}
-      <div className="space-y-2">
+      <motion.div variants={fadeUp} className="space-y-2">
         <p className="text-[11px] font-semibold text-muted-foreground px-1">الطقس والتاريخ</p>
         <CityPicker selectedCity={selectedCity} onCityChange={handleCityChange} />
         <div className="bg-card rounded-2xl shadow-card border border-border/30 p-4">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-primary/8 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
               <Calendar className="w-4 h-4 text-primary" />
             </div>
             <div className="text-right">
@@ -127,7 +154,7 @@ const SettingsPage = () => {
               <button
                 key={val}
                 onClick={() => handleHijriChange(val)}
-                className={`w-11 h-9 rounded-lg text-sm font-medium transition-all ${
+                className={`w-12 h-10 rounded-xl text-sm font-medium transition-all ${
                   hijriAdj === val
                     ? 'islamic-gradient text-primary-foreground shadow-card'
                     : 'bg-secondary/50 text-foreground hover:bg-primary/8'
@@ -138,15 +165,15 @@ const SettingsPage = () => {
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Share & Install */}
-      <div className="space-y-2">
+      <motion.div variants={fadeUp} className="space-y-2">
         <p className="text-[11px] font-semibold text-muted-foreground px-1">مشاركة وتحميل</p>
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/30">
+        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/20">
           <button onClick={handleShareApp} className="w-full flex items-center justify-between p-3.5 hover:bg-secondary/30 transition-colors active:bg-secondary/50">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-primary/8 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
                 <Share2 className="w-4 h-4 text-primary" />
               </div>
               <p className="text-sm font-medium text-foreground">مشاركة التطبيق</p>
@@ -155,7 +182,7 @@ const SettingsPage = () => {
           </button>
           <button onClick={() => setShowInstallGuide(true)} className="w-full flex items-center justify-between p-3.5 hover:bg-secondary/30 transition-colors active:bg-secondary/50">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-primary/8 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
                 <Download className="w-4 h-4 text-primary" />
               </div>
               <p className="text-sm font-medium text-foreground">تحميل التطبيق</p>
@@ -163,7 +190,7 @@ const SettingsPage = () => {
             <Smartphone className="w-3.5 h-3.5 text-muted-foreground/40" />
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* PWA Install Guide */}
       <AnimatePresence>
@@ -179,7 +206,7 @@ const SettingsPage = () => {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-card rounded-2xl p-5 shadow-elevated max-w-sm w-full max-h-[80vh] overflow-y-auto border border-border/30"
+              className="bg-card rounded-3xl p-5 shadow-elevated max-w-sm w-full max-h-[80vh] overflow-y-auto border border-border/30"
               onClick={(e) => e.stopPropagation()}
             >
               <h2 className="text-base font-bold text-foreground mb-4 text-center">تحميل التطبيق</h2>
@@ -220,12 +247,12 @@ const SettingsPage = () => {
       </AnimatePresence>
 
       {/* Legal */}
-      <div className="space-y-2">
+      <motion.div variants={fadeUp} className="space-y-2">
         <p className="text-[11px] font-semibold text-muted-foreground px-1">قانوني</p>
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/30">
+        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/20">
           <Link to="/policies" className="flex items-center justify-between p-3.5 hover:bg-secondary/30 transition-colors">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-primary/8 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
                 <Shield className="w-4 h-4 text-primary" />
               </div>
               <p className="text-sm font-medium text-foreground">سياسة الخصوصية</p>
@@ -234,7 +261,7 @@ const SettingsPage = () => {
           </Link>
           <Link to="/policies" className="flex items-center justify-between p-3.5 hover:bg-secondary/30 transition-colors">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-primary/8 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
                 <FileText className="w-4 h-4 text-primary" />
               </div>
               <p className="text-sm font-medium text-foreground">شروط الاستخدام</p>
@@ -242,15 +269,15 @@ const SettingsPage = () => {
             <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground/30" />
           </Link>
         </div>
-      </div>
+      </motion.div>
 
       {/* Coming Soon */}
-      <div className="space-y-2">
+      <motion.div variants={fadeUp} className="space-y-2">
         <p className="text-[11px] font-semibold text-muted-foreground px-1">قريباً</p>
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/30">
+        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/20">
           <div className="flex items-center justify-between p-3.5 opacity-50">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-secondary/60 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-secondary/60 flex items-center justify-center">
                 <Globe className="w-4 h-4 text-muted-foreground" />
               </div>
               <div className="text-right">
@@ -262,7 +289,7 @@ const SettingsPage = () => {
           </div>
           <div className="flex items-center justify-between p-3.5 opacity-50">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-secondary/60 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-secondary/60 flex items-center justify-center">
                 <Moon className="w-4 h-4 text-muted-foreground" />
               </div>
               <div className="text-right">
@@ -273,18 +300,18 @@ const SettingsPage = () => {
             <span className="text-[9px] font-semibold text-accent-foreground bg-accent/15 px-2 py-0.5 rounded-full">قريباً</span>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Disclaimer */}
-      <div className="bg-gold-light/50 rounded-2xl p-3.5 flex items-start gap-2.5 border border-border/20">
+      <motion.div variants={fadeUp} className="bg-gold-light/50 rounded-2xl p-3.5 flex items-start gap-2.5 border border-border/20">
         <Info className="w-3.5 h-3.5 text-accent-foreground flex-shrink-0 mt-0.5" />
         <p className="text-[11px] text-foreground leading-relaxed">
           المطور لا يتحكم في أوقات الصلاة. البيانات مقدمة من واجهة Aladhan API. للملاحظات والتصحيحات يرجى التواصل عبر البريد.
         </p>
-      </div>
+      </motion.div>
 
       {/* About */}
-      <div className="space-y-2">
+      <motion.div variants={fadeUp} className="space-y-2">
         <p className="text-[11px] font-semibold text-muted-foreground px-1">حول التطبيق</p>
         <div className="bg-card rounded-2xl shadow-card border border-border/30 p-4">
           <div className="flex items-center gap-3 mb-3">
@@ -330,14 +357,14 @@ const SettingsPage = () => {
 
           <p className="text-[9px] text-muted-foreground/60 mt-2 px-1">البريد مخصص للاقتراحات والمشاكل التقنية فقط.</p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Version */}
-      <div className="text-center pb-6 pt-1">
+      <motion.div variants={fadeUp} className="text-center pb-6 pt-1">
         <p className="text-[11px] text-muted-foreground">عِتَرَةً</p>
         <p className="text-[9px] text-muted-foreground/50 mt-0.5">v3.1 · بناء 120</p>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

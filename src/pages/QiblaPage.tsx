@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Navigation, MapPin, LocateFixed } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Navigation, MapPin, LocateFixed, Info } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const KAABA_LAT = 21.422487;
 const KAABA_LNG = 39.826206;
@@ -40,6 +40,7 @@ const QiblaPage = () => {
   const [error, setError] = useState('');
   const [compassActive, setCompassActive] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [showInfo, setShowInfo] = useState(false);
   const headingRef = useRef(0);
 
   useEffect(() => {
@@ -108,11 +109,39 @@ const QiblaPage = () => {
 
   return (
     <div className="px-4 py-4 animate-fade-in min-h-[calc(100vh-130px)] flex flex-col">
-      <div className="text-center mb-3">
-        <h1 className="text-lg font-bold text-foreground mb-0.5">اتجاه القبلة</h1>
-        <p className="text-xs text-muted-foreground">الكعبة المشرّفة · بيت الله الحرام · مكة المكرمة</p>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-right flex-1">
+          <h1 className="text-lg font-bold text-foreground mb-0.5">اتجاه القبلة</h1>
+          <p className="text-[11px] text-muted-foreground">الكعبة المشرّفة · مكة المكرمة</p>
+        </div>
+        <button
+          onClick={() => setShowInfo(!showInfo)}
+          className="w-8 h-8 rounded-xl bg-secondary/60 flex items-center justify-center"
+        >
+          <Info className="w-4 h-4 text-muted-foreground" />
+        </button>
       </div>
 
+      {/* Info card */}
+      <AnimatePresence>
+        {showInfo && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden mb-3"
+          >
+            <div className="bg-card rounded-2xl border border-border/30 p-3.5 shadow-card">
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                وجّه هاتفك بشكل مسطّح وأدر جسمك حتى تشير علامة الكعبة للأعلى. تأكد من عدم وجود مصادر مغناطيسية قريبة للحصول على نتائج دقيقة.
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Compass */}
       <div className="flex-1 flex flex-col items-center justify-center">
         <div className="relative" style={{ width: compassSize, height: compassSize }}>
           <div className="absolute inset-0 rounded-full bg-card shadow-elevated border border-border/40" />
@@ -206,48 +235,57 @@ const QiblaPage = () => {
           </div>
         </div>
 
-        {isPointingQibla && (
-          <motion.div
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-2 mt-4 px-4 py-2 rounded-full bg-primary/8"
-          >
-            <span className="text-xs font-bold text-primary">✓ أنت تواجه القبلة</span>
-          </motion.div>
-        )}
+        {/* Qibla aligned badge */}
+        <AnimatePresence>
+          {isPointingQibla && (
+            <motion.div
+              initial={{ opacity: 0, y: 5, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -5, scale: 0.95 }}
+              className="flex items-center gap-2 mt-4 px-5 py-2.5 rounded-full bg-primary/10 border border-primary/20"
+            >
+              <span className="text-xs font-bold text-primary">✓ أنت تواجه القبلة</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
+      {/* Stats grid */}
       <div className="grid grid-cols-2 gap-2.5 mt-4 mb-2">
-        <div className="bg-card rounded-2xl p-3 shadow-card border border-border/30 text-center">
-          <div className="flex items-center justify-center gap-1 mb-1">
-            <Navigation className="w-3 h-3 text-primary" />
-            <span className="text-[10px] text-muted-foreground">الاتجاه</span>
+        <div className="bg-card rounded-2xl p-3.5 shadow-card border border-border/30 text-center">
+          <div className="flex items-center justify-center gap-1.5 mb-1.5">
+            <Navigation className="w-3.5 h-3.5 text-primary" />
+            <span className="text-[10px] text-muted-foreground font-medium">الاتجاه</span>
           </div>
-          <p className="text-lg font-bold text-foreground">
+          <p className="text-xl font-bold text-foreground">
             {qiblaDirection !== null ? `${Math.round(qiblaDirection)}°` : '—'}
           </p>
         </div>
-        <div className="bg-card rounded-2xl p-3 shadow-card border border-border/30 text-center">
-          <div className="flex items-center justify-center gap-1 mb-1">
-            <MapPin className="w-3 h-3 text-primary" />
-            <span className="text-[10px] text-muted-foreground">المسافة</span>
+        <div className="bg-card rounded-2xl p-3.5 shadow-card border border-border/30 text-center">
+          <div className="flex items-center justify-center gap-1.5 mb-1.5">
+            <MapPin className="w-3.5 h-3.5 text-primary" />
+            <span className="text-[10px] text-muted-foreground font-medium">المسافة</span>
           </div>
-          <p className="text-lg font-bold text-foreground">
+          <p className="text-xl font-bold text-foreground">
             {distanceToKaaba !== null ? `${distanceToKaaba.toLocaleString()} كم` : '—'}
           </p>
         </div>
       </div>
 
-      {error && <p className="text-[10px] text-muted-foreground text-center mt-1">{error}</p>}
+      {error && (
+        <p className="text-[10px] text-muted-foreground text-center mt-1 bg-secondary/40 py-1.5 px-3 rounded-xl">{error}</p>
+      )}
 
       {!compassActive && (
-        <button
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           onClick={requestPermission}
-          className="mt-3 mx-auto flex items-center gap-2 px-5 py-2.5 rounded-xl islamic-gradient text-primary-foreground text-sm font-medium shadow-card active:scale-[0.97]"
+          className="mt-3 mx-auto flex items-center gap-2 px-6 py-3 rounded-2xl islamic-gradient text-primary-foreground text-sm font-semibold shadow-elevated active:scale-[0.97] transition-transform"
         >
           <LocateFixed className="w-4 h-4" />
           تفعيل البوصلة
-        </button>
+        </motion.button>
       )}
     </div>
   );
