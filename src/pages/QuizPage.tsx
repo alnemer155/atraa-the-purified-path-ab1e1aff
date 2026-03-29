@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Share2, Clock, ChevronLeft, Info, Copy, Check, Lightbulb, Gift, Calendar as CalendarIcon, Timer, Users, Sparkles, ArrowLeft, Edit3 } from 'lucide-react';
+import { Trophy, Share2, Clock, ChevronLeft, Info, Copy, Check, Lightbulb, Gift, Calendar as CalendarIcon, Timer, Users, Sparkles, ArrowLeft, Edit3, Star, Zap, Target, Crown, Medal, Award, TrendingUp, BookOpen } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getUser } from '@/lib/user';
 import quizFace from '@/assets/quiz/quiz-face.png';
@@ -13,8 +13,8 @@ const QUIZ_END = new Date('2026-05-21T23:59:59+03:00');
 const QUESTIONS_START_HOUR = 9;
 const QUESTIONS_END_HOUR = 21;
 const QUESTIONS_END_MINUTE = 30;
-const TIMER_DURATION = 180; // 3 minutes
-const HINT_AVAILABLE_AT = 90; // hints available after 1.5 minutes (when timer reaches 90s)
+const TIMER_DURATION = 180;
+const HINT_AVAILABLE_AT = 90;
 
 const SPECIAL_DATES: Record<string, { name: string; bonus: number }> = {
   '2026-03-28': { name: 'عيد الفطر المبارك', bonus: 5 },
@@ -83,30 +83,33 @@ const getQuizDays = () => {
   return days;
 };
 
-/* ─── Section Card ─── */
-const Section = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-  <div className={`bg-card rounded-2xl border border-border/60 shadow-card p-4 ${className}`}>
-    {children}
-  </div>
-);
+/* ─── Animations ─── */
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: (i: number = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.06, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const } }),
+};
 
-const SectionTitle = ({ icon: Icon, children }: { icon: any; children: React.ReactNode }) => (
-  <div className="flex items-center gap-2 mb-3">
-    <div className="w-7 h-7 rounded-xl islamic-gradient flex items-center justify-center">
-      <Icon className="w-3.5 h-3.5 text-primary-foreground" />
-    </div>
-    <h3 className="text-sm font-bold text-foreground">{children}</h3>
+const scaleIn = {
+  hidden: { scale: 0.85, opacity: 0 },
+  visible: { scale: 1, opacity: 1, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } },
+};
+
+/* ─── Glass Card ─── */
+const GlassCard = ({ children, className = '', onClick }: { children: React.ReactNode; className?: string; onClick?: () => void }) => (
+  <div onClick={onClick} className={`bg-card/80 backdrop-blur-sm rounded-2xl border border-border/40 shadow-card ${className}`}>
+    {children}
   </div>
 );
 
 /* ─── Back Button ─── */
 const BackButton = ({ onClick }: { onClick: () => void }) => (
-  <button onClick={onClick} className="flex items-center gap-1.5 text-primary text-sm font-semibold mb-5 group">
-    <div className="w-7 h-7 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+  <motion.button initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} onClick={onClick}
+    className="flex items-center gap-2 text-primary text-sm font-semibold mb-6 group">
+    <div className="w-8 h-8 rounded-xl bg-primary/8 backdrop-blur-sm flex items-center justify-center group-hover:bg-primary/15 transition-all duration-200 group-active:scale-90">
       <ChevronLeft className="w-4 h-4" />
     </div>
-    رجوع
-  </button>
+    <span className="group-hover:translate-x-0.5 transition-transform duration-200">رجوع</span>
+  </motion.button>
 );
 
 const QuizPage = () => {
@@ -317,285 +320,349 @@ const QuizPage = () => {
     missed: { title: 'هذا يعني فاتك السؤال ❌', desc: 'لا تقلق! سيكون هناك سؤال جديد غداً من الساعة 9:00 صباحاً، لا تفوّته' },
   };
 
+  /* ─── LOADING ─── */
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-130px)]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-[3px] border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-xs text-muted-foreground">جاري التحميل...</p>
-        </div>
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-14 h-14 rounded-2xl islamic-gradient flex items-center justify-center shadow-elevated">
+              <Trophy className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <div className="absolute inset-0 w-14 h-14 rounded-2xl border-2 border-primary/20 animate-ping" />
+          </div>
+          <p className="text-xs text-muted-foreground font-medium">جاري التحميل...</p>
+        </motion.div>
       </div>
     );
   }
 
-  // ═══════════════════════════════════════
-  // REGISTER VIEW
-  // ═══════════════════════════════════════
+  /* ═══════════════════════════════════════ */
+  /* REGISTER VIEW                          */
+  /* ═══════════════════════════════════════ */
   if (view === 'register') {
     return (
-      <div className="px-4 py-5 animate-fade-in">
+      <motion.div initial="hidden" animate="visible" className="px-4 py-5 pb-32">
         <BackButton onClick={() => setView('home')} />
 
         {/* Header */}
-        <div className="text-center mb-6">
-          <img src={quizFace} alt="مسابقة عترة" className="w-28 h-28 mx-auto mb-4 rounded-3xl object-contain shadow-elevated" />
-          <h1 className="text-xl font-bold text-foreground">التسجيل في المسابقة</h1>
-          <p className="text-xs text-muted-foreground mt-1.5">سجّل الآن واستعد لتحدي المعرفة الدينية</p>
-        </div>
+        <motion.div variants={fadeUp} custom={0} className="text-center mb-8">
+          <div className="relative inline-block">
+            <img src={quizFace} alt="مسابقة عترة" className="w-24 h-24 mx-auto mb-4 rounded-3xl object-contain shadow-elevated" />
+            <div className="absolute -bottom-1 -left-1 w-8 h-8 rounded-xl islamic-gradient flex items-center justify-center shadow-card">
+              <Edit3 className="w-3.5 h-3.5 text-primary-foreground" />
+            </div>
+          </div>
+          <h1 className="text-xl font-black text-foreground">التسجيل في المسابقة</h1>
+          <p className="text-xs text-muted-foreground mt-1.5 max-w-[260px] mx-auto leading-relaxed">سجّل الآن واستعد لتحدي المعرفة الدينية</p>
+        </motion.div>
 
         <div className="space-y-4">
           {/* Use existing name */}
           {user?.name && (
-            <Section>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" checked={regUseExisting} onChange={(e) => setRegUseExisting(e.target.checked)} className="w-4 h-4 accent-primary rounded" />
-                <span className="text-sm text-foreground">استخدام الاسم المسجل: <strong>{user.name}</strong></span>
-              </label>
-            </Section>
+            <motion.div variants={fadeUp} custom={1}>
+              <GlassCard className="p-4">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${regUseExisting ? 'border-primary bg-primary' : 'border-border'}`}>
+                    {regUseExisting && <Check className="w-3 h-3 text-primary-foreground" />}
+                  </div>
+                  <span className="text-sm text-foreground">استخدام الاسم المسجل: <strong className="text-primary">{user.name}</strong></span>
+                </label>
+              </GlassCard>
+            </motion.div>
           )}
 
           {/* Nickname */}
           {!regUseExisting && (
-            <Section>
-              <label className="block text-xs font-bold text-foreground mb-2">اللقب</label>
-              <input type="text" value={regNickname} onChange={(e) => setRegNickname(e.target.value)} placeholder="أدخل لقبك"
-                className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm transition-all" />
-            </Section>
+            <motion.div variants={fadeUp} custom={1.5}>
+              <GlassCard className="p-4">
+                <label className="block text-xs font-bold text-foreground mb-2.5">اللقب</label>
+                <div className="relative">
+                  <input type="text" value={regNickname} onChange={(e) => setRegNickname(e.target.value)} placeholder="أدخل لقبك"
+                    className="w-full px-4 py-3.5 rounded-xl bg-secondary/40 border border-border/60 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-sm transition-all" />
+                </div>
+              </GlassCard>
+            </motion.div>
           )}
 
           {/* Emoji */}
-          <Section>
-            <label className="block text-xs font-bold text-foreground mb-2.5">اختر إيموجي</label>
-            <div className="grid grid-cols-10 gap-1.5">
-              {QUIZ_EMOJIS.map(emoji => (
-                <button key={emoji} onClick={() => setRegEmoji(emoji)}
-                  className={`w-9 h-9 rounded-xl text-lg flex items-center justify-center transition-all duration-150 ${
-                    regEmoji === emoji
-                      ? 'bg-primary/15 ring-2 ring-primary scale-110 shadow-sm'
-                      : 'bg-secondary/60 hover:bg-secondary'
-                  }`}>
-                  {emoji}
-                </button>
-              ))}
-            </div>
-          </Section>
+          <motion.div variants={fadeUp} custom={2}>
+            <GlassCard className="p-4">
+              <label className="block text-xs font-bold text-foreground mb-3">اختر إيموجي</label>
+              <div className="grid grid-cols-10 gap-1.5">
+                {QUIZ_EMOJIS.map(emoji => (
+                  <motion.button key={emoji} whileTap={{ scale: 0.85 }} onClick={() => setRegEmoji(emoji)}
+                    className={`w-9 h-9 rounded-xl text-lg flex items-center justify-center transition-all duration-200 ${
+                      regEmoji === emoji
+                        ? 'islamic-gradient shadow-sm scale-110 ring-2 ring-primary/30'
+                        : 'bg-secondary/50 hover:bg-secondary active:scale-90'
+                    }`}>
+                    {emoji}
+                  </motion.button>
+                ))}
+              </div>
+            </GlassCard>
+          </motion.div>
 
           {/* Bio */}
-          <Section>
-            <label className="block text-xs font-bold text-foreground mb-2">
-              نبذة <span className="text-muted-foreground font-normal">(اختياري · ٣٠ حرف)</span>
-            </label>
-            <input type="text" value={regBio} onChange={(e) => e.target.value.length <= 30 && setRegBio(e.target.value)} placeholder="نبذة قصيرة عنك..." maxLength={30}
-              className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm transition-all" />
-            <div className="flex items-center justify-between mt-2.5">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={regBioPublic} onChange={(e) => setRegBioPublic(e.target.checked)} className="w-4 h-4 accent-primary rounded" />
-                <span className="text-[11px] text-muted-foreground">عرض النبذة للجميع</span>
+          <motion.div variants={fadeUp} custom={3}>
+            <GlassCard className="p-4">
+              <label className="block text-xs font-bold text-foreground mb-2.5">
+                نبذة <span className="text-muted-foreground font-normal">(اختياري · ٣٠ حرف)</span>
               </label>
-              <span className="text-[10px] text-muted-foreground font-mono">{regBio.length}/30</span>
-            </div>
-          </Section>
+              <input type="text" value={regBio} onChange={(e) => e.target.value.length <= 30 && setRegBio(e.target.value)} placeholder="نبذة قصيرة عنك..." maxLength={30}
+                className="w-full px-4 py-3.5 rounded-xl bg-secondary/40 border border-border/60 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-sm transition-all" />
+              <div className="flex items-center justify-between mt-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${regBioPublic ? 'border-primary bg-primary' : 'border-border'}`}>
+                    {regBioPublic && <Check className="w-3 h-3 text-primary-foreground" />}
+                  </div>
+                  <span className="text-[11px] text-muted-foreground">عرض النبذة للجميع</span>
+                </label>
+                <span className="text-[10px] text-muted-foreground/60 font-mono tabular-nums">{regBio.length}/30</span>
+              </div>
+            </GlassCard>
+          </motion.div>
 
           {/* Age */}
-          <Section>
-            <label className="block text-xs font-bold text-foreground mb-2">
-              العمر <span className="text-muted-foreground font-normal">(يحدد مستوى الأسئلة)</span>
-            </label>
-            <input type="number" value={regAge} onChange={(e) => setRegAge(e.target.value)} placeholder="١٢ — ٦٠" min={12} max={60}
-              className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm transition-all" />
-          </Section>
+          <motion.div variants={fadeUp} custom={4}>
+            <GlassCard className="p-4">
+              <label className="block text-xs font-bold text-foreground mb-2.5">
+                العمر <span className="text-muted-foreground font-normal">(يحدد مستوى الأسئلة)</span>
+              </label>
+              <input type="number" value={regAge} onChange={(e) => setRegAge(e.target.value)} placeholder="١٢ — ٦٠" min={12} max={60}
+                className="w-full px-4 py-3.5 rounded-xl bg-secondary/40 border border-border/60 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-sm transition-all" />
+            </GlassCard>
+          </motion.div>
 
           {/* Teams - coming soon */}
-          <div className="p-4 rounded-2xl bg-secondary/40 border border-border/50 opacity-60">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-foreground">إنشاء فريق أو الانضمام</span>
+          <motion.div variants={fadeUp} custom={5}>
+            <div className="p-4 rounded-2xl bg-secondary/30 border border-dashed border-border/50 opacity-50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center">
+                    <Users className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <span className="text-sm text-foreground">إنشاء فريق أو الانضمام</span>
+                </div>
+                <span className="text-[10px] font-bold text-accent-foreground bg-accent/15 px-2.5 py-1 rounded-full">قريباً v2</span>
               </div>
-              <span className="text-[10px] font-bold text-accent-foreground bg-accent/20 px-2.5 py-1 rounded-full">قريباً v2</span>
             </div>
-          </div>
+          </motion.div>
 
           {/* Agreement */}
-          <Section>
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input type="checkbox" checked={regAgreed} onChange={(e) => setRegAgreed(e.target.checked)} className="w-4 h-4 accent-primary mt-0.5 rounded" />
-              <span className="text-[11px] text-muted-foreground leading-relaxed">
-                أوافق على <a href="/policies" className="text-primary underline font-medium">سياسات الموقع وشروط المسابقة</a>.
-                أقر بأن الأسئلة مولّدة بالذكاء الاصطناعي وقد تحتوي على أخطاء.
-              </span>
-            </label>
-          </Section>
+          <motion.div variants={fadeUp} custom={6}>
+            <GlassCard className="p-4">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all mt-0.5 flex-shrink-0 ${regAgreed ? 'border-primary bg-primary' : 'border-border'}`}>
+                  {regAgreed && <Check className="w-3 h-3 text-primary-foreground" />}
+                </div>
+                <span className="text-[11px] text-muted-foreground leading-relaxed">
+                  أوافق على <a href="/policies" className="text-primary underline font-medium">سياسات الموقع وشروط المسابقة</a>.
+                  أقر بأن الأسئلة مولّدة بالذكاء الاصطناعي وقد تحتوي على أخطاء.
+                </span>
+              </label>
+            </GlassCard>
+          </motion.div>
 
           {regError && (
-            <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="p-3 rounded-xl bg-destructive/10 border border-destructive/20">
+            <motion.div initial={{ opacity: 0, y: -8, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="p-3.5 rounded-xl bg-destructive/8 border border-destructive/15">
               <p className="text-sm text-destructive text-center font-medium">{regError}</p>
             </motion.div>
           )}
 
-          <button onClick={handleRegister}
-            className="w-full py-4 rounded-2xl islamic-gradient text-primary-foreground font-bold text-base shadow-elevated hover:opacity-95 transition-all active:scale-[0.98]">
-            تسجيل
-          </button>
+          <motion.div variants={fadeUp} custom={7}>
+            <motion.button whileTap={{ scale: 0.97 }} onClick={handleRegister}
+              className="w-full py-4 rounded-2xl islamic-gradient text-primary-foreground font-bold text-base shadow-elevated transition-all">
+              تسجيل
+            </motion.button>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
-  // ═══════════════════════════════════════
-  // LEADERBOARD VIEW
-  // ═══════════════════════════════════════
+  /* ═══════════════════════════════════════ */
+  /* LEADERBOARD VIEW                       */
+  /* ═══════════════════════════════════════ */
   if (view === 'leaderboard') {
     return (
-      <div className="px-4 py-5 animate-fade-in">
+      <motion.div initial="hidden" animate="visible" className="px-4 py-5 pb-32">
         <BackButton onClick={() => setView('home')} />
 
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-2xl islamic-gradient flex items-center justify-center shadow-card">
+        <motion.div variants={fadeUp} custom={0} className="flex items-center gap-3 mb-6">
+          <div className="w-11 h-11 rounded-2xl islamic-gradient flex items-center justify-center shadow-elevated">
             <Trophy className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">قائمة المتصدرين</h1>
+            <h1 className="text-lg font-black text-foreground">قائمة المتصدرين</h1>
             <p className="text-[11px] text-muted-foreground">أفضل {Math.min(leaderboard.length, 20)} متسابق</p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Top 3 podium */}
         {leaderboard.length >= 3 && (
-          <div className="flex items-end justify-center gap-3 mb-6">
-            {[1, 0, 2].map((rank) => {
-              const p = leaderboard[rank];
-              const isFirst = rank === 0;
-              return (
-                <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: rank * 0.1 }}
-                  className={`flex flex-col items-center ${isFirst ? 'order-2' : rank === 1 ? 'order-1' : 'order-3'}`}>
-                  <div className={`relative mb-1 ${isFirst ? 'scale-110' : ''}`}>
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${
-                      isFirst ? 'bg-accent/20 ring-2 ring-accent shadow-elevated' : 'bg-secondary ring-1 ring-border'
-                    }`}>
-                      {p.emoji}
-                    </div>
-                    <div className={`absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${
-                      isFirst ? 'bg-accent text-accent-foreground' : rank === 1 ? 'bg-muted-foreground/20 text-foreground' : 'bg-accent/40 text-accent-foreground'
-                    }`}>
-                      {rank + 1}
-                    </div>
-                  </div>
-                  <p className="text-[11px] font-bold text-foreground truncate max-w-[70px] text-center">{p.nickname}</p>
-                  <p className="text-[10px] font-bold text-primary">{p.score} نقطة</p>
-                </motion.div>
-              );
-            })}
-          </div>
+          <motion.div variants={fadeUp} custom={1} className="mb-6">
+            <GlassCard className="p-5 pb-6">
+              <div className="flex items-end justify-center gap-4">
+                {[1, 0, 2].map((rank) => {
+                  const p = leaderboard[rank];
+                  const isFirst = rank === 0;
+                  const medalColors = ['', 'bg-muted text-muted-foreground', ''][rank] || 'bg-accent/20 text-accent-foreground';
+                  return (
+                    <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: rank * 0.12 }}
+                      className={`flex flex-col items-center ${isFirst ? 'order-2 -mt-3' : rank === 1 ? 'order-1' : 'order-3'}`}>
+                      <div className={`relative mb-2 ${isFirst ? '' : ''}`}>
+                        {isFirst && (
+                          <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                            <Crown className="w-5 h-5 text-accent" />
+                          </div>
+                        )}
+                        <div className={`rounded-2xl flex items-center justify-center ${
+                          isFirst ? 'w-16 h-16 text-3xl bg-accent/10 ring-2 ring-accent/40 shadow-elevated' : 'w-13 h-13 text-2xl bg-secondary ring-1 ring-border/60'
+                        }`} style={!isFirst ? { width: 52, height: 52 } : {}}>
+                          {p.emoji}
+                        </div>
+                        <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black shadow-sm ${
+                          isFirst ? 'bg-accent text-accent-foreground' : rank === 1 ? 'bg-muted-foreground/15 text-foreground' : 'bg-accent/30 text-accent-foreground'
+                        }`}>
+                          {rank + 1}
+                        </div>
+                      </div>
+                      <p className="text-[11px] font-bold text-foreground truncate max-w-[72px] text-center">{p.nickname}</p>
+                      <p className="text-[10px] font-black text-primary mt-0.5">{p.score} نقطة</p>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </GlassCard>
+          </motion.div>
         )}
 
         <div className="space-y-2">
           {leaderboard.slice(leaderboard.length >= 3 ? 3 : 0).map((p, i) => {
             const rank = leaderboard.length >= 3 ? i + 4 : i + 1;
+            const isCurrentUser = participant && p.id === participant.id;
             return (
-              <motion.div key={p.id} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}
+              <motion.div key={p.id} variants={fadeUp} custom={i * 0.3 + 2}
                 className={`flex items-center gap-3 p-3.5 rounded-2xl transition-all ${
-                  rank <= 20 ? 'bg-card border border-border/60' : 'bg-secondary/40 border border-border/30'
+                  isCurrentUser ? 'bg-primary/5 border border-primary/20' : 'bg-card/80 backdrop-blur-sm border border-border/40'
                 }`}>
-                <div className="w-7 h-7 rounded-lg bg-secondary flex items-center justify-center text-[11px] font-black text-muted-foreground">
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-[11px] font-black ${
+                  isCurrentUser ? 'islamic-gradient text-primary-foreground' : 'bg-secondary text-muted-foreground'
+                }`}>
                   {rank}
                 </div>
-                <span className="text-lg">{p.emoji}</span>
+                <span className="text-xl">{p.emoji}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{p.nickname}</p>
+                  <p className={`text-sm font-semibold truncate ${isCurrentUser ? 'text-primary' : 'text-foreground'}`}>
+                    {p.nickname} {isCurrentUser && <span className="text-[10px] text-muted-foreground">(أنت)</span>}
+                  </p>
                   {p.bio_public && p.bio && <p className="text-[10px] text-muted-foreground truncate">{p.bio}</p>}
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-black text-primary">{p.score}</p>
+                  <p className="text-sm font-black text-primary tabular-nums">{p.score}</p>
                   <p className="text-[9px] text-muted-foreground">نقطة</p>
                 </div>
               </motion.div>
             );
           })}
           {leaderboard.length === 0 && (
-            <div className="text-center py-16">
-              <Trophy className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+            <div className="text-center py-20">
+              <div className="w-16 h-16 rounded-3xl bg-secondary/60 flex items-center justify-center mx-auto mb-4">
+                <Trophy className="w-7 h-7 text-muted-foreground/30" />
+              </div>
               <p className="text-sm text-muted-foreground">لا يوجد متسابقين بعد</p>
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
     );
   }
 
-  // ═══════════════════════════════════════
-  // QUESTIONS VIEW
-  // ═══════════════════════════════════════
+  /* ═══════════════════════════════════════ */
+  /* QUESTIONS VIEW                         */
+  /* ═══════════════════════════════════════ */
   if (view === 'questions' && questions.length > 0) {
     const q = questions[currentQ];
     const answered = answers[currentQ] !== null;
+    const timerPercent = (timerSec / TIMER_DURATION) * 100;
 
     return (
-      <div className="px-4 py-5 animate-fade-in min-h-[calc(100vh-130px)] flex flex-col">
+      <motion.div initial="hidden" animate="visible" className="px-4 py-5 min-h-[calc(100vh-130px)] flex flex-col">
         {/* Top bar */}
-        <div className="flex items-center justify-between mb-5">
-          <button onClick={() => setView('home')} className="w-8 h-8 rounded-xl bg-secondary flex items-center justify-center">
+        <motion.div variants={fadeUp} custom={0} className="flex items-center justify-between mb-4">
+          <motion.button whileTap={{ scale: 0.9 }} onClick={() => setView('home')}
+            className="w-9 h-9 rounded-xl bg-card/80 backdrop-blur-sm border border-border/40 flex items-center justify-center shadow-sm">
             <ChevronLeft className="w-4 h-4 text-foreground" />
-          </button>
-          <div className={`flex items-center gap-1.5 px-4 py-2 rounded-2xl text-sm font-mono font-black ${
-            timerSec < 60 ? 'bg-destructive/10 text-destructive animate-pulse' : timerSec < 180 ? 'bg-accent/10 text-accent-foreground' : 'bg-primary/10 text-primary'
+          </motion.button>
+
+          {/* Timer */}
+          <div className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-mono font-black text-sm backdrop-blur-sm border transition-all ${
+            timerSec < 30 ? 'bg-destructive/10 text-destructive border-destructive/20 animate-pulse' : timerSec < 60 ? 'bg-destructive/8 text-destructive border-destructive/15' : timerSec < 120 ? 'bg-accent/10 text-accent-foreground border-accent/20' : 'bg-primary/8 text-primary border-primary/15'
           }`}>
             <Timer className="w-3.5 h-3.5" />
-            {formatTimer(timerSec)}
+            <span className="tabular-nums">{formatTimer(timerSec)}</span>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Logo small */}
-        <div className="flex justify-center mb-4">
-          <img src={quizFace} alt="مسابقة عترة" className="w-16 h-16 rounded-2xl object-contain shadow-card" />
-        </div>
+        {/* Timer progress bar */}
+        <motion.div variants={fadeUp} custom={0.5} className="mb-5">
+          <div className="h-1 rounded-full bg-secondary overflow-hidden">
+            <motion.div
+              className={`h-full rounded-full transition-colors ${timerSec < 30 ? 'bg-destructive' : timerSec < 60 ? 'bg-destructive/70' : 'bg-primary'}`}
+              animate={{ width: `${timerPercent}%` }}
+              transition={{ duration: 0.3 }}
+            />
+          </div>
+        </motion.div>
 
         {/* Progress steps */}
-        <div className="flex gap-2 mb-2">
+        <motion.div variants={fadeUp} custom={1} className="flex gap-2 mb-1.5">
           {[0, 1, 2, 3].map(i => (
-            <div key={i} className="flex-1 relative">
-              <div className={`h-2 rounded-full transition-all duration-500 ${
+            <div key={i} className="flex-1">
+              <div className={`h-1.5 rounded-full transition-all duration-500 ${
                 i < currentQ ? 'islamic-gradient' : i === currentQ ? 'bg-primary/30' : 'bg-secondary'
               }`} />
-              {i <= currentQ && (
-                <div className="absolute -top-1 left-1/2 -translate-x-1/2">
-                  <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black ${
-                    i < currentQ ? 'islamic-gradient text-primary-foreground' : 'bg-primary/20 text-primary'
-                  }`}>
-                    {i + 1}
-                  </div>
-                </div>
-              )}
             </div>
           ))}
-        </div>
-        <p className="text-[11px] text-muted-foreground mb-4 text-center">السؤال {currentQ + 1} من 4</p>
+        </motion.div>
+        <p className="text-[11px] text-muted-foreground mb-5 text-center tabular-nums">السؤال {currentQ + 1} من 4</p>
 
         {/* Question */}
         <div className="flex-1">
-          <Section className="mb-4">
-            <h2 className="text-base font-bold text-foreground leading-relaxed">{q.question}</h2>
-          </Section>
+          <motion.div variants={fadeUp} custom={2}>
+            <GlassCard className="p-5 mb-5">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-xl islamic-gradient flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <BookOpen className="w-4 h-4 text-primary-foreground" />
+                </div>
+                <h2 className="text-[15px] font-bold text-foreground leading-[1.8]">{q.question}</h2>
+              </div>
+            </GlassCard>
+          </motion.div>
 
           <div className="space-y-2.5">
             {q.options.map((option, i) => {
               const isSelected = answers[currentQ] === i;
               const isCorrect = i === q.correctIndex;
               const showResult = answered;
+              const letters = ['أ', 'ب', 'ج', 'د'];
               return (
-                <motion.button key={i} whileTap={!answered ? { scale: 0.97 } : {}} onClick={() => handleAnswer(i)} disabled={answered}
-                  className={`w-full text-right p-4 rounded-2xl border-2 transition-all duration-200 ${
+                <motion.button key={i} variants={fadeUp} custom={i * 0.4 + 3}
+                  whileTap={!answered ? { scale: 0.97 } : {}} onClick={() => handleAnswer(i)} disabled={answered}
+                  className={`w-full text-right p-4 rounded-2xl border-2 transition-all duration-300 ${
                     showResult
-                      ? isCorrect ? 'border-primary bg-primary/10 shadow-sm' : isSelected ? 'border-destructive bg-destructive/5' : 'border-border/40 bg-card/50 opacity-60'
-                      : isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'border-border bg-card hover:border-primary/30 hover:shadow-sm'
+                      ? isCorrect ? 'border-primary bg-primary/8 shadow-sm' : isSelected ? 'border-destructive/60 bg-destructive/5' : 'border-border/30 bg-card/40 opacity-50'
+                      : isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'border-border/50 bg-card/70 backdrop-blur-sm hover:border-primary/30 hover:bg-card active:scale-[0.98]'
                   }`}>
                   <div className="flex items-center gap-3">
-                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-black flex-shrink-0 ${
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black flex-shrink-0 transition-all ${
                       showResult
-                        ? isCorrect ? 'islamic-gradient text-primary-foreground' : isSelected ? 'bg-destructive/20 text-destructive' : 'bg-secondary text-muted-foreground'
-                        : isSelected ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'
+                        ? isCorrect ? 'islamic-gradient text-primary-foreground' : isSelected ? 'bg-destructive/15 text-destructive' : 'bg-secondary text-muted-foreground'
+                        : isSelected ? 'islamic-gradient text-primary-foreground' : 'bg-secondary/70 text-muted-foreground'
                     }`}>
-                      {String.fromCharCode(1571 + i)}
+                      {showResult && isCorrect ? <Check className="w-4 h-4" /> : letters[i]}
                     </div>
                     <span className="text-sm font-medium text-foreground">{option}</span>
                   </div>
@@ -606,219 +673,266 @@ const QuizPage = () => {
 
           {/* Hint */}
           {!answered && (
-            <div className="mt-4">
-              {currentHint && (
-                <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}>
-                  <Section className="mb-3 !bg-accent/5 !border-accent/20">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <Lightbulb className="w-3.5 h-3.5 text-accent-foreground" />
-                      <span className="text-[11px] font-bold text-accent-foreground">تلميح</span>
-                    </div>
-                    <p className="text-xs text-foreground leading-relaxed">{currentHint}</p>
-                  </Section>
-                </motion.div>
-              )}
-              <button onClick={fetchHint} disabled={hintsUsed >= 2 || hintLoading || timerSec > HINT_AVAILABLE_AT}
-                className="flex items-center gap-1.5 text-xs font-semibold text-accent-foreground disabled:opacity-30 transition-opacity">
+            <motion.div variants={fadeUp} custom={7} className="mt-5">
+              <AnimatePresence>
+                {currentHint && (
+                  <motion.div initial={{ opacity: 0, y: 8, height: 0 }} animate={{ opacity: 1, y: 0, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+                    <GlassCard className="mb-3 p-4 !bg-accent/5 !border-accent/15">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Lightbulb className="w-3.5 h-3.5 text-accent-foreground" />
+                        <span className="text-[11px] font-bold text-accent-foreground">تلميح</span>
+                      </div>
+                      <p className="text-xs text-foreground leading-relaxed">{currentHint}</p>
+                    </GlassCard>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <motion.button whileTap={{ scale: 0.95 }} onClick={fetchHint} disabled={hintsUsed >= 2 || hintLoading || timerSec > HINT_AVAILABLE_AT}
+                className="flex items-center gap-2 text-xs font-semibold text-accent-foreground disabled:opacity-25 transition-all px-3 py-2 rounded-xl hover:bg-accent/5">
                 <Lightbulb className={`w-3.5 h-3.5 ${hintLoading ? 'animate-pulse' : ''}`} />
                 {timerSec > HINT_AVAILABLE_AT ? `متاح بعد ${formatTimer(timerSec - HINT_AVAILABLE_AT)}` : hintLoading ? 'جاري التلميح...' : `تلميح (${2 - hintsUsed} متبقي)`}
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           )}
         </div>
 
         {answered && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-5">
-            <button onClick={handleNext}
-              className="w-full py-4 rounded-2xl islamic-gradient text-primary-foreground font-bold shadow-elevated active:scale-[0.98] transition-transform">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mt-5 pb-4">
+            <motion.button whileTap={{ scale: 0.97 }} onClick={handleNext}
+              className="w-full py-4 rounded-2xl islamic-gradient text-primary-foreground font-bold shadow-elevated transition-all">
               {currentQ < 3 ? 'السؤال التالي' : 'عرض النتيجة'}
-            </button>
+            </motion.button>
           </motion.div>
         )}
-      </div>
+      </motion.div>
     );
   }
 
-  // ═══════════════════════════════════════
-  // RESULT VIEW
-  // ═══════════════════════════════════════
+  /* ═══════════════════════════════════════ */
+  /* RESULT VIEW                            */
+  /* ═══════════════════════════════════════ */
   if (view === 'result') {
     const today = getTodayDate();
     const isFriday = new Date().getDay() === 5;
     const special = SPECIAL_DATES[today];
     const bonus = (isFriday ? 1.5 : 0) + (special?.bonus || 0);
     const perfect = todayScore === 8;
+    const scorePercent = (todayScore / 8) * 100;
 
     return (
-      <div className="px-4 py-5 animate-fade-in min-h-[calc(100vh-130px)] flex flex-col items-center justify-center">
-        <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }} className="text-center w-full">
-          <div className="text-6xl mb-5">{perfect ? '🎉' : todayScore >= 4 ? '👏' : '💪🏻'}</div>
+      <div className="px-4 py-5 min-h-[calc(100vh-130px)] flex flex-col items-center justify-center pb-32">
+        <motion.div initial="hidden" animate="visible" className="text-center w-full max-w-sm">
+          {/* Emoji celebration */}
+          <motion.div variants={scaleIn} className="mb-6">
+            <div className="text-7xl mb-2">{perfect ? '🎉' : todayScore >= 6 ? '🌟' : todayScore >= 4 ? '👏' : '💪🏻'}</div>
+          </motion.div>
 
-          <Section className="mb-5">
-            <h1 className="text-xl font-black text-foreground mb-3">نتيجتك اليوم</h1>
-            <div className="flex items-center justify-center gap-1">
-              <span className="text-5xl font-black text-primary">{todayScore}</span>
-              <span className="text-lg text-muted-foreground font-medium">/8</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">نقاط</p>
-            
-            {bonus > 0 && (
-              <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-accent/10 mt-3">
-                <Gift className="w-3.5 h-3.5 text-accent-foreground" />
-                <span className="text-xs font-bold text-accent-foreground">
-                  +{bonus} نقطة هدية! {isFriday ? '🎁 جمعة مباركة' : ''} {special ? `🎁 ${special.name}` : ''}
-                </span>
+          {/* Score card */}
+          <motion.div variants={fadeUp} custom={1}>
+            <GlassCard className="p-6 mb-6">
+              <h1 className="text-lg font-black text-foreground mb-4">نتيجتك اليوم</h1>
+
+              {/* Circular progress */}
+              <div className="relative w-32 h-32 mx-auto mb-4">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="52" fill="none" stroke="hsl(var(--secondary))" strokeWidth="8" />
+                  <motion.circle cx="60" cy="60" r="52" fill="none" stroke="hsl(var(--primary))" strokeWidth="8" strokeLinecap="round"
+                    initial={{ strokeDashoffset: 327 }}
+                    animate={{ strokeDashoffset: 327 - (327 * scorePercent / 100) }}
+                    transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.3 }}
+                    strokeDasharray="327"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <motion.span initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6 }}
+                    className="text-3xl font-black text-primary tabular-nums">{todayScore}</motion.span>
+                  <span className="text-xs text-muted-foreground">/8 نقاط</span>
+                </div>
               </div>
-            )}
 
-            <p className="text-sm text-foreground mt-3 font-medium">
-              {perfect ? 'ممتاز! أجبت على جميع الأسئلة بشكل صحيح' : todayScore >= 4 ? 'أحسنت! استمر في المحاولة' : 'لا تقلق، حاول غداً!'}
-            </p>
-          </Section>
+              {bonus > 0 && (
+                <motion.div variants={fadeUp} custom={2} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-accent/8 border border-accent/15 mb-3">
+                  <Gift className="w-4 h-4 text-accent-foreground" />
+                  <span className="text-xs font-bold text-accent-foreground">
+                    +{bonus} نقطة هدية! {isFriday ? '🎁 جمعة مباركة' : ''} {special ? `🎁 ${special.name}` : ''}
+                  </span>
+                </motion.div>
+              )}
 
-          <div className="space-y-2.5 w-full">
-            <button onClick={handleShare}
-              className="w-full py-3.5 rounded-2xl islamic-gradient text-primary-foreground font-bold flex items-center justify-center gap-2 shadow-elevated active:scale-[0.98] transition-transform">
+              <p className="text-sm text-foreground font-medium leading-relaxed">
+                {perfect ? 'ممتاز! أجبت على جميع الأسئلة بشكل صحيح' : todayScore >= 4 ? 'أحسنت! استمر في المحاولة' : 'لا تقلق، حاول غداً!'}
+              </p>
+            </GlassCard>
+          </motion.div>
+
+          <motion.div variants={fadeUp} custom={3} className="space-y-2.5 w-full">
+            <motion.button whileTap={{ scale: 0.97 }} onClick={handleShare}
+              className="w-full py-3.5 rounded-2xl islamic-gradient text-primary-foreground font-bold flex items-center justify-center gap-2 shadow-elevated">
               {copied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
               {copied ? 'تم النسخ!' : 'شارك التحدي'}
-            </button>
-            <button onClick={() => { setView('leaderboard'); fetchLeaderboard(); }}
-              className="w-full py-3 rounded-2xl bg-card border border-border text-foreground font-semibold flex items-center justify-center gap-2 shadow-card">
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.97 }} onClick={() => { setView('leaderboard'); fetchLeaderboard(); }}
+              className="w-full py-3 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/40 text-foreground font-semibold flex items-center justify-center gap-2 shadow-card">
               <Trophy className="w-4 h-4 text-accent-foreground" /> قائمة المتصدرين
-            </button>
-            <button onClick={() => setView('home')} className="w-full py-3 rounded-2xl bg-secondary text-foreground text-sm font-semibold">
+            </motion.button>
+            <button onClick={() => setView('home')} className="w-full py-3 rounded-2xl bg-secondary/60 text-foreground text-sm font-semibold">
               الرئيسية
             </button>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     );
   }
 
-  // ═══════════════════════════════════════
-  // HOME VIEW
-  // ═══════════════════════════════════════
+  /* ═══════════════════════════════════════ */
+  /* HOME VIEW                              */
+  /* ═══════════════════════════════════════ */
   const quizDays = getQuizDays();
   const today = getTodayDate();
 
   return (
-    <div className="px-4 py-5 animate-fade-in">
+    <motion.div initial="hidden" animate="visible" className="px-4 py-5 pb-32">
       {/* Hero header */}
-      <div className="text-center mb-6">
-        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring' }}>
-          <img src={quizFace} alt="مسابقة عترة" className="w-32 h-32 mx-auto mb-4 rounded-3xl object-contain shadow-elevated" />
+      <motion.div variants={fadeUp} custom={0} className="text-center mb-7">
+        <motion.div variants={scaleIn} className="relative inline-block mb-4">
+          <img src={quizFace} alt="مسابقة عترة" className="w-28 h-28 mx-auto rounded-3xl object-contain shadow-elevated" />
+          <div className="absolute -bottom-2 -left-2 w-9 h-9 rounded-xl islamic-gradient flex items-center justify-center shadow-card">
+            <Trophy className="w-4 h-4 text-primary-foreground" />
+          </div>
         </motion.div>
-        <h1 className="text-xl font-black text-foreground mb-1.5">مسابقة عِتَرَةً</h1>
-        <p className="text-sm text-muted-foreground leading-relaxed">أسئلة دينية وثقافية عن أهل البيت عليهم السلام</p>
-        <p className="text-[11px] text-muted-foreground/70 mt-1">اختبر معلوماتك وتعلّم المزيد عن سيرتهم وأحاديثهم</p>
-      </div>
+        <h1 className="text-xl font-black text-foreground mb-1">مسابقة عِتَرَةً</h1>
+        <p className="text-sm text-muted-foreground leading-relaxed max-w-[280px] mx-auto">أسئلة دينية وثقافية عن أهل البيت عليهم السلام</p>
+      </motion.div>
 
       {/* Status banners */}
       <div className="space-y-3 mb-5">
         {/* Countdown */}
         {isBeforeStart && (
-          <Section className="text-center !bg-accent/5 !border-accent/20">
-            <Clock className="w-7 h-7 text-accent-foreground mx-auto mb-3" />
-            <p className="text-sm font-bold text-foreground mb-3">المسابقة تبدأ في ٢١ مارس ٢٠٢٦</p>
-            <div className="flex items-center justify-center gap-2.5">
-              {[
-                { v: countdown.d, l: 'يوم' },
-                { v: countdown.h, l: 'ساعة' },
-                { v: countdown.m, l: 'دقيقة' },
-                { v: countdown.s, l: 'ثانية' },
-              ].map(({ v, l }) => (
-                <div key={l} className="bg-card rounded-2xl px-3 py-2.5 shadow-card min-w-[52px] border border-border/50">
-                  <p className="text-xl font-black text-primary">{v}</p>
-                  <p className="text-[9px] text-muted-foreground font-medium">{l}</p>
-                </div>
-              ))}
-            </div>
-            <p className="text-[11px] text-muted-foreground mt-3">سجّل الآن واستعد!</p>
-          </Section>
+          <motion.div variants={fadeUp} custom={1}>
+            <GlassCard className="text-center p-5 !bg-accent/5 !border-accent/15">
+              <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-3">
+                <Clock className="w-5 h-5 text-accent-foreground" />
+              </div>
+              <p className="text-sm font-bold text-foreground mb-4">المسابقة تبدأ في ٢١ مارس ٢٠٢٦</p>
+              <div className="flex items-center justify-center gap-2.5">
+                {[
+                  { v: countdown.d, l: 'يوم' },
+                  { v: countdown.h, l: 'ساعة' },
+                  { v: countdown.m, l: 'دقيقة' },
+                  { v: countdown.s, l: 'ثانية' },
+                ].map(({ v, l }) => (
+                  <div key={l} className="bg-card/90 backdrop-blur-sm rounded-2xl px-3.5 py-3 shadow-card min-w-[56px] border border-border/40">
+                    <p className="text-xl font-black text-primary tabular-nums">{v}</p>
+                    <p className="text-[9px] text-muted-foreground font-medium mt-0.5">{l}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-4">سجّل الآن واستعد!</p>
+            </GlassCard>
+          </motion.div>
         )}
 
         {isAfterEnd && (
-          <Section className="text-center">
-            <p className="text-sm font-bold text-foreground">انتهت المسابقة 🏁</p>
-            <p className="text-xs text-muted-foreground mt-1">شكراً لمشاركتك!</p>
-          </Section>
+          <motion.div variants={fadeUp} custom={1}>
+            <GlassCard className="text-center p-5">
+              <div className="text-4xl mb-3">🏁</div>
+              <p className="text-sm font-bold text-foreground">انتهت المسابقة</p>
+              <p className="text-xs text-muted-foreground mt-1">شكراً لمشاركتك!</p>
+            </GlassCard>
+          </motion.div>
         )}
 
         {isQuizActive() && !isQuestionsTime() && (
-          <Section className="text-center !bg-accent/5 !border-accent/20">
-            <Clock className="w-5 h-5 text-accent-foreground mx-auto mb-2" />
-            <p className="text-sm font-bold text-foreground">الأسئلة متاحة من ٩:٠٠ ص حتى ٩:٣٠ م</p>
-            <p className="text-[11px] text-muted-foreground mt-1">عد لاحقاً!</p>
-          </Section>
+          <motion.div variants={fadeUp} custom={1}>
+            <GlassCard className="text-center p-5 !bg-accent/5 !border-accent/15">
+              <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-2.5">
+                <Clock className="w-4 h-4 text-accent-foreground" />
+              </div>
+              <p className="text-sm font-bold text-foreground">الأسئلة متاحة من ٩:٠٠ ص حتى ٩:٣٠ م</p>
+              <p className="text-[11px] text-muted-foreground mt-1.5">عد لاحقاً!</p>
+            </GlassCard>
+          </motion.div>
         )}
 
-        {/* Special day / Friday */}
+        {/* Special day */}
         {SPECIAL_DATES[today] && (
-          <Section className="!bg-accent/5 !border-accent/20">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-accent/20 flex items-center justify-center text-lg">🎁</div>
-              <div>
-                <p className="text-xs font-bold text-foreground">هدية اليوم: {SPECIAL_DATES[today].name}</p>
-                <p className="text-[10px] text-muted-foreground">+{SPECIAL_DATES[today].bonus} نقاط هدية عند حل أسئلة اليوم</p>
+          <motion.div variants={fadeUp} custom={1.5}>
+            <GlassCard className="p-4 !bg-accent/5 !border-accent/15">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-accent/15 flex items-center justify-center text-xl">🎁</div>
+                <div>
+                  <p className="text-xs font-bold text-foreground">هدية اليوم: {SPECIAL_DATES[today].name}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">+{SPECIAL_DATES[today].bonus} نقاط هدية عند حل أسئلة اليوم</p>
+                </div>
               </div>
-            </div>
-          </Section>
+            </GlassCard>
+          </motion.div>
         )}
 
         {new Date().getDay() === 5 && isQuizActive() && (
-          <Section className="!bg-accent/5 !border-accent/20">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-accent/20 flex items-center justify-center text-lg">🎁</div>
-              <div>
-                <p className="text-xs font-bold text-foreground">جمعة مباركة! سؤال مغشوش (نقطتان هدية) + ١.٥ نقطة إضافية</p>
+          <motion.div variants={fadeUp} custom={1.5}>
+            <GlassCard className="p-4 !bg-accent/5 !border-accent/15">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-accent/15 flex items-center justify-center text-xl">🎁</div>
+                <div>
+                  <p className="text-xs font-bold text-foreground">جمعة مباركة! سؤال مغشوش (نقطتان هدية) + ١.٥ نقطة إضافية</p>
+                </div>
               </div>
-            </div>
-          </Section>
+            </GlassCard>
+          </motion.div>
         )}
       </div>
 
       {/* Participant card */}
       {participant && (
-        <Section className="mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-2xl ring-2 ring-primary/20">
-              {participant.emoji}
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-foreground">{participant.nickname}</p>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <Sparkles className="w-3 h-3 text-accent-foreground" />
-                <p className="text-xs font-semibold text-primary">{participant.score} نقطة</p>
+        <motion.div variants={fadeUp} custom={2}>
+          <GlassCard className="mb-4 p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-13 h-13 rounded-2xl bg-primary/8 flex items-center justify-center text-2xl ring-2 ring-primary/15" style={{ width: 52, height: 52 }}>
+                {participant.emoji}
               </div>
-            </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-foreground truncate">{participant.nickname}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-primary/8">
+                    <Star className="w-3 h-3 text-primary" />
+                    <p className="text-xs font-bold text-primary tabular-nums">{participant.score}</p>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground">نقطة</span>
+                </div>
+              </div>
 
-            {/* Status badge */}
-            {todayAnswered ? (
-              <button onClick={() => setStatusInfoIdx(0)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20">
-                <span className="text-sm">🫡</span><span className="text-[11px] font-bold text-primary">تم الحل</span>
-              </button>
-            ) : !questionsAvailable && isQuizActive() ? (
-              <button onClick={() => setStatusInfoIdx(1)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-destructive/10 border border-destructive/20">
-                <span className="text-sm">❗️</span><span className="text-[11px] font-bold text-destructive">فاتك</span>
-              </button>
-            ) : isQuizActive() ? (
-              <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-accent/10 border border-accent/20">
-                <span className="text-sm">⏳</span><span className="text-[11px] font-bold text-accent-foreground">لم يُحل</span>
-              </div>
-            ) : null}
-          </div>
-        </Section>
+              {/* Status badge */}
+              {todayAnswered ? (
+                <motion.button whileTap={{ scale: 0.9 }} onClick={() => setStatusInfoIdx(0)}
+                  className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-primary/8 border border-primary/15">
+                  <span className="text-sm">🫡</span><span className="text-[11px] font-bold text-primary">تم الحل</span>
+                </motion.button>
+              ) : !questionsAvailable && isQuizActive() ? (
+                <motion.button whileTap={{ scale: 0.9 }} onClick={() => setStatusInfoIdx(1)}
+                  className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-destructive/8 border border-destructive/15">
+                  <span className="text-sm">❗️</span><span className="text-[11px] font-bold text-destructive">فاتك</span>
+                </motion.button>
+              ) : isQuizActive() ? (
+                <div className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-accent/8 border border-accent/15">
+                  <span className="text-sm">⏳</span><span className="text-[11px] font-bold text-accent-foreground">لم يُحل</span>
+                </div>
+              ) : null}
+            </div>
+          </GlassCard>
+        </motion.div>
       )}
 
       {/* Status info modal */}
       <AnimatePresence>
         {statusInfoIdx !== null && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 backdrop-blur-sm px-6" onClick={() => setStatusInfoIdx(null)}>
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-card rounded-3xl p-6 shadow-elevated max-w-sm w-full text-center border border-border/50" onClick={(e) => e.stopPropagation()}>
-              <p className="text-4xl mb-3">{statusInfoIdx === 0 ? '🫡' : '❗️'}</p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/25 backdrop-blur-md px-6" onClick={() => setStatusInfoIdx(null)}>
+            <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.85, opacity: 0 }} transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+              className="bg-card rounded-3xl p-7 shadow-elevated max-w-sm w-full text-center border border-border/40" onClick={(e) => e.stopPropagation()}>
+              <p className="text-5xl mb-4">{statusInfoIdx === 0 ? '🫡' : '❗️'}</p>
               <p className="text-sm font-bold text-foreground mb-2">{statusInfoIdx === 0 ? statusInfoTexts.solved.title : statusInfoTexts.missed.title}</p>
               <p className="text-xs text-muted-foreground leading-relaxed">{statusInfoIdx === 0 ? statusInfoTexts.solved.desc : statusInfoTexts.missed.desc}</p>
-              <button onClick={() => setStatusInfoIdx(null)} className="mt-5 px-8 py-2.5 rounded-2xl bg-secondary text-foreground text-sm font-semibold">حسناً</button>
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => setStatusInfoIdx(null)} className="mt-6 px-8 py-2.5 rounded-2xl bg-secondary text-foreground text-sm font-semibold">حسناً</motion.button>
             </motion.div>
           </motion.div>
         )}
@@ -826,127 +940,152 @@ const QuizPage = () => {
 
       {/* Calendar */}
       {isQuizActive() && participant && (
-        <Section className="mb-4">
-          <button onClick={() => setShowCalendar(!showCalendar)} className="flex items-center justify-between w-full">
-            <SectionTitle icon={CalendarIcon}>جدول الأيام</SectionTitle>
-            <span className="text-xs text-primary font-semibold">{showCalendar ? 'إخفاء' : 'عرض'}</span>
-          </button>
-          <AnimatePresence>
-            {showCalendar && (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                <div className="grid grid-cols-7 gap-1.5 max-h-[280px] overflow-y-auto hide-scrollbar pt-2">
-                  {quizDays.map(day => {
-                    const isPast = day.date < today;
-                    const isToday = day.date === today;
-                    const isFuture = day.date > today;
-                    const answered = answerHistory.find(a => a.question_date === day.date);
-                    return (
-                      <button key={day.date} onClick={() => isPast && handleDayClick(day.date)} disabled={isFuture}
-                        className={`aspect-square rounded-xl text-[10px] font-bold flex flex-col items-center justify-center gap-0.5 transition-all ${
-                          isToday ? 'ring-2 ring-primary bg-primary/10' : isPast && answered ? 'bg-primary/8' : isPast ? 'bg-destructive/5' : 'bg-secondary/40 opacity-40'
-                        } ${day.isFriday ? 'border border-accent/30' : ''} ${day.special ? 'border-2 border-accent' : ''}`}>
-                        <span className="text-foreground">{day.dayNum}</span>
-                        {isPast && answered && <span className="text-[8px]">🫡</span>}
-                        {isPast && !answered && <span className="text-[8px]">❗️</span>}
-                        {isToday && !todayAnswered && <span className="text-[8px]">⏳</span>}
-                        {isToday && todayAnswered && <span className="text-[8px]">🫡</span>}
-                        {day.isFriday && <span className="text-[7px]">🎁</span>}
-                      </button>
-                    );
-                  })}
+        <motion.div variants={fadeUp} custom={3}>
+          <GlassCard className="mb-4 overflow-hidden">
+            <button onClick={() => setShowCalendar(!showCalendar)} className="flex items-center justify-between w-full p-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl islamic-gradient flex items-center justify-center">
+                  <CalendarIcon className="w-4 h-4 text-primary-foreground" />
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </Section>
+                <h3 className="text-sm font-bold text-foreground">جدول الأيام</h3>
+              </div>
+              <span className="text-xs text-primary font-semibold">{showCalendar ? 'إخفاء' : 'عرض'}</span>
+            </button>
+            <AnimatePresence>
+              {showCalendar && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                  <div className="grid grid-cols-7 gap-1.5 max-h-[280px] overflow-y-auto hide-scrollbar px-4 pb-4">
+                    {quizDays.map(day => {
+                      const isPast = day.date < today;
+                      const isToday = day.date === today;
+                      const isFuture = day.date > today;
+                      const answeredDay = answerHistory.find(a => a.question_date === day.date);
+                      return (
+                        <motion.button key={day.date} whileTap={!isFuture ? { scale: 0.9 } : {}} onClick={() => isPast && handleDayClick(day.date)} disabled={isFuture}
+                          className={`aspect-square rounded-xl text-[10px] font-bold flex flex-col items-center justify-center gap-0.5 transition-all ${
+                            isToday ? 'ring-2 ring-primary bg-primary/8' : isPast && answeredDay ? 'bg-primary/6' : isPast ? 'bg-destructive/5' : 'bg-secondary/30 opacity-35'
+                          } ${day.isFriday ? 'border border-accent/25' : ''} ${day.special ? 'border-2 border-accent/60' : ''}`}>
+                          <span className="text-foreground">{day.dayNum}</span>
+                          {isPast && answeredDay && <span className="text-[8px]">🫡</span>}
+                          {isPast && !answeredDay && <span className="text-[8px]">❗️</span>}
+                          {isToday && !todayAnswered && <span className="text-[8px]">⏳</span>}
+                          {isToday && todayAnswered && <span className="text-[8px]">🫡</span>}
+                          {day.isFriday && <span className="text-[7px]">🎁</span>}
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </GlassCard>
+        </motion.div>
       )}
 
       {/* Day detail modal */}
       <AnimatePresence>
         {selectedDay && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 backdrop-blur-sm px-5" onClick={() => setSelectedDay(null)}>
-            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="bg-card rounded-3xl p-5 shadow-elevated max-w-sm w-full max-h-[70vh] overflow-y-auto border border-border/50" onClick={(e) => e.stopPropagation()}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/25 backdrop-blur-md px-5" onClick={() => setSelectedDay(null)}>
+            <motion.div initial={{ scale: 0.85, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.85, y: 20 }} transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+              className="bg-card rounded-3xl p-5 shadow-elevated max-w-sm w-full max-h-[70vh] overflow-y-auto border border-border/40" onClick={(e) => e.stopPropagation()}>
               <h3 className="text-sm font-bold text-foreground mb-1">أسئلة يوم {selectedDay.date}</h3>
               <p className="text-xs text-muted-foreground mb-4">
                 {selectedDay.solved ? `✅ تم الحل · ${selectedDay.score} نقاط` : '❌ لم يتم الحل'}
               </p>
               {selectedDay.questions.map((q: QuizQuestion, i: number) => (
-                <div key={i} className="mb-4 p-3 rounded-2xl bg-secondary/50 border border-border/40">
-                  <p className="text-xs font-bold text-foreground mb-2">{i + 1}. {q.question}</p>
+                <div key={i} className="mb-4 p-3.5 rounded-2xl bg-secondary/40 border border-border/30">
+                  <p className="text-xs font-bold text-foreground mb-2.5">{i + 1}. {q.question}</p>
                   <div className="space-y-1.5">
                     {q.options.map((opt: string, j: number) => {
                       const isCorrect = j === q.correctIndex;
                       const wasSelected = selectedDay.userAnswers?.[i] === j;
                       return (
-                        <div key={j} className={`px-3 py-2 rounded-xl text-[11px] ${
-                          isCorrect ? 'bg-primary/10 text-primary font-bold' : wasSelected ? 'bg-destructive/10 text-destructive' : 'bg-card text-muted-foreground'
+                        <div key={j} className={`px-3 py-2.5 rounded-xl text-[11px] transition-all ${
+                          isCorrect ? 'bg-primary/8 text-primary font-bold border border-primary/15' : wasSelected ? 'bg-destructive/8 text-destructive border border-destructive/15' : 'bg-card text-muted-foreground border border-border/20'
                         }`}>{opt}</div>
                       );
                     })}
                   </div>
                   {!selectedDay.solved && (
-                    <p className="text-[10px] text-primary mt-2 font-semibold">📚 راجع الموضوع واستعد ليوم جديد!</p>
+                    <p className="text-[10px] text-primary mt-2.5 font-semibold">📚 راجع الموضوع واستعد ليوم جديد!</p>
                   )}
                 </div>
               ))}
-              <button onClick={() => setSelectedDay(null)} className="w-full py-2.5 rounded-2xl bg-secondary text-foreground text-sm font-semibold">إغلاق</button>
+              <motion.button whileTap={{ scale: 0.97 }} onClick={() => setSelectedDay(null)} className="w-full py-3 rounded-2xl bg-secondary text-foreground text-sm font-semibold">إغلاق</motion.button>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Action buttons */}
-      <div className="space-y-2.5 mt-5">
+      <motion.div variants={fadeUp} custom={4} className="space-y-2.5 mt-5">
         {!participant ? (
-          <button onClick={() => setView('register')}
-            className="w-full py-4 rounded-2xl islamic-gradient text-primary-foreground font-bold text-base shadow-elevated active:scale-[0.98] transition-transform">
+          <motion.button whileTap={{ scale: 0.97 }} onClick={() => setView('register')}
+            className="w-full py-4 rounded-2xl islamic-gradient text-primary-foreground font-bold text-base shadow-elevated transition-all flex items-center justify-center gap-2">
+            <Zap className="w-4 h-4" />
             سجّل الآن
-          </button>
+          </motion.button>
         ) : questionsAvailable && !todayAnswered ? (
-          <button onClick={() => { setView('questions'); fetchQuestions(); setCurrentQ(0); setAnswers([null, null, null, null]); setTimerSec(TIMER_DURATION); setTimerActive(true); setHintsUsed(0); setCurrentHint(''); submitRef.current = false; }}
-            className="w-full py-4 rounded-2xl islamic-gradient text-primary-foreground font-bold text-base shadow-elevated active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+          <motion.button whileTap={{ scale: 0.97 }} onClick={() => { setView('questions'); fetchQuestions(); setCurrentQ(0); setAnswers([null, null, null, null]); setTimerSec(TIMER_DURATION); setTimerActive(true); setHintsUsed(0); setCurrentHint(''); submitRef.current = false; }}
+            className="w-full py-4 rounded-2xl islamic-gradient text-primary-foreground font-bold text-base shadow-elevated transition-all flex items-center justify-center gap-2">
             <Sparkles className="w-4 h-4" />
             ابدأ أسئلة اليوم
-          </button>
+          </motion.button>
         ) : null}
 
-        <button onClick={() => { setView('leaderboard'); fetchLeaderboard(); }}
-          className="w-full py-3 rounded-2xl bg-card border border-border text-foreground font-semibold flex items-center justify-center gap-2 shadow-card active:scale-[0.98] transition-transform">
+        <motion.button whileTap={{ scale: 0.97 }} onClick={() => { setView('leaderboard'); fetchLeaderboard(); }}
+          className="w-full py-3.5 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/40 text-foreground font-semibold flex items-center justify-center gap-2 shadow-card transition-all">
           <Trophy className="w-4 h-4 text-accent-foreground" /> قائمة المتصدرين
-        </button>
+        </motion.button>
 
-        <button onClick={handleShare}
-          className="w-full py-3 rounded-2xl bg-card border border-border text-foreground font-semibold flex items-center justify-center gap-2 shadow-card active:scale-[0.98] transition-transform">
+        <motion.button whileTap={{ scale: 0.97 }} onClick={handleShare}
+          className="w-full py-3 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/40 text-foreground font-semibold flex items-center justify-center gap-2 shadow-card transition-all">
           {copied ? <Check className="w-4 h-4 text-primary" /> : <Share2 className="w-4 h-4" />}
           {copied ? 'تم النسخ!' : 'شارك المسابقة'}
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
 
       {/* About section */}
-      <Section className="mt-5">
-        <SectionTitle icon={Info}>عن المسابقة</SectionTitle>
-        <ul className="space-y-2.5 text-xs text-muted-foreground leading-relaxed">
-          <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> ٤ أسئلة يومية عن أهل البيت عليهم السلام</li>
-          <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> لكل سؤال صحيح نقطتان · عداد ٣ دقائق لكل جولة</li>
-          <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> تلميحان من الذكاء الاصطناعي لكل جولة</li>
-          <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> الأسئلة متاحة من ٩:٠٠ صباحاً حتى ٩:٣٠ مساءً</li>
-          <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> المسابقة من ٢١ مارس حتى ٢١ مايو ٢٠٢٦</li>
-          <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> الأسئلة تتغير يومياً حسب عمرك ومستواك</li>
-          <li className="flex items-start gap-2"><span className="text-accent-foreground mt-0.5">🎁</span> كل جمعة: سؤال مغشوش + ١.٥ نقطة هدية</li>
-          <li className="flex items-start gap-2"><span className="text-accent-foreground mt-0.5">🎁</span> مناسبات أهل البيت: ٥ نقاط هدية</li>
-        </ul>
-      </Section>
+      <motion.div variants={fadeUp} custom={5} className="mt-6">
+        <GlassCard className="p-5">
+          <div className="flex items-center gap-2.5 mb-4">
+            <div className="w-8 h-8 rounded-xl islamic-gradient flex items-center justify-center">
+              <Info className="w-4 h-4 text-primary-foreground" />
+            </div>
+            <h3 className="text-sm font-bold text-foreground">عن المسابقة</h3>
+          </div>
+          <ul className="space-y-3 text-xs text-muted-foreground leading-relaxed">
+            {[
+              { icon: <Target className="w-3 h-3 text-primary flex-shrink-0" />, text: '٤ أسئلة يومية عن أهل البيت عليهم السلام' },
+              { icon: <Star className="w-3 h-3 text-primary flex-shrink-0" />, text: 'لكل سؤال صحيح نقطتان · عداد ٣ دقائق لكل جولة' },
+              { icon: <Lightbulb className="w-3 h-3 text-primary flex-shrink-0" />, text: 'تلميحان من الذكاء الاصطناعي لكل جولة' },
+              { icon: <Clock className="w-3 h-3 text-primary flex-shrink-0" />, text: 'الأسئلة متاحة من ٩:٠٠ صباحاً حتى ٩:٣٠ مساءً' },
+              { icon: <CalendarIcon className="w-3 h-3 text-primary flex-shrink-0" />, text: 'المسابقة من ٢١ مارس حتى ٢١ مايو ٢٠٢٦' },
+              { icon: <TrendingUp className="w-3 h-3 text-primary flex-shrink-0" />, text: 'الأسئلة تتغير يومياً حسب عمرك ومستواك' },
+              { icon: <Gift className="w-3 h-3 text-accent-foreground flex-shrink-0" />, text: 'كل جمعة: سؤال مغشوش + ١.٥ نقطة هدية' },
+              { icon: <Gift className="w-3 h-3 text-accent-foreground flex-shrink-0" />, text: 'مناسبات أهل البيت: ٥ نقاط هدية' },
+            ].map((item, i) => (
+              <li key={i} className="flex items-start gap-2.5">{item.icon}<span className="mt-[-1px]">{item.text}</span></li>
+            ))}
+          </ul>
+        </GlassCard>
+      </motion.div>
 
       {/* Questions loading overlay */}
       {questionsLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-10 h-10 border-[3px] border-primary border-t-transparent rounded-full animate-spin" />
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-50 flex items-center justify-center bg-background/85 backdrop-blur-md">
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="w-12 h-12 rounded-2xl islamic-gradient flex items-center justify-center shadow-elevated">
+                <BookOpen className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div className="absolute inset-0 w-12 h-12 rounded-2xl border-2 border-primary/20 animate-ping" />
+            </div>
             <p className="text-sm text-muted-foreground font-medium">جاري تحميل الأسئلة...</p>
           </div>
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
