@@ -393,22 +393,29 @@ const AiPage = () => {
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto px-4 py-3">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center">
+          <div className="flex flex-col items-center justify-center h-full text-center px-2">
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
-              <img src={aiLogo} alt="حُسين" className="w-20 h-20 mx-auto mb-4 rounded-2xl shadow-elevated object-contain" />
-              <h1 className="text-lg font-bold text-foreground mb-1">اسأل عِتَرَةً</h1>
-              <p className="text-xs text-muted-foreground max-w-[220px] mx-auto leading-relaxed">
-                حُسين يبحث لك في المصادر الإسلامية الموثوقة ومهدي يبسّط لك المعلومات
+              <img src={aiLogo} alt="حُسين" className="w-16 h-16 mx-auto mb-3 rounded-2xl shadow-card object-contain" />
+              <h1 className="text-base font-bold text-foreground mb-0.5">اسأل عِتَرَةً</h1>
+              <p className="text-[11px] text-muted-foreground max-w-[240px] mx-auto leading-relaxed">
+                حُسين يبحث لك في المصادر الإسلامية الموثوقة
+                <br />
+                ومهدي يبسّط لك المعلومات
               </p>
             </motion.div>
 
             {/* Quick suggestions */}
-            <div className="mt-6 space-y-2 w-full max-w-xs">
-              {['ما هي أركان الصلاة؟', 'اشرح لي سورة الفاتحة', 'ما هو دعاء كميل؟'].map((q, i) => (
-                <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.1 }}
+            <div className="mt-5 space-y-2 w-full max-w-xs">
+              {[
+                { q: 'ما هي أركان الصلاة؟', emoji: '🕌' },
+                { q: 'اشرح لي سورة الفاتحة', emoji: '📖' },
+                { q: 'ما هو دعاء كميل؟', emoji: '🤲🏻' },
+              ].map(({ q, emoji }, i) => (
+                <motion.button key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.08 }}
                   onClick={() => { setInput(q); sendMessage(q); }}
-                  className="w-full text-right px-4 py-3 rounded-2xl bg-card border border-border/30 text-sm text-foreground hover:bg-secondary/30 transition-colors shadow-card">
-                  {q}
+                  className="w-full text-right px-4 py-3 rounded-2xl bg-card border border-border/30 text-[13px] text-foreground hover:border-primary/30 transition-all shadow-card active:scale-[0.98] flex items-center gap-3">
+                  <span className="text-base">{emoji}</span>
+                  <span className="flex-1">{q}</span>
                 </motion.button>
               ))}
             </div>
@@ -508,9 +515,9 @@ const AiPage = () => {
         )}
       </div>
 
-      {/* Input area - ChatGPT style */}
-      <div className="px-3 pb-3 pt-1">
-        <div className="relative bg-card rounded-2xl border border-border/40 shadow-elevated overflow-hidden">
+      {/* Input area */}
+      <div className="px-3 pb-3 pt-1.5">
+        <div className="relative bg-card rounded-2xl border border-border/30 shadow-card overflow-hidden">
           {/* Plus menu */}
           <AnimatePresence>
             {showPlusMenu && (

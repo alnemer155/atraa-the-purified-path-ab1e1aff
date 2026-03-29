@@ -7,9 +7,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+const stagger = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
+};
+
 const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
 };
 
 const SettingsPage = () => {
@@ -29,7 +34,6 @@ const SettingsPage = () => {
   const [emailNotif, setEmailNotif] = useState(false);
   const [emailNotifLoading, setEmailNotifLoading] = useState(false);
 
-  // Load email notification preference
   useEffect(() => {
     const loadEmailPref = async () => {
       const userEmail = user?.email;
@@ -39,9 +43,7 @@ const SettingsPage = () => {
         .select('*')
         .eq('email', userEmail)
         .maybeSingle();
-      if (data) {
-        setEmailNotif(true);
-      }
+      if (data) setEmailNotif(true);
     };
     loadEmailPref();
   }, []);
@@ -78,7 +80,6 @@ const SettingsPage = () => {
     setEmailNotifLoading(false);
   };
 
-  // Sync email prefs when toggles change
   const toggleNotifWithEmail = async (type: string, current: boolean, setter: (v: boolean) => void) => {
     const next = !current;
     setter(next);
@@ -86,18 +87,8 @@ const SettingsPage = () => {
     if (next && 'Notification' in window && Notification.permission !== 'granted') {
       Notification.requestPermission();
     }
-    // Sync to email prefs if email notif is enabled
     if (emailNotif && user?.email) {
       await supabase.from('email_notification_prefs').update({ [type]: next, updated_at: new Date().toISOString() }).eq('email', user.email);
-    }
-  };
-
-  const toggleNotif = (type: string, current: boolean, setter: (v: boolean) => void) => {
-    const next = !current;
-    setter(next);
-    localStorage.setItem(`atraa_notif_${type}`, String(next));
-    if (next && 'Notification' in window && Notification.permission !== 'granted') {
-      Notification.requestPermission();
     }
   };
 
@@ -131,12 +122,12 @@ const SettingsPage = () => {
   };
 
   const NotifToggle = ({ label, subtitle, enabled, onToggle }: { label: string; subtitle: string; enabled: boolean; onToggle: () => void }) => (
-    <button onClick={onToggle} className="w-full flex items-center justify-between p-3.5 active:bg-secondary/30 transition-colors">
-      <div className="text-right">
-        <p className="text-sm font-medium text-foreground">{label}</p>
+    <button onClick={onToggle} className="w-full flex items-center justify-between p-3 active:bg-secondary/30 transition-colors">
+      <div className="text-right flex-1 min-w-0">
+        <p className="text-[13px] font-medium text-foreground">{label}</p>
         <p className="text-[10px] text-muted-foreground mt-0.5">{subtitle}</p>
       </div>
-      <div className={`w-10 h-[22px] rounded-full transition-all duration-200 flex items-center px-0.5 ${enabled ? 'bg-primary justify-start' : 'bg-border/80 justify-end'}`}>
+      <div className={`w-10 h-[22px] rounded-full transition-all duration-200 flex items-center px-0.5 flex-shrink-0 mr-3 ${enabled ? 'bg-primary justify-start' : 'bg-border/80 justify-end'}`}>
         <motion.div layout className="w-[18px] h-[18px] rounded-full bg-card shadow-sm" />
       </div>
     </button>
@@ -145,18 +136,24 @@ const SettingsPage = () => {
   return (
     <motion.div
       className="px-4 py-4 space-y-4 animate-fade-in"
+      variants={stagger}
       initial="hidden"
-      animate="show"
-      transition={{ staggerChildren: 0.05 }}
+      animate="visible"
     >
-      <motion.h1 variants={fadeUp} className="text-lg font-bold text-foreground">الإعدادات</motion.h1>
+      {/* Header */}
+      <motion.div variants={fadeUp} className="flex items-center gap-2 py-1">
+        <div className="w-8 h-8 rounded-xl islamic-gradient flex items-center justify-center shadow-sm">
+          <User className="w-4 h-4 text-primary-foreground" />
+        </div>
+        <h1 className="text-lg font-bold text-foreground">الإعدادات</h1>
+      </motion.div>
 
       {/* User card */}
       {user && (
         <motion.div variants={fadeUp} className="bg-card rounded-2xl shadow-card border border-border/30 p-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl islamic-gradient flex items-center justify-center shadow-card">
-              <User className="w-5 h-5 text-primary-foreground" />
+              <span className="text-lg">{user.title === 'سيد' ? '🧕🏻' : '👤'}</span>
             </div>
             <div className="flex-1 text-right min-w-0">
               <p className="text-sm font-semibold text-foreground truncate">
@@ -182,46 +179,41 @@ const SettingsPage = () => {
         </motion.div>
       )}
 
-      {/* Notifications */}
+      {/* Notifications Section */}
       <motion.div variants={fadeUp} className="space-y-2">
-        <p className="text-[11px] font-semibold text-muted-foreground px-1">الإشعارات</p>
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/20">
-          <div className="flex items-center gap-3 p-4 pb-2">
-            <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
-              <Bell className="w-4 h-4 text-primary" />
-            </div>
-            <p className="text-sm font-medium text-foreground">إدارة الإشعارات</p>
-          </div>
-          <NotifToggle label="إشعارات الأذان" subtitle="تنبيه عند دخول وقت الصلاة" enabled={adhanNotif} onToggle={() => toggleNotifWithEmail('adhan', adhanNotif, setAdhanNotif)} />
-          <NotifToggle label="تذكير الأذكار" subtitle="تذكير يومي بالأذكار" enabled={dhikrNotif} onToggle={() => toggleNotifWithEmail('dhikr', dhikrNotif, setDhikrNotif)} />
-          <NotifToggle label="الصلاة على النبي" subtitle="الصلاة على محمد وآل محمد" enabled={salawatNotif} onToggle={() => toggleNotifWithEmail('salawat', salawatNotif, setSalawatNotif)} />
-          <NotifToggle label="إشعارات المسابقة" subtitle="تنبيه قبل بدء الأسئلة" enabled={quizNotif} onToggle={() => toggleNotifWithEmail('quiz', quizNotif, setQuizNotif)} />
-          <NotifToggle label="دعاء اليوم" subtitle="تذكير يومي بقراءة دعاء مقترح" enabled={duaNotif} onToggle={() => toggleNotifWithEmail('dua', duaNotif, setDuaNotif)} />
+        <div className="flex items-center gap-2 px-1">
+          <Bell className="w-3.5 h-3.5 text-primary" />
+          <p className="text-[11px] font-semibold text-muted-foreground">الإشعارات</p>
         </div>
+        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/15">
+          <NotifToggle label="إشعارات الأذان" subtitle="تنبيه عند دخول وقت الصلاة" enabled={adhanNotif} onToggle={() => toggleNotifWithEmail('adhan', adhanNotif, setAdhanNotif)} />
+          <NotifToggle label="تذكير الأذكار" subtitle="أذكار الصباح والمساء" enabled={dhikrNotif} onToggle={() => toggleNotifWithEmail('dhikr', dhikrNotif, setDhikrNotif)} />
+          <NotifToggle label="الصلاة على النبي" subtitle="اللهم صلّ على محمد وآله" enabled={salawatNotif} onToggle={() => toggleNotifWithEmail('salawat', salawatNotif, setSalawatNotif)} />
+          <NotifToggle label="إشعارات المسابقة" subtitle="تنبيه قبل بدء الأسئلة" enabled={quizNotif} onToggle={() => toggleNotifWithEmail('quiz', quizNotif, setQuizNotif)} />
+          <NotifToggle label="دعاء اليوم" subtitle="تذكير يومي بدعاء مقترح" enabled={duaNotif} onToggle={() => toggleNotifWithEmail('dua', duaNotif, setDuaNotif)} />
+        </div>
+      </motion.div>
 
-        {/* Email Notifications */}
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/20">
-          <div className="flex items-center gap-3 p-4 pb-2">
-            <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
-              <MailCheck className="w-4 h-4 text-primary" />
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-medium text-foreground">إشعارات البريد الإلكتروني</p>
-              <p className="text-[10px] text-muted-foreground">استلم التذكيرات على بريدك</p>
-            </div>
-          </div>
+      {/* Email Notifications */}
+      <motion.div variants={fadeUp}>
+        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden">
           <button
             onClick={toggleEmailNotif}
             disabled={emailNotifLoading}
             className="w-full flex items-center justify-between p-3.5 active:bg-secondary/30 transition-colors disabled:opacity-50"
           >
-            <div className="text-right">
-              <p className="text-sm font-medium text-foreground">
-                {emailNotif ? 'إشعارات البريد مفعّلة' : 'تفعيل إشعارات البريد'}
-              </p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">
-                {user?.email || 'يرجى تسجيل الدخول أولاً'}
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
+                <MailCheck className="w-4 h-4 text-primary" />
+              </div>
+              <div className="text-right">
+                <p className="text-[13px] font-medium text-foreground">
+                  {emailNotif ? 'إشعارات البريد مفعّلة' : 'تفعيل إشعارات البريد'}
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {user?.email || 'يرجى تسجيل الدخول أولاً'}
+                </p>
+              </div>
             </div>
             <div className={`w-10 h-[22px] rounded-full transition-all duration-200 flex items-center px-0.5 ${emailNotif ? 'bg-primary justify-start' : 'bg-border/80 justify-end'}`}>
               <motion.div layout className="w-[18px] h-[18px] rounded-full bg-card shadow-sm" />
@@ -232,7 +224,10 @@ const SettingsPage = () => {
 
       {/* Location & Date */}
       <motion.div variants={fadeUp} className="space-y-2">
-        <p className="text-[11px] font-semibold text-muted-foreground px-1">الطقس والتاريخ</p>
+        <div className="flex items-center gap-2 px-1">
+          <Calendar className="w-3.5 h-3.5 text-primary" />
+          <p className="text-[11px] font-semibold text-muted-foreground">الطقس والتاريخ</p>
+        </div>
         <CityPicker selectedCity={selectedCity} onCityChange={handleCityChange} />
         <div className="bg-card rounded-2xl shadow-card border border-border/30 p-4">
           <div className="flex items-center gap-3 mb-3">
@@ -240,7 +235,7 @@ const SettingsPage = () => {
               <Calendar className="w-4 h-4 text-primary" />
             </div>
             <div className="text-right">
-              <p className="text-sm font-medium text-foreground">تعديل التاريخ الهجري</p>
+              <p className="text-[13px] font-medium text-foreground">تعديل التاريخ الهجري</p>
               <p className="text-[10px] text-muted-foreground">تصحيح فرق الأيام</p>
             </div>
           </div>
@@ -264,14 +259,17 @@ const SettingsPage = () => {
 
       {/* Share & Install */}
       <motion.div variants={fadeUp} className="space-y-2">
-        <p className="text-[11px] font-semibold text-muted-foreground px-1">مشاركة وتحميل</p>
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/20">
+        <div className="flex items-center gap-2 px-1">
+          <Share2 className="w-3.5 h-3.5 text-primary" />
+          <p className="text-[11px] font-semibold text-muted-foreground">مشاركة وتحميل</p>
+        </div>
+        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/15">
           <button onClick={handleShareApp} className="w-full flex items-center justify-between p-3.5 hover:bg-secondary/30 transition-colors active:bg-secondary/50">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
                 <Share2 className="w-4 h-4 text-primary" />
               </div>
-              <p className="text-sm font-medium text-foreground">مشاركة التطبيق</p>
+              <p className="text-[13px] font-medium text-foreground">مشاركة التطبيق</p>
             </div>
             {shareCopied ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground/40" />}
           </button>
@@ -280,7 +278,7 @@ const SettingsPage = () => {
               <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
                 <Download className="w-4 h-4 text-primary" />
               </div>
-              <p className="text-sm font-medium text-foreground">تحميل التطبيق</p>
+              <p className="text-[13px] font-medium text-foreground">تحميل التطبيق</p>
             </div>
             <Smartphone className="w-3.5 h-3.5 text-muted-foreground/40" />
           </button>
@@ -343,14 +341,17 @@ const SettingsPage = () => {
 
       {/* Legal */}
       <motion.div variants={fadeUp} className="space-y-2">
-        <p className="text-[11px] font-semibold text-muted-foreground px-1">قانوني</p>
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/20">
+        <div className="flex items-center gap-2 px-1">
+          <Shield className="w-3.5 h-3.5 text-primary" />
+          <p className="text-[11px] font-semibold text-muted-foreground">قانوني</p>
+        </div>
+        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/15">
           <Link to="/policies" className="flex items-center justify-between p-3.5 hover:bg-secondary/30 transition-colors">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
                 <Shield className="w-4 h-4 text-primary" />
               </div>
-              <p className="text-sm font-medium text-foreground">سياسة الخصوصية</p>
+              <p className="text-[13px] font-medium text-foreground">سياسة الخصوصية</p>
             </div>
             <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground/30" />
           </Link>
@@ -359,41 +360,10 @@ const SettingsPage = () => {
               <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
                 <FileText className="w-4 h-4 text-primary" />
               </div>
-              <p className="text-sm font-medium text-foreground">شروط الاستخدام</p>
+              <p className="text-[13px] font-medium text-foreground">شروط الاستخدام</p>
             </div>
             <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground/30" />
           </Link>
-        </div>
-      </motion.div>
-
-      {/* Coming Soon */}
-      <motion.div variants={fadeUp} className="space-y-2">
-        <p className="text-[11px] font-semibold text-muted-foreground px-1">قريباً</p>
-        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/20">
-          <div className="flex items-center justify-between p-3.5 opacity-50">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-secondary/60 flex items-center justify-center">
-                <Globe className="w-4 h-4 text-muted-foreground" />
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-foreground">English Language</p>
-                <p className="text-[10px] text-muted-foreground">دعم اللغة الإنجليزية</p>
-              </div>
-            </div>
-            <span className="text-[9px] font-semibold text-accent-foreground bg-accent/15 px-2 py-0.5 rounded-full">قريباً</span>
-          </div>
-          <div className="flex items-center justify-between p-3.5 opacity-50">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-secondary/60 flex items-center justify-center">
-                <Moon className="w-4 h-4 text-muted-foreground" />
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-foreground">الوضع الداكن</p>
-                <p className="text-[10px] text-muted-foreground">Dark Mode</p>
-              </div>
-            </div>
-            <span className="text-[9px] font-semibold text-accent-foreground bg-accent/15 px-2 py-0.5 rounded-full">قريباً</span>
-          </div>
         </div>
       </motion.div>
 
@@ -407,7 +377,10 @@ const SettingsPage = () => {
 
       {/* About */}
       <motion.div variants={fadeUp} className="space-y-2">
-        <p className="text-[11px] font-semibold text-muted-foreground px-1">حول التطبيق</p>
+        <div className="flex items-center gap-2 px-1">
+          <Code2 className="w-3.5 h-3.5 text-primary" />
+          <p className="text-[11px] font-semibold text-muted-foreground">حول التطبيق</p>
+        </div>
         <div className="bg-card rounded-2xl shadow-card border border-border/30 p-4">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 rounded-xl islamic-gradient flex items-center justify-center">
@@ -419,7 +392,7 @@ const SettingsPage = () => {
             </div>
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             <a href="https://whatsapp.com/channel/0029VbCNwblJZg466AM5CC2R" target="_blank" rel="noopener" className="flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary/30 transition-colors">
               <div className="flex items-center gap-2">
                 <MessageCircle className="w-3.5 h-3.5 text-primary" />
@@ -454,10 +427,41 @@ const SettingsPage = () => {
         </div>
       </motion.div>
 
+      {/* Coming Soon */}
+      <motion.div variants={fadeUp} className="space-y-2">
+        <p className="text-[11px] font-semibold text-muted-foreground px-1">قريباً</p>
+        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/15">
+          <div className="flex items-center justify-between p-3.5 opacity-40">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-secondary/60 flex items-center justify-center">
+                <Globe className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div className="text-right">
+                <p className="text-[13px] font-medium text-foreground">English Language</p>
+                <p className="text-[10px] text-muted-foreground">دعم اللغة الإنجليزية</p>
+              </div>
+            </div>
+            <span className="text-[9px] font-semibold text-accent-foreground bg-accent/15 px-2 py-0.5 rounded-full">قريباً</span>
+          </div>
+          <div className="flex items-center justify-between p-3.5 opacity-40">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-secondary/60 flex items-center justify-center">
+                <Moon className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div className="text-right">
+                <p className="text-[13px] font-medium text-foreground">الوضع الداكن</p>
+                <p className="text-[10px] text-muted-foreground">Dark Mode</p>
+              </div>
+            </div>
+            <span className="text-[9px] font-semibold text-accent-foreground bg-accent/15 px-2 py-0.5 rounded-full">قريباً</span>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Version */}
       <motion.div variants={fadeUp} className="text-center pb-6 pt-1">
         <p className="text-[11px] text-muted-foreground">عِتَرَةً</p>
-        <p className="text-[9px] text-muted-foreground/50 mt-0.5">v3.1 · بناء 120</p>
+        <p className="text-[9px] text-muted-foreground/50 mt-0.5">v3.2 · بناء 130</p>
       </motion.div>
     </motion.div>
   );

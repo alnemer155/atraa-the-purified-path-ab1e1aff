@@ -21,51 +21,55 @@ type Tab = 'duas' | 'tasbih';
 const LibraryPage = () => {
   const [activeTab, setActiveTab] = useState<Tab>('duas');
 
-  const tabs: { key: Tab; label: string; icon: React.ReactNode; desc: string }[] = [
-    { key: 'duas', label: 'الأدعية والأذكار', icon: <BookOpen className="w-4 h-4" />, desc: 'أدعية وزيارات وأذكار' },
-    { key: 'tasbih', label: 'التسبيح', icon: <TasbihIcon className="w-4 h-4" />, desc: 'تسبيح الزهراء والحر' },
+  const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
+    { key: 'duas', label: 'الأدعية والأذكار', icon: <BookOpen className="w-4 h-4" /> },
+    { key: 'tasbih', label: 'التسبيح', icon: <TasbihIcon className="w-4 h-4" /> },
   ];
 
   return (
     <div className="animate-fade-in">
       {/* Header */}
-      <div className="sticky top-[42px] z-30 bg-background/70 backdrop-blur-2xl backdrop-saturate-150 px-4 pt-3 pb-2.5 border-b border-border/20">
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg islamic-gradient flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5 text-primary-foreground" />
+      <div className="sticky top-[42px] z-30 bg-background/70 backdrop-blur-2xl backdrop-saturate-150 border-b border-border/20">
+        <div className="px-4 pt-3 pb-2.5">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-xl islamic-gradient flex items-center justify-center shadow-sm">
+              <Sparkles className="w-4 h-4 text-primary-foreground" />
             </div>
-            <h1 className="text-base font-bold text-foreground">المكتبة</h1>
+            <div>
+              <h1 className="text-base font-bold text-foreground leading-tight">المكتبة</h1>
+              <p className="text-[10px] text-muted-foreground">أدعية · زيارات · أذكار · تسبيح</p>
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2 p-1 bg-secondary/40 rounded-2xl">
-          {tabs.map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className="relative flex-1 py-2.5 rounded-xl text-sm font-medium transition-all"
-            >
-              {activeTab === tab.key && (
-                <motion.div
-                  layoutId="library-tab"
-                  className="absolute inset-0 rounded-xl bg-card shadow-card border border-border/30"
-                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                />
-              )}
-              <span className={`relative flex items-center justify-center gap-1.5 ${
-                activeTab === tab.key ? 'text-primary font-semibold' : 'text-muted-foreground'
-              }`}>
-                {tab.icon}
-                {tab.label}
-              </span>
-            </button>
-          ))}
+
+          <div className="flex gap-1.5 p-1 bg-secondary/40 rounded-2xl">
+            {tabs.map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className="relative flex-1 py-2.5 rounded-xl text-sm font-medium transition-all"
+              >
+                {activeTab === tab.key && (
+                  <motion.div
+                    layoutId="library-tab"
+                    className="absolute inset-0 rounded-xl bg-card shadow-card border border-border/30"
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                  />
+                )}
+                <span className={`relative flex items-center justify-center gap-1.5 ${
+                  activeTab === tab.key ? 'text-primary font-semibold' : 'text-muted-foreground'
+                }`}>
+                  {tab.icon}
+                  {tab.label}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       <motion.div
         key={activeTab}
-        initial={{ opacity: 0, y: 8 }}
+        initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
       >
