@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, MessageCircle, Share2, Download, Copy, Check, Smartphone, LogOut, MailCheck } from 'lucide-react';
+import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, MessageCircle, Share2, Download, Copy, Check, Smartphone, LogOut, MailCheck, Send } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUser, getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
 import CityPicker from '@/components/CityPicker';
+import ContactForm from '@/components/ContactForm';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -33,6 +34,7 @@ const SettingsPage = () => {
   const [showInstallGuide, setShowInstallGuide] = useState(false);
   const [emailNotif, setEmailNotif] = useState(false);
   const [emailNotifLoading, setEmailNotifLoading] = useState(false);
+  const [showContactForm, setShowContactForm] = useState(false);
 
   useEffect(() => {
     const loadEmailPref = async () => {
@@ -393,6 +395,25 @@ const SettingsPage = () => {
           </div>
 
           <div className="space-y-0.5">
+            {/* Contact Form Button */}
+            <button
+              onClick={() => setShowContactForm(true)}
+              className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary/30 transition-colors active:scale-[0.98]"
+            >
+              <div className="flex items-center gap-2">
+                <Send className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-medium text-foreground">التواصل السريع</span>
+              </div>
+              <span className="text-[10px] text-muted-foreground">شكوى · استفسار · طلب</span>
+            </button>
+
+            <a href="https://ajaafar.dev" target="_blank" rel="noopener" className="flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary/30 transition-colors">
+              <div className="flex items-center gap-2">
+                <Globe className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs text-foreground">موقع المطوّر</span>
+              </div>
+              <span className="text-[10px] text-muted-foreground">ajaafar.dev</span>
+            </a>
             <a href="https://whatsapp.com/channel/0029VbCNwblJZg466AM5CC2R" target="_blank" rel="noopener" className="flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary/30 transition-colors">
               <div className="flex items-center gap-2">
                 <MessageCircle className="w-3.5 h-3.5 text-primary" />
@@ -404,13 +425,6 @@ const SettingsPage = () => {
               <div className="flex items-center gap-2">
                 <ExternalLink className="w-3.5 h-3.5 text-primary" />
                 <span className="text-xs text-foreground">Instagram</span>
-              </div>
-              <span className="text-[10px] text-muted-foreground">@nr_aj5</span>
-            </a>
-            <a href="https://x.com/nr_aj5" target="_blank" rel="noopener" className="flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary/30 transition-colors">
-              <div className="flex items-center gap-2">
-                <ExternalLink className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs text-foreground">X (Twitter)</span>
               </div>
               <span className="text-[10px] text-muted-foreground">@nr_aj5</span>
             </a>
@@ -427,42 +441,68 @@ const SettingsPage = () => {
         </div>
       </motion.div>
 
-      {/* Coming Soon */}
+      {/* Languages */}
       <motion.div variants={fadeUp} className="space-y-2">
-        <p className="text-[11px] font-semibold text-muted-foreground px-1">قريباً</p>
+        <div className="flex items-center gap-2 px-1">
+          <Globe className="w-3.5 h-3.5 text-primary" />
+          <p className="text-[11px] font-semibold text-muted-foreground">اللغات</p>
+        </div>
         <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/15">
-          <div className="flex items-center justify-between p-3.5 opacity-40">
+          <div className="flex items-center justify-between p-3.5">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-secondary/60 flex items-center justify-center">
-                <Globe className="w-4 h-4 text-muted-foreground" />
+              <div className="w-8 h-8 rounded-xl islamic-gradient flex items-center justify-center">
+                <span className="text-xs font-bold text-primary-foreground">ع</span>
               </div>
               <div className="text-right">
-                <p className="text-[13px] font-medium text-foreground">English Language</p>
-                <p className="text-[10px] text-muted-foreground">دعم اللغة الإنجليزية</p>
+                <p className="text-[13px] font-medium text-foreground">العربية</p>
+                <p className="text-[10px] text-muted-foreground">اللغة الأساسية</p>
               </div>
             </div>
-            <span className="text-[9px] font-semibold text-accent-foreground bg-accent/15 px-2 py-0.5 rounded-full">قريباً</span>
+            <span className="text-[9px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">مفعّل</span>
           </div>
-          <div className="flex items-center justify-between p-3.5 opacity-40">
+          <div className="flex items-center justify-between p-3.5">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-secondary/60 flex items-center justify-center">
-                <Moon className="w-4 h-4 text-muted-foreground" />
+                <span className="text-xs font-bold text-muted-foreground">EN</span>
               </div>
               <div className="text-right">
-                <p className="text-[13px] font-medium text-foreground">الوضع الداكن</p>
-                <p className="text-[10px] text-muted-foreground">Dark Mode</p>
+                <p className="text-[13px] font-medium text-foreground">English (British)</p>
+                <p className="text-[10px] text-muted-foreground">الإنجليزية البريطانية</p>
               </div>
             </div>
-            <span className="text-[9px] font-semibold text-accent-foreground bg-accent/15 px-2 py-0.5 rounded-full">قريباً</span>
+            <span className="text-[9px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">مفعّل</span>
           </div>
+          {[
+            { code: 'FR', name: 'Français', label: 'الفرنسية' },
+            { code: 'فا', name: 'فارسی', label: 'الفارسية' },
+            { code: 'DE', name: 'Deutsch', label: 'الألمانية' },
+          ].map(lang => (
+            <div key={lang.code} className="flex items-center justify-between p-3.5 opacity-40">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-secondary/60 flex items-center justify-center">
+                  <span className="text-xs font-bold text-muted-foreground">{lang.code}</span>
+                </div>
+                <div className="text-right">
+                  <p className="text-[13px] font-medium text-foreground">{lang.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{lang.label}</p>
+                </div>
+              </div>
+              <span className="text-[9px] font-semibold text-accent-foreground bg-accent/15 px-2 py-0.5 rounded-full">قريباً</span>
+            </div>
+          ))}
         </div>
       </motion.div>
 
       {/* Version */}
       <motion.div variants={fadeUp} className="text-center pb-6 pt-1">
         <p className="text-[11px] text-muted-foreground">عِتَرَةً</p>
-        <p className="text-[9px] text-muted-foreground/50 mt-0.5">v3.2 · بناء 130</p>
+        <p className="text-[9px] text-muted-foreground/50 mt-0.5">v3.3 · بناء 160</p>
       </motion.div>
+
+      {/* Contact Form Modal */}
+      <AnimatePresence>
+        {showContactForm && <ContactForm onClose={() => setShowContactForm(false)} />}
+      </AnimatePresence>
     </motion.div>
   );
 };
