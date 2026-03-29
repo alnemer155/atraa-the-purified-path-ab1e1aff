@@ -335,7 +335,7 @@ const SettingsPage = () => {
       {/* Version */}
       <div className="text-center pb-6 pt-1">
         <p className="text-[11px] text-muted-foreground">عِتَرَةً</p>
-        <p className="text-[9px] text-muted-foreground/50 mt-0.5">v3.0 · بناء 100</p>
+        <p className="text-[9px] text-muted-foreground/50 mt-0.5">v3.1 · بناء 120</p>
       </div>
     </div>
   );
