@@ -1,19 +1,17 @@
 project_id = "gdhtmrythdczvhjfxgqs"
 
-[functions.quiz-register]
-verify_jwt = false
-
-[functions.quiz-questions]
-verify_jwt = false
-
-[functions.quiz-submit]
-verify_jwt = false
-
-[functions.quiz-share]
-verify_jwt = false
-
-[functions.ai-chat]
-verify_jwt = false
-
-[functions.process-email-queue]
-verify_jwt = true
+[functions]
+  [functions.ai-chat]
+    verify_jwt = false
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
+  [functions.quiz-questions]
+    verify_jwt = false
+  [functions.quiz-register]
+    verify_jwt = false
+  [functions.quiz-share]
+    verify_jwt = false
+  [functions.quiz-submit]
+    verify_jwt = false
