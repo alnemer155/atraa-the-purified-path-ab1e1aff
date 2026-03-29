@@ -9,6 +9,7 @@ import HijriCountdown from '@/components/HijriCountdown';
 import DailyRecommendations from '@/components/DailyRecommendations';
 import WallpapersSection from '@/components/WallpapersSection';
 import LiveStreamSection from '@/components/LiveStreamSection';
+import ListeningSection from '@/components/ListeningSection';
 
 const dhikrPhrases = [
   'اللهم صلِّ على محمد وآل محمد',
@@ -147,6 +148,11 @@ const HomePage = () => {
       {/* Prayer Times */}
       <motion.div variants={fadeUp}>
         <PrayerTimes />
+      </motion.div>
+
+      {/* Listening */}
+      <motion.div variants={fadeUp}>
+        <ListeningSection />
       </motion.div>
 
       {/* Live Stream */}

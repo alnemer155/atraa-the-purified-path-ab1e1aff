@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Sparkles } from 'lucide-react';
+import { BookOpen, Sparkles, Compass } from 'lucide-react';
 import DuasPage from './DuasPage';
 import TasbihPage from './TasbihPage';
+import QiblaPage from './QiblaPage';
 
 const TasbihIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -16,14 +17,15 @@ const TasbihIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-type Tab = 'duas' | 'tasbih';
+type Tab = 'duas' | 'tasbih' | 'qibla';
 
 const LibraryPage = () => {
   const [activeTab, setActiveTab] = useState<Tab>('duas');
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
-    { key: 'duas', label: 'الأدعية والأذكار', icon: <BookOpen className="w-4 h-4" /> },
-    { key: 'tasbih', label: 'التسبيح', icon: <TasbihIcon className="w-4 h-4" /> },
+    { key: 'duas', label: 'الأدعية', icon: <BookOpen className="w-3.5 h-3.5" /> },
+    { key: 'tasbih', label: 'التسبيح', icon: <TasbihIcon className="w-3.5 h-3.5" /> },
+    { key: 'qibla', label: 'القبلة', icon: <Compass className="w-3.5 h-3.5" /> },
   ];
 
   return (
@@ -37,11 +39,11 @@ const LibraryPage = () => {
             </div>
             <div>
               <h1 className="text-base font-bold text-foreground leading-tight">المكتبة</h1>
-              <p className="text-[10px] text-muted-foreground">أدعية · زيارات · أذكار · تسبيح</p>
+              <p className="text-[10px] text-muted-foreground">أدعية · تسبيح · قبلة</p>
             </div>
           </div>
 
-          <div className="flex gap-1.5 p-1 bg-secondary/40 rounded-2xl">
+          <div className="flex gap-1 p-1 bg-secondary/40 rounded-2xl">
             {tabs.map(tab => (
               <button
                 key={tab.key}
@@ -55,11 +57,11 @@ const LibraryPage = () => {
                     transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                   />
                 )}
-                <span className={`relative flex items-center justify-center gap-1.5 ${
+                <span className={`relative flex items-center justify-center gap-1 ${
                   activeTab === tab.key ? 'text-primary font-semibold' : 'text-muted-foreground'
                 }`}>
                   {tab.icon}
-                  {tab.label}
+                  <span className="text-[12px]">{tab.label}</span>
                 </span>
               </button>
             ))}
@@ -73,7 +75,9 @@ const LibraryPage = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
       >
-        {activeTab === 'duas' ? <DuasPage /> : <TasbihPage />}
+        {activeTab === 'duas' && <DuasPage />}
+        {activeTab === 'tasbih' && <TasbihPage />}
+        {activeTab === 'qibla' && <QiblaPage />}
       </motion.div>
     </div>
   );
