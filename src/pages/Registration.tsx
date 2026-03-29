@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { saveUser, getUser, type UserData } from '@/lib/user';
-import { lovable } from '@/integrations/lovable/index';
 import { supabase } from '@/integrations/supabase/client';
 import logoAr from '@/assets/logos/logo-ar.png';
 import { motion, AnimatePresence } from 'framer-motion';
