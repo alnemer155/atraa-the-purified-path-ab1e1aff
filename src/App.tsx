@@ -14,6 +14,7 @@ import QuizPage from "./pages/QuizPage";
 import SettingsPage from "./pages/SettingsPage";
 import PoliciesPage from "./pages/PoliciesPage";
 import NotFound from "./pages/NotFound";
+import UnsubscribePage from "./pages/UnsubscribePage";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/q/:shareCode" element={<QuizPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/policies" element={<PoliciesPage />} />
+          <Route path="/unsubscribe" element={<UnsubscribePage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
