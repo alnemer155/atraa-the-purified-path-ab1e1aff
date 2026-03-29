@@ -29,19 +29,19 @@ const SplashScreen = () => {
           className="fixed inset-0 z-[100] bg-background flex items-center justify-center"
         >
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             className="flex flex-col items-center"
           >
-            <img src={splashImg} alt="عِتَرَةً" className="w-32 h-32 rounded-3xl object-contain shadow-elevated mb-4" />
+            <img src={splashImg} alt="عِتَرَةً" className="w-28 h-28 rounded-3xl object-contain shadow-elevated mb-4" />
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
               <p className="text-lg font-bold text-foreground">عِتَرَةً</p>
-              <p className="text-xs text-muted-foreground text-center mt-1">منصة إسلامية شاملة</p>
+              <p className="text-[11px] text-muted-foreground text-center mt-1">منصة إسلامية شاملة</p>
             </motion.div>
           </motion.div>
         </motion.div>

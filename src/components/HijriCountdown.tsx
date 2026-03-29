@@ -12,10 +12,8 @@ interface HijriData {
 
 const HijriCountdown = () => {
   const [hijri, setHijri] = useState<HijriData | null>(null);
-  const [adjustment, setAdjustment] = useState(() => getHijriAdjustment());
 
   const fetchHijri = (adj: number) => {
-    // Get the adjusted Gregorian date
     const targetDate = new Date();
     targetDate.setDate(targetDate.getDate() + adj);
     const dd = String(targetDate.getDate()).padStart(2, '0');
@@ -41,14 +39,10 @@ const HijriCountdown = () => {
 
   useEffect(() => {
     const adj = getHijriAdjustment();
-    setAdjustment(adj);
     fetchHijri(adj);
 
-    // Listen for hijri adjustment changes from settings (same tab)
     const handleCustomEvent = (e: CustomEvent) => {
-      const newAdj = e.detail as number;
-      setAdjustment(newAdj);
-      fetchHijri(newAdj);
+      fetchHijri(e.detail as number);
     };
     window.addEventListener('hijri-adjust-changed', handleCustomEvent as EventListener);
     return () => window.removeEventListener('hijri-adjust-changed', handleCustomEvent as EventListener);
@@ -57,20 +51,20 @@ const HijriCountdown = () => {
   const daysRemaining = hijri ? Math.max(0, hijri.daysInMonth - hijri.day) : 0;
 
   return (
-    <div className="rounded-2xl bg-card p-3.5 shadow-card">
-      <div className="flex items-center gap-2 mb-1.5">
-        <Calendar className="w-4 h-4 text-primary" />
-        <span className="text-xs text-muted-foreground">التقويم الهجري</span>
+    <div className="rounded-2xl bg-card p-3.5 shadow-card border border-border/30">
+      <div className="flex items-center gap-1.5 mb-2">
+        <Calendar className="w-3.5 h-3.5 text-primary" />
+        <span className="text-[11px] text-muted-foreground font-medium">التقويم الهجري</span>
       </div>
       {hijri ? (
         <>
-          <p className="text-sm font-semibold text-foreground">{hijri.day} {hijri.month}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-sm font-bold text-foreground">{hijri.day} {hijri.month}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">
             {daysRemaining > 0 ? `${daysRemaining} يوم للشهر القادم` : 'آخر يوم في الشهر'}
           </p>
         </>
       ) : (
-        <div className="h-10 rounded-lg bg-secondary animate-pulse" />
+        <div className="h-10 rounded-lg bg-secondary/60 animate-pulse" />
       )}
     </div>
   );

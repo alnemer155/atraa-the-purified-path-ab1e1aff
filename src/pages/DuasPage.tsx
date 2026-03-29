@@ -44,7 +44,6 @@ const DuasPage = () => {
     });
   };
 
-  // Detail view
   if (selectedItem) {
     const currentIndex = filtered.findIndex(i => i.id === selectedItem.id);
     const hasPrev = currentIndex > 0;
@@ -52,26 +51,25 @@ const DuasPage = () => {
 
     return (
       <div className="animate-fade-in min-h-[calc(100vh-130px)] flex flex-col">
-        {/* Sticky header */}
-        <div className="sticky top-[49px] z-30 bg-background/95 backdrop-blur-xl px-4 py-3 border-b border-border">
+        <div className="sticky top-[42px] z-30 bg-background/80 backdrop-blur-2xl px-4 py-2.5 border-b border-border/20">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setSelectedItem(null)}
-              className="flex items-center gap-1.5 text-primary text-sm font-medium"
+              className="flex items-center gap-1 text-primary text-sm font-medium"
             >
               <ChevronLeft className="w-4 h-4" />
               رجوع
             </button>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setFontSize(s => Math.max(14, s - 2))}
-                className="w-7 h-7 rounded-lg bg-secondary text-foreground text-xs font-bold flex items-center justify-center"
+                className="w-7 h-7 rounded-lg bg-secondary/60 text-foreground text-xs font-bold flex items-center justify-center"
               >
                 أ-
               </button>
               <button
-                onClick={() => setFontSize(s => Math.min(30, s + 2))}
-                className="w-7 h-7 rounded-lg bg-secondary text-foreground text-sm font-bold flex items-center justify-center"
+                onClick={() => setFontSize(s => Math.min(32, s + 2))}
+                className="w-7 h-7 rounded-lg bg-secondary/60 text-foreground text-sm font-bold flex items-center justify-center"
               >
                 أ+
               </button>
@@ -79,36 +77,34 @@ const DuasPage = () => {
           </div>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 px-4 py-5">
-          <h1 className="text-xl font-semibold text-foreground mb-1">{selectedItem.title}</h1>
-          <p className="text-xs text-primary font-medium mb-1">{categoryLabels[selectedItem.category]}</p>
-          <p className="text-[11px] text-muted-foreground mb-5">المصدر من تطبيق حقيبة المؤمن</p>
+        <div className="flex-1 px-4 py-4">
+          <h1 className="text-lg font-bold text-foreground mb-0.5">{selectedItem.title}</h1>
+          <p className="text-[11px] text-primary font-medium mb-1">{categoryLabels[selectedItem.category]}</p>
+          <p className="text-[10px] text-muted-foreground mb-4">المصدر من تطبيق حقيبة المؤمن</p>
           <div
-            className="bg-card rounded-2xl p-5 shadow-card text-foreground whitespace-pre-wrap religious-text"
+            className="bg-card rounded-2xl p-5 shadow-card border border-border/30 text-foreground whitespace-pre-wrap religious-text"
             style={{ fontSize: `${fontSize}px`, fontWeight: 400 }}
           >
             {selectedItem.content}
           </div>
         </div>
 
-        {/* Nav between items */}
-        <div className="sticky bottom-[76px] px-4 py-3 flex items-center justify-between bg-background/90 backdrop-blur-xl border-t border-border">
+        <div className="sticky bottom-[76px] px-4 py-2.5 flex items-center justify-between bg-background/80 backdrop-blur-2xl border-t border-border/20">
           <button
             onClick={() => hasNext && handleSelectItem(filtered[currentIndex + 1])}
             disabled={!hasNext}
-            className="flex items-center gap-1 text-sm text-primary font-medium disabled:opacity-30"
+            className="flex items-center gap-1 text-sm text-primary font-medium disabled:opacity-25"
           >
             التالي
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-3.5 h-3.5" />
           </button>
-          <span className="text-xs text-muted-foreground">{currentIndex + 1} / {filtered.length}</span>
+          <span className="text-[10px] text-muted-foreground font-medium">{currentIndex + 1} / {filtered.length}</span>
           <button
             onClick={() => hasPrev && handleSelectItem(filtered[currentIndex - 1])}
             disabled={!hasPrev}
-            className="flex items-center gap-1 text-sm text-primary font-medium disabled:opacity-30"
+            className="flex items-center gap-1 text-sm text-primary font-medium disabled:opacity-25"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-3.5 h-3.5" />
             السابق
           </button>
         </div>
@@ -118,10 +114,9 @@ const DuasPage = () => {
 
   return (
     <div className="px-4 py-4 animate-fade-in">
-      <h1 className="text-xl font-semibold text-foreground mb-4">الأدعية والزيارات والأذكار</h1>
+      <h1 className="text-lg font-bold text-foreground mb-3">الأدعية والزيارات والأذكار</h1>
 
-      {/* Category tabs */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-1.5 mb-3">
         {Object.entries(categoryLabels).map(([key, label]) => (
           <button
             key={key}
@@ -129,20 +124,19 @@ const DuasPage = () => {
             className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all relative ${
               activeCategory === key
                 ? 'islamic-gradient text-primary-foreground shadow-card'
-                : 'bg-card border border-border text-foreground'
+                : 'bg-card border border-border/40 text-foreground'
             }`}
           >
             {label}
-            <span className={`block text-[10px] mt-0.5 ${activeCategory === key ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+            <span className={`block text-[9px] mt-0.5 ${activeCategory === key ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
               {categoryCount(items, key)}
             </span>
           </button>
         ))}
       </div>
 
-      {/* Search */}
-      <div className="flex items-center gap-2 bg-card border border-border rounded-xl px-3 py-2.5 mb-4 shadow-card">
-        <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+      <div className="flex items-center gap-2 bg-card border border-border/30 rounded-xl px-3 py-2.5 mb-3 shadow-card">
+        <Search className="w-3.5 h-3.5 text-muted-foreground/50 flex-shrink-0" />
         <input
           type="text"
           value={search}
@@ -152,7 +146,6 @@ const DuasPage = () => {
         />
       </div>
 
-      {/* List */}
       <AnimatePresence mode="wait">
         <motion.div
           key={activeCategory + search}
@@ -160,25 +153,25 @@ const DuasPage = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="space-y-2.5"
+          className="space-y-2"
         >
           {filtered.map((item, i) => (
             <motion.button
               key={item.id}
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.02, duration: 0.2 }}
               onClick={() => handleSelectItem(item)}
-              className="w-full text-right p-4 rounded-2xl bg-card border border-border hover:border-primary/30 transition-all shadow-card group"
+              className="w-full text-right p-3.5 rounded-2xl bg-card border border-border/30 hover:border-primary/25 transition-all shadow-card group active:scale-[0.98]"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{item.title}</p>
-                  <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">
+                  <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
                     {item.content.slice(0, 120)}...
                   </p>
                 </div>
-                <ChevronLeft className="w-4 h-4 text-muted-foreground/50 mt-0.5 flex-shrink-0 group-hover:text-primary transition-colors" />
+                <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground/30 mt-0.5 flex-shrink-0 group-hover:text-primary transition-colors" />
               </div>
             </motion.button>
           ))}

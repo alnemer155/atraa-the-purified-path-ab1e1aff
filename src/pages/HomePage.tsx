@@ -55,10 +55,10 @@ const HomePage = () => {
   const showLastReading = lastReading && lastReading.timestamp > Date.now() - 604800000;
 
   return (
-    <div className="px-4 py-3 space-y-4 animate-fade-in">
+    <div className="px-4 py-4 space-y-4 animate-fade-in">
       {/* Greeting */}
       <div className="py-1">
-        <p className="text-base font-semibold text-foreground mb-1.5">{getGreeting(user)}</p>
+        <p className="text-[15px] font-semibold text-foreground mb-1">{getGreeting(user)}</p>
         <div className="h-5 overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.p
@@ -81,9 +81,9 @@ const HomePage = () => {
           {showTasbihResume && tasbihState && (
             <button
               onClick={() => navigate('/library')}
-              className="w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/60 shadow-card hover:border-primary/30 transition-all text-right"
+              className="w-full flex items-center gap-3 p-3 rounded-2xl glass-card hover:border-primary/30 transition-all text-right active:scale-[0.98]"
             >
-              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center flex-shrink-0">
                 <RotateCcw className="w-4 h-4 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
@@ -95,16 +95,16 @@ const HomePage = () => {
                   }
                 </p>
               </div>
-              <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+              <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground/40 flex-shrink-0" />
             </button>
           )}
 
           {showLastReading && lastReading && (
             <button
               onClick={() => navigate('/library')}
-              className="w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/60 shadow-card hover:border-primary/30 transition-all text-right"
+              className="w-full flex items-center gap-3 p-3 rounded-2xl glass-card hover:border-primary/30 transition-all text-right active:scale-[0.98]"
             >
-              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center flex-shrink-0">
                 <BookOpen className="w-4 h-4 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
@@ -113,13 +113,13 @@ const HomePage = () => {
                   {categoryLabels[lastReading.category] || ''} · {lastReading.title}
                 </p>
               </div>
-              <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+              <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground/40 flex-shrink-0" />
             </button>
           )}
         </div>
       )}
 
-      {/* Weather + Hijri Countdown */}
+      {/* Weather + Hijri */}
       <div className="grid grid-cols-2 gap-2.5">
         <WeatherWidget />
         <HijriCountdown />

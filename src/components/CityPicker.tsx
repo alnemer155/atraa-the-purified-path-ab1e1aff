@@ -187,29 +187,27 @@ const CityPicker = ({ selectedCity, onCityChange }: CityPickerProps) => {
     : cityGroups;
 
   return (
-    <div className="bg-card rounded-2xl shadow-card p-4">
+    <div className="bg-card rounded-2xl shadow-card border border-border/30 p-4">
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center">
-          <Globe className="w-[18px] h-[18px] text-primary" />
+        <div className="w-8 h-8 rounded-lg bg-primary/8 flex items-center justify-center">
+          <Globe className="w-4 h-4 text-primary" />
         </div>
         <div className="text-right flex-1">
           <p className="text-sm font-medium text-foreground">المنطقة والطقس</p>
-          <p className="text-[11px] text-muted-foreground">اختر مدينتك لعرض الطقس وأوقات الصلاة</p>
+          <p className="text-[10px] text-muted-foreground">اختر مدينتك لعرض الطقس وأوقات الصلاة</p>
         </div>
       </div>
 
-      {/* Current city indicator */}
-      <div className="flex items-center gap-2 mb-3 px-1">
-        <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-        <p className="text-xs text-muted-foreground">
-          المدينة الحالية: <span className="text-foreground font-semibold">{currentCityLabel}</span>
+      <div className="flex items-center gap-1.5 mb-2.5 px-1">
+        <MapPin className="w-3 h-3 text-primary flex-shrink-0" />
+        <p className="text-[11px] text-muted-foreground">
+          الحالية: <span className="text-foreground font-semibold">{currentCityLabel}</span>
         </p>
       </div>
 
-      {/* Search + detect */}
-      <div className="flex gap-2 mb-3">
-        <div className="flex-1 flex items-center gap-2 bg-secondary rounded-xl px-3 py-2.5">
-          <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+      <div className="flex gap-1.5 mb-2.5">
+        <div className="flex-1 flex items-center gap-2 bg-secondary/40 rounded-xl px-3 py-2">
+          <Search className="w-3.5 h-3.5 text-muted-foreground/50 flex-shrink-0" />
           <input
             type="text"
             value={search}
@@ -222,44 +220,43 @@ const CityPicker = ({ selectedCity, onCityChange }: CityPickerProps) => {
         <button
           onClick={detectLocation}
           disabled={detecting}
-          className="px-3 py-2.5 rounded-xl bg-primary/10 text-primary flex items-center gap-1.5 text-xs font-medium disabled:opacity-50 transition-opacity"
+          className="px-2.5 py-2 rounded-xl bg-primary/8 text-primary flex items-center gap-1 text-xs font-medium disabled:opacity-40"
         >
-          <LocateFixed className={`w-4 h-4 ${detecting ? 'animate-spin' : ''}`} />
+          <LocateFixed className={`w-3.5 h-3.5 ${detecting ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
-      {/* Region groups */}
-      <div className="space-y-1.5 max-h-[320px] overflow-y-auto hide-scrollbar">
+      <div className="space-y-1 max-h-[300px] overflow-y-auto hide-scrollbar">
         {filteredGroups.map((group) => {
           const isExpanded = expandedRegion === group.region || !!search;
           const hasSelected = group.cities.some(c => c.value === selectedCity);
 
           return (
-            <div key={group.region} className="rounded-xl overflow-hidden">
+            <div key={group.region} className="rounded-lg overflow-hidden">
               <button
                 onClick={() => setExpandedRegion(isExpanded && !search ? null : group.region)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium transition-colors ${
-                  hasSelected ? 'bg-primary/10 text-primary' : 'bg-secondary/70 text-foreground hover:bg-secondary'
+                className={`w-full flex items-center justify-between px-3 py-2 text-xs font-medium transition-colors ${
+                  hasSelected ? 'bg-primary/6 text-primary' : 'bg-secondary/30 text-foreground hover:bg-secondary/50'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <span>{group.emoji}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm">{group.emoji}</span>
                   <span>{group.region}</span>
-                  <span className="text-[10px] text-muted-foreground">({group.cities.length})</span>
+                  <span className="text-[9px] text-muted-foreground">({group.cities.length})</span>
                 </div>
-                {!search && (isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />)}
+                {!search && (isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
               </button>
 
               {isExpanded && (
-                <div className="flex flex-wrap gap-1.5 p-2.5 bg-secondary/30">
+                <div className="flex flex-wrap gap-1 p-2 bg-secondary/15">
                   {group.cities.map(city => (
                     <button
                       key={city.value}
                       onClick={() => onCityChange(city.value)}
-                      className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all ${
                         selectedCity === city.value
                           ? 'islamic-gradient text-primary-foreground shadow-card'
-                          : 'bg-card text-foreground hover:bg-primary/10 hover:text-primary'
+                          : 'bg-card text-foreground hover:bg-primary/6 hover:text-primary border border-border/20'
                       }`}
                     >
                       {city.label}
