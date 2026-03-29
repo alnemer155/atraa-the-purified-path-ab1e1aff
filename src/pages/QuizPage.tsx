@@ -91,7 +91,7 @@ const fadeUp = {
 
 const scaleIn = {
   hidden: { scale: 0.85, opacity: 0 },
-  visible: { scale: 1, opacity: 1, transition: { type: 'spring', stiffness: 300, damping: 24 } },
+  visible: { scale: 1, opacity: 1, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } },
 };
 
 /* ─── Glass Card ─── */
