@@ -53,7 +53,7 @@
 
     --gradient-islamic: linear-gradient(135deg, hsl(152 42% 22%), hsl(148 45% 30%));
     --gradient-gold: linear-gradient(135deg, hsl(45 70% 55%), hsl(40 60% 65%));
-    --shadow-card: 0 2px 12px -4px hsl(150 30% 12% / 0.08);
+    --shadow-card: 0 1px 8px -2px hsl(150 30% 12% / 0.06), 0 1px 2px -1px hsl(150 30% 12% / 0.04);
     --shadow-elevated: 0 8px 30px -8px hsl(150 30% 12% / 0.12);
   }
 
@@ -136,7 +136,7 @@
   }
 
   .safe-bottom {
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 5rem);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem);
   }
 
   .hide-scrollbar {
@@ -151,5 +151,10 @@
   .religious-text {
     font-weight: 700;
     line-height: 2.2;
+  }
+
+  /* Glass card utility */
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-xl border border-border/40 rounded-2xl shadow-card;
   }
 }

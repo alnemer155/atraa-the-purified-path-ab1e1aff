@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, ImageIcon } from 'lucide-react';
+import { Download, ImageIcon, Check } from 'lucide-react';
 import wallpaper1 from '@/assets/wallpapers/wallpaper-1.png';
 import wallpaper2 from '@/assets/wallpapers/wallpaper-2.png';
 import wallpaper3 from '@/assets/wallpapers/wallpaper-3.png';
@@ -22,6 +22,7 @@ const wallpapers = [
 
 const WallpapersSection = () => {
   const [downloading, setDownloading] = useState<number | null>(null);
+  const [downloaded, setDownloaded] = useState<Set<number>>(new Set());
 
   const handleDownload = async (src: string, name: string, idx: number) => {
     setDownloading(idx);
@@ -36,6 +37,7 @@ const WallpapersSection = () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      setDownloaded(prev => new Set(prev).add(idx));
     } catch {}
     setTimeout(() => setDownloading(null), 500);
   };
@@ -44,23 +46,27 @@ const WallpapersSection = () => {
     <div>
       <div className="flex items-center gap-2 mb-3">
         <ImageIcon className="w-4 h-4 text-primary" />
-        <h2 className="text-sm font-semibold text-foreground">خلفيات عِتْرَةً</h2>
+        <h2 className="text-sm font-semibold text-foreground">خلفيات عِتَرَةً</h2>
       </div>
       <div className="grid grid-cols-4 gap-2">
         {wallpapers.map((w, i) => (
           <button
             key={i}
             onClick={() => handleDownload(w.src, w.name, i)}
-            className="relative group rounded-xl overflow-hidden aspect-[9/16] bg-foreground/5 border border-border hover:border-primary/30 transition-all"
+            className="relative group rounded-xl overflow-hidden aspect-[9/16] bg-secondary/40 border border-border/30 hover:border-primary/30 transition-all active:scale-95"
           >
             <img src={w.src} alt={w.name} className="w-full h-full object-cover" loading="lazy" />
-            <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/30 transition-colors flex items-center justify-center">
-              <Download className={`w-5 h-5 text-primary-foreground opacity-0 group-hover:opacity-100 transition-opacity ${downloading === i ? 'animate-bounce' : ''}`} />
+            <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-colors flex items-center justify-center">
+              {downloaded.has(i) ? (
+                <Check className="w-4 h-4 text-primary-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+              ) : (
+                <Download className={`w-4 h-4 text-primary-foreground opacity-0 group-hover:opacity-100 transition-opacity ${downloading === i ? 'animate-bounce' : ''}`} />
+              )}
             </div>
           </button>
         ))}
       </div>
-      <p className="text-[11px] text-muted-foreground text-center mt-3">سيتم إضافة المزيد قريباً</p>
+      <p className="text-[10px] text-muted-foreground/60 text-center mt-2.5">سيتم إضافة المزيد قريباً</p>
     </div>
   );
 };

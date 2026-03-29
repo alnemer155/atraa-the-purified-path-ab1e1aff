@@ -19,41 +19,37 @@ const BottomNav = () => {
       className="fixed bottom-0 left-0 right-0 z-50"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
-      {/* Apple Glass effect */}
-      <div className="mx-3 mb-2 rounded-[22px] border border-border/30 shadow-[0_8px_32px_-8px_hsl(var(--foreground)/0.12),inset_0_1px_0_0_hsl(var(--card)/0.6)] overflow-hidden">
-        <div className="bg-card/60 backdrop-blur-2xl backdrop-saturate-[1.8]">
-          <div className="flex items-center justify-around px-1 py-1.5">
+      <div className="mx-2.5 mb-2 rounded-2xl border border-border/20 shadow-[0_4px_24px_-4px_hsl(var(--foreground)/0.08)] overflow-hidden">
+        <div className="bg-card/55 backdrop-blur-3xl backdrop-saturate-[1.9]">
+          <div className="flex items-center justify-around px-1 py-1">
             {navItems.map(({ path, label, icon: Icon }) => {
               const isActive = location.pathname === path;
               return (
                 <NavLink
                   key={path}
                   to={path}
-                  className="relative flex flex-col items-center gap-[2px] py-1.5 px-2 min-w-[48px] group"
+                  className="relative flex flex-col items-center gap-0.5 py-2 px-2.5 min-w-[46px] group"
                 >
-                  {/* Active background pill */}
                   {isActive && (
                     <motion.div
-                      layoutId="glass-pill"
-                      className="absolute inset-0 rounded-2xl bg-primary/12"
+                      layoutId="nav-pill"
+                      className="absolute inset-0 rounded-[14px] bg-primary/8"
                       transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
                   )}
-
                   <div className="relative z-10">
                     <Icon
-                      className={`w-[20px] h-[20px] transition-all duration-200 ${
+                      className={`w-[19px] h-[19px] transition-all duration-200 ${
                         isActive
                           ? 'text-primary'
-                          : 'text-muted-foreground/70 group-hover:text-foreground/80'
+                          : 'text-muted-foreground/60 group-hover:text-foreground/70'
                       }`}
-                      strokeWidth={isActive ? 2.3 : 1.7}
+                      strokeWidth={isActive ? 2.2 : 1.6}
                     />
                   </div>
-
                   <span
                     className={`relative z-10 text-[9px] leading-none font-semibold transition-all duration-200 ${
-                      isActive ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-foreground/60'
+                      isActive ? 'text-primary' : 'text-muted-foreground/50 group-hover:text-foreground/50'
                     }`}
                   >
                     {label}

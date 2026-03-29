@@ -11,17 +11,11 @@ interface TimingsData {
   Isha: string;
 }
 
-// City-specific prayer time configurations with coordinates and tune offsets
 const CITY_PRAYER_CONFIG: Record<string, { lat: number; lng: number; tune: string }> = {
-  // الأحساء
   Ahsa: { lat: 25.3548, lng: 49.5870, tune: '10,10,8,8,8,23,0,24,0,0,0' },
-  // الرياض
   Riyadh: { lat: 24.7136, lng: 46.6753, tune: '17,17,13,14,14,29,6,38,0,0,0' },
-  // جدة
   Jeddah: { lat: 21.4858, lng: 39.1925, tune: '48,48,43,44,44,60,37,132,0,0,0' },
-  // الخبر
   Khobar: { lat: 26.2172, lng: 50.1971, tune: '2,2,0,0,-1,15,0,0,0,0' },
-  // القطيف (default)
   Qatif: { lat: 26.5196, lng: 50.0115, tune: '2,2,0,0,-1,15,0,0,0,0' },
   Saihat: { lat: 26.4789, lng: 50.0437, tune: '2,2,0,0,-1,15,0,0,0,0' },
   Tarut: { lat: 26.5667, lng: 50.0667, tune: '2,2,0,0,-1,15,0,0,0,0' },
@@ -87,8 +81,7 @@ const PrayerTimes = () => {
   const [loading, setLoading] = useState(true);
   const [notifEnabled, setNotifEnabled] = useState(() => getNotificationPermission() === 'granted');
   const [indicators, setIndicators] = useState<{ current: string | null; next: string | null }>({ current: null, next: null });
-  const [selectedCity] = useState(() => localStorage.getItem('atraa_weather_city') || 'Qatif');
-  const [currentCity, setCurrentCity] = useState(selectedCity);
+  const [currentCity, setCurrentCity] = useState(() => localStorage.getItem('atraa_weather_city') || 'Qatif');
   const isSupported = SUPPORTED_CITIES.has(currentCity);
 
   useEffect(() => {
@@ -109,12 +102,11 @@ const PrayerTimes = () => {
       })
       .catch(() => setLoading(false));
 
-    // Listen for city changes
     const handleStorage = (e: StorageEvent) => {
       if (e.key === 'atraa_weather_city' && e.newValue) {
         setCurrentCity(e.newValue);
         const newConfig = CITY_PRAYER_CONFIG[e.newValue];
-        if (!newConfig) return; // unsupported
+        if (!newConfig) return;
         const newUrl = `https://api.aladhan.com/v1/timings?latitude=${newConfig.lat}&longitude=${newConfig.lng}&method=4&timezonestring=Asia/Riyadh&tune=${newConfig.tune}`;
         fetch(newUrl)
           .then(res => res.json())
@@ -148,60 +140,59 @@ const PrayerTimes = () => {
   }, [timings]);
 
   return (
-    <div className="rounded-2xl bg-card p-4 shadow-card">
+    <div className="rounded-2xl bg-card p-4 shadow-card border border-border/30">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-base font-semibold text-foreground">أوقات الصلاة</h2>
+        <h2 className="text-sm font-semibold text-foreground">أوقات الصلاة</h2>
         {isSupported && (
           <button
             onClick={handleToggleNotif}
-            className={`p-2 rounded-xl transition-colors ${notifEnabled ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-            title={notifEnabled ? 'الإشعارات مفعلة' : 'تفعيل إشعارات الصلاة'}
+            className={`p-1.5 rounded-lg transition-colors ${notifEnabled ? 'bg-primary/8 text-primary' : 'text-muted-foreground/50 hover:text-foreground'}`}
           >
-            {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+            {notifEnabled ? <Bell className="w-3.5 h-3.5" /> : <BellOff className="w-3.5 h-3.5" />}
           </button>
         )}
       </div>
       {!isSupported ? (
         <div className="flex flex-col items-center gap-2 py-6">
-          <span className="text-3xl">⏳</span>
-          <p className="text-sm text-muted-foreground text-center leading-relaxed">
-            سيتم دعم هذه المدينة <span className="font-semibold text-foreground">{currentCity}</span> بإذن الله قريباً
+          <span className="text-2xl">⏳</span>
+          <p className="text-xs text-muted-foreground text-center leading-relaxed">
+            سيتم دعم <span className="font-semibold text-foreground">{currentCity}</span> قريباً بإذن الله
           </p>
         </div>
       ) : loading ? (
         <div className="grid grid-cols-3 gap-2">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-16 rounded-xl bg-secondary animate-pulse" />
+            <div key={i} className="h-16 rounded-xl bg-secondary/50 animate-pulse" />
           ))}
         </div>
       ) : timings ? (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-1.5">
           {prayerInfo.map(({ key, label, icon: Icon }) => {
             const isCurrent = indicators.current === key;
             const isNext = indicators.next === key;
             return (
               <div
                 key={key}
-                className={`relative flex flex-col items-center gap-1 py-3 px-2 rounded-xl transition-colors ${
+                className={`relative flex flex-col items-center gap-1 py-3 px-2 rounded-xl transition-all ${
                   isCurrent
                     ? 'islamic-gradient shadow-card'
                     : isNext
-                    ? 'bg-primary/10 border border-primary/20'
-                    : 'bg-primary-light'
+                    ? 'bg-primary/6 border border-primary/15'
+                    : 'bg-secondary/40'
                 }`}
               >
                 {(isCurrent || isNext) && (
-                  <span className={`absolute -top-2 text-[9px] font-semibold px-2 py-0.5 rounded-full ${
+                  <span className={`absolute -top-2 text-[8px] font-bold px-1.5 py-0.5 rounded-full ${
                     isCurrent
                       ? 'bg-accent text-accent-foreground'
-                      : 'bg-primary/20 text-primary'
+                      : 'bg-primary/15 text-primary'
                   }`}>
                     {isCurrent ? 'الآن' : 'التالي'}
                   </span>
                 )}
-                <Icon className={`w-4 h-4 ${isCurrent ? 'text-primary-foreground' : 'text-primary'}`} />
-                <span className={`text-xs ${isCurrent ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>{label}</span>
-                <span className={`text-sm font-semibold ${isCurrent ? 'text-primary-foreground' : 'text-foreground'}`}>
+                <Icon className={`w-3.5 h-3.5 ${isCurrent ? 'text-primary-foreground' : 'text-primary'}`} />
+                <span className={`text-[10px] ${isCurrent ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>{label}</span>
+                <span className={`text-[13px] font-bold ${isCurrent ? 'text-primary-foreground' : 'text-foreground'}`}>
                   {to12Hour((timings as any)[key]?.split(' ')[0] || '')}
                 </span>
               </div>
@@ -209,7 +200,7 @@ const PrayerTimes = () => {
           })}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground text-center py-4">تعذر تحميل أوقات الصلاة</p>
+        <p className="text-xs text-muted-foreground text-center py-4">تعذر تحميل أوقات الصلاة</p>
       )}
     </div>
   );
