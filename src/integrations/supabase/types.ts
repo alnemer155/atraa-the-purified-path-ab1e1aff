@@ -160,6 +160,39 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string | null
+          device_id: string
+          endpoint: string
+          id: string
+          notification_types: Json | null
+          p256dh: string
+          updated_at: string | null
+        }
+        Insert: {
+          auth: string
+          created_at?: string | null
+          device_id: string
+          endpoint: string
+          id?: string
+          notification_types?: Json | null
+          p256dh: string
+          updated_at?: string | null
+        }
+        Update: {
+          auth?: string
+          created_at?: string | null
+          device_id?: string
+          endpoint?: string
+          id?: string
+          notification_types?: Json | null
+          p256dh?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       quiz_answers: {
         Row: {
           answers: Json
