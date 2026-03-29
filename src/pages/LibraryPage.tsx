@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Sparkles, Compass } from 'lucide-react';
+import { BookOpen, Compass } from 'lucide-react';
 import DuasPage from './DuasPage';
 import TasbihPage from './TasbihPage';
 import QiblaPage from './QiblaPage';
@@ -22,43 +22,45 @@ type Tab = 'duas' | 'tasbih' | 'qibla';
 const LibraryPage = () => {
   const [activeTab, setActiveTab] = useState<Tab>('duas');
 
-  const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
-    { key: 'duas', label: 'الأدعية', icon: <BookOpen className="w-3.5 h-3.5" /> },
-    { key: 'tasbih', label: 'التسبيح', icon: <TasbihIcon className="w-3.5 h-3.5" /> },
-    { key: 'qibla', label: 'القبلة', icon: <Compass className="w-3.5 h-3.5" /> },
+  const tabs: { key: Tab; label: string; icon: React.ReactNode; emoji: string }[] = [
+    { key: 'duas', label: 'الأدعية', icon: <BookOpen className="w-4 h-4" />, emoji: '📖' },
+    { key: 'tasbih', label: 'التسبيح', icon: <TasbihIcon className="w-4 h-4" />, emoji: '📿' },
+    { key: 'qibla', label: 'القبلة', icon: <Compass className="w-4 h-4" />, emoji: '🧭' },
   ];
 
   return (
     <div className="animate-fade-in">
       {/* Header */}
-      <div className="sticky top-[42px] z-30 bg-background/70 backdrop-blur-2xl backdrop-saturate-150 border-b border-border/20">
-        <div className="px-4 pt-3 pb-2.5">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-xl islamic-gradient flex items-center justify-center shadow-sm">
-              <Sparkles className="w-4 h-4 text-primary-foreground" />
+      <div className="sticky top-[42px] z-30 bg-background/60 backdrop-blur-2xl backdrop-saturate-150">
+        <div className="px-4 pt-4 pb-3">
+          {/* Title */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-2xl islamic-gradient flex items-center justify-center shadow-lg shadow-primary/15">
+              <BookOpen className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-foreground leading-tight">المكتبة</h1>
-              <p className="text-[10px] text-muted-foreground">أدعية · تسبيح · قبلة</p>
+              <h1 className="text-lg font-bold text-foreground leading-tight tracking-tight">المكتبة</h1>
+              <p className="text-[11px] text-muted-foreground font-medium">أدعية · تسبيح · قبلة</p>
             </div>
           </div>
 
-          <div className="flex gap-1 p-1 bg-secondary/40 rounded-2xl">
+          {/* Tab bar */}
+          <div className="flex gap-1.5 p-1.5 bg-secondary/30 backdrop-blur-sm rounded-2xl border border-border/20">
             {tabs.map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className="relative flex-1 py-2.5 rounded-xl text-sm font-medium transition-all"
+                className="relative flex-1 py-3 rounded-xl text-sm font-medium transition-all"
               >
                 {activeTab === tab.key && (
                   <motion.div
                     layoutId="library-tab"
                     className="absolute inset-0 rounded-xl bg-card shadow-card border border-border/30"
-                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
                 )}
-                <span className={`relative flex items-center justify-center gap-1 ${
-                  activeTab === tab.key ? 'text-primary font-semibold' : 'text-muted-foreground'
+                <span className={`relative flex items-center justify-center gap-1.5 ${
+                  activeTab === tab.key ? 'text-primary font-bold' : 'text-muted-foreground'
                 }`}>
                   {tab.icon}
                   <span className="text-[12px]">{tab.label}</span>
@@ -67,13 +69,14 @@ const LibraryPage = () => {
             ))}
           </div>
         </div>
+        <div className="h-px bg-border/15" />
       </div>
 
       <motion.div
         key={activeTab}
-        initial={{ opacity: 0, y: 6 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
       >
         {activeTab === 'duas' && <DuasPage />}
         {activeTab === 'tasbih' && <TasbihPage />}
