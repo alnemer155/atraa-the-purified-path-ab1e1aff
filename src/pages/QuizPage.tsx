@@ -37,7 +37,7 @@ interface Participant {
   score: number;
 }
 
-type QuizView = 'home' | 'register' | 'questions' | 'leaderboard' | 'result';
+type QuizView = 'home' | 'register' | 'questions' | 'leaderboard' | 'result' | 'edit-profile';
 
 const getDeviceId = (): string => {
   let id = localStorage.getItem('atraa_quiz_device_id');
@@ -276,7 +276,7 @@ const QuizPage = () => {
     if (!participant) return;
     const shareCode = generateShareCode();
     await supabase.functions.invoke('quiz-share', { body: { participant_id: participant.id, share_code: shareCode } });
-    const shareText = `جرّب مسابقة عِتْرَةً الدينية وشارك التحدي مع الأهل والأصدقاء\n\nhttps://atraa.xyz/q/${shareCode}`;
+    const shareText = `جرّب مسابقة عِتَرَةً الدينية وشارك التحدي مع الأهل والأصدقاء\n\nhttps://atraa.xyz/q/${shareCode}`;
     if (navigator.share) {
       try { await navigator.share({ text: shareText }); return; } catch {}
     }
@@ -618,10 +618,10 @@ const QuizPage = () => {
                   </Section>
                 </motion.div>
               )}
-              <button onClick={fetchHint} disabled={hintsUsed >= 2 || hintLoading}
+              <button onClick={fetchHint} disabled={hintsUsed >= 2 || hintLoading || timerSec > HINT_AVAILABLE_AT}
                 className="flex items-center gap-1.5 text-xs font-semibold text-accent-foreground disabled:opacity-30 transition-opacity">
                 <Lightbulb className={`w-3.5 h-3.5 ${hintLoading ? 'animate-pulse' : ''}`} />
-                {hintLoading ? 'جاري التلميح...' : `تلميح (${2 - hintsUsed} متبقي)`}
+                {timerSec > HINT_AVAILABLE_AT ? `متاح بعد ${formatTimer(timerSec - HINT_AVAILABLE_AT)}` : hintLoading ? 'جاري التلميح...' : `تلميح (${2 - hintsUsed} متبقي)`}
               </button>
             </div>
           )}
@@ -708,7 +708,7 @@ const QuizPage = () => {
         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring' }}>
           <img src={quizFace} alt="مسابقة عترة" className="w-32 h-32 mx-auto mb-4 rounded-3xl object-contain shadow-elevated" />
         </motion.div>
-        <h1 className="text-xl font-black text-foreground mb-1.5">مسابقة عِتْرَة</h1>
+        <h1 className="text-xl font-black text-foreground mb-1.5">مسابقة عِتَرَةً</h1>
         <p className="text-sm text-muted-foreground leading-relaxed">أسئلة دينية وثقافية عن أهل البيت عليهم السلام</p>
         <p className="text-[11px] text-muted-foreground/70 mt-1">اختبر معلوماتك وتعلّم المزيد عن سيرتهم وأحاديثهم</p>
       </div>
@@ -770,7 +770,7 @@ const QuizPage = () => {
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-accent/20 flex items-center justify-center text-lg">🎁</div>
               <div>
-                <p className="text-xs font-bold text-foreground">جمعة مباركة! سؤال مغشوش + ١.٥ نقطة هدية</p>
+                <p className="text-xs font-bold text-foreground">جمعة مباركة! سؤال مغشوش (نقطتان هدية) + ١.٥ نقطة إضافية</p>
               </div>
             </div>
           </Section>
@@ -927,7 +927,7 @@ const QuizPage = () => {
         <SectionTitle icon={Info}>عن المسابقة</SectionTitle>
         <ul className="space-y-2.5 text-xs text-muted-foreground leading-relaxed">
           <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> ٤ أسئلة يومية عن أهل البيت عليهم السلام</li>
-          <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> لكل سؤال صحيح نقطتان · عداد ١٠ دقائق لكل جولة</li>
+          <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> لكل سؤال صحيح نقطتان · عداد ٣ دقائق لكل جولة</li>
           <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> تلميحان من الذكاء الاصطناعي لكل جولة</li>
           <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> الأسئلة متاحة من ٩:٠٠ صباحاً حتى ٩:٣٠ مساءً</li>
           <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> المسابقة من ٢١ مارس حتى ٢١ مايو ٢٠٢٦</li>
