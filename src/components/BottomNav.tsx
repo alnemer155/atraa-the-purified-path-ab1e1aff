@@ -1,10 +1,9 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, BookOpen, Compass, Settings, MessageSquare, Trophy } from 'lucide-react';
+import { Home, BookOpen, Settings, MessageSquare, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const navItems = [
   { path: '/settings', label: 'الإعدادات', icon: Settings },
-  { path: '/qibla', label: 'القبلة', icon: Compass },
   { path: '/quiz', label: 'المسابقة', icon: Trophy },
   { path: '/ai', label: 'الذكاء', icon: MessageSquare },
   { path: '/library', label: 'المكتبة', icon: BookOpen },
@@ -28,7 +27,7 @@ const BottomNav = () => {
                 <NavLink
                   key={path}
                   to={path}
-                  className="relative flex flex-col items-center gap-0.5 py-2 px-2.5 min-w-[46px] group"
+                  className="relative flex flex-col items-center gap-0.5 py-2 px-3 min-w-[50px] group"
                 >
                   {isActive && (
                     <motion.div
