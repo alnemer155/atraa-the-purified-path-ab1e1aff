@@ -13,7 +13,7 @@ const AiPage = () => {
         <div className="w-20 h-20 mx-auto mb-6 rounded-3xl islamic-gradient flex items-center justify-center shadow-elevated">
           <Bot className="w-10 h-10 text-primary-foreground" />
         </div>
-        <h1 className="text-2xl font-semibold text-foreground mb-3">ذكاء عِتْرَة</h1>
+        <h1 className="text-2xl font-semibold text-foreground mb-3">ذكاء عِتَرَةً</h1>
         <div className="flex items-center justify-center gap-2 mb-4">
           <Clock className="w-4 h-4 text-primary" />
           <p className="text-base font-medium text-primary">قريباً</p>

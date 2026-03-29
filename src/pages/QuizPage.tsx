@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Share2, Clock, ChevronLeft, Info, Copy, Check, Lightbulb, Gift, Calendar as CalendarIcon, Timer, Users, Sparkles, ArrowLeft } from 'lucide-react';
+import { Trophy, Share2, Clock, ChevronLeft, Info, Copy, Check, Lightbulb, Gift, Calendar as CalendarIcon, Timer, Users, Sparkles, ArrowLeft, Edit3 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getUser } from '@/lib/user';
-import quizLogo from '@/assets/quiz-logo.png';
+import quizFace from '@/assets/quiz/quiz-face.png';
+import quizQuestionsImg from '@/assets/quiz/quiz-questions.png';
 
 const QUIZ_EMOJIS = ['😎', '🍁', '📿', '🌙', '❤️', '🤲🏻', '😶‍🌫️', '🫥', '🫠', '👻', '👾', '💪🏻', '👀', '⚽️', '🎱', '🚗', '🗿', '🕋', '🙂', '💡'];
 
@@ -12,7 +13,8 @@ const QUIZ_END = new Date('2026-05-21T23:59:59+03:00');
 const QUESTIONS_START_HOUR = 9;
 const QUESTIONS_END_HOUR = 21;
 const QUESTIONS_END_MINUTE = 30;
-const TIMER_DURATION = 600;
+const TIMER_DURATION = 180; // 3 minutes
+const HINT_AVAILABLE_AT = 90; // hints available after 1.5 minutes (when timer reaches 90s)
 
 const SPECIAL_DATES: Record<string, { name: string; bonus: number }> = {
   '2026-03-28': { name: 'عيد الفطر المبارك', bonus: 5 },
@@ -35,7 +37,7 @@ interface Participant {
   score: number;
 }
 
-type QuizView = 'home' | 'register' | 'questions' | 'leaderboard' | 'result';
+type QuizView = 'home' | 'register' | 'questions' | 'leaderboard' | 'result' | 'edit-profile';
 
 const getDeviceId = (): string => {
   let id = localStorage.getItem('atraa_quiz_device_id');
@@ -274,7 +276,7 @@ const QuizPage = () => {
     if (!participant) return;
     const shareCode = generateShareCode();
     await supabase.functions.invoke('quiz-share', { body: { participant_id: participant.id, share_code: shareCode } });
-    const shareText = `جرّب مسابقة عِتْرَةً الدينية وشارك التحدي مع الأهل والأصدقاء\n\nhttps://atraa.xyz/q/${shareCode}`;
+    const shareText = `جرّب مسابقة عِتَرَةً الدينية وشارك التحدي مع الأهل والأصدقاء\n\nhttps://atraa.xyz/q/${shareCode}`;
     if (navigator.share) {
       try { await navigator.share({ text: shareText }); return; } catch {}
     }
@@ -336,7 +338,7 @@ const QuizPage = () => {
 
         {/* Header */}
         <div className="text-center mb-6">
-          <img src={quizLogo} alt="مسابقة عترة" className="w-28 h-28 mx-auto mb-4 rounded-3xl object-contain shadow-elevated" />
+          <img src={quizFace} alt="مسابقة عترة" className="w-28 h-28 mx-auto mb-4 rounded-3xl object-contain shadow-elevated" />
           <h1 className="text-xl font-bold text-foreground">التسجيل في المسابقة</h1>
           <p className="text-xs text-muted-foreground mt-1.5">سجّل الآن واستعد لتحدي المعرفة الدينية</p>
         </div>
@@ -545,7 +547,7 @@ const QuizPage = () => {
 
         {/* Logo small */}
         <div className="flex justify-center mb-4">
-          <img src={quizLogo} alt="مسابقة عترة" className="w-16 h-16 rounded-2xl object-contain shadow-card" />
+          <img src={quizFace} alt="مسابقة عترة" className="w-16 h-16 rounded-2xl object-contain shadow-card" />
         </div>
 
         {/* Progress steps */}
@@ -616,10 +618,10 @@ const QuizPage = () => {
                   </Section>
                 </motion.div>
               )}
-              <button onClick={fetchHint} disabled={hintsUsed >= 2 || hintLoading}
+              <button onClick={fetchHint} disabled={hintsUsed >= 2 || hintLoading || timerSec > HINT_AVAILABLE_AT}
                 className="flex items-center gap-1.5 text-xs font-semibold text-accent-foreground disabled:opacity-30 transition-opacity">
                 <Lightbulb className={`w-3.5 h-3.5 ${hintLoading ? 'animate-pulse' : ''}`} />
-                {hintLoading ? 'جاري التلميح...' : `تلميح (${2 - hintsUsed} متبقي)`}
+                {timerSec > HINT_AVAILABLE_AT ? `متاح بعد ${formatTimer(timerSec - HINT_AVAILABLE_AT)}` : hintLoading ? 'جاري التلميح...' : `تلميح (${2 - hintsUsed} متبقي)`}
               </button>
             </div>
           )}
@@ -704,9 +706,9 @@ const QuizPage = () => {
       {/* Hero header */}
       <div className="text-center mb-6">
         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring' }}>
-          <img src={quizLogo} alt="مسابقة عترة" className="w-32 h-32 mx-auto mb-4 rounded-3xl object-contain shadow-elevated" />
+          <img src={quizFace} alt="مسابقة عترة" className="w-32 h-32 mx-auto mb-4 rounded-3xl object-contain shadow-elevated" />
         </motion.div>
-        <h1 className="text-xl font-black text-foreground mb-1.5">مسابقة عِتْرَة</h1>
+        <h1 className="text-xl font-black text-foreground mb-1.5">مسابقة عِتَرَةً</h1>
         <p className="text-sm text-muted-foreground leading-relaxed">أسئلة دينية وثقافية عن أهل البيت عليهم السلام</p>
         <p className="text-[11px] text-muted-foreground/70 mt-1">اختبر معلوماتك وتعلّم المزيد عن سيرتهم وأحاديثهم</p>
       </div>
@@ -768,7 +770,7 @@ const QuizPage = () => {
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-accent/20 flex items-center justify-center text-lg">🎁</div>
               <div>
-                <p className="text-xs font-bold text-foreground">جمعة مباركة! سؤال مغشوش + ١.٥ نقطة هدية</p>
+                <p className="text-xs font-bold text-foreground">جمعة مباركة! سؤال مغشوش (نقطتان هدية) + ١.٥ نقطة إضافية</p>
               </div>
             </div>
           </Section>
@@ -925,7 +927,7 @@ const QuizPage = () => {
         <SectionTitle icon={Info}>عن المسابقة</SectionTitle>
         <ul className="space-y-2.5 text-xs text-muted-foreground leading-relaxed">
           <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> ٤ أسئلة يومية عن أهل البيت عليهم السلام</li>
-          <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> لكل سؤال صحيح نقطتان · عداد ١٠ دقائق لكل جولة</li>
+          <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> لكل سؤال صحيح نقطتان · عداد ٣ دقائق لكل جولة</li>
           <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> تلميحان من الذكاء الاصطناعي لكل جولة</li>
           <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> الأسئلة متاحة من ٩:٠٠ صباحاً حتى ٩:٣٠ مساءً</li>
           <li className="flex items-start gap-2"><span className="text-primary mt-0.5">•</span> المسابقة من ٢١ مارس حتى ٢١ مايو ٢٠٢٦</li>
