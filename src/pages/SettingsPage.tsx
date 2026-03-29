@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, MessageCircle, Share2, Download, Copy, Check, Smartphone, LogOut } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, MessageCircle, Share2, Download, Copy, Check, Smartphone, LogOut, MailCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUser, getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
 import CityPicker from '@/components/CityPicker';
@@ -26,6 +26,71 @@ const SettingsPage = () => {
   const [hijriAdj, setHijriAdj] = useState(() => getHijriAdjustment());
   const [shareCopied, setShareCopied] = useState(false);
   const [showInstallGuide, setShowInstallGuide] = useState(false);
+  const [emailNotif, setEmailNotif] = useState(false);
+  const [emailNotifLoading, setEmailNotifLoading] = useState(false);
+
+  // Load email notification preference
+  useEffect(() => {
+    const loadEmailPref = async () => {
+      const userEmail = user?.email;
+      if (!userEmail) return;
+      const { data } = await supabase
+        .from('email_notification_prefs')
+        .select('*')
+        .eq('email', userEmail)
+        .maybeSingle();
+      if (data) {
+        setEmailNotif(true);
+      }
+    };
+    loadEmailPref();
+  }, []);
+
+  const toggleEmailNotif = async () => {
+    const userEmail = user?.email;
+    if (!userEmail) {
+      toast.error('يرجى تسجيل الدخول أولاً للحصول على إشعارات البريد');
+      return;
+    }
+    setEmailNotifLoading(true);
+    try {
+      if (emailNotif) {
+        await supabase.from('email_notification_prefs').delete().eq('email', userEmail);
+        setEmailNotif(false);
+        toast.success('تم إلغاء إشعارات البريد');
+      } else {
+        const deviceId = localStorage.getItem('atraa_device_id') || crypto.randomUUID();
+        await supabase.from('email_notification_prefs').upsert({
+          email: userEmail,
+          device_id: deviceId,
+          adhan: adhanNotif,
+          dhikr: dhikrNotif,
+          salawat: salawatNotif,
+          quiz: quizNotif,
+          dua: duaNotif,
+        }, { onConflict: 'email' });
+        setEmailNotif(true);
+        toast.success('تم تفعيل إشعارات البريد الإلكتروني');
+      }
+    } catch {
+      toast.error('حدث خطأ');
+    }
+    setEmailNotifLoading(false);
+  };
+
+  // Sync email prefs when toggles change
+  const toggleNotifWithEmail = async (type: string, current: boolean, setter: (v: boolean) => void) => {
+    const next = !current;
+    setter(next);
+    localStorage.setItem(`atraa_notif_${type}`, String(next));
+    if (next && 'Notification' in window && Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+    // Sync to email prefs if email notif is enabled
+    if (emailNotif && user?.email) {
+      await supabase.from('email_notification_prefs').update({ [type]: next, updated_at: new Date().toISOString() }).eq('email', user.email);
+    }
+  };
 
   const toggleNotif = (type: string, current: boolean, setter: (v: boolean) => void) => {
     const next = !current;
@@ -127,11 +192,41 @@ const SettingsPage = () => {
             </div>
             <p className="text-sm font-medium text-foreground">إدارة الإشعارات</p>
           </div>
-          <NotifToggle label="إشعارات الأذان" subtitle="تنبيه عند دخول وقت الصلاة" enabled={adhanNotif} onToggle={() => toggleNotif('adhan', adhanNotif, setAdhanNotif)} />
-          <NotifToggle label="تذكير الأذكار" subtitle="تذكير يومي بالأذكار" enabled={dhikrNotif} onToggle={() => toggleNotif('dhikr', dhikrNotif, setDhikrNotif)} />
-          <NotifToggle label="الصلاة على النبي" subtitle="الصلاة على محمد وآل محمد" enabled={salawatNotif} onToggle={() => toggleNotif('salawat', salawatNotif, setSalawatNotif)} />
-          <NotifToggle label="إشعارات المسابقة" subtitle="تنبيه قبل بدء الأسئلة" enabled={quizNotif} onToggle={() => toggleNotif('quiz', quizNotif, setQuizNotif)} />
-          <NotifToggle label="دعاء اليوم" subtitle="تذكير يومي بقراءة دعاء مقترح" enabled={duaNotif} onToggle={() => toggleNotif('dua', duaNotif, setDuaNotif)} />
+          <NotifToggle label="إشعارات الأذان" subtitle="تنبيه عند دخول وقت الصلاة" enabled={adhanNotif} onToggle={() => toggleNotifWithEmail('adhan', adhanNotif, setAdhanNotif)} />
+          <NotifToggle label="تذكير الأذكار" subtitle="تذكير يومي بالأذكار" enabled={dhikrNotif} onToggle={() => toggleNotifWithEmail('dhikr', dhikrNotif, setDhikrNotif)} />
+          <NotifToggle label="الصلاة على النبي" subtitle="الصلاة على محمد وآل محمد" enabled={salawatNotif} onToggle={() => toggleNotifWithEmail('salawat', salawatNotif, setSalawatNotif)} />
+          <NotifToggle label="إشعارات المسابقة" subtitle="تنبيه قبل بدء الأسئلة" enabled={quizNotif} onToggle={() => toggleNotifWithEmail('quiz', quizNotif, setQuizNotif)} />
+          <NotifToggle label="دعاء اليوم" subtitle="تذكير يومي بقراءة دعاء مقترح" enabled={duaNotif} onToggle={() => toggleNotifWithEmail('dua', duaNotif, setDuaNotif)} />
+        </div>
+
+        {/* Email Notifications */}
+        <div className="bg-card rounded-2xl shadow-card border border-border/30 overflow-hidden divide-y divide-border/20">
+          <div className="flex items-center gap-3 p-4 pb-2">
+            <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center">
+              <MailCheck className="w-4 h-4 text-primary" />
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-medium text-foreground">إشعارات البريد الإلكتروني</p>
+              <p className="text-[10px] text-muted-foreground">استلم التذكيرات على بريدك</p>
+            </div>
+          </div>
+          <button
+            onClick={toggleEmailNotif}
+            disabled={emailNotifLoading}
+            className="w-full flex items-center justify-between p-3.5 active:bg-secondary/30 transition-colors disabled:opacity-50"
+          >
+            <div className="text-right">
+              <p className="text-sm font-medium text-foreground">
+                {emailNotif ? 'إشعارات البريد مفعّلة' : 'تفعيل إشعارات البريد'}
+              </p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                {user?.email || 'يرجى تسجيل الدخول أولاً'}
+              </p>
+            </div>
+            <div className={`w-10 h-[22px] rounded-full transition-all duration-200 flex items-center px-0.5 ${emailNotif ? 'bg-primary justify-start' : 'bg-border/80 justify-end'}`}>
+              <motion.div layout className="w-[18px] h-[18px] rounded-full bg-card shadow-sm" />
+            </div>
+          </button>
         </div>
       </motion.div>
 
