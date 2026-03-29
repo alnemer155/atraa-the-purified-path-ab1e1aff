@@ -263,7 +263,17 @@ const Registration = () => {
 
   // Main registration view
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-5">
+    <div className="min-h-screen bg-background flex items-center justify-center p-5 relative">
+      {/* Language selector */}
+      <div className="absolute top-4 left-4 z-10">
+        <select
+          className="bg-card/80 backdrop-blur-xl border border-border/40 rounded-xl px-2.5 py-1.5 text-[11px] font-medium text-foreground appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20"
+          defaultValue="ar"
+        >
+          <option value="ar">العربية</option>
+          <option value="en">English</option>
+        </select>
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
