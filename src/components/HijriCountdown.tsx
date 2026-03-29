@@ -49,22 +49,33 @@ const HijriCountdown = () => {
   }, []);
 
   const daysRemaining = hijri ? Math.max(0, hijri.daysInMonth - hijri.day) : 0;
+  const progress = hijri ? (hijri.day / hijri.daysInMonth) * 100 : 0;
 
   return (
-    <div className="rounded-2xl bg-card p-3.5 shadow-card border border-border/30">
-      <div className="flex items-center gap-1.5 mb-2">
-        <Calendar className="w-3.5 h-3.5 text-primary" />
-        <span className="text-[11px] text-muted-foreground font-medium">التقويم الهجري</span>
+    <div className="rounded-2xl glass-card p-4 min-h-[100px] flex flex-col justify-between">
+      <div className="flex items-center justify-between mb-2.5">
+        <span className="text-[11px] text-muted-foreground font-semibold tracking-wide">التقويم الهجري</span>
+        <Calendar className="w-4 h-4 text-primary/60" />
       </div>
       {hijri ? (
-        <>
-          <p className="text-sm font-bold text-foreground">{hijri.day} {hijri.month}</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">
-            {daysRemaining > 0 ? `${daysRemaining} يوم للشهر القادم` : 'آخر يوم في الشهر'}
+        <div>
+          <p className="text-[15px] font-bold text-foreground leading-snug">{hijri.day} {hijri.month}</p>
+          <p className="text-[11px] text-muted-foreground mt-1 font-medium">{hijri.year} هـ</p>
+          <div className="mt-2.5 h-1 rounded-full bg-secondary/60 overflow-hidden">
+            <div
+              className="h-full rounded-full islamic-gradient transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <p className="text-[9px] text-muted-foreground/70 mt-1">
+            {daysRemaining > 0 ? `${daysRemaining} يوم متبقي` : 'آخر يوم في الشهر'}
           </p>
-        </>
+        </div>
       ) : (
-        <div className="h-10 rounded-lg bg-secondary/60 animate-pulse" />
+        <div className="space-y-2">
+          <div className="h-5 w-24 rounded bg-secondary/60 animate-pulse" />
+          <div className="h-3 w-16 rounded bg-secondary/40 animate-pulse" />
+        </div>
       )}
     </div>
   );

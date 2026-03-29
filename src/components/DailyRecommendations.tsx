@@ -28,24 +28,26 @@ const DailyRecommendations = () => {
   return (
     <div>
       <div className="flex items-center gap-2 mb-3">
-        <Sparkles className="w-4 h-4 text-primary" />
-        <h2 className="text-sm font-semibold text-foreground">مقترحات اليوم</h2>
+        <div className="w-7 h-7 rounded-lg bg-primary/8 flex items-center justify-center">
+          <Sparkles className="w-3.5 h-3.5 text-primary" />
+        </div>
+        <h2 className="text-[13px] font-bold text-foreground">مقترحات اليوم</h2>
       </div>
       <div className="space-y-2">
         {recommendations.map(({ label, item, emoji }) => (
           <button
             key={item!.id}
             onClick={() => navigate('/library')}
-            className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-card border border-border/40 hover:border-primary/30 transition-all shadow-card text-right active:scale-[0.98] group"
+            className="w-full flex items-center gap-3.5 p-4 rounded-2xl glass-card hover:border-primary/30 transition-all text-right active:scale-[0.98] group"
           >
-            <div className="w-10 h-10 rounded-xl bg-primary/6 flex items-center justify-center flex-shrink-0 text-lg">
+            <div className="w-11 h-11 rounded-xl bg-primary/6 flex items-center justify-center flex-shrink-0 text-xl group-hover:scale-105 transition-transform">
               {emoji}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-primary font-semibold mb-0.5">{label}</p>
-              <p className="text-sm font-semibold text-foreground truncate">{item!.title}</p>
+              <p className="text-[11px] text-primary font-bold mb-0.5 tracking-wide">{label}</p>
+              <p className="text-[13px] font-semibold text-foreground truncate">{item!.title}</p>
             </div>
-            <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground/30 flex-shrink-0 group-hover:text-primary transition-colors" />
+            <ChevronLeft className="w-4 h-4 text-muted-foreground/25 flex-shrink-0 group-hover:text-primary/50 group-hover:-translate-x-1 transition-all" />
           </button>
         ))}
       </div>

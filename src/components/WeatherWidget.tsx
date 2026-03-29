@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Cloud } from 'lucide-react';
+import { Cloud, Droplets, Wind } from 'lucide-react';
 
 interface WeatherData {
   temp: number;
   description: string;
+  humidity?: string;
+  windSpeed?: string;
 }
 
 const WeatherWidget = () => {
@@ -32,6 +34,8 @@ const WeatherWidget = () => {
             setWeather({
               temp: Math.round(parseFloat(cc.temp_C)),
               description: cc.lang_ar?.[0]?.value || cc.weatherDesc?.[0]?.value || '',
+              humidity: cc.humidity,
+              windSpeed: cc.windspeedKmph,
             });
           }
         })
@@ -47,18 +51,21 @@ const WeatherWidget = () => {
   }, []);
 
   return (
-    <div className="rounded-2xl bg-card p-3.5 shadow-card border border-border/30">
-      <div className="flex items-center gap-1.5 mb-2">
-        <Cloud className="w-3.5 h-3.5 text-primary" />
-        <span className="text-[11px] text-muted-foreground font-medium">الطقس</span>
+    <div className="rounded-2xl glass-card p-4 min-h-[100px] flex flex-col justify-between">
+      <div className="flex items-center justify-between mb-2.5">
+        <span className="text-[11px] text-muted-foreground font-semibold tracking-wide">الطقس</span>
+        <Cloud className="w-4 h-4 text-primary/60" />
       </div>
       {weather ? (
-        <>
-          <p className="text-2xl font-bold text-foreground tracking-tight">{weather.temp}°</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{weather.description}</p>
-        </>
+        <div>
+          <p className="text-3xl font-bold text-foreground tracking-tighter leading-none">{weather.temp}°</p>
+          <p className="text-[11px] text-muted-foreground mt-1.5 line-clamp-1 font-medium">{weather.description}</p>
+        </div>
       ) : (
-        <div className="h-10 rounded-lg bg-secondary/60 animate-pulse" />
+        <div className="space-y-2">
+          <div className="h-8 w-16 rounded-lg bg-secondary/60 animate-pulse" />
+          <div className="h-3 w-20 rounded bg-secondary/40 animate-pulse" />
+        </div>
       )}
     </div>
   );

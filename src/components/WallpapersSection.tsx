@@ -45,28 +45,34 @@ const WallpapersSection = () => {
   return (
     <div>
       <div className="flex items-center gap-2 mb-3">
-        <ImageIcon className="w-4 h-4 text-primary" />
-        <h2 className="text-sm font-semibold text-foreground">خلفيات عِتَرَةً</h2>
+        <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center">
+          <ImageIcon className="w-3.5 h-3.5 text-accent-foreground" />
+        </div>
+        <h2 className="text-[13px] font-bold text-foreground">خلفيات عِتَرَةً</h2>
       </div>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-2.5">
         {wallpapers.map((w, i) => (
           <button
             key={i}
             onClick={() => handleDownload(w.src, w.name, i)}
-            className="relative group rounded-xl overflow-hidden aspect-[9/16] bg-secondary/40 border border-border/30 hover:border-primary/30 transition-all active:scale-95"
+            className="relative group rounded-2xl overflow-hidden aspect-[9/16] bg-secondary/30 border border-border/20 hover:border-primary/30 transition-all active:scale-95 shadow-sm"
           >
             <img src={w.src} alt={w.name} className="w-full h-full object-cover" loading="lazy" />
-            <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-colors flex items-center justify-center">
+            <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-2">
               {downloaded.has(i) ? (
-                <Check className="w-4 h-4 text-primary-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                  <Check className="w-3 h-3 text-primary-foreground" />
+                </div>
               ) : (
-                <Download className={`w-4 h-4 text-primary-foreground opacity-0 group-hover:opacity-100 transition-opacity ${downloading === i ? 'animate-bounce' : ''}`} />
+                <div className={`w-6 h-6 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center ${downloading === i ? 'animate-bounce' : ''}`}>
+                  <Download className="w-3 h-3 text-foreground" />
+                </div>
               )}
             </div>
           </button>
         ))}
       </div>
-      <p className="text-[10px] text-muted-foreground/60 text-center mt-2.5">سيتم إضافة المزيد قريباً</p>
+      <p className="text-[10px] text-muted-foreground/50 text-center mt-3 font-medium">سيتم إضافة المزيد قريباً</p>
     </div>
   );
 };
