@@ -129,21 +129,6 @@ const Registration = () => {
     }
   };
 
-  const handleOAuth = async (provider: 'apple' | 'google') => {
-    setLoading(true);
-    try {
-      const { error } = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
-      });
-      if (error) {
-        toast.error(provider === 'apple' ? 'فشل تسجيل الدخول بـ Apple' : 'فشل تسجيل الدخول بـ Google');
-      }
-    } catch {
-      toast.error('حدث خطأ');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const titleOptions: { value: UserData['title']; label: string }[] = [
     { value: 'سيد', label: 'سيد' },
