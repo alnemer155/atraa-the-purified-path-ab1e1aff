@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Square, Copy, Check, Share2, RefreshCw, Volume2, ChevronDown, Plus, Image as ImageIcon, Search, BookOpen, X, ArrowLeft, Trash2, Edit3, Clock, SortAsc, SortDesc } from 'lucide-react';
+import { Send, Square, Copy, Check, Share2, RefreshCw, Volume2, Plus, Image as ImageIcon, Search, BookOpen, X, ArrowRight, Trash2, Edit3, Clock, SortAsc, SortDesc } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { supabase } from '@/integrations/supabase/client';
 import aiLogo from '@/assets/ai-logo.png';
@@ -44,7 +44,6 @@ const AiPage = () => {
   const [editTitle, setEditTitle] = useState('');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
-  const [showImageUpload, setShowImageUpload] = useState(false);
   const [showPlusMenu, setShowPlusMenu] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -52,7 +51,6 @@ const AiPage = () => {
   const abortRef = useRef<AbortController | null>(null);
 
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-
   useEffect(() => { scrollToBottom(); }, [messages]);
 
   useEffect(() => {
@@ -63,20 +61,12 @@ const AiPage = () => {
   }, [input]);
 
   const loadConversations = async () => {
-    const { data } = await supabase
-      .from('chat_conversations')
-      .select('*')
-      .eq('device_id', getDeviceId())
-      .order('updated_at', { ascending: !sortNewest });
+    const { data } = await supabase.from('chat_conversations').select('*').eq('device_id', getDeviceId()).order('updated_at', { ascending: !sortNewest });
     if (data) setConversations(data as Conversation[]);
   };
 
   const loadConversation = async (convId: string) => {
-    const { data } = await supabase
-      .from('chat_messages')
-      .select('*')
-      .eq('conversation_id', convId)
-      .order('created_at', { ascending: true });
+    const { data } = await supabase.from('chat_messages').select('*').eq('conversation_id', convId).order('created_at', { ascending: true });
     if (data) {
       setMessages(data.map(m => ({ id: m.id, role: m.role as 'user' | 'assistant', content: m.content, sources: m.sources as any[] | undefined })));
       setConversationId(convId);
@@ -84,47 +74,25 @@ const AiPage = () => {
     }
   };
 
-  const startNewChat = () => {
-    setMessages([]);
-    setConversationId(null);
-    setShowHistory(false);
-  };
+  const startNewChat = () => { setMessages([]); setConversationId(null); setShowHistory(false); };
 
   const saveMessage = async (convId: string, role: string, content: string, sources?: any[]) => {
-    await supabase.from('chat_messages').insert({
-      conversation_id: convId,
-      role,
-      content,
-      sources: sources || null,
-    });
+    await supabase.from('chat_messages').insert({ conversation_id: convId, role, content, sources: sources || null });
   };
 
   const getOrCreateConversation = async (firstMessage: string): Promise<string> => {
     if (conversationId) return conversationId;
     const title = firstMessage.slice(0, 50) + (firstMessage.length > 50 ? '...' : '');
-    const { data } = await supabase
-      .from('chat_conversations')
-      .insert({ device_id: getDeviceId(), title })
-      .select()
-      .single();
-    if (data) {
-      setConversationId(data.id);
-      return data.id;
-    }
+    const { data } = await supabase.from('chat_conversations').insert({ device_id: getDeviceId(), title }).select().single();
+    if (data) { setConversationId(data.id); return data.id; }
     throw new Error('Failed to create conversation');
   };
 
-  const stopGeneration = () => {
-    abortRef.current?.abort();
-    setIsStreaming(false);
-    setIsLoading(false);
-    setSearchPhase('idle');
-  };
+  const stopGeneration = () => { abortRef.current?.abort(); setIsStreaming(false); setIsLoading(false); setSearchPhase('idle'); };
 
   const sendMessage = async (text?: string) => {
     const messageText = text || input.trim();
     if (!messageText) return;
-
     const userMsg: Message = { id: crypto.randomUUID(), role: 'user', content: messageText };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
@@ -139,22 +107,17 @@ const AiPage = () => {
 
     const abortController = new AbortController();
     abortRef.current = abortController;
-
     let assistantContent = '';
     const assistantId = crypto.randomUUID();
 
     try {
       const convId = await getOrCreateConversation(messageText);
       await saveMessage(convId, 'user', messageText);
-
       const allMessages = [...messages, userMsg].map(m => ({ role: m.role, content: m.content }));
 
       const resp = await fetch(CHAT_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
         body: JSON.stringify({ messages: allMessages, deep_search: deepSearch }),
         signal: abortController.signal,
       });
@@ -167,7 +130,6 @@ const AiPage = () => {
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
       let textBuffer = '';
-
       setSearchPhase('writing');
 
       const updateAssistant = (content: string) => {
@@ -184,7 +146,6 @@ const AiPage = () => {
         const { done, value } = await reader.read();
         if (done) break;
         textBuffer += decoder.decode(value, { stream: true });
-
         let newlineIndex: number;
         while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
           let line = textBuffer.slice(0, newlineIndex);
@@ -197,22 +158,14 @@ const AiPage = () => {
           try {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content;
-            if (content) {
-              assistantContent += content;
-              updateAssistant(assistantContent);
-            }
-          } catch {
-            textBuffer = line + '\n' + textBuffer;
-            break;
-          }
+            if (content) { assistantContent += content; updateAssistant(assistantContent); }
+          } catch { textBuffer = line + '\n' + textBuffer; break; }
         }
       }
 
-      // Extract sources from content
       const sources = extractSources(assistantContent);
       await saveMessage(convId, 'assistant', assistantContent, sources.length > 0 ? sources : undefined);
       await supabase.from('chat_conversations').update({ updated_at: new Date().toISOString() }).eq('id', convId);
-
     } catch (e: any) {
       if (e.name === 'AbortError') return;
       console.error(e);
@@ -230,15 +183,9 @@ const AiPage = () => {
 
   const extractSources = (text: string): any[] => {
     const sources: any[] = [];
-    const patterns = [
-      /(?:المصدر|المرجع|الكتاب)[:\s]+([^\n،,]+)/g,
-      /(?:📚|📖)\s*([^\n]+)/g,
-    ];
-    patterns.forEach(p => {
+    [/(?:المصدر|المرجع|الكتاب)[:\s]+([^\n،,]+)/g, /(?:📚|📖)\s*([^\n]+)/g].forEach(p => {
       let match;
-      while ((match = p.exec(text)) !== null) {
-        sources.push({ title: match[1].trim() });
-      }
+      while ((match = p.exec(text)) !== null) sources.push({ title: match[1].trim() });
     });
     return sources;
   };
@@ -251,9 +198,7 @@ const AiPage = () => {
 
   const shareMessage = async (content: string) => {
     const shareText = `💬 من ذكاء عِتَرَةً (حُسين):\n\n${content.slice(0, 500)}${content.length > 500 ? '...' : ''}\n\nجرّب ذكاء عِتَرَةً: https://atraa.xyz/ai`;
-    if (navigator.share) {
-      try { await navigator.share({ text: shareText }); return; } catch {}
-    }
+    if (navigator.share) { try { await navigator.share({ text: shareText }); return; } catch {} }
     await navigator.clipboard.writeText(shareText);
     toast.success('تم نسخ الرد');
   };
@@ -261,13 +206,13 @@ const AiPage = () => {
   const speakMessage = (content: string) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(content.replace(/[#*_`~\[\]()]/g, ''));
-      utterance.lang = 'ar-SA';
-      utterance.rate = 0.9;
+      const u = new SpeechSynthesisUtterance(content.replace(/[#*_`~\[\]()]/g, ''));
+      u.lang = 'ar-SA';
+      u.rate = 0.9;
       const voices = window.speechSynthesis.getVoices();
       const arMale = voices.find(v => v.lang.startsWith('ar') && v.name.toLowerCase().includes('male'));
-      if (arMale) utterance.voice = arMale;
-      window.speechSynthesis.speak(utterance);
+      if (arMale) u.voice = arMale;
+      window.speechSynthesis.speak(u);
     }
   };
 
@@ -301,19 +246,12 @@ const AiPage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
-      setInput(prev => prev + `\n[صورة مرفقة: ${file.name}]`);
-      setShowImageUpload(false);
-      toast.info('تم إرفاق الصورة');
-    };
+    reader.onload = () => { setInput(prev => prev + `\n[صورة مرفقة: ${file.name}]`); toast.info('تم إرفاق الصورة'); };
     reader.readAsDataURL(file);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   };
 
   // ─── HISTORY VIEW ───
@@ -321,60 +259,71 @@ const AiPage = () => {
     return (
       <div className="flex flex-col h-[calc(100vh-130px)] animate-fade-in">
         {/* Header */}
-        <div className="px-4 py-3 border-b border-border/30 flex items-center justify-between">
-          <button onClick={() => setShowHistory(false)} className="flex items-center gap-1.5 text-primary text-sm font-semibold">
-            <ArrowLeft className="w-4 h-4" />
+        <div className="px-5 py-4 border-b border-border/15 flex items-center justify-between bg-background/60 backdrop-blur-2xl">
+          <button onClick={() => setShowHistory(false)} className="flex items-center gap-2 text-primary text-sm font-semibold group">
+            <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
+              <ArrowRight className="w-4 h-4" />
+            </div>
             رجوع
           </button>
           <h2 className="text-sm font-bold text-foreground">سجل المحادثات</h2>
-          <button onClick={() => setSortNewest(!sortNewest)} className="p-2 rounded-xl bg-secondary/50">
+          <button onClick={() => setSortNewest(!sortNewest)}
+            className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center hover:bg-secondary/60 transition-colors">
             {sortNewest ? <SortDesc className="w-4 h-4 text-muted-foreground" /> : <SortAsc className="w-4 h-4 text-muted-foreground" />}
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2.5">
           {conversations.length === 0 ? (
             <div className="text-center py-20">
-              <Clock className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">لا توجد محادثات سابقة</p>
+              <div className="w-16 h-16 rounded-3xl bg-secondary/30 flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-7 h-7 text-muted-foreground/25" />
+              </div>
+              <p className="text-sm font-semibold text-muted-foreground/50">لا توجد محادثات سابقة</p>
+              <p className="text-[11px] text-muted-foreground/30 mt-1">ابدأ محادثة جديدة مع حُسين</p>
             </div>
           ) : (
-            conversations.map(conv => (
-              <motion.div key={conv.id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
-                className="bg-card rounded-2xl border border-border/30 p-3.5 shadow-card">
+            conversations.map((conv, i) => (
+              <motion.div key={conv.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: Math.min(i * 0.03, 0.2) }}
+                className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/20 p-4 shadow-sm hover:border-primary/20 transition-all">
                 {editingId === conv.id ? (
                   <div className="flex gap-2">
                     <input value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder="الاسم الجديد"
-                      className="flex-1 px-3 py-2 rounded-xl bg-secondary/50 border border-border text-sm text-foreground" autoFocus />
-                    <button onClick={() => handleRenameConversation(conv.id)} className="px-3 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-medium">حفظ</button>
-                    <button onClick={() => setEditingId(null)} className="px-3 py-2 rounded-xl bg-secondary/50 text-xs">إلغاء</button>
+                      className="flex-1 px-3 py-2.5 rounded-xl bg-secondary/40 border border-border/30 text-sm text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-primary/20" autoFocus />
+                    <button onClick={() => handleRenameConversation(conv.id)}
+                      className="px-4 py-2.5 rounded-xl islamic-gradient text-primary-foreground text-xs font-bold shadow-sm">حفظ</button>
+                    <button onClick={() => setEditingId(null)}
+                      className="px-3 py-2.5 rounded-xl bg-secondary/40 text-xs font-medium">إلغاء</button>
                   </div>
                 ) : deleteConfirmId === conv.id ? (
-                  <div className="space-y-2">
-                    <p className="text-xs text-muted-foreground">اكتب "تأكيد ذلك" لحذف المحادثة</p>
+                  <div className="space-y-2.5">
+                    <p className="text-[11px] text-muted-foreground font-medium">اكتب "تأكيد ذلك" لحذف المحادثة</p>
                     <div className="flex gap-2">
                       <input value={deleteConfirmText} onChange={e => setDeleteConfirmText(e.target.value)} placeholder="تأكيد ذلك"
-                        className="flex-1 px-3 py-2 rounded-xl bg-secondary/50 border border-border text-sm text-foreground" />
-                      <button onClick={() => handleDeleteConversation(conv.id)}
-                        disabled={deleteConfirmText !== 'تأكيد ذلك'}
-                        className="px-3 py-2 rounded-xl bg-destructive text-destructive-foreground text-xs font-medium disabled:opacity-50">حذف</button>
-                      <button onClick={() => { setDeleteConfirmId(null); setDeleteConfirmText(''); }} className="px-3 py-2 rounded-xl bg-secondary/50 text-xs">إلغاء</button>
+                        className="flex-1 px-3 py-2.5 rounded-xl bg-secondary/40 border border-border/30 text-sm text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-destructive/20" />
+                      <button onClick={() => handleDeleteConversation(conv.id)} disabled={deleteConfirmText !== 'تأكيد ذلك'}
+                        className="px-4 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-xs font-bold disabled:opacity-40">حذف</button>
+                      <button onClick={() => { setDeleteConfirmId(null); setDeleteConfirmText(''); }}
+                        className="px-3 py-2.5 rounded-xl bg-secondary/40 text-xs font-medium">إلغاء</button>
                     </div>
                   </div>
                 ) : (
                   <div>
                     <button onClick={() => loadConversation(conv.id)} className="w-full text-right">
-                      <p className="text-sm font-medium text-foreground truncate">{conv.title}</p>
-                      <p className="text-[10px] text-muted-foreground mt-1">
+                      <p className="text-[13px] font-bold text-foreground truncate leading-snug">{conv.title}</p>
+                      <p className="text-[10px] text-muted-foreground/50 mt-1.5 font-medium">
                         {new Date(conv.created_at).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' })}
                       </p>
                     </button>
-                    <div className="flex gap-1 mt-2">
-                      <button onClick={() => { setEditingId(conv.id); setEditTitle(conv.title); }} className="p-1.5 rounded-lg hover:bg-secondary/50">
-                        <Edit3 className="w-3.5 h-3.5 text-muted-foreground" />
+                    <div className="flex gap-1 mt-2.5 pt-2.5 border-t border-border/10">
+                      <button onClick={() => { setEditingId(conv.id); setEditTitle(conv.title); }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-medium text-muted-foreground hover:bg-secondary/50 transition-colors">
+                        <Edit3 className="w-3 h-3" /> تعديل
                       </button>
-                      <button onClick={() => setDeleteConfirmId(conv.id)} className="p-1.5 rounded-lg hover:bg-destructive/10">
-                        <Trash2 className="w-3.5 h-3.5 text-destructive/70" />
+                      <button onClick={() => setDeleteConfirmId(conv.id)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-medium text-destructive/60 hover:bg-destructive/8 transition-colors">
+                        <Trash2 className="w-3 h-3" /> حذف
                       </button>
                     </div>
                   </div>
@@ -390,34 +339,49 @@ const AiPage = () => {
   // ─── MAIN CHAT VIEW ───
   return (
     <div className="flex flex-col h-[calc(100vh-130px)]">
-      {/* Messages area */}
-      <div className="flex-1 overflow-y-auto px-4 py-3">
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-4">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center px-2">
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
-              <img src={aiLogo} alt="حُسين" className="w-16 h-16 mx-auto mb-3 rounded-2xl shadow-card object-contain" />
-              <h1 className="text-base font-bold text-foreground mb-0.5">اسأل عِتَرَةً</h1>
-              <p className="text-[11px] text-muted-foreground max-w-[240px] mx-auto leading-relaxed">
+          <div className="flex flex-col items-center justify-center h-full text-center px-4">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
+              {/* AI Logo with glow */}
+              <div className="relative inline-block mb-5">
+                <div className="absolute inset-0 bg-primary/10 rounded-3xl blur-2xl scale-150" />
+                <img src={aiLogo} alt="حُسين" className="relative w-20 h-20 mx-auto rounded-3xl shadow-xl shadow-primary/10 object-contain" />
+              </div>
+              <h1 className="text-xl font-bold text-foreground mb-2 tracking-tight">ذِكاء عِتَرَةً</h1>
+              <p className="text-[12px] text-muted-foreground max-w-[260px] mx-auto leading-relaxed font-medium">
                 حُسين يبحث لك في المصادر الإسلامية الموثوقة
                 <br />
-                ومهدي يبسّط لك المعلومات
+                <span className="text-muted-foreground/50">ومهدي يبسّط لك المعلومات</span>
               </p>
             </motion.div>
 
             {/* Quick suggestions */}
-            <div className="mt-5 space-y-2 w-full max-w-xs">
+            <div className="mt-7 space-y-2.5 w-full max-w-xs">
               {[
                 { q: 'ما هي أركان الصلاة؟', emoji: '🕌' },
                 { q: 'اشرح لي سورة الفاتحة', emoji: '📖' },
                 { q: 'ما هو دعاء كميل؟', emoji: '🤲🏻' },
               ].map(({ q, emoji }, i) => (
-                <motion.button key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.08 }}
+                <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
                   onClick={() => { setInput(q); sendMessage(q); }}
-                  className="w-full text-right px-4 py-3 rounded-2xl bg-card border border-border/30 text-[13px] text-foreground hover:border-primary/30 transition-all shadow-card active:scale-[0.98] flex items-center gap-3">
-                  <span className="text-base">{emoji}</span>
+                  className="w-full text-right px-4 py-3.5 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/20 text-[13px] font-semibold text-foreground hover:border-primary/25 hover:shadow-md transition-all shadow-sm active:scale-[0.98] flex items-center gap-3.5 group">
+                  <div className="w-9 h-9 rounded-xl bg-primary/6 flex items-center justify-center flex-shrink-0 text-base group-hover:scale-105 transition-transform">
+                    {emoji}
+                  </div>
                   <span className="flex-1">{q}</span>
                 </motion.button>
               ))}
+            </div>
+
+            {/* Bottom links */}
+            <div className="mt-6 flex items-center gap-4">
+              <button onClick={() => { loadConversations(); setShowHistory(true); }}
+                className="flex items-center gap-1.5 text-[11px] text-muted-foreground/40 hover:text-primary font-medium transition-colors">
+                <Clock className="w-3.5 h-3.5" /> سجل المحادثات
+              </button>
             </div>
           </div>
         ) : (
@@ -426,85 +390,96 @@ const AiPage = () => {
               {messages.map((msg, idx) => (
                 <motion.div key={msg.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
                   className={`flex ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}>
-                  <div className={`max-w-[85%] ${msg.role === 'user'
-                    ? 'bg-primary text-primary-foreground rounded-2xl rounded-bl-md px-4 py-3'
-                    : 'bg-card border border-border/30 rounded-2xl rounded-br-md px-4 py-3 shadow-card'
+                  <div className={`max-w-[88%] ${msg.role === 'user'
+                    ? 'islamic-gradient text-primary-foreground rounded-2xl rounded-bl-md px-4 py-3 shadow-lg shadow-primary/10'
+                    : 'bg-card/80 backdrop-blur-sm border border-border/20 rounded-2xl rounded-br-md px-4 py-3.5 shadow-sm'
                   }`}>
                     {msg.role === 'assistant' ? (
                       <>
-                        <div className="flex items-center gap-2 mb-2">
-                          <img src={aiLogo} alt="حُسين" className="w-5 h-5 rounded-md object-contain" />
+                        <div className="flex items-center gap-2 mb-2.5">
+                          <img src={aiLogo} alt="حُسين" className="w-5 h-5 rounded-lg object-contain" />
                           <span className="text-[10px] font-bold text-primary">حُسين</span>
+                          {isStreaming && idx === messages.length - 1 && (
+                            <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.5 }}
+                              className="w-1.5 h-1.5 rounded-full bg-primary" />
+                          )}
                         </div>
-                        <div className="prose prose-sm max-w-none text-foreground text-[13px] leading-relaxed [&_strong]:text-primary [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_table]:text-xs [&_table]:border [&_th]:bg-secondary/30 [&_th]:px-2 [&_th]:py-1 [&_td]:px-2 [&_td]:py-1 [&_td]:border">
+                        <div className="prose prose-sm max-w-none text-foreground text-[13px] leading-[1.8] [&_strong]:text-primary [&_h1]:text-base [&_h1]:font-bold [&_h2]:text-sm [&_h2]:font-bold [&_h3]:text-sm [&_table]:text-xs [&_table]:border [&_th]:bg-secondary/20 [&_th]:px-2.5 [&_th]:py-1.5 [&_td]:px-2.5 [&_td]:py-1.5 [&_td]:border [&_code]:bg-secondary/40 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded-md [&_code]:text-[11px] [&_blockquote]:border-r-2 [&_blockquote]:border-primary/30 [&_blockquote]:pr-3 [&_blockquote]:text-muted-foreground [&_ul]:space-y-1 [&_ol]:space-y-1">
                           <ReactMarkdown>{msg.content}</ReactMarkdown>
                         </div>
 
-                        {/* Action buttons */}
+                        {/* Actions */}
                         {(!isStreaming || idx < messages.length - 1) && (
-                          <div className="flex items-center gap-1 mt-3 pt-2 border-t border-border/20">
-                            <button onClick={() => copyMessage(msg.id, msg.content)}
-                              className="p-1.5 rounded-lg hover:bg-secondary/50 transition-colors">
-                              {copiedId === msg.id ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
-                            </button>
-                            <button onClick={() => shareMessage(msg.content)} className="p-1.5 rounded-lg hover:bg-secondary/50 transition-colors">
-                              <Share2 className="w-3.5 h-3.5 text-muted-foreground" />
-                            </button>
-                            <button onClick={() => speakMessage(msg.content)} className="p-1.5 rounded-lg hover:bg-secondary/50 transition-colors">
-                              <Volume2 className="w-3.5 h-3.5 text-muted-foreground" />
-                            </button>
-                            {idx === messages.length - 1 && (
-                              <button onClick={regenerate} className="p-1.5 rounded-lg hover:bg-secondary/50 transition-colors">
-                                <RefreshCw className="w-3.5 h-3.5 text-muted-foreground" />
+                          <div className="flex items-center gap-0.5 mt-3 pt-2.5 border-t border-border/10">
+                            {[
+                              { icon: copiedId === msg.id ? Check : Copy, action: () => copyMessage(msg.id, msg.content), active: copiedId === msg.id },
+                              { icon: Share2, action: () => shareMessage(msg.content) },
+                              { icon: Volume2, action: () => speakMessage(msg.content) },
+                              ...(idx === messages.length - 1 ? [{ icon: RefreshCw, action: regenerate }] : []),
+                            ].map((btn, bi) => (
+                              <button key={bi} onClick={btn.action}
+                                className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${btn.active ? 'bg-primary/10 text-primary' : 'hover:bg-secondary/50 text-muted-foreground/50 hover:text-muted-foreground'}`}>
+                                <btn.icon className="w-3.5 h-3.5" />
                               </button>
-                            )}
+                            ))}
                             {msg.sources && msg.sources.length > 0 && (
-                              <button className="p-1.5 rounded-lg hover:bg-secondary/50 transition-colors flex items-center gap-1">
-                                <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
-                                <span className="text-[10px] text-muted-foreground">{msg.sources.length}</span>
-                              </button>
+                              <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/6 mr-auto">
+                                <BookOpen className="w-3 h-3 text-primary/60" />
+                                <span className="text-[9px] text-primary/60 font-bold">{msg.sources.length} مصدر</span>
+                              </div>
                             )}
                           </div>
                         )}
                       </>
                     ) : (
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap font-medium">{msg.content}</p>
                     )}
                   </div>
                 </motion.div>
               ))}
             </AnimatePresence>
 
-            {/* Search phase indicator */}
+            {/* Search phase */}
             {searchPhase !== 'idle' && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-end">
-                <div className="bg-card border border-border/30 rounded-2xl px-4 py-3 shadow-card">
-                  <div className="flex items-center gap-2">
-                    <div className="relative">
-                      <Search className="w-4 h-4 text-primary" />
-                      {searchPhase === 'searching' && (
-                        <motion.div animate={{ scale: [1, 1.3, 1] }} transition={{ repeat: Infinity, duration: 1 }}
-                          className="absolute inset-0 rounded-full bg-primary/20" />
-                      )}
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {searchPhase === 'searching' && '🧠 جاري البحث...'}
-                      {searchPhase === 'found' && '✅ تم العثور على المصادر'}
-                      {searchPhase === 'writing' && '✍️ جاري الكتابة...'}
+              <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="flex justify-end">
+                <div className="bg-card/80 backdrop-blur-sm border border-border/20 rounded-2xl px-4 py-3.5 shadow-sm">
+                  <div className="flex items-center gap-2.5">
+                    {searchPhase === 'searching' ? (
+                      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                        className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full" />
+                    ) : searchPhase === 'found' ? (
+                      <div className="w-4 h-4 rounded-full bg-primary/15 flex items-center justify-center">
+                        <Check className="w-2.5 h-2.5 text-primary" />
+                      </div>
+                    ) : (
+                      <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1 }}
+                        className="w-4 h-4 rounded-full bg-primary/15 flex items-center justify-center">
+                        <Edit3 className="w-2.5 h-2.5 text-primary" />
+                      </motion.div>
+                    )}
+                    <span className="text-[11px] text-muted-foreground font-medium">
+                      {searchPhase === 'searching' && 'جاري البحث في المصادر...'}
+                      {searchPhase === 'found' && 'تم العثور على المصادر'}
+                      {searchPhase === 'writing' && 'جاري كتابة الإجابة...'}
                     </span>
                   </div>
                 </div>
               </motion.div>
             )}
 
-            {/* Loading indicator */}
+            {/* Loading */}
             {isLoading && searchPhase === 'idle' && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-end">
-                <div className="bg-card border border-border/30 rounded-2xl px-4 py-3 shadow-card">
-                  <div className="flex items-center gap-2">
-                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                      className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
-                    <span className="text-xs text-muted-foreground">جاري التفكير...</span>
+                <div className="bg-card/80 backdrop-blur-sm border border-border/20 rounded-2xl px-4 py-3.5 shadow-sm">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex gap-1">
+                      {[0, 1, 2].map(i => (
+                        <motion.div key={i} animate={{ scale: [1, 1.3, 1] }}
+                          transition={{ repeat: Infinity, duration: 0.6, delay: i * 0.15 }}
+                          className="w-1.5 h-1.5 rounded-full bg-primary/40" />
+                      ))}
+                    </div>
+                    <span className="text-[11px] text-muted-foreground font-medium">جاري التفكير...</span>
                   </div>
                 </div>
               </motion.div>
@@ -516,58 +491,43 @@ const AiPage = () => {
       </div>
 
       {/* Input area */}
-      <div className="px-3 pb-3 pt-1.5">
-        <div className="relative bg-card rounded-2xl border border-border/30 shadow-card overflow-hidden">
+      <div className="px-3 pb-3 pt-1">
+        <div className="relative bg-card/80 backdrop-blur-xl rounded-2xl border border-border/25 shadow-md overflow-hidden">
           {/* Plus menu */}
           <AnimatePresence>
             {showPlusMenu && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-                className="border-b border-border/20 px-3 py-2 flex gap-2">
-                <label className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary/50 text-xs text-foreground cursor-pointer hover:bg-secondary transition-colors">
-                  <ImageIcon className="w-3.5 h-3.5" />
-                  إضافة صورة
+                className="border-b border-border/15 px-3 py-2.5 flex gap-2">
+                <label className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-secondary/40 text-[11px] font-medium text-foreground cursor-pointer hover:bg-secondary/60 transition-colors">
+                  <ImageIcon className="w-3.5 h-3.5" /> إضافة صورة
                   <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                 </label>
                 <button onClick={() => { setDeepSearch(true); setShowPlusMenu(false); }}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs transition-colors ${deepSearch ? 'bg-primary/15 text-primary' : 'bg-secondary/50 text-foreground hover:bg-secondary'}`}>
-                  <Search className="w-3.5 h-3.5" />
-                  نقاش عميق
+                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[11px] font-medium transition-all ${deepSearch ? 'islamic-gradient text-primary-foreground shadow-sm' : 'bg-secondary/40 text-foreground hover:bg-secondary/60'}`}>
+                  <Search className="w-3.5 h-3.5" /> نقاش عميق
                 </button>
-                <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary/30 text-xs text-muted-foreground opacity-50">
-                  <ImageIcon className="w-3.5 h-3.5" />
-                  إنشاء صور
-                  <span className="text-[9px] bg-accent/15 text-accent-foreground px-1.5 py-0.5 rounded-full">قريباً</span>
-                </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          <div className="flex items-end gap-1 p-2">
+          <div className="flex items-end gap-1.5 p-2.5">
             <button onClick={() => setShowPlusMenu(!showPlusMenu)}
-              className="p-2 rounded-xl hover:bg-secondary/50 transition-colors flex-shrink-0 mb-0.5">
-              <Plus className={`w-5 h-5 transition-transform ${showPlusMenu ? 'rotate-45 text-primary' : 'text-muted-foreground'}`} />
+              className="w-9 h-9 rounded-xl hover:bg-secondary/50 transition-all flex items-center justify-center flex-shrink-0">
+              <Plus className={`w-5 h-5 transition-all duration-200 ${showPlusMenu ? 'rotate-45 text-primary' : 'text-muted-foreground/50'}`} />
             </button>
 
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="اسأل عِتَرَةً..."
-              rows={1}
-              dir="rtl"
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none py-2 px-1 max-h-[120px] leading-relaxed"
-            />
+            <textarea ref={textareaRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
+              placeholder="اسأل عِتَرَةً..." rows={1} dir="rtl"
+              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 resize-none outline-none py-2 px-1 max-h-[120px] leading-relaxed font-medium" />
 
             {isStreaming ? (
               <button onClick={stopGeneration}
-                className="p-2 rounded-xl bg-destructive/10 hover:bg-destructive/20 transition-colors flex-shrink-0 mb-0.5">
+                className="w-9 h-9 rounded-xl bg-destructive/10 hover:bg-destructive/15 transition-colors flex items-center justify-center flex-shrink-0">
                 <Square className="w-4 h-4 text-destructive fill-destructive" />
               </button>
             ) : (
-              <button onClick={() => sendMessage()}
-                disabled={!input.trim() && !isLoading}
-                className="p-2 rounded-xl islamic-gradient text-primary-foreground disabled:opacity-30 transition-all flex-shrink-0 mb-0.5 active:scale-95">
+              <button onClick={() => sendMessage()} disabled={!input.trim() && !isLoading}
+                className="w-9 h-9 rounded-xl islamic-gradient text-primary-foreground disabled:opacity-20 transition-all flex items-center justify-center flex-shrink-0 active:scale-90 shadow-sm shadow-primary/15">
                 <Send className="w-4 h-4 rotate-180" />
               </button>
             )}
@@ -575,29 +535,27 @@ const AiPage = () => {
 
           {/* Deep search indicator */}
           {deepSearch && !showPlusMenu && (
-            <div className="px-3 pb-2 flex items-center gap-1.5">
-              <span className="text-[10px] text-primary font-medium bg-primary/8 px-2 py-0.5 rounded-full flex items-center gap-1">
+            <div className="px-3 pb-2.5 flex items-center gap-1.5">
+              <span className="text-[10px] text-primary font-bold bg-primary/8 px-2.5 py-1 rounded-lg flex items-center gap-1">
                 <Search className="w-3 h-3" /> نقاش عميق
               </span>
-              <button onClick={() => setDeepSearch(false)}>
-                <X className="w-3 h-3 text-muted-foreground" />
+              <button onClick={() => setDeepSearch(false)} className="p-0.5 rounded-full hover:bg-secondary/50 transition-colors">
+                <X className="w-3 h-3 text-muted-foreground/40" />
               </button>
             </div>
           )}
         </div>
 
         {/* Bottom bar */}
-        <div className="flex items-center justify-between mt-2 px-1">
+        <div className="flex items-center justify-between mt-2.5 px-2">
           <button onClick={() => { loadConversations(); setShowHistory(true); }}
-            className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
-            <Clock className="w-3 h-3" />
-            السجل
+            className="flex items-center gap-1.5 text-[10px] text-muted-foreground/40 hover:text-primary font-medium transition-colors">
+            <Clock className="w-3 h-3" /> السجل
           </button>
           {messages.length > 0 && (
             <button onClick={startNewChat}
-              className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
-              <Plus className="w-3 h-3" />
-              محادثة جديدة
+              className="flex items-center gap-1.5 text-[10px] text-muted-foreground/40 hover:text-primary font-medium transition-colors">
+              <Plus className="w-3 h-3" /> محادثة جديدة
             </button>
           )}
         </div>
