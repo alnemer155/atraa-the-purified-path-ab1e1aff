@@ -52,29 +52,43 @@ const HijriCountdown = () => {
   const progress = hijri ? (hijri.day / hijri.daysInMonth) * 100 : 0;
 
   return (
-    <div className="rounded-2xl glass-card p-4 min-h-[100px] flex flex-col justify-between">
-      <div className="flex items-center justify-between mb-2.5">
-        <span className="text-[11px] text-muted-foreground font-semibold tracking-wide">التقويم الهجري</span>
-        <Calendar className="w-4 h-4 text-primary/60" />
+    <div className="rounded-2xl glass-card p-4 min-h-[110px] flex flex-col justify-between relative overflow-hidden">
+      {/* Subtle decorative circle */}
+      <div className="absolute -bottom-6 -right-6 w-20 h-20 rounded-full bg-accent/8 blur-xl" />
+
+      <div className="flex items-center justify-between mb-3 relative">
+        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">التقويم</span>
+        <div className="w-7 h-7 rounded-lg bg-primary/8 flex items-center justify-center">
+          <Calendar className="w-3.5 h-3.5 text-primary/70" />
+        </div>
       </div>
       {hijri ? (
-        <div>
-          <p className="text-[15px] font-bold text-foreground leading-snug">{hijri.day} {hijri.month}</p>
-          <p className="text-[11px] text-muted-foreground mt-1 font-medium">{hijri.year} هـ</p>
-          <div className="mt-2.5 h-1 rounded-full bg-secondary/60 overflow-hidden">
-            <div
-              className="h-full rounded-full islamic-gradient transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <p className="text-[9px] text-muted-foreground/70 mt-1">
-            {daysRemaining > 0 ? `${daysRemaining} يوم متبقي` : 'آخر يوم في الشهر'}
+        <div className="relative">
+          <p className="text-[16px] font-bold text-foreground leading-snug">
+            {hijri.day} {hijri.month}
           </p>
+          <p className="text-[11px] text-muted-foreground mt-0.5 font-semibold">{hijri.year} هـ</p>
+          
+          {/* Progress bar */}
+          <div className="mt-3 relative">
+            <div className="h-1.5 rounded-full bg-secondary/50 overflow-hidden">
+              <div
+                className="h-full rounded-full islamic-gradient transition-all duration-700 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-[9px] text-muted-foreground/60 font-medium">
+                {daysRemaining > 0 ? `${daysRemaining} يوم متبقي` : 'آخر يوم'}
+              </p>
+              <p className="text-[9px] text-primary/50 font-bold">{Math.round(progress)}%</p>
+            </div>
+          </div>
         </div>
       ) : (
-        <div className="space-y-2">
-          <div className="h-5 w-24 rounded bg-secondary/60 animate-pulse" />
-          <div className="h-3 w-16 rounded bg-secondary/40 animate-pulse" />
+        <div className="space-y-2.5">
+          <div className="h-5 w-24 rounded-lg bg-secondary/50 animate-pulse" />
+          <div className="h-3 w-16 rounded-lg bg-secondary/30 animate-pulse" />
         </div>
       )}
     </div>
