@@ -73,6 +73,45 @@ export type Database = {
           },
         ]
       }
+      email_notification_prefs: {
+        Row: {
+          adhan: boolean | null
+          created_at: string | null
+          device_id: string
+          dhikr: boolean | null
+          dua: boolean | null
+          email: string
+          id: string
+          quiz: boolean | null
+          salawat: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          adhan?: boolean | null
+          created_at?: string | null
+          device_id: string
+          dhikr?: boolean | null
+          dua?: boolean | null
+          email: string
+          id?: string
+          quiz?: boolean | null
+          salawat?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          adhan?: boolean | null
+          created_at?: string | null
+          device_id?: string
+          dhikr?: boolean | null
+          dua?: boolean | null
+          email?: string
+          id?: string
+          quiz?: boolean | null
+          salawat?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
