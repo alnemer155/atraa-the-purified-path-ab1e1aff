@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Share2, Clock, ChevronLeft, Info, Copy, Check, Lightbulb, Gift, Calendar as CalendarIcon, Timer, Users, Sparkles, ArrowLeft } from 'lucide-react';
+import { Trophy, Share2, Clock, ChevronLeft, Info, Copy, Check, Lightbulb, Gift, Calendar as CalendarIcon, Timer, Users, Sparkles, ArrowLeft, Edit3 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getUser } from '@/lib/user';
-import quizLogo from '@/assets/quiz-logo.png';
+import quizFace from '@/assets/quiz/quiz-face.png';
+import quizQuestionsImg from '@/assets/quiz/quiz-questions.png';
 
 const QUIZ_EMOJIS = ['😎', '🍁', '📿', '🌙', '❤️', '🤲🏻', '😶‍🌫️', '🫥', '🫠', '👻', '👾', '💪🏻', '👀', '⚽️', '🎱', '🚗', '🗿', '🕋', '🙂', '💡'];
 
@@ -12,7 +13,8 @@ const QUIZ_END = new Date('2026-05-21T23:59:59+03:00');
 const QUESTIONS_START_HOUR = 9;
 const QUESTIONS_END_HOUR = 21;
 const QUESTIONS_END_MINUTE = 30;
-const TIMER_DURATION = 600;
+const TIMER_DURATION = 180; // 3 minutes
+const HINT_AVAILABLE_AT = 90; // hints available after 1.5 minutes (when timer reaches 90s)
 
 const SPECIAL_DATES: Record<string, { name: string; bonus: number }> = {
   '2026-03-28': { name: 'عيد الفطر المبارك', bonus: 5 },
