@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getUser, getGreeting, getLastReading, getTasbihState } from '@/lib/user';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, RotateCcw, ChevronLeft } from 'lucide-react';
+import { BookOpen, RotateCcw, ChevronLeft, Sparkles } from 'lucide-react';
 import PrayerTimes from '@/components/PrayerTimes';
 import WeatherWidget from '@/components/WeatherWidget';
 import HijriCountdown from '@/components/HijriCountdown';
@@ -27,6 +27,19 @@ const categoryLabels: Record<string, string> = {
 
 const tasbihatLabels = ['الله اكبر', 'الحمد لله', 'سبحان الله'];
 
+const stagger = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+  },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: 'easeOut' } },
+};
+
 const HomePage = () => {
   const navigate = useNavigate();
   const user = getUser();
@@ -49,17 +62,22 @@ const HomePage = () => {
 
   if (!user) return null;
 
-  const showTasbihResume = tasbihState && tasbihState.timestamp > Date.now() - 86400000 && 
+  const showTasbihResume = tasbihState && tasbihState.timestamp > Date.now() - 86400000 &&
     (tasbihState.mode === 'open' ? tasbihState.openCount > 0 : tasbihState.count > 0 || tasbihState.step > 0);
-  
+
   const showLastReading = lastReading && lastReading.timestamp > Date.now() - 604800000;
 
   return (
-    <div className="px-4 py-4 space-y-4 animate-fade-in">
-      {/* Greeting */}
-      <div className="py-1">
-        <p className="text-[15px] font-semibold text-foreground mb-1">{getGreeting(user)}</p>
-        <div className="h-5 overflow-hidden">
+    <motion.div
+      variants={stagger}
+      initial="hidden"
+      animate="visible"
+      className="px-4 pt-3 pb-4 space-y-5"
+    >
+      {/* Greeting Section */}
+      <motion.div variants={fadeUp} className="py-2">
+        <h1 className="text-lg font-bold text-foreground leading-snug">{getGreeting(user)}</h1>
+        <div className="h-5 overflow-hidden mt-1">
           <AnimatePresence mode="wait">
             <motion.p
               key={dhikrIndex}
@@ -67,73 +85,79 @@ const HomePage = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.3 }}
-              className="text-xs text-muted-foreground"
+              className="text-xs text-muted-foreground font-medium"
             >
               {dhikrPhrases[dhikrIndex]}
             </motion.p>
           </AnimatePresence>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Continuation cards */}
+      {/* Resume Cards */}
       {(showTasbihResume || showLastReading) && (
-        <div className="space-y-2">
+        <motion.div variants={fadeUp} className="space-y-2">
           {showTasbihResume && tasbihState && (
             <button
               onClick={() => navigate('/library')}
-              className="w-full flex items-center gap-3 p-3 rounded-2xl glass-card hover:border-primary/30 transition-all text-right active:scale-[0.98]"
+              className="w-full flex items-center gap-3 p-3.5 rounded-2xl glass-card hover:border-primary/30 transition-all text-right active:scale-[0.98]"
             >
-              <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center flex-shrink-0">
-                <RotateCcw className="w-4 h-4 text-primary" />
+              <div className="w-10 h-10 rounded-xl islamic-gradient flex items-center justify-center flex-shrink-0 shadow-sm">
+                <RotateCcw className="w-4.5 h-4.5 text-primary-foreground" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-foreground">متابعة التسبيح</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
+                <p className="text-[13px] font-bold text-foreground">متابعة التسبيح</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
                   {tasbihState.mode === 'zahra'
-                    ? `${tasbihatLabels[tasbihState.step]} · ${tasbihState.count} من ${[34,33,33][tasbihState.step]}`
+                    ? `${tasbihatLabels[tasbihState.step]} · ${tasbihState.count} من ${[34, 33, 33][tasbihState.step]}`
                     : `تسبيح حر · ${tasbihState.openCount} تسبيحة`
                   }
                 </p>
               </div>
-              <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground/40 flex-shrink-0" />
+              <ChevronLeft className="w-4 h-4 text-muted-foreground/30 flex-shrink-0" />
             </button>
           )}
 
           {showLastReading && lastReading && (
             <button
               onClick={() => navigate('/library')}
-              className="w-full flex items-center gap-3 p-3 rounded-2xl glass-card hover:border-primary/30 transition-all text-right active:scale-[0.98]"
+              className="w-full flex items-center gap-3 p-3.5 rounded-2xl glass-card hover:border-primary/30 transition-all text-right active:scale-[0.98]"
             >
-              <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center flex-shrink-0">
-                <BookOpen className="w-4 h-4 text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center flex-shrink-0">
+                <BookOpen className="w-4.5 h-4.5 text-accent-foreground" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-foreground">متابعة القراءة</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
+                <p className="text-[13px] font-bold text-foreground">متابعة القراءة</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
                   {categoryLabels[lastReading.category] || ''} · {lastReading.title}
                 </p>
               </div>
-              <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground/40 flex-shrink-0" />
+              <ChevronLeft className="w-4 h-4 text-muted-foreground/30 flex-shrink-0" />
             </button>
           )}
-        </div>
+        </motion.div>
       )}
 
-      {/* Weather + Hijri */}
-      <div className="grid grid-cols-2 gap-2.5">
+      {/* Weather + Hijri Grid */}
+      <motion.div variants={fadeUp} className="grid grid-cols-2 gap-3">
         <WeatherWidget />
         <HijriCountdown />
-      </div>
+      </motion.div>
 
       {/* Prayer Times */}
-      <PrayerTimes />
+      <motion.div variants={fadeUp}>
+        <PrayerTimes />
+      </motion.div>
 
       {/* Wallpapers */}
-      <WallpapersSection />
+      <motion.div variants={fadeUp}>
+        <WallpapersSection />
+      </motion.div>
 
       {/* Daily Recommendations */}
-      <DailyRecommendations />
-    </div>
+      <motion.div variants={fadeUp}>
+        <DailyRecommendations />
+      </motion.div>
+    </motion.div>
   );
 };
 
