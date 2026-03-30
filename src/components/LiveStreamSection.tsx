@@ -34,7 +34,7 @@ const channels: LiveChannel[] = [
     nameEn: 'Alkafeel TV',
     youtubeChannelId: 'UCMDZrODsqh0RH-5kB2CSGOA',
     thumbnail: '',
-    liveUrl: 'https://www.youtube.com/@alkafeeltv/live',
+    liveUrl: 'https://www.youtube.com/live/knMj6UjTsTc?si=D5sic38WQfki5VJm',
   },
 ];
 
