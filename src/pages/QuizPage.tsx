@@ -923,7 +923,7 @@ const QuizPage = () => {
                 </motion.button>
               ) : isQuizActive() ? (
                 <div className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-accent/8 border border-accent/15">
-                  <span className="text-sm">⏳</span><span className="text-[11px] font-bold text-accent-foreground">لم يُحل</span>
+                  <CircleDot className="w-4 h-4 text-accent-foreground" /><span className="text-[11px] font-bold text-accent-foreground">لم يُحل</span>
                 </div>
               ) : null}
             </div>
