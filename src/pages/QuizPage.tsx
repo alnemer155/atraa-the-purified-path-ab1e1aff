@@ -1017,7 +1017,7 @@ const QuizPage = () => {
                     })}
                   </div>
                   {!selectedDay.solved && (
-                    <p className="text-[10px] text-primary mt-2.5 font-semibold">📚 راجع الموضوع واستعد ليوم جديد!</p>
+                    <p className="text-[10px] text-primary mt-2.5 font-semibold">راجع الموضوع واستعد ليوم جديد</p>
                   )}
                 </div>
               ))}
