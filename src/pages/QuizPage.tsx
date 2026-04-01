@@ -362,12 +362,12 @@ const QuizPage = () => {
           {user?.name && (
             <motion.div variants={fadeUp} custom={1}>
               <GlassCard className="p-4">
-                <label className="flex items-center gap-3 cursor-pointer">
+                <div className="flex items-center gap-3 cursor-pointer" onClick={() => setRegUseExisting(!regUseExisting)}>
                   <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${regUseExisting ? 'border-primary bg-primary' : 'border-border'}`}>
                     {regUseExisting && <Check className="w-3 h-3 text-primary-foreground" />}
                   </div>
                   <span className="text-sm text-foreground">استخدام الاسم المسجل: <strong className="text-primary">{user.name}</strong></span>
-                </label>
+                </div>
               </GlassCard>
             </motion.div>
           )}
@@ -413,12 +413,12 @@ const QuizPage = () => {
               <input type="text" value={regBio} onChange={(e) => e.target.value.length <= 30 && setRegBio(e.target.value)} placeholder="نبذة قصيرة عنك..." maxLength={30}
                 className="w-full px-4 py-3.5 rounded-xl bg-secondary/40 border border-border/60 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-sm transition-all" />
               <div className="flex items-center justify-between mt-3">
-                <label className="flex items-center gap-2 cursor-pointer">
+                <div className="flex items-center gap-2 cursor-pointer" onClick={() => setRegBioPublic(!regBioPublic)}>
                   <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${regBioPublic ? 'border-primary bg-primary' : 'border-border'}`}>
                     {regBioPublic && <Check className="w-3 h-3 text-primary-foreground" />}
                   </div>
                   <span className="text-[11px] text-muted-foreground">عرض النبذة للجميع</span>
-                </label>
+                </div>
                 <span className="text-[10px] text-muted-foreground/60 font-mono tabular-nums">{regBio.length}/30</span>
               </div>
             </GlassCard>
@@ -453,15 +453,15 @@ const QuizPage = () => {
           {/* Agreement */}
           <motion.div variants={fadeUp} custom={6}>
             <GlassCard className="p-4">
-              <label className="flex items-start gap-3 cursor-pointer">
+              <div className="flex items-start gap-3 cursor-pointer" onClick={() => setRegAgreed(!regAgreed)}>
                 <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all mt-0.5 flex-shrink-0 ${regAgreed ? 'border-primary bg-primary' : 'border-border'}`}>
                   {regAgreed && <Check className="w-3 h-3 text-primary-foreground" />}
                 </div>
                 <span className="text-[11px] text-muted-foreground leading-relaxed">
-                  أوافق على <a href="/policies" className="text-primary underline font-medium">سياسات الموقع وشروط المسابقة</a>.
+                  أوافق على <a href="/policies" onClick={(e) => e.stopPropagation()} className="text-primary underline font-medium">سياسات الموقع وشروط المسابقة</a>.
                   أقر بأن الأسئلة مولّدة بالذكاء الاصطناعي وقد تحتوي على أخطاء.
                 </span>
-              </label>
+              </div>
             </GlassCard>
           </motion.div>
 
