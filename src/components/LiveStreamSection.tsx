@@ -100,7 +100,7 @@ const LiveStreamSection = () => {
             </div>
             <div className="flex-1 min-w-0 text-right">
               <p className="text-[13px] font-bold text-foreground truncate">{channel.name}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{channel.nameEn}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">بث مباشر</p>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground/30 flex-shrink-0 group-hover:text-primary transition-colors" />
           </motion.button>

@@ -70,7 +70,7 @@ const ListeningSection = () => {
           <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
             <Headphones className="w-3.5 h-3.5 text-primary" />
           </div>
-          <h2 className="text-[13px] font-bold text-foreground">اِسْتِمَاعٌ 🎧</h2>
+          <h2 className="text-[13px] font-bold text-foreground">استماع</h2>
         </div>
         <button onClick={handleRefresh} className="p-1.5 rounded-lg hover:bg-secondary/40 transition-colors active:scale-95">
           <RefreshCw className="w-3.5 h-3.5 text-muted-foreground" />

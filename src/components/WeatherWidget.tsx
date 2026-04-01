@@ -61,8 +61,6 @@ const WeatherWidget = () => {
 
   return (
     <div className="rounded-2xl glass-card p-4 min-h-[110px] flex flex-col justify-between relative overflow-hidden">
-      {/* Subtle decorative circle */}
-      <div className="absolute -top-6 -left-6 w-20 h-20 rounded-full bg-primary/5 blur-xl" />
       
       <div className="flex items-center justify-between mb-3 relative">
         <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">الطقس</span>
