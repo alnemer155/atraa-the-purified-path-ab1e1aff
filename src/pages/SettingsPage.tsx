@@ -212,11 +212,11 @@ const SettingsPage = () => {
       <motion.div variants={fadeUp} custom={2}>
         <SectionHeader icon={Bell} label="الإشعارات" />
         <GlassCard className="overflow-hidden divide-y divide-border/15">
-          <NotifToggle emoji="🕌" label="إشعارات الأذان" subtitle="تنبيه عند دخول وقت الصلاة" enabled={adhanNotif} onToggle={() => toggleNotifWithEmail('adhan', adhanNotif, setAdhanNotif)} />
-          <NotifToggle emoji="📿" label="تذكير الأذكار" subtitle="أذكار الصباح والمساء" enabled={dhikrNotif} onToggle={() => toggleNotifWithEmail('dhikr', dhikrNotif, setDhikrNotif)} />
-          <NotifToggle emoji="🤲🏻" label="الصلاة على النبي" subtitle="اللهم صلّ على محمد وآله" enabled={salawatNotif} onToggle={() => toggleNotifWithEmail('salawat', salawatNotif, setSalawatNotif)} />
-          <NotifToggle emoji="🏆" label="إشعارات المسابقة" subtitle="تنبيه قبل بدء الأسئلة" enabled={quizNotif} onToggle={() => toggleNotifWithEmail('quiz', quizNotif, setQuizNotif)} />
-          <NotifToggle emoji="🌙" label="دعاء اليوم" subtitle="تذكير يومي بدعاء مقترح" enabled={duaNotif} onToggle={() => toggleNotifWithEmail('dua', duaNotif, setDuaNotif)} />
+          <NotifToggle icon={Volume2} label="إشعارات الأذان" subtitle="تنبيه عند دخول وقت الصلاة" enabled={adhanNotif} onToggle={() => toggleNotifWithEmail('adhan', adhanNotif, setAdhanNotif)} />
+          <NotifToggle icon={BookOpen} label="تذكير الأذكار" subtitle="أذكار الصباح والمساء" enabled={dhikrNotif} onToggle={() => toggleNotifWithEmail('dhikr', dhikrNotif, setDhikrNotif)} />
+          <NotifToggle icon={Heart} label="الصلاة على النبي" subtitle="اللهم صلّ على محمد وآله" enabled={salawatNotif} onToggle={() => toggleNotifWithEmail('salawat', salawatNotif, setSalawatNotif)} />
+          <NotifToggle icon={Trophy} label="إشعارات المسابقة" subtitle="تنبيه قبل بدء الأسئلة" enabled={quizNotif} onToggle={() => toggleNotifWithEmail('quiz', quizNotif, setQuizNotif)} />
+          <NotifToggle icon={Star} label="دعاء اليوم" subtitle="تذكير يومي بدعاء مقترح" enabled={duaNotif} onToggle={() => toggleNotifWithEmail('dua', duaNotif, setDuaNotif)} />
         </GlassCard>
       </motion.div>
 
