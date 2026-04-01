@@ -140,7 +140,7 @@ const NotFound = () => {
           transition={{ delay: 0.5 }}
           className="text-[9px] text-muted-foreground/40 mt-8"
         >
-          عِتَرَةً · v3.3
+          عِتَرَةً · v4.0
         </motion.p>
       </motion.div>
     </div>
