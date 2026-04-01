@@ -418,7 +418,7 @@ const QuizPage = () => {
                     {regBioPublic && <Check className="w-3 h-3 text-primary-foreground" />}
                   </div>
                   <span className="text-[11px] text-muted-foreground">عرض النبذة للجميع</span>
-                </label>
+                </div>
                 <span className="text-[10px] text-muted-foreground/60 font-mono tabular-nums">{regBio.length}/30</span>
               </div>
             </GlassCard>
