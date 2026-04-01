@@ -375,6 +375,24 @@ const SettingsPage = () => {
         )}
       </AnimatePresence>
 
+      {/* Support */}
+      <motion.div variants={fadeUp} custom={5.5}>
+        <GlassCard className="overflow-hidden">
+          <Link to="/support" className="flex items-center justify-between p-4 hover:bg-secondary/20 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center">
+                <Heart className="w-5 h-5 text-primary" />
+              </div>
+              <div className="text-right">
+                <p className="text-[13px] font-semibold text-foreground">داعم الموقع</p>
+                <p className="text-[10px] text-muted-foreground/70 mt-0.5">ادعم مشروع عِتَرَةً</p>
+              </div>
+            </div>
+            <ChevronLeft className="w-4 h-4 text-muted-foreground/30" />
+          </Link>
+        </GlassCard>
+      </motion.div>
+
       {/* Legal */}
       <motion.div variants={fadeUp} custom={6}>
         <SectionHeader icon={Shield} label="قانوني" />
