@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Cloud, Sun, CloudRain, Snowflake } from 'lucide-react';
+import { Cloud, Sun, CloudRain } from 'lucide-react';
 
 interface WeatherData {
   temp: number;
@@ -43,7 +43,10 @@ const WeatherWidget = () => {
             });
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          // Show fallback on error
+          setWeather({ temp: 0, description: 'غير متوفر', code: 0 });
+        });
     };
 
     fetchWeather();

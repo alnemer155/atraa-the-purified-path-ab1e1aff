@@ -34,7 +34,9 @@ const HijriCountdown = () => {
           });
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Fallback - still show widget structure
+      });
   };
 
   useEffect(() => {

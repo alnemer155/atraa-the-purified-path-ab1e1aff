@@ -27,6 +27,9 @@ const BottomNav = () => {
                 <NavLink
                   key={path}
                   to={path}
+                  onClick={() => {
+                    if ('vibrate' in navigator) navigator.vibrate(8);
+                  }}
                   className="relative flex flex-col items-center gap-0.5 py-2 px-3 min-w-[50px] group"
                 >
                   {isActive && (

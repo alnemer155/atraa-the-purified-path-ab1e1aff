@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getUser, getGreeting, getLastReading, getTasbihState } from '@/lib/user';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, RotateCcw, ChevronLeft, Sparkles, ArrowLeft } from 'lucide-react';
+import { BookOpen, RotateCcw, ChevronLeft } from 'lucide-react';
 import PrayerTimes from '@/components/PrayerTimes';
 import WeatherWidget from '@/components/WeatherWidget';
 import HijriCountdown from '@/components/HijriCountdown';
@@ -209,7 +209,7 @@ const HomePage = () => {
         {/* ── Footer ── */}
         <motion.div variants={fadeUp} className="text-center pt-4 pb-2">
           <p className="text-[10px] text-muted-foreground/30 font-medium">
-            عِتَرَةً · v3.3 بناء 160
+            عِتَرَةً · v3.4 بناء 170
           </p>
         </motion.div>
       </div>
