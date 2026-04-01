@@ -143,10 +143,12 @@ const SettingsPage = () => {
     navigate('/register');
   };
 
-  const NotifToggle = ({ label, subtitle, emoji, enabled, onToggle }: { label: string; subtitle: string; emoji: string; enabled: boolean; onToggle: () => void }) => (
+  const NotifToggle = ({ label, subtitle, icon: Icon, enabled, onToggle }: { label: string; subtitle: string; icon: any; enabled: boolean; onToggle: () => void }) => (
     <motion.button whileTap={{ scale: 0.98 }} onClick={onToggle} className="w-full flex items-center justify-between p-3.5 active:bg-secondary/20 transition-colors">
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <span className="text-base flex-shrink-0">{emoji}</span>
+        <div className="w-8 h-8 rounded-lg bg-primary/6 flex items-center justify-center flex-shrink-0">
+          <Icon className="w-4 h-4 text-primary/60" />
+        </div>
         <div className="text-right flex-1 min-w-0">
           <p className="text-[13px] font-semibold text-foreground">{label}</p>
           <p className="text-[10px] text-muted-foreground/70 mt-0.5">{subtitle}</p>
