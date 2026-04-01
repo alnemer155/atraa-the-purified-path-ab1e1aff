@@ -914,7 +914,7 @@ const QuizPage = () => {
               {todayAnswered ? (
                 <motion.button whileTap={{ scale: 0.9 }} onClick={() => setStatusInfoIdx(0)}
                   className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-primary/8 border border-primary/15">
-                  <span className="text-sm">🫡</span><span className="text-[11px] font-bold text-primary">تم الحل</span>
+                  <CheckCircle className="w-4 h-4 text-primary" /><span className="text-[11px] font-bold text-primary">تم الحل</span>
                 </motion.button>
               ) : !questionsAvailable && isQuizActive() ? (
                 <motion.button whileTap={{ scale: 0.9 }} onClick={() => setStatusInfoIdx(1)}
