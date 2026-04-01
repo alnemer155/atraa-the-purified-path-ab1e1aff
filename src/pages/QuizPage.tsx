@@ -413,7 +413,7 @@ const QuizPage = () => {
               <input type="text" value={regBio} onChange={(e) => e.target.value.length <= 30 && setRegBio(e.target.value)} placeholder="نبذة قصيرة عنك..." maxLength={30}
                 className="w-full px-4 py-3.5 rounded-xl bg-secondary/40 border border-border/60 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-sm transition-all" />
               <div className="flex items-center justify-between mt-3">
-                <label className="flex items-center gap-2 cursor-pointer">
+                <div className="flex items-center gap-2 cursor-pointer" onClick={() => setRegBioPublic(!regBioPublic)}>
                   <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${regBioPublic ? 'border-primary bg-primary' : 'border-border'}`}>
                     {regBioPublic && <Check className="w-3 h-3 text-primary-foreground" />}
                   </div>
