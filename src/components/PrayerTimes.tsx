@@ -100,7 +100,9 @@ const PrayerTimes = () => {
           schedulePrayerNotifications(t);
         }
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        setLoading(false);
+      });
 
     const handleStorage = (e: StorageEvent) => {
       if (e.key === 'atraa_weather_city' && e.newValue) {

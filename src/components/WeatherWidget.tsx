@@ -43,7 +43,10 @@ const WeatherWidget = () => {
             });
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          // Show fallback on error
+          setWeather({ temp: 0, description: 'غير متوفر', code: 0 });
+        });
     };
 
     fetchWeather();
