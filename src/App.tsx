@@ -19,6 +19,7 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const PoliciesPage = lazy(() => import("./pages/PoliciesPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const UnsubscribePage = lazy(() => import("./pages/UnsubscribePage"));
+const SupportPage = lazy(() => import("./pages/SupportPage"));
 
 const queryClient = new QueryClient();
 
