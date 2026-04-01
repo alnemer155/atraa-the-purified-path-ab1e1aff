@@ -1000,7 +1000,7 @@ const QuizPage = () => {
               className="bg-card rounded-3xl p-5 shadow-elevated max-w-sm w-full max-h-[70vh] overflow-y-auto border border-border/40" onClick={(e) => e.stopPropagation()}>
               <h3 className="text-sm font-bold text-foreground mb-1">أسئلة يوم {selectedDay.date}</h3>
               <p className="text-xs text-muted-foreground mb-4">
-                {selectedDay.solved ? `✅ تم الحل · ${selectedDay.score} نقاط` : '❌ لم يتم الحل'}
+                {selectedDay.solved ? `تم الحل · ${selectedDay.score} نقاط` : 'لم يتم الحل'}
               </p>
               {selectedDay.questions.map((q: QuizQuestion, i: number) => (
                 <div key={i} className="mb-4 p-3.5 rounded-2xl bg-secondary/40 border border-border/30">
