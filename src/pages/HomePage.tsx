@@ -209,7 +209,7 @@ const HomePage = () => {
         {/* ── Footer ── */}
         <motion.div variants={fadeUp} className="text-center pt-4 pb-2">
           <p className="text-[10px] text-muted-foreground/30 font-medium">
-            عِتَرَةً · v3.4 بناء 170
+            عِتَرَةً · v4.0 بناء 200
           </p>
         </motion.div>
       </div>

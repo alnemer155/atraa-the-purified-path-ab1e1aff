@@ -19,6 +19,7 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const PoliciesPage = lazy(() => import("./pages/PoliciesPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const UnsubscribePage = lazy(() => import("./pages/UnsubscribePage"));
+const SupportPage = lazy(() => import("./pages/SupportPage"));
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
                 <Route path="/q/:shareCode" element={<QuizPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/policies" element={<PoliciesPage />} />
+                <Route path="/support" element={<SupportPage />} />
                 <Route path="/unsubscribe" element={<UnsubscribePage />} />
               </Route>
               <Route path="*" element={<NotFound />} />
