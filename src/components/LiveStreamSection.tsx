@@ -69,7 +69,7 @@ const LiveStreamSection = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive"></span>
             </span>
-            <span className="text-[9px] text-destructive font-semibold">LIVE</span>
+            <span className="text-[9px] text-destructive font-semibold">مباشر</span>
           </div>
         </div>
         {currentTime && (
