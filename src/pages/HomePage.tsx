@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getUser, getGreeting, getLastReading, getTasbihState } from '@/lib/user';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, RotateCcw, ChevronLeft, Sparkles, ArrowLeft } from 'lucide-react';
+import { BookOpen, RotateCcw, ChevronLeft } from 'lucide-react';
 import PrayerTimes from '@/components/PrayerTimes';
 import WeatherWidget from '@/components/WeatherWidget';
 import HijriCountdown from '@/components/HijriCountdown';
