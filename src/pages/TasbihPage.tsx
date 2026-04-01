@@ -176,7 +176,7 @@ const TasbihPage = () => {
                   <div className="w-24 h-24 mx-auto mb-5 rounded-3xl islamic-gradient flex items-center justify-center shadow-xl shadow-primary/20">
                     <Check className="w-12 h-12 text-primary-foreground" />
                   </div>
-                  <p className="text-2xl font-bold text-foreground mb-1.5">تم بحمد الله ✦</p>
+                  <p className="text-2xl font-bold text-foreground mb-1.5">تم بحمد الله</p>
                   <p className="text-sm text-muted-foreground font-medium">{totalAll} تسبيحة</p>
                 </motion.div>
               ) : (
