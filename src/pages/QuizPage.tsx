@@ -837,7 +837,9 @@ const QuizPage = () => {
         {isAfterEnd && (
           <motion.div variants={fadeUp} custom={1}>
             <GlassCard className="text-center p-5">
-              <div className="text-4xl mb-3">🏁</div>
+              <div className="w-14 h-14 rounded-3xl bg-secondary/40 flex items-center justify-center mx-auto mb-3">
+                <Trophy className="w-7 h-7 text-muted-foreground/50" />
+              </div>
               <p className="text-sm font-bold text-foreground">انتهت المسابقة</p>
               <p className="text-xs text-muted-foreground mt-1">شكراً لمشاركتك!</p>
             </GlassCard>
