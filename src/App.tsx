@@ -51,6 +51,7 @@ const App = () => (
                 <Route path="/q/:shareCode" element={<QuizPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/policies" element={<PoliciesPage />} />
+                <Route path="/support" element={<SupportPage />} />
                 <Route path="/unsubscribe" element={<UnsubscribePage />} />
               </Route>
               <Route path="*" element={<NotFound />} />
