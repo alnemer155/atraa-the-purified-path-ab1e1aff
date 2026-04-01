@@ -208,7 +208,7 @@ const QuizPage = () => {
     if (!nickname) { setRegError('يرجى إدخال اللقب'); return; }
     const age = parseInt(regAge);
     if (isNaN(age)) { setRegError('يرجى إدخال العمر'); return; }
-    if (age >= 99) { setRegError('لك طولت العمر إذا قربت من الـ ١٠٠ افصل الشاحن 😂'); return; }
+    if (age >= 99) { setRegError('العمر يجب أن يكون أقل من ١٠٠ سنة'); return; }
     if (age < 12 || age > 60) { setRegError('العمر يجب أن يكون بين ١٢ و ٦٠ سنة'); return; }
     if (regBio.length > 30) { setRegError('النبذة ٣٠ حرف كحد أقصى'); return; }
     if (!regAgreed) { setRegError('يجب الموافقة على سياسات الموقع وشروط المسابقة'); return; }
