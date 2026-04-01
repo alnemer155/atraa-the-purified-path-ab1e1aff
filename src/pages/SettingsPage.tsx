@@ -461,45 +461,25 @@ const SettingsPage = () => {
         </GlassCard>
       </motion.div>
 
-      {/* Languages */}
+      {/* Theme Toggle */}
       <motion.div variants={fadeUp} custom={9}>
-        <SectionHeader icon={Globe} label="اللغات" />
-        <GlassCard className="overflow-hidden divide-y divide-border/15">
-          {[
-            { code: 'ع', name: 'العربية', label: 'اللغة الأساسية', active: true },
-            { code: 'EN', name: 'English (British)', label: 'الإنجليزية البريطانية', active: true },
-          ].map(lang => (
-            <div key={lang.code} className="flex items-center justify-between p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl islamic-gradient flex items-center justify-center">
-                  <span className="text-xs font-bold text-primary-foreground">{lang.code}</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-[13px] font-semibold text-foreground">{lang.name}</p>
-                  <p className="text-[10px] text-muted-foreground/70">{lang.label}</p>
-                </div>
+        <SectionHeader icon={Moon} label="المظهر" />
+        <GlassCard className="overflow-hidden">
+          <motion.button whileTap={{ scale: 0.98 }} onClick={toggleTheme}
+            className="w-full flex items-center justify-between p-4 active:bg-secondary/20 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center">
+                {isDark ? <Moon className="w-5 h-5 text-primary" /> : <Sun className="w-5 h-5 text-primary" />}
               </div>
-              <span className="text-[9px] font-bold text-primary bg-primary/8 px-2.5 py-1 rounded-full">مفعّل</span>
-            </div>
-          ))}
-          {[
-            { code: 'FR', name: 'Français', label: 'الفرنسية' },
-            { code: 'فا', name: 'فارسی', label: 'الفارسية' },
-            { code: 'DE', name: 'Deutsch', label: 'الألمانية' },
-          ].map(lang => (
-            <div key={lang.code} className="flex items-center justify-between p-4 opacity-35">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-secondary/50 flex items-center justify-center">
-                  <span className="text-xs font-bold text-muted-foreground">{lang.code}</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-[13px] font-medium text-foreground">{lang.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{lang.label}</p>
-                </div>
+              <div className="text-right">
+                <p className="text-[13px] font-semibold text-foreground">{isDark ? 'الوضع الليلي' : 'الوضع النهاري'}</p>
+                <p className="text-[10px] text-muted-foreground/70 mt-0.5">اضغط للتبديل</p>
               </div>
-              <span className="text-[9px] font-bold text-accent-foreground bg-accent/15 px-2.5 py-1 rounded-full">قريباً</span>
             </div>
-          ))}
+            <div className={`w-11 h-[26px] rounded-full transition-all duration-300 flex items-center px-0.5 ${isDark ? 'bg-primary justify-start' : 'bg-border/60 justify-end'}`}>
+              <motion.div layout transition={{ type: 'spring' as const, stiffness: 500, damping: 30 }} className="w-[22px] h-[22px] rounded-full bg-card shadow-sm" />
+            </div>
+          </motion.button>
         </GlassCard>
       </motion.div>
 
