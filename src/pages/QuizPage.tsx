@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Share2, Clock, ChevronLeft, Info, Copy, Check, Lightbulb, Gift, Calendar as CalendarIcon, Timer, Users, Sparkles, ArrowLeft, Edit3, Star, Zap, Target, Crown, Medal, Award, TrendingUp, BookOpen } from 'lucide-react';
+import { Trophy, Share2, Clock, ChevronLeft, Info, Copy, Check, Lightbulb, Gift, Calendar as CalendarIcon, Timer, Users, Sparkles, ArrowLeft, Edit3, Star, Zap, Target, Crown, Medal, Award, TrendingUp, BookOpen, X as XIcon, AlertTriangle, CheckCircle, CircleDot, PartyPopper, ThumbsUp, Flame, Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getUser } from '@/lib/user';
 import quizFace from '@/assets/quiz/quiz-face.png';
