@@ -879,7 +879,9 @@ const QuizPage = () => {
           <motion.div variants={fadeUp} custom={1.5}>
             <GlassCard className="p-4 !bg-accent/5 !border-accent/15">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-accent/15 flex items-center justify-center text-xl">🎁</div>
+                <div className="w-11 h-11 rounded-2xl bg-accent/15 flex items-center justify-center">
+                  <Gift className="w-5 h-5 text-accent-foreground" />
+                </div>
                 <div>
                   <p className="text-xs font-bold text-foreground">جمعة مباركة! سؤال مغشوش (نقطتان هدية) + ١.٥ نقطة إضافية</p>
                 </div>
