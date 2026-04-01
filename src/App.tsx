@@ -32,32 +32,34 @@ const PageLoader = () => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <SplashScreen />
-      <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/register" element={<Registration />} />
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/library" element={<LibraryPage />} />
-              <Route path="/ai" element={<AiPage />} />
-              <Route path="/quiz" element={<QuizPage />} />
-              <Route path="/q/:shareCode" element={<QuizPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/policies" element={<PoliciesPage />} />
-              <Route path="/unsubscribe" element={<UnsubscribePage />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
-      <Analytics />
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <SplashScreen />
+        <BrowserRouter>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/register" element={<Registration />} />
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/library" element={<LibraryPage />} />
+                <Route path="/ai" element={<AiPage />} />
+                <Route path="/quiz" element={<QuizPage />} />
+                <Route path="/q/:shareCode" element={<QuizPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/policies" element={<PoliciesPage />} />
+                <Route path="/unsubscribe" element={<UnsubscribePage />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+        <Analytics />
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
