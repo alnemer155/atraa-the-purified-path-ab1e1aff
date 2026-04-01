@@ -976,11 +976,11 @@ const QuizPage = () => {
                             isToday ? 'ring-2 ring-primary bg-primary/8' : isPast && answeredDay ? 'bg-primary/6' : isPast ? 'bg-destructive/5' : 'bg-secondary/30 opacity-35'
                           } ${day.isFriday ? 'border border-accent/25' : ''} ${day.special ? 'border-2 border-accent/60' : ''}`}>
                           <span className="text-foreground">{day.dayNum}</span>
-                          {isPast && answeredDay && <span className="text-[8px]">🫡</span>}
-                          {isPast && !answeredDay && <span className="text-[8px]">❗️</span>}
-                          {isToday && !todayAnswered && <span className="text-[8px]">⏳</span>}
-                          {isToday && todayAnswered && <span className="text-[8px]">🫡</span>}
-                          {day.isFriday && <span className="text-[7px]">🎁</span>}
+                          {isPast && answeredDay && <Check className="w-2.5 h-2.5 text-primary" />}
+                          {isPast && !answeredDay && <XIcon className="w-2.5 h-2.5 text-destructive" />}
+                          {isToday && !todayAnswered && <CircleDot className="w-2.5 h-2.5 text-accent-foreground" />}
+                          {isToday && todayAnswered && <Check className="w-2.5 h-2.5 text-primary" />}
+                          {day.isFriday && <Gift className="w-2.5 h-2.5 text-accent-foreground" />}
                         </motion.button>
                       );
                     })}
