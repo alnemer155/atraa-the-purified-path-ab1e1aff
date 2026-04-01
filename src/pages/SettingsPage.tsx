@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, Sun, MessageCircle, Share2, Download, Copy, Check, Smartphone, LogOut, MailCheck, Send, Sparkles, Heart } from 'lucide-react';
+import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, Sun, MessageCircle, Share2, Download, Copy, Check, Smartphone, LogOut, MailCheck, Send, Sparkles, Heart, Volume2, BookOpen, Trophy, Star } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUser, getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
 import CityPicker from '@/components/CityPicker';
@@ -143,10 +143,12 @@ const SettingsPage = () => {
     navigate('/register');
   };
 
-  const NotifToggle = ({ label, subtitle, emoji, enabled, onToggle }: { label: string; subtitle: string; emoji: string; enabled: boolean; onToggle: () => void }) => (
+  const NotifToggle = ({ label, subtitle, icon: Icon, enabled, onToggle }: { label: string; subtitle: string; icon: any; enabled: boolean; onToggle: () => void }) => (
     <motion.button whileTap={{ scale: 0.98 }} onClick={onToggle} className="w-full flex items-center justify-between p-3.5 active:bg-secondary/20 transition-colors">
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <span className="text-base flex-shrink-0">{emoji}</span>
+        <div className="w-8 h-8 rounded-lg bg-primary/6 flex items-center justify-center flex-shrink-0">
+          <Icon className="w-4 h-4 text-primary/60" />
+        </div>
         <div className="text-right flex-1 min-w-0">
           <p className="text-[13px] font-semibold text-foreground">{label}</p>
           <p className="text-[10px] text-muted-foreground/70 mt-0.5">{subtitle}</p>
@@ -181,7 +183,7 @@ const SettingsPage = () => {
           <GlassCard className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 rounded-2xl islamic-gradient flex items-center justify-center shadow-elevated">
-                <span className="text-2xl">{user.title === 'سيد' ? '🧕🏻' : '👤'}</span>
+                <User className="w-7 h-7 text-primary-foreground" />
               </div>
               <div className="flex-1 text-right min-w-0">
                 <p className="text-sm font-bold text-foreground truncate">
@@ -210,11 +212,11 @@ const SettingsPage = () => {
       <motion.div variants={fadeUp} custom={2}>
         <SectionHeader icon={Bell} label="الإشعارات" />
         <GlassCard className="overflow-hidden divide-y divide-border/15">
-          <NotifToggle emoji="🕌" label="إشعارات الأذان" subtitle="تنبيه عند دخول وقت الصلاة" enabled={adhanNotif} onToggle={() => toggleNotifWithEmail('adhan', adhanNotif, setAdhanNotif)} />
-          <NotifToggle emoji="📿" label="تذكير الأذكار" subtitle="أذكار الصباح والمساء" enabled={dhikrNotif} onToggle={() => toggleNotifWithEmail('dhikr', dhikrNotif, setDhikrNotif)} />
-          <NotifToggle emoji="🤲🏻" label="الصلاة على النبي" subtitle="اللهم صلّ على محمد وآله" enabled={salawatNotif} onToggle={() => toggleNotifWithEmail('salawat', salawatNotif, setSalawatNotif)} />
-          <NotifToggle emoji="🏆" label="إشعارات المسابقة" subtitle="تنبيه قبل بدء الأسئلة" enabled={quizNotif} onToggle={() => toggleNotifWithEmail('quiz', quizNotif, setQuizNotif)} />
-          <NotifToggle emoji="🌙" label="دعاء اليوم" subtitle="تذكير يومي بدعاء مقترح" enabled={duaNotif} onToggle={() => toggleNotifWithEmail('dua', duaNotif, setDuaNotif)} />
+          <NotifToggle icon={Volume2} label="إشعارات الأذان" subtitle="تنبيه عند دخول وقت الصلاة" enabled={adhanNotif} onToggle={() => toggleNotifWithEmail('adhan', adhanNotif, setAdhanNotif)} />
+          <NotifToggle icon={BookOpen} label="تذكير الأذكار" subtitle="أذكار الصباح والمساء" enabled={dhikrNotif} onToggle={() => toggleNotifWithEmail('dhikr', dhikrNotif, setDhikrNotif)} />
+          <NotifToggle icon={Heart} label="الصلاة على النبي" subtitle="اللهم صلّ على محمد وآله" enabled={salawatNotif} onToggle={() => toggleNotifWithEmail('salawat', salawatNotif, setSalawatNotif)} />
+          <NotifToggle icon={Trophy} label="إشعارات المسابقة" subtitle="تنبيه قبل بدء الأسئلة" enabled={quizNotif} onToggle={() => toggleNotifWithEmail('quiz', quizNotif, setQuizNotif)} />
+          <NotifToggle icon={Star} label="دعاء اليوم" subtitle="تذكير يومي بدعاء مقترح" enabled={duaNotif} onToggle={() => toggleNotifWithEmail('dua', duaNotif, setDuaNotif)} />
         </GlassCard>
       </motion.div>
 
@@ -339,17 +341,19 @@ const SettingsPage = () => {
               
               {[
                 {
-                  emoji: '🤖', title: 'أندرويد',
-                  steps: ['افتح الموقع في Chrome', 'اضغط ⋮ ثم "إضافة إلى الشاشة الرئيسية"', 'اضغط "إضافة" وسيظهر كتطبيق']
+                  title: 'أندرويد', icon: Smartphone,
+                  steps: ['افتح الموقع في Chrome', 'اضغط القائمة ثم "إضافة إلى الشاشة الرئيسية"', 'اضغط "إضافة" وسيظهر كتطبيق']
                 },
                 {
-                  emoji: '🍎', title: 'آيفون (Safari)',
-                  steps: ['افتح الموقع في Safari', 'اضغط ⬆️ ثم "إضافة إلى الشاشة الرئيسية"', 'اضغط "إضافة" وسيعمل كتطبيق مستقل']
+                  title: 'آيفون (Safari)', icon: Smartphone,
+                  steps: ['افتح الموقع في Safari', 'اضغط زر المشاركة ثم "إضافة إلى الشاشة الرئيسية"', 'اضغط "إضافة" وسيعمل كتطبيق مستقل']
                 }
               ].map((platform) => (
                 <div key={platform.title} className="mb-5">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-lg">{platform.emoji}</span>
+                    <div className="w-7 h-7 rounded-lg bg-primary/8 flex items-center justify-center">
+                      <platform.icon className="w-3.5 h-3.5 text-primary" />
+                    </div>
                     <h3 className="text-sm font-bold text-foreground">{platform.title}</h3>
                   </div>
                   <div className="space-y-2 pr-1">
