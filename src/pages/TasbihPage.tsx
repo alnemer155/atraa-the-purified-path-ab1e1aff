@@ -98,7 +98,7 @@ const TasbihPage = () => {
       {/* Mode selector */}
       <div className="flex gap-2 mb-5" data-control>
         {[
-          { key: 'zahra' as const, label: 'تسبيح الزهراء ❁', desc: '١٠٠ تسبيحة' },
+          { key: 'zahra' as const, label: 'تسبيح الزهراء (ع)', desc: '١٠٠ تسبيحة' },
           { key: 'open' as const, label: 'تسبيح حر', desc: 'بلا حدود' },
         ].map(m => (
           <button
