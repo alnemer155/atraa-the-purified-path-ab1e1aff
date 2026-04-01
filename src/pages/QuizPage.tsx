@@ -724,7 +724,9 @@ const QuizPage = () => {
         <motion.div initial="hidden" animate="visible" className="text-center w-full max-w-sm">
           {/* Emoji celebration */}
           <motion.div variants={scaleIn} className="mb-6">
-            <div className="text-7xl mb-2">{perfect ? '🎉' : todayScore >= 6 ? '🌟' : todayScore >= 4 ? '👏' : '💪🏻'}</div>
+            <div className="w-20 h-20 rounded-3xl mx-auto flex items-center justify-center islamic-gradient shadow-elevated">
+              {perfect ? <PartyPopper className="w-10 h-10 text-primary-foreground" /> : todayScore >= 6 ? <Star className="w-10 h-10 text-primary-foreground" /> : todayScore >= 4 ? <ThumbsUp className="w-10 h-10 text-primary-foreground" /> : <Flame className="w-10 h-10 text-primary-foreground" />}
+            </div>
           </motion.div>
 
           {/* Score card */}
