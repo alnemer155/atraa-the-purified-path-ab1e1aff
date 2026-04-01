@@ -155,15 +155,14 @@ const SupportPage = () => {
         <motion.div variants={fadeUp} custom={2}>
           <motion.button
             whileTap={{ scale: 0.97 }}
-            onClick={handlePayment}
-            disabled={!activeAmount || activeAmount < 5}
-            className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-bold text-base shadow-lg transition-all disabled:opacity-30 flex items-center justify-center gap-2"
+            disabled
+            className="w-full py-4 rounded-2xl bg-primary/50 text-primary-foreground font-bold text-base shadow-lg transition-all opacity-60 flex items-center justify-center gap-2 cursor-not-allowed"
           >
             <DollarSign className="w-5 h-5" />
-            {activeAmount && activeAmount >= 5 ? `ادعم بـ ${activeAmount} ر.س` : 'اختر مبلغاً'}
+            قريباً
           </motion.button>
           <p className="text-[10px] text-muted-foreground/60 text-center mt-3">
-            الدفع آمن ومشفر — يدعم مدى · Apple Pay · بطاقة ائتمانية
+            الدفع الإلكتروني قيد التفعيل — يدعم مدى · Apple Pay · بطاقة ائتمانية
           </p>
         </motion.div>
       </motion.div>

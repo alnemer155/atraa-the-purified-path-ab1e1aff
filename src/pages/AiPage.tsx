@@ -376,8 +376,49 @@ const AiPage = () => {
               ))}
             </div>
 
+            {/* Subscription Plans - Coming Soon */}
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+              className="mt-8 w-full max-w-xs">
+              <p className="text-[10px] text-muted-foreground/40 font-bold mb-2.5 text-center">خطط الاشتراك</p>
+              <div className="space-y-2">
+                {/* Platinum - Free */}
+                <div className="relative bg-card/80 backdrop-blur-sm rounded-2xl border border-border/20 p-3.5 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-secondary/50 flex items-center justify-center">
+                        <BookOpen className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-[12px] font-bold text-foreground">بلاتينيوم</p>
+                        <p className="text-[9px] text-muted-foreground">٣٠ رسالة يومياً</p>
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-black text-primary bg-primary/8 px-2.5 py-1 rounded-lg">مجاناً</span>
+                  </div>
+                </div>
+                {/* Titanium - Paid */}
+                <div className="relative bg-card/80 backdrop-blur-sm rounded-2xl border border-primary/20 p-3.5 shadow-sm overflow-hidden">
+                  <div className="absolute top-2 left-2">
+                    <span className="text-[8px] font-bold text-primary-foreground bg-primary px-2 py-0.5 rounded-md">قريباً</span>
+                  </div>
+                  <div className="flex items-center justify-between opacity-60">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl islamic-gradient flex items-center justify-center">
+                        <Search className="w-4 h-4 text-primary-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-[12px] font-bold text-foreground">تيتانيوم</p>
+                        <p className="text-[9px] text-muted-foreground">٣٥٠ رسالة · نقاش عميق</p>
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-black text-foreground">١٩.٩٩ ر.س</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
             {/* Bottom links */}
-            <div className="mt-6 flex items-center gap-4">
+            <div className="mt-5 flex items-center gap-4">
               <button onClick={() => { loadConversations(); setShowHistory(true); }}
                 className="flex items-center gap-1.5 text-[11px] text-muted-foreground/40 hover:text-primary font-medium transition-colors">
                 <Clock className="w-3.5 h-3.5" /> سجل المحادثات
