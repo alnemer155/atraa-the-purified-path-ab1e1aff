@@ -1,31 +1,19 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Compass } from 'lucide-react';
+import { BookOpen, Compass, Hand } from 'lucide-react';
 import DuasPage from './DuasPage';
 import TasbihPage from './TasbihPage';
 import QiblaPage from './QiblaPage';
-
-const TasbihIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <circle cx="12" cy="6" r="2.5" />
-    <circle cx="12" cy="12" r="2.5" />
-    <circle cx="12" cy="18" r="2.5" />
-    <circle cx="6" cy="9" r="2.5" />
-    <circle cx="18" cy="9" r="2.5" />
-    <circle cx="6" cy="15" r="2.5" />
-    <circle cx="18" cy="15" r="2.5" />
-  </svg>
-);
 
 type Tab = 'duas' | 'tasbih' | 'qibla';
 
 const LibraryPage = () => {
   const [activeTab, setActiveTab] = useState<Tab>('duas');
 
-  const tabs: { key: Tab; label: string; icon: React.ReactNode; emoji: string }[] = [
-    { key: 'duas', label: 'الأدعية', icon: <BookOpen className="w-4 h-4" />, emoji: '📖' },
-    { key: 'tasbih', label: 'التسبيح', icon: <TasbihIcon className="w-4 h-4" />, emoji: '📿' },
-    { key: 'qibla', label: 'القبلة', icon: <Compass className="w-4 h-4" />, emoji: '🧭' },
+  const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
+    { key: 'duas', label: 'الأدعية', icon: <BookOpen className="w-4 h-4" /> },
+    { key: 'tasbih', label: 'التسبيح', icon: <Hand className="w-4 h-4" /> },
+    { key: 'qibla', label: 'القبلة', icon: <Compass className="w-4 h-4" /> },
   ];
 
   return (

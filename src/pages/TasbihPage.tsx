@@ -8,6 +8,7 @@ const tasbihatZahra = [
   { text: 'الحمد لله', target: 33 },
   { text: 'سبحان الله', target: 33 },
 ];
+];
 
 type TasbihMode = 'zahra' | 'open';
 
