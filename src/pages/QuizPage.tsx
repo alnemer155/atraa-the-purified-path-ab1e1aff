@@ -756,7 +756,7 @@ const QuizPage = () => {
                 <motion.div variants={fadeUp} custom={2} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-accent/8 border border-accent/15 mb-3">
                   <Gift className="w-4 h-4 text-accent-foreground" />
                   <span className="text-xs font-bold text-accent-foreground">
-                    +{bonus} نقطة هدية! {isFriday ? '🎁 جمعة مباركة' : ''} {special ? `🎁 ${special.name}` : ''}
+                    +{bonus} نقطة هدية! {isFriday ? 'جمعة مباركة' : ''} {special ? special.name : ''}
                   </span>
                 </motion.div>
               )}
