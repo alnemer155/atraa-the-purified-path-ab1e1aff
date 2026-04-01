@@ -98,7 +98,7 @@ const TasbihPage = () => {
       {/* Mode selector */}
       <div className="flex gap-2 mb-5" data-control>
         {[
-          { key: 'zahra' as const, label: 'تسبيح الزهراء ❁', desc: '١٠٠ تسبيحة' },
+          { key: 'zahra' as const, label: 'تسبيح الزهراء (ع)', desc: '١٠٠ تسبيحة' },
           { key: 'open' as const, label: 'تسبيح حر', desc: 'بلا حدود' },
         ].map(m => (
           <button
@@ -176,7 +176,7 @@ const TasbihPage = () => {
                   <div className="w-24 h-24 mx-auto mb-5 rounded-3xl islamic-gradient flex items-center justify-center shadow-xl shadow-primary/20">
                     <Check className="w-12 h-12 text-primary-foreground" />
                   </div>
-                  <p className="text-2xl font-bold text-foreground mb-1.5">تم بحمد الله ✦</p>
+                  <p className="text-2xl font-bold text-foreground mb-1.5">تم بحمد الله</p>
                   <p className="text-sm text-muted-foreground font-medium">{totalAll} تسبيحة</p>
                 </motion.div>
               ) : (

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Navigation, MapPin, LocateFixed, Info } from 'lucide-react';
+import { Navigation, MapPin, LocateFixed, Info, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const KAABA_LAT = 21.422487;
@@ -224,7 +224,7 @@ const QiblaPage = () => {
           {isPointingQibla && (
             <motion.div initial={{ opacity: 0, y: 8, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -5, scale: 0.95 }}
               className="flex items-center gap-2 mt-5 px-6 py-3 rounded-2xl islamic-gradient shadow-lg shadow-primary/15">
-              <span className="text-sm font-bold text-primary-foreground">✓ أنت تواجه القبلة</span>
+              <span className="text-sm font-bold text-primary-foreground flex items-center gap-1.5"><Check className="w-4 h-4" /> أنت تواجه القبلة</span>
             </motion.div>
           )}
         </AnimatePresence>

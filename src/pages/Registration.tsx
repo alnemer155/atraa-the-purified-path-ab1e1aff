@@ -339,7 +339,7 @@ const Registration = () => {
             {/* Submit */}
             <motion.div variants={fadeIn} className="pt-1">
               <button type="submit" disabled={!name.trim()} className={primaryBtnClass}>
-                {isEditing ? 'حفظ التغييرات' : '✦ متابعة بدون حساب'}
+                {isEditing ? 'حفظ التغييرات' : 'متابعة بدون حساب'}
               </button>
             </motion.div>
 

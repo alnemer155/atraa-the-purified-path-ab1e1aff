@@ -1,14 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import { parseDuasContent, type DuaItem } from '@/lib/duas-parser';
 import duasRaw from '@/data/duas-content.txt?raw';
-import { ChevronLeft, ChevronRight, Search, X, BookOpen, Star, Scroll } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, X, BookOpen, Landmark, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { saveLastReading } from '@/lib/user';
 
 const categories = [
-  { key: 'dua', label: 'الأدعية', icon: '🤲🏻', color: 'from-primary/12 to-primary/4' },
-  { key: 'ziyara', label: 'الزيارات', icon: '🕋', color: 'from-accent/15 to-accent/5' },
-  { key: 'dhikr', label: 'الأذكار', icon: '📿', color: 'from-primary/8 to-transparent' },
+  { key: 'dua', label: 'الأدعية', icon: BookOpen, color: 'from-primary/12 to-primary/4' },
+  { key: 'ziyara', label: 'الزيارات', icon: Landmark, color: 'from-accent/15 to-accent/5' },
+  { key: 'dhikr', label: 'الأذكار', icon: Heart, color: 'from-primary/8 to-transparent' },
 ];
 
 const categoryLabels: Record<string, string> = { dua: 'الأدعية', ziyara: 'الزيارات', dhikr: 'الأذكار' };
@@ -111,6 +111,7 @@ const DuasPage = () => {
         {categories.map(cat => {
           const isActive = activeCategory === cat.key;
           const count = categoryCount(cat.key);
+          const Icon = cat.icon;
           return (
             <button
               key={cat.key}
@@ -121,8 +122,10 @@ const DuasPage = () => {
                   : `bg-gradient-to-b ${cat.color} border border-border/20 text-foreground hover:border-primary/25`
               }`}
             >
-              <span className="text-lg block mb-0.5">{cat.icon}</span>
-              <span className={`text-[12px] font-bold block ${isActive ? '' : ''}`}>{cat.label}</span>
+              <div className="flex items-center justify-center mb-1">
+                <Icon className={`w-5 h-5 ${isActive ? 'text-primary-foreground' : 'text-primary/60'}`} />
+              </div>
+              <span className="text-[12px] font-bold block">{cat.label}</span>
               <span className={`text-[9px] font-medium block mt-0.5 ${isActive ? 'text-primary-foreground/60' : 'text-muted-foreground/60'}`}>
                 {count} عنصر
               </span>
