@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Square, Copy, Check, Share2, RefreshCw, Volume2, Plus, Image as ImageIcon, Search, BookOpen, X, ArrowRight, Trash2, Edit3, Clock, SortAsc, SortDesc } from 'lucide-react';
+import { Send, Square, Copy, Check, Share2, RefreshCw, Volume2, Plus, Image as ImageIcon, Search, BookOpen, X, ArrowRight, Trash2, Edit3, Clock, SortAsc, SortDesc, MessageCircle, Sparkles, AlertCircle, Compass } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { supabase } from '@/integrations/supabase/client';
 import aiLogo from '@/assets/ai-logo.png';
@@ -171,7 +171,7 @@ const AiPage = () => {
       console.error(e);
       toast.error(e.message || 'حدث خطأ');
       if (!assistantContent) {
-        setMessages(prev => [...prev, { id: assistantId, role: 'assistant', content: '⚠️ عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.' }]);
+        setMessages(prev => [...prev, { id: assistantId, role: 'assistant', content: 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.' }]);
       }
     } finally {
       setIsLoading(false);
@@ -183,10 +183,9 @@ const AiPage = () => {
 
   const extractSources = (text: string): any[] => {
     const sources: any[] = [];
-    [/(?:المصدر|المرجع|الكتاب)[:\s]+([^\n،,]+)/g, /(?:📚|📖)\s*([^\n]+)/g].forEach(p => {
-      let match;
-      while ((match = p.exec(text)) !== null) sources.push({ title: match[1].trim() });
-    });
+    const pattern = /(?:المصدر|المرجع|الكتاب)[:\s]+([^\n،,]+)/g;
+    let match;
+    while ((match = pattern.exec(text)) !== null) sources.push({ title: match[1].trim() });
     return sources;
   };
 
@@ -197,7 +196,7 @@ const AiPage = () => {
   };
 
   const shareMessage = async (content: string) => {
-    const shareText = `💬 من ذكاء عِتَرَةً (حُسين):\n\n${content.slice(0, 500)}${content.length > 500 ? '...' : ''}\n\nجرّب ذكاء عِتَرَةً: https://atraa.xyz/ai`;
+    const shareText = `من ذكاء عِتَرَةً (حُسين):\n\n${content.slice(0, 500)}${content.length > 500 ? '...' : ''}\n\nجرّب ذكاء عِتَرَةً: https://atraa.xyz/ai`;
     if (navigator.share) { try { await navigator.share({ text: shareText }); return; } catch {} }
     await navigator.clipboard.writeText(shareText);
     toast.success('تم نسخ الرد');
@@ -254,11 +253,16 @@ const AiPage = () => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   };
 
+  const quickSuggestions = [
+    { q: 'ما هي أركان الصلاة؟', icon: Compass },
+    { q: 'اشرح لي سورة الفاتحة', icon: BookOpen },
+    { q: 'ما هو دعاء كميل؟', icon: MessageCircle },
+  ];
+
   // ─── HISTORY VIEW ───
   if (showHistory) {
     return (
       <div className="flex flex-col h-[calc(100vh-130px)] animate-fade-in">
-        {/* Header */}
         <div className="px-5 py-4 border-b border-border/15 flex items-center justify-between bg-background/60 backdrop-blur-2xl">
           <button onClick={() => setShowHistory(false)} className="flex items-center gap-2 text-primary text-sm font-semibold group">
             <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
@@ -344,7 +348,7 @@ const AiPage = () => {
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
-              {/* AI Logo with glow */}
+              {/* AI Logo */}
               <div className="relative inline-block mb-5">
                 <div className="absolute inset-0 bg-primary/10 rounded-3xl blur-2xl scale-150" />
                 <img src={aiLogo} alt="حُسين" className="relative w-20 h-20 mx-auto rounded-3xl shadow-xl shadow-primary/10 object-contain" />
@@ -359,24 +363,20 @@ const AiPage = () => {
 
             {/* Quick suggestions */}
             <div className="mt-7 space-y-2.5 w-full max-w-xs">
-              {[
-                { q: 'ما هي أركان الصلاة؟', emoji: '🕌' },
-                { q: 'اشرح لي سورة الفاتحة', emoji: '📖' },
-                { q: 'ما هو دعاء كميل؟', emoji: '🤲🏻' },
-              ].map(({ q, emoji }, i) => (
+              {quickSuggestions.map(({ q, icon: Icon }, i) => (
                 <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
                   onClick={() => { setInput(q); sendMessage(q); }}
                   className="w-full text-right px-4 py-3.5 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/20 text-[13px] font-semibold text-foreground hover:border-primary/25 hover:shadow-md transition-all shadow-sm active:scale-[0.98] flex items-center gap-3.5 group">
-                  <div className="w-9 h-9 rounded-xl bg-primary/6 flex items-center justify-center flex-shrink-0 text-base group-hover:scale-105 transition-transform">
-                    {emoji}
+                  <div className="w-9 h-9 rounded-xl bg-primary/6 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/12 transition-colors">
+                    <Icon className="w-4 h-4 text-primary/50 group-hover:text-primary transition-colors" />
                   </div>
                   <span className="flex-1">{q}</span>
                 </motion.button>
               ))}
             </div>
 
-            {/* Subscription Plans - Coming Soon */}
+            {/* Subscription Plans */}
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
               className="mt-8 w-full max-w-xs">
               <p className="text-[10px] text-muted-foreground/40 font-bold mb-2.5 text-center">خطط الاشتراك</p>
@@ -404,7 +404,7 @@ const AiPage = () => {
                   <div className="flex items-center justify-between opacity-60">
                     <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-xl islamic-gradient flex items-center justify-center">
-                        <Search className="w-4 h-4 text-primary-foreground" />
+                        <Sparkles className="w-4 h-4 text-primary-foreground" />
                       </div>
                       <div>
                         <p className="text-[12px] font-bold text-foreground">تيتانيوم</p>
