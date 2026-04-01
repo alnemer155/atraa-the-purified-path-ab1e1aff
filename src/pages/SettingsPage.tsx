@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, MessageCircle, Share2, Download, Copy, Check, Smartphone, LogOut, MailCheck, Send, Sparkles, Heart } from 'lucide-react';
+import { Bell, Shield, FileText, Mail, ExternalLink, ChevronLeft, Info, User, Code2, Calendar, Globe, Moon, Sun, MessageCircle, Share2, Download, Copy, Check, Smartphone, LogOut, MailCheck, Send, Sparkles, Heart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUser, getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
 import CityPicker from '@/components/CityPicker';
