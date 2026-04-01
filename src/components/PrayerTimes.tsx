@@ -161,7 +161,6 @@ const PrayerTimes = () => {
       </div>
       {!isSupported ? (
         <div className="flex flex-col items-center gap-2.5 py-8">
-          <span className="text-3xl">⏳</span>
           <p className="text-xs text-muted-foreground text-center leading-relaxed">
             سيتم دعم <span className="font-bold text-foreground">{currentCity}</span> قريباً بإذن الله
           </p>

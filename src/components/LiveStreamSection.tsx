@@ -69,7 +69,7 @@ const LiveStreamSection = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive"></span>
             </span>
-            <span className="text-[9px] text-destructive font-semibold">LIVE</span>
+            <span className="text-[9px] text-destructive font-semibold">مباشر</span>
           </div>
         </div>
         {currentTime && (
@@ -100,7 +100,7 @@ const LiveStreamSection = () => {
             </div>
             <div className="flex-1 min-w-0 text-right">
               <p className="text-[13px] font-bold text-foreground truncate">{channel.name}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{channel.nameEn}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">بث مباشر</p>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground/30 flex-shrink-0 group-hover:text-primary transition-colors" />
           </motion.button>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getUser, getGreeting, getLastReading, getTasbihState } from '@/lib/user';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, RotateCcw, ChevronLeft } from 'lucide-react';
+import { BookOpen, RotateCcw, ChevronLeft, Minus } from 'lucide-react';
 import PrayerTimes from '@/components/PrayerTimes';
 import WeatherWidget from '@/components/WeatherWidget';
 import HijriCountdown from '@/components/HijriCountdown';
@@ -33,25 +33,21 @@ const stagger = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.06, delayChildren: 0.05 },
+    transition: { staggerChildren: 0.07, delayChildren: 0.04 },
   },
 };
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+  hidden: { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 };
 
-const SectionHeader = ({ icon: Icon, title, iconBg, extra }: { icon: any; title: string; iconBg: string; extra?: React.ReactNode }) => (
-  <div className="flex items-center justify-between mb-3.5">
-    <div className="flex items-center gap-2.5">
-      <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${iconBg}`}>
-        <Icon className="w-4 h-4" />
-      </div>
-      <h2 className="text-sm font-bold text-foreground">{title}</h2>
-    </div>
-    {extra}
-  </div>
+const SectionDivider = ({ label }: { label: string }) => (
+  <motion.div variants={fadeUp} className="flex items-center gap-3 py-2">
+    <div className="flex-1 h-px bg-border/30" />
+    <span className="text-[10px] text-muted-foreground/50 font-bold tracking-wider">{label}</span>
+    <div className="flex-1 h-px bg-border/30" />
+  </motion.div>
 );
 
 const HomePage = () => {
@@ -88,45 +84,38 @@ const HomePage = () => {
       animate="visible"
       className="pb-6"
     >
-      {/* ── Hero Greeting ── */}
-      <motion.div variants={fadeUp} className="relative overflow-hidden px-5 pt-5 pb-6">
-        {/* Decorative bg */}
-        <div className="absolute inset-0 islamic-gradient opacity-[0.04] dark:opacity-[0.08]" />
-        <div className="absolute top-0 left-0 w-32 h-32 rounded-full bg-primary/5 -translate-x-1/2 -translate-y-1/2 blur-2xl" />
-        <div className="absolute bottom-0 right-0 w-24 h-24 rounded-full bg-accent/10 translate-x-1/3 translate-y-1/3 blur-2xl" />
-        
-        <div className="relative">
-          <h1 className="text-xl font-bold text-foreground leading-snug tracking-tight">
-            {getGreeting(user)}
-          </h1>
-          <div className="h-6 overflow-hidden mt-1.5">
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={dhikrIndex}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.35 }}
-                className="text-xs text-primary/70 font-semibold"
-              >
-                ✦ {dhikrPhrases[dhikrIndex]}
-              </motion.p>
-            </AnimatePresence>
-          </div>
+      {/* ── التحية ── */}
+      <motion.div variants={fadeUp} className="px-5 pt-6 pb-5">
+        <h1 className="text-xl font-bold text-foreground leading-snug tracking-tight">
+          {getGreeting(user)}
+        </h1>
+        <div className="h-5 overflow-hidden mt-1.5">
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={dhikrIndex}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.3 }}
+              className="text-[11px] text-muted-foreground font-semibold"
+            >
+              {dhikrPhrases[dhikrIndex]}
+            </motion.p>
+          </AnimatePresence>
         </div>
       </motion.div>
 
-      <div className="px-4 space-y-6">
-        {/* ── Resume Cards ── */}
+      <div className="px-4 space-y-5">
+        {/* ── بطاقات المتابعة ── */}
         {(showTasbihResume || showLastReading) && (
-          <motion.div variants={fadeUp} className="space-y-2.5">
+          <motion.div variants={fadeUp} className="space-y-2">
             {showTasbihResume && tasbihState && (
               <button
                 onClick={() => navigate('/library')}
-                className="w-full flex items-center gap-3.5 p-4 rounded-2xl glass-card hover:border-primary/30 transition-all text-right active:scale-[0.98] group"
+                className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-card border border-border/40 transition-all text-right active:scale-[0.98] group"
               >
-                <div className="w-11 h-11 rounded-xl islamic-gradient flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow">
-                  <RotateCcw className="w-5 h-5 text-primary-foreground" />
+                <div className="w-10 h-10 rounded-xl bg-primary/10 dark:bg-primary/15 flex items-center justify-center flex-shrink-0">
+                  <RotateCcw className="w-4.5 h-4.5 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] font-bold text-foreground">متابعة التسبيح</p>
@@ -137,17 +126,17 @@ const HomePage = () => {
                     }
                   </p>
                 </div>
-                <ChevronLeft className="w-4 h-4 text-muted-foreground/20 flex-shrink-0 group-hover:text-primary/40 group-hover:-translate-x-0.5 transition-all" />
+                <ChevronLeft className="w-4 h-4 text-muted-foreground/30 flex-shrink-0 group-hover:text-primary/50 transition-colors" />
               </button>
             )}
 
             {showLastReading && lastReading && (
               <button
                 onClick={() => navigate('/library')}
-                className="w-full flex items-center gap-3.5 p-4 rounded-2xl glass-card hover:border-primary/30 transition-all text-right active:scale-[0.98] group"
+                className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-card border border-border/40 transition-all text-right active:scale-[0.98] group"
               >
-                <div className="w-11 h-11 rounded-xl bg-accent/15 flex items-center justify-center flex-shrink-0">
-                  <BookOpen className="w-5 h-5 text-accent-foreground" />
+                <div className="w-10 h-10 rounded-xl bg-primary/10 dark:bg-primary/15 flex items-center justify-center flex-shrink-0">
+                  <BookOpen className="w-4.5 h-4.5 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] font-bold text-foreground">متابعة القراءة</p>
@@ -155,62 +144,54 @@ const HomePage = () => {
                     {categoryLabels[lastReading.category] || ''} · {lastReading.title}
                   </p>
                 </div>
-                <ChevronLeft className="w-4 h-4 text-muted-foreground/20 flex-shrink-0 group-hover:text-primary/40 group-hover:-translate-x-0.5 transition-all" />
+                <ChevronLeft className="w-4 h-4 text-muted-foreground/30 flex-shrink-0 group-hover:text-primary/50 transition-colors" />
               </button>
             )}
           </motion.div>
         )}
 
-        {/* ── Weather + Hijri ── */}
-        <motion.div variants={fadeUp} className="grid grid-cols-2 gap-3">
+        {/* ── الطقس والتقويم ── */}
+        <motion.div variants={fadeUp} className="grid grid-cols-2 gap-2.5">
           <WeatherWidget />
           <HijriCountdown />
         </motion.div>
 
-        {/* ── Prayer Times ── */}
+        {/* ── أوقات الصلاة ── */}
         <motion.div variants={fadeUp}>
           <PrayerTimes />
         </motion.div>
 
-        {/* ── Divider ── */}
-        <motion.div variants={fadeUp} className="flex items-center gap-3 py-1">
-          <div className="flex-1 h-px bg-border/40" />
-          <span className="text-[10px] text-muted-foreground/40 font-semibold tracking-wider">الوسائط</span>
-          <div className="flex-1 h-px bg-border/40" />
-        </motion.div>
+        <SectionDivider label="الوسائط" />
 
-        {/* ── Listening ── */}
+        {/* ── الاستماع ── */}
         <motion.div variants={fadeUp}>
           <ListeningSection />
         </motion.div>
 
-        {/* ── Live Stream ── */}
+        {/* ── البث المباشر ── */}
         <motion.div variants={fadeUp}>
           <LiveStreamSection />
         </motion.div>
 
-        {/* ── Wallpapers ── */}
+        {/* ── الخلفيات ── */}
         <motion.div variants={fadeUp}>
           <WallpapersSection />
         </motion.div>
 
-        {/* ── Divider ── */}
-        <motion.div variants={fadeUp} className="flex items-center gap-3 py-1">
-          <div className="flex-1 h-px bg-border/40" />
-          <span className="text-[10px] text-muted-foreground/40 font-semibold tracking-wider">اقتراحات</span>
-          <div className="flex-1 h-px bg-border/40" />
-        </motion.div>
+        <SectionDivider label="اقتراحات" />
 
-        {/* ── Daily Recommendations ── */}
+        {/* ── مقترحات اليوم ── */}
         <motion.div variants={fadeUp}>
           <DailyRecommendations />
         </motion.div>
 
-        {/* ── Footer ── */}
-        <motion.div variants={fadeUp} className="text-center pt-4 pb-2">
+        {/* ── التذييل ── */}
+        <motion.div variants={fadeUp} className="flex items-center justify-center gap-2 pt-6 pb-3">
+          <Minus className="w-3 h-3 text-muted-foreground/20" />
           <p className="text-[10px] text-muted-foreground/30 font-medium">
-            عِتَرَةً · v4.0 بناء 200
+            عِتَرَةً · الإصدار ٤.٠ · بناء ٢٠٠
           </p>
+          <Minus className="w-3 h-3 text-muted-foreground/20" />
         </motion.div>
       </div>
     </motion.div>
