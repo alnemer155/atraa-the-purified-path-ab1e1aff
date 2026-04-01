@@ -47,6 +47,14 @@ const SettingsPage = () => {
   const [emailNotif, setEmailNotif] = useState(false);
   const [emailNotifLoading, setEmailNotifLoading] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
+  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
+
+  const toggleTheme = () => {
+    const next = !isDark;
+    setIsDark(next);
+    document.documentElement.classList.toggle('dark', next);
+    localStorage.setItem('atraa_theme', next ? 'dark' : 'light');
+  };
 
   useEffect(() => {
     const loadEmailPref = async () => {
