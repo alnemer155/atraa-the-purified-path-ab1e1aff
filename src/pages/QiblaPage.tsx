@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Navigation, MapPin, LocateFixed, Info } from 'lucide-react';
+import { Navigation, MapPin, LocateFixed, Info, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const KAABA_LAT = 21.422487;
