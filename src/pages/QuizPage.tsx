@@ -937,7 +937,9 @@ const QuizPage = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/25 backdrop-blur-md px-6" onClick={() => setStatusInfoIdx(null)}>
             <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.85, opacity: 0 }} transition={{ type: 'spring', stiffness: 350, damping: 25 }}
               className="bg-card rounded-3xl p-7 shadow-elevated max-w-sm w-full text-center border border-border/40" onClick={(e) => e.stopPropagation()}>
-              <p className="text-5xl mb-4">{statusInfoIdx === 0 ? '🫡' : '❗️'}</p>
+              <div className="w-16 h-16 rounded-3xl mx-auto mb-4 flex items-center justify-center {statusInfoIdx === 0 ? 'bg-primary/10' : 'bg-destructive/10'}">
+                {statusInfoIdx === 0 ? <CheckCircle className="w-8 h-8 text-primary" /> : <AlertTriangle className="w-8 h-8 text-destructive" />}
+              </div>
               <p className="text-sm font-bold text-foreground mb-2">{statusInfoIdx === 0 ? statusInfoTexts.solved.title : statusInfoTexts.missed.title}</p>
               <p className="text-xs text-muted-foreground leading-relaxed">{statusInfoIdx === 0 ? statusInfoTexts.solved.desc : statusInfoTexts.missed.desc}</p>
               <motion.button whileTap={{ scale: 0.95 }} onClick={() => setStatusInfoIdx(null)} className="mt-6 px-8 py-2.5 rounded-2xl bg-secondary text-foreground text-sm font-semibold">حسناً</motion.button>
