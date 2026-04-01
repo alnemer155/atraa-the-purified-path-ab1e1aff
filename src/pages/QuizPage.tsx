@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Share2, Clock, ChevronLeft, Info, Copy, Check, Lightbulb, Gift, Calendar as CalendarIcon, Timer, Users, Sparkles, ArrowLeft, Edit3, Star, Zap, Target, Crown, Medal, Award, TrendingUp, BookOpen } from 'lucide-react';
+import { Trophy, Share2, Clock, ChevronLeft, Info, Copy, Check, Lightbulb, Gift, Calendar as CalendarIcon, Timer, Users, Sparkles, ArrowLeft, Edit3, Star, Zap, Target, Crown, Medal, Award, TrendingUp, BookOpen, X as XIcon, AlertTriangle, CheckCircle, CircleDot, PartyPopper, ThumbsUp, Flame, Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getUser } from '@/lib/user';
 import quizFace from '@/assets/quiz/quiz-face.png';
@@ -208,7 +208,7 @@ const QuizPage = () => {
     if (!nickname) { setRegError('يرجى إدخال اللقب'); return; }
     const age = parseInt(regAge);
     if (isNaN(age)) { setRegError('يرجى إدخال العمر'); return; }
-    if (age >= 99) { setRegError('لك طولت العمر إذا قربت من الـ ١٠٠ افصل الشاحن 😂'); return; }
+    if (age >= 99) { setRegError('العمر يجب أن يكون أقل من ١٠٠ سنة'); return; }
     if (age < 12 || age > 60) { setRegError('العمر يجب أن يكون بين ١٢ و ٦٠ سنة'); return; }
     if (regBio.length > 30) { setRegError('النبذة ٣٠ حرف كحد أقصى'); return; }
     if (!regAgreed) { setRegError('يجب الموافقة على سياسات الموقع وشروط المسابقة'); return; }
@@ -316,8 +316,8 @@ const QuizPage = () => {
   };
 
   const statusInfoTexts = {
-    solved: { title: 'هذا يعني تم حل سؤال اليوم بنجاح ✅', desc: 'أحسنت! لقد أجبت على سؤال اليوم وحصلت على نقطتين في رصيدك، استعد لسؤال الغداً' },
-    missed: { title: 'هذا يعني فاتك السؤال ❌', desc: 'لا تقلق! سيكون هناك سؤال جديد غداً من الساعة 9:00 صباحاً، لا تفوّته' },
+    solved: { title: 'تم حل سؤال اليوم بنجاح', desc: 'أحسنت! لقد أجبت على سؤال اليوم وحصلت على نقطتين في رصيدك، استعد لسؤال الغداً' },
+    missed: { title: 'فاتك السؤال', desc: 'لا تقلق! سيكون هناك سؤال جديد غداً من الساعة 9:00 صباحاً، لا تفوّته' },
   };
 
   /* ─── LOADING ─── */
@@ -724,7 +724,9 @@ const QuizPage = () => {
         <motion.div initial="hidden" animate="visible" className="text-center w-full max-w-sm">
           {/* Emoji celebration */}
           <motion.div variants={scaleIn} className="mb-6">
-            <div className="text-7xl mb-2">{perfect ? '🎉' : todayScore >= 6 ? '🌟' : todayScore >= 4 ? '👏' : '💪🏻'}</div>
+            <div className="w-20 h-20 rounded-3xl mx-auto flex items-center justify-center islamic-gradient shadow-elevated">
+              {perfect ? <PartyPopper className="w-10 h-10 text-primary-foreground" /> : todayScore >= 6 ? <Star className="w-10 h-10 text-primary-foreground" /> : todayScore >= 4 ? <ThumbsUp className="w-10 h-10 text-primary-foreground" /> : <Flame className="w-10 h-10 text-primary-foreground" />}
+            </div>
           </motion.div>
 
           {/* Score card */}
@@ -754,7 +756,7 @@ const QuizPage = () => {
                 <motion.div variants={fadeUp} custom={2} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-accent/8 border border-accent/15 mb-3">
                   <Gift className="w-4 h-4 text-accent-foreground" />
                   <span className="text-xs font-bold text-accent-foreground">
-                    +{bonus} نقطة هدية! {isFriday ? '🎁 جمعة مباركة' : ''} {special ? `🎁 ${special.name}` : ''}
+                    +{bonus} نقطة هدية! {isFriday ? 'جمعة مباركة' : ''} {special ? special.name : ''}
                   </span>
                 </motion.div>
               )}
@@ -835,7 +837,9 @@ const QuizPage = () => {
         {isAfterEnd && (
           <motion.div variants={fadeUp} custom={1}>
             <GlassCard className="text-center p-5">
-              <div className="text-4xl mb-3">🏁</div>
+              <div className="w-14 h-14 rounded-3xl bg-secondary/40 flex items-center justify-center mx-auto mb-3">
+                <Trophy className="w-7 h-7 text-muted-foreground/50" />
+              </div>
               <p className="text-sm font-bold text-foreground">انتهت المسابقة</p>
               <p className="text-xs text-muted-foreground mt-1">شكراً لمشاركتك!</p>
             </GlassCard>
@@ -859,7 +863,9 @@ const QuizPage = () => {
           <motion.div variants={fadeUp} custom={1.5}>
             <GlassCard className="p-4 !bg-accent/5 !border-accent/15">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-accent/15 flex items-center justify-center text-xl">🎁</div>
+                <div className="w-11 h-11 rounded-2xl bg-accent/15 flex items-center justify-center">
+                  <Gift className="w-5 h-5 text-accent-foreground" />
+                </div>
                 <div>
                   <p className="text-xs font-bold text-foreground">هدية اليوم: {SPECIAL_DATES[today].name}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">+{SPECIAL_DATES[today].bonus} نقاط هدية عند حل أسئلة اليوم</p>
@@ -873,7 +879,9 @@ const QuizPage = () => {
           <motion.div variants={fadeUp} custom={1.5}>
             <GlassCard className="p-4 !bg-accent/5 !border-accent/15">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-accent/15 flex items-center justify-center text-xl">🎁</div>
+                <div className="w-11 h-11 rounded-2xl bg-accent/15 flex items-center justify-center">
+                  <Gift className="w-5 h-5 text-accent-foreground" />
+                </div>
                 <div>
                   <p className="text-xs font-bold text-foreground">جمعة مباركة! سؤال مغشوش (نقطتان هدية) + ١.٥ نقطة إضافية</p>
                 </div>
@@ -906,16 +914,16 @@ const QuizPage = () => {
               {todayAnswered ? (
                 <motion.button whileTap={{ scale: 0.9 }} onClick={() => setStatusInfoIdx(0)}
                   className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-primary/8 border border-primary/15">
-                  <span className="text-sm">🫡</span><span className="text-[11px] font-bold text-primary">تم الحل</span>
+                  <CheckCircle className="w-4 h-4 text-primary" /><span className="text-[11px] font-bold text-primary">تم الحل</span>
                 </motion.button>
               ) : !questionsAvailable && isQuizActive() ? (
                 <motion.button whileTap={{ scale: 0.9 }} onClick={() => setStatusInfoIdx(1)}
                   className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-destructive/8 border border-destructive/15">
-                  <span className="text-sm">❗️</span><span className="text-[11px] font-bold text-destructive">فاتك</span>
+                  <AlertTriangle className="w-4 h-4 text-destructive" /><span className="text-[11px] font-bold text-destructive">فاتك</span>
                 </motion.button>
               ) : isQuizActive() ? (
                 <div className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-accent/8 border border-accent/15">
-                  <span className="text-sm">⏳</span><span className="text-[11px] font-bold text-accent-foreground">لم يُحل</span>
+                  <CircleDot className="w-4 h-4 text-accent-foreground" /><span className="text-[11px] font-bold text-accent-foreground">لم يُحل</span>
                 </div>
               ) : null}
             </div>
@@ -929,7 +937,9 @@ const QuizPage = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/25 backdrop-blur-md px-6" onClick={() => setStatusInfoIdx(null)}>
             <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.85, opacity: 0 }} transition={{ type: 'spring', stiffness: 350, damping: 25 }}
               className="bg-card rounded-3xl p-7 shadow-elevated max-w-sm w-full text-center border border-border/40" onClick={(e) => e.stopPropagation()}>
-              <p className="text-5xl mb-4">{statusInfoIdx === 0 ? '🫡' : '❗️'}</p>
+              <div className={`w-16 h-16 rounded-3xl mx-auto mb-4 flex items-center justify-center ${statusInfoIdx === 0 ? 'bg-primary/10' : 'bg-destructive/10'}`}>
+                {statusInfoIdx === 0 ? <CheckCircle className="w-8 h-8 text-primary" /> : <AlertTriangle className="w-8 h-8 text-destructive" />}
+              </div>
               <p className="text-sm font-bold text-foreground mb-2">{statusInfoIdx === 0 ? statusInfoTexts.solved.title : statusInfoTexts.missed.title}</p>
               <p className="text-xs text-muted-foreground leading-relaxed">{statusInfoIdx === 0 ? statusInfoTexts.solved.desc : statusInfoTexts.missed.desc}</p>
               <motion.button whileTap={{ scale: 0.95 }} onClick={() => setStatusInfoIdx(null)} className="mt-6 px-8 py-2.5 rounded-2xl bg-secondary text-foreground text-sm font-semibold">حسناً</motion.button>
@@ -966,11 +976,11 @@ const QuizPage = () => {
                             isToday ? 'ring-2 ring-primary bg-primary/8' : isPast && answeredDay ? 'bg-primary/6' : isPast ? 'bg-destructive/5' : 'bg-secondary/30 opacity-35'
                           } ${day.isFriday ? 'border border-accent/25' : ''} ${day.special ? 'border-2 border-accent/60' : ''}`}>
                           <span className="text-foreground">{day.dayNum}</span>
-                          {isPast && answeredDay && <span className="text-[8px]">🫡</span>}
-                          {isPast && !answeredDay && <span className="text-[8px]">❗️</span>}
-                          {isToday && !todayAnswered && <span className="text-[8px]">⏳</span>}
-                          {isToday && todayAnswered && <span className="text-[8px]">🫡</span>}
-                          {day.isFriday && <span className="text-[7px]">🎁</span>}
+                          {isPast && answeredDay && <Check className="w-2.5 h-2.5 text-primary" />}
+                          {isPast && !answeredDay && <XIcon className="w-2.5 h-2.5 text-destructive" />}
+                          {isToday && !todayAnswered && <CircleDot className="w-2.5 h-2.5 text-accent-foreground" />}
+                          {isToday && todayAnswered && <Check className="w-2.5 h-2.5 text-primary" />}
+                          {day.isFriday && <Gift className="w-2.5 h-2.5 text-accent-foreground" />}
                         </motion.button>
                       );
                     })}
@@ -990,7 +1000,7 @@ const QuizPage = () => {
               className="bg-card rounded-3xl p-5 shadow-elevated max-w-sm w-full max-h-[70vh] overflow-y-auto border border-border/40" onClick={(e) => e.stopPropagation()}>
               <h3 className="text-sm font-bold text-foreground mb-1">أسئلة يوم {selectedDay.date}</h3>
               <p className="text-xs text-muted-foreground mb-4">
-                {selectedDay.solved ? `✅ تم الحل · ${selectedDay.score} نقاط` : '❌ لم يتم الحل'}
+                {selectedDay.solved ? `تم الحل · ${selectedDay.score} نقاط` : 'لم يتم الحل'}
               </p>
               {selectedDay.questions.map((q: QuizQuestion, i: number) => (
                 <div key={i} className="mb-4 p-3.5 rounded-2xl bg-secondary/40 border border-border/30">
@@ -1007,7 +1017,7 @@ const QuizPage = () => {
                     })}
                   </div>
                   {!selectedDay.solved && (
-                    <p className="text-[10px] text-primary mt-2.5 font-semibold">📚 راجع الموضوع واستعد ليوم جديد!</p>
+                    <p className="text-[10px] text-primary mt-2.5 font-semibold">راجع الموضوع واستعد ليوم جديد</p>
                   )}
                 </div>
               ))}
