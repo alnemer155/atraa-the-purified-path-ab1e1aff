@@ -351,7 +351,9 @@ const SettingsPage = () => {
               ].map((platform) => (
                 <div key={platform.title} className="mb-5">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-lg">{platform.emoji}</span>
+                    <div className="w-7 h-7 rounded-lg bg-primary/8 flex items-center justify-center">
+                      <platform.icon className="w-3.5 h-3.5 text-primary" />
+                    </div>
                     <h3 className="text-sm font-bold text-foreground">{platform.title}</h3>
                   </div>
                   <div className="space-y-2 pr-1">
