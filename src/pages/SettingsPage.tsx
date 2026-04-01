@@ -489,7 +489,7 @@ const SettingsPage = () => {
           <Heart className="w-3 h-3 text-primary" />
           <p className="text-[11px] font-semibold text-foreground">عِتَرَةً</p>
         </div>
-        <p className="text-[9px] text-muted-foreground/40 font-mono tabular-nums">v3.3 · بناء 160</p>
+        <p className="text-[9px] text-muted-foreground/40 font-mono tabular-nums">v4.0 · بناء 200</p>
       </motion.div>
 
       {/* Contact Form Modal */}
