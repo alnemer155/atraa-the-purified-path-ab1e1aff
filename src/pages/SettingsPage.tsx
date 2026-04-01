@@ -183,7 +183,7 @@ const SettingsPage = () => {
           <GlassCard className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 rounded-2xl islamic-gradient flex items-center justify-center shadow-elevated">
-                <span className="text-2xl">{user.title === 'سيد' ? '🧕🏻' : '👤'}</span>
+                <User className="w-7 h-7 text-primary-foreground" />
               </div>
               <div className="flex-1 text-right min-w-0">
                 <p className="text-sm font-bold text-foreground truncate">
