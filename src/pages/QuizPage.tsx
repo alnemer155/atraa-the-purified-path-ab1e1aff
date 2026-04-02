@@ -6,7 +6,7 @@ import { getUser } from '@/lib/user';
 import quizFace from '@/assets/quiz/quiz-face.png';
 import quizQuestionsImg from '@/assets/quiz/quiz-questions.png';
 
-const QUIZ_EMOJIS = ['😎', '🍁', '📿', '🌙', '❤️', '🤲🏻', '😶‍🌫️', '🫥', '🫠', '👻', '👾', '💪🏻', '👀', '⚽️', '🎱', '🚗', '🗿', '🕋', '🙂', '💡'];
+const QUIZ_EMOJIS = ['😎', '🍁', '📿', '🌙', '❤️', '🤲🏻', '😶‍🌫️', '🫥', '🫠', '👻', '👾', '💪🏻', '👀', '⚽️', '🎱', '🚗', '🗿', '🕋', '🙂', '💡', '🤯', '😶', '🏆', '🥇', '🎖️', '🏅'];
 
 const QUIZ_START = new Date('2026-03-21T00:00:00+03:00');
 const QUIZ_END = new Date('2026-05-21T23:59:59+03:00');
