@@ -18,8 +18,8 @@ const BottomNav = () => {
       className="fixed bottom-0 left-0 right-0 z-50"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
-      <div className="mx-2.5 mb-2 rounded-2xl border border-border/20 shadow-[0_4px_24px_-4px_hsl(var(--foreground)/0.08)] overflow-hidden">
-        <div className="bg-card/55 backdrop-blur-3xl backdrop-saturate-[1.9]">
+      <div className="mx-3 mb-2 rounded-2xl border border-border/30 overflow-hidden">
+        <div className="bg-card/80 backdrop-blur-2xl">
           <div className="flex items-center justify-around px-1 py-1">
             {navItems.map(({ path, label, icon: Icon }) => {
               const isActive = location.pathname === path;
@@ -35,7 +35,7 @@ const BottomNav = () => {
                   {isActive && (
                     <motion.div
                       layoutId="nav-pill"
-                      className="absolute inset-0 rounded-[14px] bg-primary/8"
+                      className="absolute inset-0 rounded-[14px] bg-foreground/5"
                       transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
                   )}
@@ -43,15 +43,15 @@ const BottomNav = () => {
                     <Icon
                       className={`w-[19px] h-[19px] transition-all duration-200 ${
                         isActive
-                          ? 'text-primary'
-                          : 'text-muted-foreground/60 group-hover:text-foreground/70'
+                          ? 'text-foreground'
+                          : 'text-muted-foreground/50'
                       }`}
                       strokeWidth={isActive ? 2.2 : 1.6}
                     />
                   </div>
                   <span
                     className={`relative z-10 text-[9px] leading-none font-semibold transition-all duration-200 ${
-                      isActive ? 'text-primary' : 'text-muted-foreground/50 group-hover:text-foreground/50'
+                      isActive ? 'text-foreground' : 'text-muted-foreground/40'
                     }`}
                   >
                     {label}
