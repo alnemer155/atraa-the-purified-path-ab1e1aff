@@ -189,7 +189,7 @@ const HomePage = () => {
         <motion.div variants={fadeUp} className="flex items-center justify-center gap-2 pt-6 pb-3">
           <Minus className="w-3 h-3 text-muted-foreground/20" />
           <p className="text-[10px] text-muted-foreground/30 font-medium">
-            عِتَرَةً · الإصدار ٥.٠ · بناء ٣٠٠
+            عِتَرَةً · الإصدار ٤.٠ · بناء ٢٠٠
           </p>
           <Minus className="w-3 h-3 text-muted-foreground/20" />
         </motion.div>
