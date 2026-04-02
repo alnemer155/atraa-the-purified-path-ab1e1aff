@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,36 +6,36 @@
 
 @layer base {
   :root {
-    --background: 40 20% 97%;
-    --foreground: 150 30% 12%;
+    --background: 30 15% 98%;
+    --foreground: 160 25% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 150 30% 12%;
+    --card-foreground: 160 25% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 150 30% 12%;
+    --popover-foreground: 160 25% 10%;
 
-    --primary: 152 42% 22%;
-    --primary-foreground: 40 30% 97%;
+    --primary: 155 38% 18%;
+    --primary-foreground: 30 20% 98%;
 
-    --primary-light: 150 30% 94%;
-    --primary-glow: 148 45% 30%;
+    --primary-light: 150 25% 95%;
+    --primary-glow: 150 40% 26%;
 
-    --secondary: 40 20% 95%;
-    --secondary-foreground: 150 30% 18%;
+    --secondary: 30 12% 95%;
+    --secondary-foreground: 160 20% 16%;
 
-    --muted: 40 15% 93%;
-    --muted-foreground: 150 10% 45%;
+    --muted: 30 10% 94%;
+    --muted-foreground: 160 8% 42%;
 
-    --accent: 45 70% 55%;
-    --accent-foreground: 150 30% 12%;
+    --accent: 42 65% 52%;
+    --accent-foreground: 160 25% 10%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 150 15% 88%;
-    --input: 150 15% 88%;
-    --ring: 152 42% 22%;
+    --border: 150 8% 90%;
+    --input: 150 8% 90%;
+    --ring: 155 38% 18%;
 
     --radius: 1rem;
 
@@ -48,39 +48,39 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    --gold: 45 70% 55%;
-    --gold-light: 45 60% 90%;
+    --gold: 42 65% 52%;
+    --gold-light: 42 50% 92%;
 
-    --gradient-islamic: linear-gradient(135deg, hsl(152 42% 22%), hsl(148 45% 30%));
-    --gradient-gold: linear-gradient(135deg, hsl(45 70% 55%), hsl(40 60% 65%));
-    --shadow-card: 0 1px 8px -2px hsl(150 30% 12% / 0.06), 0 1px 2px -1px hsl(150 30% 12% / 0.04);
-    --shadow-elevated: 0 8px 30px -8px hsl(150 30% 12% / 0.12);
+    --gradient-islamic: linear-gradient(135deg, hsl(155 38% 18%), hsl(150 40% 26%));
+    --gradient-gold: linear-gradient(135deg, hsl(42 65% 52%), hsl(38 55% 62%));
+    --shadow-card: 0 1px 3px 0 hsl(160 25% 10% / 0.04), 0 1px 2px -1px hsl(160 25% 10% / 0.03);
+    --shadow-elevated: 0 4px 20px -4px hsl(160 25% 10% / 0.08);
   }
 
   .dark {
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
-    --card: 0 0% 6%;
+    --card: 0 0% 5%;
     --card-foreground: 0 0% 100%;
-    --popover: 0 0% 6%;
+    --popover: 0 0% 5%;
     --popover-foreground: 0 0% 100%;
     --primary: 0 0% 100%;
     --primary-foreground: 0 0% 0%;
-    --primary-light: 0 0% 10%;
+    --primary-light: 0 0% 8%;
     --primary-glow: 0 0% 85%;
-    --secondary: 0 0% 10%;
+    --secondary: 0 0% 8%;
     --secondary-foreground: 0 0% 90%;
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 55%;
     --accent: 0 0% 80%;
     --accent-foreground: 0 0% 0%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
     --ring: 0 0% 100%;
     --gold: 0 0% 80%;
-    --gold-light: 0 0% 12%;
+    --gold-light: 0 0% 10%;
   }
 }
 
@@ -147,14 +147,32 @@
     display: none;
   }
 
-  /* Religious text sections - bold weight for readability */
   .religious-text {
     font-weight: 700;
     line-height: 2.2;
   }
 
-  /* Glass card utility */
   .glass-card {
-    @apply bg-card/80 backdrop-blur-xl border border-border/40 rounded-2xl shadow-card;
+    @apply bg-card/90 backdrop-blur-xl border border-border/30 rounded-2xl;
+    box-shadow: var(--shadow-card);
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.2); }
+    50% { box-shadow: 0 0 20px 4px hsl(var(--primary) / 0.15); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-shimmer {
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
   }
 }
