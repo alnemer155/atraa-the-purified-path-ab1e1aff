@@ -463,7 +463,7 @@ const SettingsPage = () => {
             </motion.button>
 
             {[
-              { href: 'https://abj-dev.vercel.app', icon: Globe, label: 'موقع المطوّر', value: 'Platform Dev' },
+              { href: 'https://abj-dev.xyz', icon: Globe, label: 'موقع المطوّر', value: 'Platform Dev' },
               { href: 'https://whatsapp.com/channel/0029VbCNwblJZg466AM5CC2R', icon: MessageCircle, label: 'قناة واتساب', value: 'قــناة عِتْرَةً' },
               { href: 'https://instagram.com/nr_aj5', icon: ExternalLink, label: 'Instagram', value: '@nr_aj5' },
               { href: 'mailto:a.jaafar.dev@gmail.com', icon: Mail, label: 'البريد الإلكتروني', value: 'a.jaafar.dev@gmail.com' },
