@@ -43,7 +43,7 @@ serve(async (req) => {
     });
   } catch (e) {
     console.error("share error:", e);
-    return new Response(JSON.stringify({ error: e.message || "Unknown error" }), {
+    return new Response(JSON.stringify({ error: (e as Error).message || "Unknown error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
