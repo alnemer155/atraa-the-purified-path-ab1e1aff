@@ -45,7 +45,7 @@ const fadeUp = {
 const SectionDivider = ({ label }: { label: string }) => (
   <motion.div variants={fadeUp} className="flex items-center gap-3 py-2">
     <div className="flex-1 h-px bg-border/30" />
-    <span className="text-[10px] text-muted-foreground/50 font-bold tracking-wider">{label}</span>
+    <span className="text-[10px] text-muted-foreground/50 tracking-wider font-light">{label}</span>
     <div className="flex-1 h-px bg-border/30" />
   </motion.div>
 );
@@ -86,7 +86,7 @@ const HomePage = () => {
     >
       {/* ── التحية ── */}
       <motion.div variants={fadeUp} className="px-5 pt-6 pb-5">
-        <h1 className="text-xl font-bold text-foreground leading-snug tracking-tight">
+        <h1 className="text-xl text-foreground leading-snug tracking-tight">
           {getGreeting(user)}
         </h1>
         <div className="h-5 overflow-hidden mt-1.5">
@@ -97,7 +97,7 @@ const HomePage = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.3 }}
-              className="text-[11px] text-muted-foreground font-semibold"
+              className="text-[11px] text-muted-foreground font-light"
             >
               {dhikrPhrases[dhikrIndex]}
             </motion.p>
@@ -114,19 +114,17 @@ const HomePage = () => {
                 onClick={() => navigate('/library')}
                 className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-card border border-border/40 transition-all text-right active:scale-[0.98] group"
               >
-                <div className="w-10 h-10 rounded-xl bg-primary/10 dark:bg-primary/15 flex items-center justify-center flex-shrink-0">
-                  <RotateCcw className="w-4.5 h-4.5 text-primary" />
-                </div>
+                <RotateCcw className="w-4 h-4 text-primary flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-bold text-foreground">متابعة التسبيح</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">
+                  <p className="text-[13px] text-foreground">متابعة التسبيح</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 font-light">
                     {tasbihState.mode === 'zahra'
                       ? `${tasbihatLabels[tasbihState.step]} · ${tasbihState.count} من ${[34, 33, 33][tasbihState.step]}`
                       : `تسبيح حر · ${tasbihState.openCount} تسبيحة`
                     }
                   </p>
                 </div>
-                <ChevronLeft className="w-4 h-4 text-muted-foreground/30 flex-shrink-0 group-hover:text-primary/50 transition-colors" />
+                <ChevronLeft className="w-4 h-4 text-muted-foreground/30 flex-shrink-0" />
               </button>
             )}
 
@@ -135,16 +133,14 @@ const HomePage = () => {
                 onClick={() => navigate('/library')}
                 className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-card border border-border/40 transition-all text-right active:scale-[0.98] group"
               >
-                <div className="w-10 h-10 rounded-xl bg-primary/10 dark:bg-primary/15 flex items-center justify-center flex-shrink-0">
-                  <BookOpen className="w-4.5 h-4.5 text-primary" />
-                </div>
+                <BookOpen className="w-4 h-4 text-primary flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-bold text-foreground">متابعة القراءة</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5 truncate font-medium">
+                  <p className="text-[13px] text-foreground">متابعة القراءة</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 truncate font-light">
                     {categoryLabels[lastReading.category] || ''} · {lastReading.title}
                   </p>
                 </div>
-                <ChevronLeft className="w-4 h-4 text-muted-foreground/30 flex-shrink-0 group-hover:text-primary/50 transition-colors" />
+                <ChevronLeft className="w-4 h-4 text-muted-foreground/30 flex-shrink-0" />
               </button>
             )}
           </motion.div>
@@ -188,7 +184,7 @@ const HomePage = () => {
         {/* ── التذييل ── */}
         <motion.div variants={fadeUp} className="flex items-center justify-center gap-2 pt-6 pb-3">
           <Minus className="w-3 h-3 text-muted-foreground/20" />
-          <p className="text-[10px] text-muted-foreground/30 font-medium">
+          <p className="text-[10px] text-muted-foreground/30 font-light">
             عِتَرَةً · الإصدار ٥.٠ · بناء ٣٠٠
           </p>
           <Minus className="w-3 h-3 text-muted-foreground/20" />

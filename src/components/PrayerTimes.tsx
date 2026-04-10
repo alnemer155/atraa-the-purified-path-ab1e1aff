@@ -145,15 +145,13 @@ const PrayerTimes = () => {
     <div className="rounded-2xl glass-card p-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg islamic-gradient flex items-center justify-center">
-            <Sun className="w-3.5 h-3.5 text-primary-foreground" />
-          </div>
-          <h2 className="text-[13px] font-bold text-foreground">أوقات الصلاة</h2>
+          <Sun className="w-4 h-4 text-primary" />
+          <h2 className="text-[13px] text-foreground">أوقات الصلاة</h2>
         </div>
         {isSupported && (
           <button
             onClick={handleToggleNotif}
-            className={`p-2 rounded-xl transition-all ${notifEnabled ? 'bg-primary/10 text-primary' : 'text-muted-foreground/40 hover:text-foreground hover:bg-secondary/60'}`}
+            className={`p-2 rounded-xl transition-all ${notifEnabled ? 'text-primary' : 'text-muted-foreground/40 hover:text-foreground'}`}
           >
             {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
           </button>
@@ -161,8 +159,8 @@ const PrayerTimes = () => {
       </div>
       {!isSupported ? (
         <div className="flex flex-col items-center gap-2.5 py-8">
-          <p className="text-xs text-muted-foreground text-center leading-relaxed">
-            سيتم دعم <span className="font-bold text-foreground">{currentCity}</span> قريباً بإذن الله
+          <p className="text-xs text-muted-foreground text-center leading-relaxed font-light">
+            سيتم دعم <span className="text-foreground">{currentCity}</span> قريباً بإذن الله
           </p>
         </div>
       ) : loading ? (
@@ -183,22 +181,22 @@ const PrayerTimes = () => {
                   isCurrent
                     ? 'islamic-gradient shadow-lg shadow-primary/20'
                     : isNext
-                    ? 'bg-primary/6 border border-primary/15 ring-1 ring-primary/5'
-                    : 'bg-secondary/30 hover:bg-secondary/50'
+                    ? 'bg-primary/6 border border-primary/15'
+                    : 'bg-secondary/30'
                 }`}
               >
                 {(isCurrent || isNext) && (
-                  <span className={`absolute -top-2 text-[8px] font-bold px-2 py-0.5 rounded-full ${
+                  <span className={`absolute -top-2 text-[8px] px-2 py-0.5 rounded-full ${
                     isCurrent
-                      ? 'bg-accent text-accent-foreground shadow-sm'
+                      ? 'bg-accent text-accent-foreground'
                       : 'bg-primary/15 text-primary'
                   }`}>
                     {isCurrent ? 'الآن' : 'التالي'}
                   </span>
                 )}
                 <Icon className={`w-4 h-4 ${isCurrent ? 'text-primary-foreground' : 'text-primary/70'}`} />
-                <span className={`text-[10px] font-medium ${isCurrent ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>{label}</span>
-                <span className={`text-[13px] font-bold tabular-nums ${isCurrent ? 'text-primary-foreground' : 'text-foreground'}`}>
+                <span className={`text-[10px] font-light ${isCurrent ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>{label}</span>
+                <span className={`text-[13px] tabular-nums ${isCurrent ? 'text-primary-foreground' : 'text-foreground'}`}>
                   {to12Hour((timings as any)[key]?.split(' ')[0] || '')}
                 </span>
               </div>
@@ -206,7 +204,7 @@ const PrayerTimes = () => {
           })}
         </div>
       ) : (
-        <p className="text-xs text-muted-foreground text-center py-6">تعذر تحميل أوقات الصلاة</p>
+        <p className="text-xs text-muted-foreground text-center py-6 font-light">تعذر تحميل أوقات الصلاة</p>
       )}
     </div>
   );

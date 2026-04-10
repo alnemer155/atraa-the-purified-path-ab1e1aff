@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, ImageIcon, Check } from 'lucide-react';
+import { Download, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import wallpaper1 from '@/assets/wallpapers/wallpaper-1.png';
 import wallpaper2 from '@/assets/wallpapers/wallpaper-2.png';
@@ -47,16 +47,10 @@ const WallpapersSection = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center">
-            <ImageIcon className="w-3.5 h-3.5 text-accent-foreground" />
-          </div>
-          <h2 className="text-[13px] font-bold text-foreground">خلفيات عِتَرَةً</h2>
-        </div>
-        <span className="text-[9px] text-muted-foreground/50 font-medium">{wallpapers.length} خلفية</span>
+        <h2 className="text-[13px] text-foreground">خلفيات عِتَرَةً</h2>
+        <span className="text-[9px] text-muted-foreground/50 font-light">{wallpapers.length} خلفية</span>
       </div>
 
-      {/* Scrollable horizontal strip */}
       <div className="flex gap-2.5 overflow-x-auto hide-scrollbar pb-2 -mx-4 px-4">
         {wallpapers.map((w, i) => (
           <motion.button
@@ -65,7 +59,7 @@ const WallpapersSection = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.04 }}
             onClick={() => setSelectedWallpaper(i)}
-            className="relative flex-shrink-0 w-[72px] rounded-2xl overflow-hidden aspect-[9/16] bg-secondary/30 border border-border/20 hover:border-primary/30 transition-all active:scale-95 shadow-sm"
+            className="relative flex-shrink-0 w-[72px] rounded-2xl overflow-hidden aspect-[9/16] bg-secondary/30 border border-border/20 hover:border-primary/30 transition-all active:scale-95"
           >
             <img src={w.src} alt={w.name} className="w-full h-full object-cover" loading="lazy" />
             {downloaded.has(i) && (
@@ -77,7 +71,6 @@ const WallpapersSection = () => {
         ))}
       </div>
 
-      {/* Wallpaper preview modal */}
       {selectedWallpaper !== null && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -98,10 +91,10 @@ const WallpapersSection = () => {
               className="w-full rounded-3xl shadow-elevated"
             />
             <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-foreground/60 to-transparent rounded-b-3xl">
-              <p className="text-[11px] text-card font-semibold text-center mb-2">{wallpapers[selectedWallpaper].name}</p>
+              <p className="text-[11px] text-card text-center mb-2 font-light">{wallpapers[selectedWallpaper].name}</p>
               <button
                 onClick={() => handleDownload(wallpapers[selectedWallpaper].src, wallpapers[selectedWallpaper].name, selectedWallpaper)}
-                className="w-full py-2 rounded-xl bg-card/90 backdrop-blur-sm text-foreground text-xs font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
+                className="w-full py-2 rounded-xl bg-card/90 backdrop-blur-sm text-foreground text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
               >
                 {downloading === selectedWallpaper ? (
                   <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8 }} className="w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full" />
@@ -116,7 +109,7 @@ const WallpapersSection = () => {
         </motion.div>
       )}
 
-      <p className="text-[9px] text-muted-foreground/40 text-center mt-2 font-medium">اضغط على الخلفية لمعاينتها</p>
+      <p className="text-[9px] text-muted-foreground/40 text-center mt-2 font-light">اضغط على الخلفية لمعاينتها</p>
     </div>
   );
 };

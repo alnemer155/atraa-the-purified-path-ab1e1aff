@@ -34,9 +34,7 @@ const HijriCountdown = () => {
           });
         }
       })
-      .catch(() => {
-        // Fallback - still show widget structure
-      });
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -55,33 +53,29 @@ const HijriCountdown = () => {
 
   return (
     <div className="rounded-2xl glass-card p-4 min-h-[110px] flex flex-col justify-between relative overflow-hidden">
-
       <div className="flex items-center justify-between mb-3 relative">
-        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">التقويم</span>
-        <div className="w-7 h-7 rounded-lg bg-primary/8 flex items-center justify-center">
-          <Calendar className="w-3.5 h-3.5 text-primary/70" />
-        </div>
+        <span className="text-[10px] text-muted-foreground tracking-widest font-light">التقويم</span>
+        <Calendar className="w-4 h-4 text-primary/60" />
       </div>
       {hijri ? (
         <div className="relative">
-          <p className="text-[16px] font-bold text-foreground leading-snug">
+          <p className="text-[16px] text-foreground leading-snug">
             {hijri.day} {hijri.month}
           </p>
-          <p className="text-[11px] text-muted-foreground mt-0.5 font-semibold">{hijri.year} هـ</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5 font-light">{hijri.year} هـ</p>
           
-          {/* Progress bar */}
           <div className="mt-3 relative">
-            <div className="h-1.5 rounded-full bg-secondary/50 overflow-hidden">
+            <div className="h-1 rounded-full bg-secondary/50 overflow-hidden">
               <div
                 className="h-full rounded-full islamic-gradient transition-all duration-700 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
             <div className="flex items-center justify-between mt-1">
-              <p className="text-[9px] text-muted-foreground/60 font-medium">
+              <p className="text-[9px] text-muted-foreground/60 font-light">
                 {daysRemaining > 0 ? `${daysRemaining} يوم متبقي` : 'آخر يوم'}
               </p>
-              <p className="text-[9px] text-primary/50 font-bold">{Math.round(progress)}%</p>
+              <p className="text-[9px] text-primary/50">{Math.round(progress)}%</p>
             </div>
           </div>
         </div>
