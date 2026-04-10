@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Radio, ExternalLink, Play } from 'lucide-react';
+import { ExternalLink, Play } from 'lucide-react';
 
 interface LiveChannel {
   id: string;
@@ -17,7 +17,7 @@ const channels: LiveChannel[] = [
     name: 'قناة الإمام الحسين ٣',
     nameEn: 'Imam Hussein TV 3',
     youtubeChannelId: 'UCsVB_GlT3AIil3GT3OwsNOg',
-    thumbnail: `https://i.ytimg.com/vi/live_stream?channel=UCsVB_GlT3AIil3GT3OwsNOg&default.jpg`,
+    thumbnail: '',
     liveUrl: 'https://www.youtube.com/c/imamhussein3tv/live',
   },
   {
@@ -60,20 +60,17 @@ const LiveStreamSection = () => {
     <div>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-destructive/10 flex items-center justify-center">
-            <Radio className="w-3.5 h-3.5 text-destructive" />
-          </div>
-          <h2 className="text-[13px] font-bold text-foreground">مُبــــــــاشر</h2>
+          <h2 className="text-[13px] text-foreground">مُبــــــــاشر</h2>
           <div className="flex items-center gap-1 mr-1">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive"></span>
             </span>
-            <span className="text-[9px] text-destructive font-semibold">مباشر</span>
+            <span className="text-[9px] text-destructive font-light">مباشر</span>
           </div>
         </div>
         {currentTime && (
-          <span className="text-[10px] text-muted-foreground font-medium">
+          <span className="text-[10px] text-muted-foreground font-light">
             بتوقيت بغداد · {currentTime}
           </span>
         )}
@@ -99,15 +96,15 @@ const LiveStreamSection = () => {
               </div>
             </div>
             <div className="flex-1 min-w-0 text-right">
-              <p className="text-[13px] font-bold text-foreground truncate">{channel.name}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">بث مباشر</p>
+              <p className="text-[13px] text-foreground truncate">{channel.name}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5 font-light">بث مباشر</p>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground/30 flex-shrink-0 group-hover:text-primary transition-colors" />
           </motion.button>
         ))}
       </div>
 
-      <p className="text-[9px] text-muted-foreground/40 text-center mt-2.5 font-medium">
+      <p className="text-[9px] text-muted-foreground/40 text-center mt-2.5 font-light">
         يتم التحديث يومياً · ١٠:٣٠ بتوقيت غرينتش
       </p>
     </div>

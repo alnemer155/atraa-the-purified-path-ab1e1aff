@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -96,13 +96,13 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-weight: 500;
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-weight: 600;
+    font-weight: 400;
   }
 }
 
@@ -148,7 +148,7 @@
   }
 
   .religious-text {
-    font-weight: 700;
+    font-weight: 400;
     line-height: 2.2;
   }
 

@@ -44,7 +44,6 @@ const WeatherWidget = () => {
           }
         })
         .catch(() => {
-          // Show fallback on error
           setWeather({ temp: 0, description: 'غير متوفر', code: 0 });
         });
     };
@@ -61,20 +60,17 @@ const WeatherWidget = () => {
 
   return (
     <div className="rounded-2xl glass-card p-4 min-h-[110px] flex flex-col justify-between relative overflow-hidden">
-      
       <div className="flex items-center justify-between mb-3 relative">
-        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">الطقس</span>
-        <div className="w-7 h-7 rounded-lg bg-primary/8 flex items-center justify-center">
-          <Icon className="w-3.5 h-3.5 text-primary/70" />
-        </div>
+        <span className="text-[10px] text-muted-foreground tracking-widest font-light">الطقس</span>
+        <Icon className="w-4 h-4 text-primary/60" />
       </div>
       {weather ? (
         <div className="relative">
           <div className="flex items-baseline gap-0.5">
-            <p className="text-4xl font-bold text-foreground tracking-tighter leading-none">{weather.temp}</p>
-            <span className="text-lg font-semibold text-muted-foreground/50">°</span>
+            <p className="text-4xl text-foreground tracking-tighter leading-none font-light">{weather.temp}</p>
+            <span className="text-lg text-muted-foreground/50 font-light">°</span>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-2 line-clamp-1 font-medium">{weather.description}</p>
+          <p className="text-[11px] text-muted-foreground mt-2 line-clamp-1 font-light">{weather.description}</p>
         </div>
       ) : (
         <div className="space-y-2.5">

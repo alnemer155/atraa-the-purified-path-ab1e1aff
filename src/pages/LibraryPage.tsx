@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Compass, Hand } from 'lucide-react';
 import DuasPage from './DuasPage';
 import TasbihPage from './TasbihPage';
 import QiblaPage from './QiblaPage';
@@ -10,10 +9,10 @@ type Tab = 'duas' | 'tasbih' | 'qibla';
 const LibraryPage = () => {
   const [activeTab, setActiveTab] = useState<Tab>('duas');
 
-  const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
-    { key: 'duas', label: 'الأدعية', icon: <BookOpen className="w-4 h-4" /> },
-    { key: 'tasbih', label: 'التسبيح', icon: <Hand className="w-4 h-4" /> },
-    { key: 'qibla', label: 'القبلة', icon: <Compass className="w-4 h-4" /> },
+  const tabs: { key: Tab; label: string }[] = [
+    { key: 'duas', label: 'الأدعية' },
+    { key: 'tasbih', label: 'التسبيح' },
+    { key: 'qibla', label: 'القبلة' },
   ];
 
   return (
@@ -22,14 +21,9 @@ const LibraryPage = () => {
       <div className="sticky top-[42px] z-30 bg-background/60 backdrop-blur-2xl backdrop-saturate-150">
         <div className="px-4 pt-4 pb-3">
           {/* Title */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-2xl islamic-gradient flex items-center justify-center shadow-lg shadow-primary/15">
-              <BookOpen className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-foreground leading-tight tracking-tight">المكتبة</h1>
-              <p className="text-[11px] text-muted-foreground font-medium">أدعية · تسبيح · قبلة</p>
-            </div>
+          <div className="mb-4">
+            <h1 className="text-lg text-foreground leading-tight tracking-tight">المكتبة</h1>
+            <p className="text-[11px] text-muted-foreground font-light">أدعية · تسبيح · قبلة</p>
           </div>
 
           {/* Tab bar */}
@@ -38,7 +32,7 @@ const LibraryPage = () => {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className="relative flex-1 py-3 rounded-xl text-sm font-medium transition-all"
+                className="relative flex-1 py-3 rounded-xl text-sm transition-all"
               >
                 {activeTab === tab.key && (
                   <motion.div
@@ -47,10 +41,9 @@ const LibraryPage = () => {
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
                 )}
-                <span className={`relative flex items-center justify-center gap-1.5 ${
-                  activeTab === tab.key ? 'text-primary font-bold' : 'text-muted-foreground'
+                <span className={`relative flex items-center justify-center ${
+                  activeTab === tab.key ? 'text-primary' : 'text-muted-foreground'
                 }`}>
-                  {tab.icon}
                   <span className="text-[12px]">{tab.label}</span>
                 </span>
               </button>

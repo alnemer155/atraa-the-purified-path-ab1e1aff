@@ -6,6 +6,47 @@ import { getUser } from '@/lib/user';
 import quizFace from '@/assets/quiz/quiz-face.png';
 import quizQuestionsImg from '@/assets/quiz/quiz-questions.png';
 
+const QUIZ_PAUSE_UNTIL = new Date('2026-05-05T00:00:00+03:00');
+
+const QuizPauseOverlay = () => {
+  const pauseDate = QUIZ_PAUSE_UNTIL.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
+  
+  return (
+    <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center px-6">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="max-w-sm w-full text-center"
+      >
+        <div className="w-20 h-20 rounded-full border-2 border-border/30 flex items-center justify-center mx-auto mb-6">
+          <Clock className="w-8 h-8 text-muted-foreground" />
+        </div>
+        <h1 className="text-xl text-foreground mb-3">المسابقة متوقفة مؤقتاً</h1>
+        <p className="text-sm text-muted-foreground font-light leading-relaxed mb-6">
+          مسابقة عِتَرَةً في إيقاف مؤقت حالياً وسيتم استئنافها بإذن الله في:
+        </p>
+        <div className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-card border border-border/30 mb-8">
+          <CalendarIcon className="w-4 h-4 text-primary" />
+          <span className="text-sm text-foreground">{pauseDate}</span>
+        </div>
+        <p className="text-[11px] text-muted-foreground/50 font-light">
+          نسأل الله أن يجمعنا على طاعته
+        </p>
+      </motion.div>
+    </div>
+  );
+};
+
+const isQuizPaused = (): boolean => new Date() < QUIZ_PAUSE_UNTIL;
+
+const QuizPage = () => {
+  if (isQuizPaused()) {
+    return <QuizPauseOverlay />;
+  }
+
+  return <QuizPageContent />;
+};
+
 const QUIZ_EMOJIS = ['😎', '🍁', '📿', '🌙', '❤️', '🤲🏻', '😶‍🌫️', '🫥', '🫠', '👻', '👾', '💪🏻', '👀', '⚽️', '🎱', '🚗', '🗿', '🕋', '🙂', '💡', '🤯', '😶', '🏆', '🥇', '🎖️', '🏅'];
 
 const QUIZ_START = new Date('2026-03-21T00:00:00+03:00');
@@ -59,7 +100,7 @@ const isQuestionsTime = (): boolean => {
   const h = now.getHours(), m = now.getMinutes();
   if (h < QUESTIONS_START_HOUR) return false;
   if (h > QUESTIONS_END_HOUR) return false;
-  if (h === QUESTIONS_END_HOUR && m > QUESTIONS_END_MINUTE) return false;
+  if (h === QUESTIONS_END_HOUR && m >= QUESTIONS_END_MINUTE) return false;
   return true;
 };
 
@@ -112,7 +153,7 @@ const BackButton = ({ onClick }: { onClick: () => void }) => (
   </motion.button>
 );
 
-const QuizPage = () => {
+const QuizPageContent = () => {
   const [view, setView] = useState<QuizView>('home');
   const [participant, setParticipant] = useState<Participant | null>(null);
   const [loading, setLoading] = useState(true);
