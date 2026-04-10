@@ -46,11 +46,11 @@ const BottomNav = () => {
                           ? 'text-primary'
                           : 'text-muted-foreground/60 group-hover:text-foreground/70'
                       }`}
-                      strokeWidth={isActive ? 2.2 : 1.6}
+                      strokeWidth={isActive ? 2 : 1.4}
                     />
                   </div>
                   <span
-                    className={`relative z-10 text-[9px] leading-none font-semibold transition-all duration-200 ${
+                    className={`relative z-10 text-[9px] leading-none transition-all duration-200 ${
                       isActive ? 'text-primary' : 'text-muted-foreground/50 group-hover:text-foreground/50'
                     }`}
                   >

@@ -106,12 +106,12 @@ const TasbihPage = () => {
             onClick={() => { setMode(m.key); setStep(0); setCount(0); }}
             className={`flex-1 py-3.5 px-3 rounded-2xl text-center transition-all active:scale-[0.97] ${
               mode === m.key
-                ? 'islamic-gradient text-primary-foreground shadow-lg shadow-primary/15'
-                : 'bg-card/80 backdrop-blur-sm border border-border/30 text-foreground hover:border-primary/25'
+                ? 'bg-foreground text-background'
+                : 'bg-card/80 backdrop-blur-sm border border-border/30 text-foreground'
             }`}
           >
-            <span className="text-[13px] font-bold block">{m.label}</span>
-            <span className={`text-[9px] font-medium block mt-0.5 ${mode === m.key ? 'text-primary-foreground/60' : 'text-muted-foreground/50'}`}>{m.desc}</span>
+            <span className="text-[13px] block">{m.label}</span>
+            <span className={`text-[9px] font-light block mt-0.5 ${mode === m.key ? 'text-background/60' : 'text-muted-foreground/50'}`}>{m.desc}</span>
           </button>
         ))}
       </div>
@@ -119,16 +119,16 @@ const TasbihPage = () => {
       {/* Controls */}
       <div className="flex items-center justify-between mb-3 px-1" data-control>
         <button onClick={handleReset}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[11px] font-semibold text-muted-foreground hover:text-destructive hover:bg-destructive/8 transition-all active:scale-95">
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[11px] text-muted-foreground hover:text-destructive transition-all active:scale-95">
           <RotateCcw className="w-3.5 h-3.5" /> إعادة
         </button>
         <div className="flex items-center gap-1.5">
           <button onClick={toggleVibration}
-            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${vibration ? 'bg-primary/10 text-primary shadow-sm' : 'text-muted-foreground/40 hover:bg-secondary/50'}`}>
+            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${vibration ? 'text-primary' : 'text-muted-foreground/40'}`}>
             <Vibrate className="w-4 h-4" />
           </button>
           <button onClick={toggleSound}
-            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${sound ? 'bg-primary/10 text-primary shadow-sm' : 'text-muted-foreground/40 hover:bg-secondary/50'}`}>
+            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${sound ? 'text-primary' : 'text-muted-foreground/40'}`}>
             <Volume2 className="w-4 h-4" />
           </button>
         </div>
@@ -146,15 +146,15 @@ const TasbihPage = () => {
                   const isCurrent = i === step && !isComplete;
                   return (
                     <div key={i} className="flex-1 text-center">
-                      <div className={`mx-auto w-10 h-10 rounded-2xl flex items-center justify-center text-xs font-bold mb-2 transition-all ${
-                        isDone ? 'islamic-gradient text-primary-foreground shadow-lg shadow-primary/15'
-                          : isCurrent ? 'bg-primary/10 text-primary border-2 border-primary/50 shadow-sm'
+                      <div className={`mx-auto w-10 h-10 rounded-2xl flex items-center justify-center text-xs mb-2 transition-all ${
+                        isDone ? 'bg-foreground text-background'
+                          : isCurrent ? 'border-2 border-primary/50 text-primary'
                           : 'bg-secondary/40 text-muted-foreground/50'
                       }`}>
                         {isDone ? <Check className="w-4 h-4" /> : i + 1}
                       </div>
-                      <p className={`text-[11px] font-semibold ${isCurrent ? 'text-primary' : isDone ? 'text-foreground' : 'text-muted-foreground/50'}`}>{t.text}</p>
-                      <p className={`text-[9px] mt-0.5 ${isCurrent ? 'text-primary/60' : 'text-muted-foreground/30'}`}>{t.target}×</p>
+                      <p className={`text-[11px] ${isCurrent ? 'text-primary' : isDone ? 'text-foreground' : 'text-muted-foreground/50'}`}>{t.text}</p>
+                      <p className={`text-[9px] mt-0.5 font-light ${isCurrent ? 'text-primary/60' : 'text-muted-foreground/30'}`}>{t.target}×</p>
                     </div>
                   );
                 })}
@@ -162,27 +162,27 @@ const TasbihPage = () => {
 
               {/* Overall progress */}
               <div className="w-full max-w-[300px] mb-8">
-                <div className="h-1.5 rounded-full bg-secondary/40 overflow-hidden">
-                  <motion.div className="h-full rounded-full islamic-gradient" animate={{ width: `${(totalDone / totalAll) * 100}%` }} transition={{ duration: 0.3 }} />
+                <div className="h-1 rounded-full bg-secondary/40 overflow-hidden">
+                  <motion.div className="h-full rounded-full bg-foreground" animate={{ width: `${(totalDone / totalAll) * 100}%` }} transition={{ duration: 0.3 }} />
                 </div>
                 <div className="flex items-center justify-between mt-1.5">
-                  <span className="text-[9px] text-muted-foreground/40 font-medium">{totalDone} / {totalAll}</span>
-                  <span className="text-[9px] text-primary/50 font-bold">{Math.round((totalDone / totalAll) * 100)}%</span>
+                  <span className="text-[9px] text-muted-foreground/40 font-light">{totalDone} / {totalAll}</span>
+                  <span className="text-[9px] text-primary/50">{Math.round((totalDone / totalAll) * 100)}%</span>
                 </div>
               </div>
 
               {isComplete ? (
                 <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center py-6">
-                  <div className="w-24 h-24 mx-auto mb-5 rounded-3xl islamic-gradient flex items-center justify-center shadow-xl shadow-primary/20">
-                    <Check className="w-12 h-12 text-primary-foreground" />
+                  <div className="w-24 h-24 mx-auto mb-5 rounded-full border-2 border-primary/30 flex items-center justify-center">
+                    <Check className="w-12 h-12 text-primary" />
                   </div>
-                  <p className="text-2xl font-bold text-foreground mb-1.5">تم بحمد الله</p>
-                  <p className="text-sm text-muted-foreground font-medium">{totalAll} تسبيحة</p>
+                  <p className="text-2xl text-foreground mb-1.5">تم بحمد الله</p>
+                  <p className="text-sm text-muted-foreground font-light">{totalAll} تسبيحة</p>
                 </motion.div>
               ) : (
                 <>
                   <motion.p key={step} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
-                    className="text-xl font-bold text-primary mb-8 tracking-tight">
+                    className="text-xl text-primary mb-8 tracking-tight">
                     {current.text}
                   </motion.p>
 
@@ -190,22 +190,22 @@ const TasbihPage = () => {
                   <div className="relative mb-6">
                     {showPulse && (
                       <motion.div initial={{ scale: 1, opacity: 0.3 }} animate={{ scale: 1.5, opacity: 0 }} transition={{ duration: 0.3 }}
-                        className="absolute inset-0 rounded-full islamic-gradient" />
+                        className="absolute inset-0 rounded-full border-2 border-primary/30" />
                     )}
                     <motion.button whileTap={{ scale: 0.92 }} onClick={handleTapZahra}
                       className="relative w-40 h-40 rounded-full flex flex-col items-center justify-center active:opacity-90 transition-opacity">
                       <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 160 160">
-                        <circle cx="80" cy="80" r="72" fill="none" stroke="hsl(var(--secondary) / 0.4)" strokeWidth="5" />
-                        <circle cx="80" cy="80" r="72" fill="none" stroke="hsl(var(--primary))" strokeWidth="5" strokeLinecap="round"
+                        <circle cx="80" cy="80" r="72" fill="none" stroke="hsl(var(--secondary) / 0.4)" strokeWidth="3" />
+                        <circle cx="80" cy="80" r="72" fill="none" stroke="hsl(var(--primary))" strokeWidth="3" strokeLinecap="round"
                           strokeDasharray={`${2 * Math.PI * 72}`}
                           strokeDashoffset={`${2 * Math.PI * 72 * (1 - count / current.target)}`}
                           className="transition-all duration-200" />
                       </svg>
-                      <span className="text-5xl font-bold text-foreground tracking-tighter">{count}</span>
-                      <span className="text-xs text-muted-foreground/50 mt-1 font-semibold">/ {current.target}</span>
+                      <span className="text-5xl text-foreground tracking-tighter font-light">{count}</span>
+                      <span className="text-xs text-muted-foreground/50 mt-1 font-light">/ {current.target}</span>
                     </motion.button>
                   </div>
-                  <p className="text-[11px] text-muted-foreground/40 font-medium">اضغط للتسبيح</p>
+                  <p className="text-[11px] text-muted-foreground/40 font-light">اضغط للتسبيح</p>
                 </>
               )}
             </motion.div>
@@ -214,17 +214,17 @@ const TasbihPage = () => {
               <div className="relative mb-6">
                 {showPulse && (
                   <motion.div initial={{ scale: 1, opacity: 0.25 }} animate={{ scale: 1.6, opacity: 0 }} transition={{ duration: 0.3 }}
-                    className="absolute inset-0 rounded-full islamic-gradient" />
+                    className="absolute inset-0 rounded-full border-2 border-primary/20" />
                 )}
-                <div className="w-48 h-48 rounded-full border-[5px] border-primary/15 flex flex-col items-center justify-center bg-card/30 backdrop-blur-sm shadow-inner">
+                <div className="w-48 h-48 rounded-full border-[3px] border-primary/15 flex flex-col items-center justify-center bg-card/30 backdrop-blur-sm">
                   <motion.span key={openCount} initial={{ scale: 1.1 }} animate={{ scale: 1 }} transition={{ duration: 0.1 }}
-                    className="text-6xl font-bold text-foreground tracking-tighter">
+                    className="text-6xl text-foreground tracking-tighter font-light">
                     {openCount}
                   </motion.span>
-                  <span className="text-sm text-muted-foreground/60 mt-1 font-semibold">تسبيحة</span>
+                  <span className="text-sm text-muted-foreground/60 mt-1 font-light">تسبيحة</span>
                 </div>
               </div>
-              <p className="text-[11px] text-muted-foreground/30 mt-4 font-medium">اضغط في أي مكان على الشاشة</p>
+              <p className="text-[11px] text-muted-foreground/30 mt-4 font-light">اضغط في أي مكان على الشاشة</p>
             </motion.div>
           )}
         </AnimatePresence>
