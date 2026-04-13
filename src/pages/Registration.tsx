@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import logoAr from '@/assets/logos/logo-ar.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { Mail, Eye, EyeOff, ArrowRight, User, Tag, KeyRound, Shield } from 'lucide-react';
+import { Mail, Eye, EyeOff, ArrowRight, Shield } from 'lucide-react';
 
 type AuthMode = 'register' | 'email-signup' | 'email-login' | 'forgot-password';
 
@@ -114,52 +114,45 @@ const Registration = () => {
     } finally { setLoading(false); }
   };
 
-  const titleOptions: { value: UserData['title']; label: string; icon?: string }[] = [
-    { value: 'سيد', label: 'سيد', icon: '🏷️' },
-    { value: 'سيدة', label: 'سيدة', icon: '🏷️' },
-    { value: 'شيخ', label: 'شيخ', icon: '🏷️' },
-    { value: 'custom', label: 'مخصص', icon: '✏️' },
-    { value: 'none', label: 'بدون', icon: '—' },
+  const titleOptions: { value: UserData['title']; label: string }[] = [
+    { value: 'سيد', label: 'سيد' },
+    { value: 'سيدة', label: 'سيدة' },
+    { value: 'شيخ', label: 'شيخ' },
+    { value: 'custom', label: 'مخصص' },
+    { value: 'none', label: 'بدون' },
   ];
 
-  const inputClass = "w-full px-4 py-3.5 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/40 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all text-sm font-medium";
+  const inputClass = "w-full px-4 py-3.5 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/40 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all text-sm";
 
-  const primaryBtnClass = "w-full py-4 rounded-2xl islamic-gradient text-primary-foreground font-bold text-sm transition-all hover:opacity-95 disabled:opacity-40 shadow-lg shadow-primary/15 active:scale-[0.98]";
+  const primaryBtnClass = "w-full py-4 rounded-2xl islamic-gradient text-primary-foreground text-sm transition-all hover:opacity-95 disabled:opacity-40 active:scale-[0.98]";
 
   // ── Email Auth Views ──
   if (authMode === 'email-signup' || authMode === 'email-login' || authMode === 'forgot-password') {
     const titles = {
-      'email-signup': { h: 'إنشاء حساب جديد', p: 'سجّل بالبريد الإلكتروني للحصول على تجربة كاملة', icon: '📧' },
-      'email-login': { h: 'مرحباً بعودتك', p: 'سجّل دخولك للمتابعة', icon: '👋🏻' },
-      'forgot-password': { h: 'استعادة كلمة المرور', p: 'سنرسل لك رابط إعادة التعيين', icon: '🔐' },
+      'email-signup': { h: 'إنشاء حساب جديد', p: 'سجّل بالبريد الإلكتروني للحصول على تجربة كاملة' },
+      'email-login': { h: 'مرحباً بعودتك', p: 'سجّل دخولك للمتابعة' },
+      'forgot-password': { h: 'استعادة كلمة المرور', p: 'سنرسل لك رابط إعادة التعيين' },
     };
     const t = titles[authMode];
 
     return (
-      <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
-        {/* Decorative bg */}
-        <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-primary/5 -translate-x-1/2 -translate-y-1/2 blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-48 h-48 rounded-full bg-accent/8 translate-x-1/3 translate-y-1/3 blur-3xl" />
-
-        <div className="flex-1 flex flex-col justify-center px-6 py-8 relative">
+      <div className="min-h-screen bg-background flex flex-col">
+        <div className="flex-1 flex flex-col justify-center px-6 py-8">
           <motion.div initial="hidden" animate="visible" variants={stagger} className="w-full max-w-md mx-auto">
             {/* Back */}
             <motion.button
               variants={fadeIn}
               onClick={() => setAuthMode('register')}
-              className="flex items-center gap-2 text-primary text-sm font-semibold mb-8 group"
+              className="flex items-center gap-2 text-primary text-sm mb-8"
             >
-              <div className="w-8 h-8 rounded-xl bg-primary/8 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
-                <ArrowRight className="w-4 h-4" />
-              </div>
+              <ArrowRight className="w-4 h-4" />
               رجوع
             </motion.button>
 
             {/* Header */}
             <motion.div variants={fadeIn} className="mb-8">
-              <span className="text-3xl mb-3 block">{t.icon}</span>
-              <h1 className="text-2xl font-bold text-foreground mb-2 tracking-tight">{t.h}</h1>
-              <p className="text-muted-foreground text-sm leading-relaxed">{t.p}</p>
+              <h1 className="text-2xl text-foreground mb-2">{t.h}</h1>
+              <p className="text-muted-foreground text-sm font-light leading-relaxed">{t.p}</p>
             </motion.div>
 
             <form
@@ -168,29 +161,19 @@ const Registration = () => {
             >
               {authMode === 'email-signup' && (
                 <motion.div variants={fadeIn}>
-                  <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">الاسم</label>
-                  <div className="relative">
-                    <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="أدخل اسمك الكريم" className={`${inputClass} pr-11`} required />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg bg-primary/8 flex items-center justify-center">
-                      <User className="w-3.5 h-3.5 text-primary/60" />
-                    </div>
-                  </div>
+                  <label className="block text-[11px] text-muted-foreground mb-2">الاسم</label>
+                  <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="أدخل اسمك الكريم" className={inputClass} required />
                 </motion.div>
               )}
 
               <motion.div variants={fadeIn}>
-                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">البريد الإلكتروني</label>
-                <div className="relative">
-                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="example@email.com" dir="ltr" className={`${inputClass} text-left pl-11`} required />
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg bg-primary/8 flex items-center justify-center">
-                    <Mail className="w-3.5 h-3.5 text-primary/60" />
-                  </div>
-                </div>
+                <label className="block text-[11px] text-muted-foreground mb-2">البريد الإلكتروني</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="example@email.com" dir="ltr" className={`${inputClass} text-left`} required />
               </motion.div>
 
               {authMode !== 'forgot-password' && (
                 <motion.div variants={fadeIn}>
-                  <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">كلمة المرور</label>
+                  <label className="block text-[11px] text-muted-foreground mb-2">كلمة المرور</label>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -198,14 +181,11 @@ const Registration = () => {
                       onChange={e => setPassword(e.target.value)}
                       placeholder="٦ أحرف على الأقل"
                       dir="ltr"
-                      className={`${inputClass} text-left pl-11`}
+                      className={`${inputClass} text-left`}
                       required
                       minLength={6}
                     />
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg bg-primary/8 flex items-center justify-center">
-                      <KeyRound className="w-3.5 h-3.5 text-primary/60" />
-                    </div>
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg hover:bg-secondary/60 transition-colors">
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute left-3 top-1/2 -translate-y-1/2 p-1">
                       {showPassword ? <EyeOff className="w-4 h-4 text-muted-foreground/40" /> : <Eye className="w-4 h-4 text-muted-foreground/40" />}
                     </button>
                   </div>
@@ -214,7 +194,7 @@ const Registration = () => {
 
               {authMode === 'email-login' && (
                 <motion.div variants={fadeIn}>
-                  <button type="button" onClick={() => setAuthMode('forgot-password')} className="text-[11px] text-primary font-semibold hover:underline">
+                  <button type="button" onClick={() => setAuthMode('forgot-password')} className="text-[11px] text-primary">
                     نسيت كلمة المرور؟
                   </button>
                 </motion.div>
@@ -235,22 +215,21 @@ const Registration = () => {
                 {authMode === 'email-signup' && (
                   <p className="text-center text-xs text-muted-foreground pt-2">
                     لديك حساب؟{' '}
-                    <button type="button" onClick={() => setAuthMode('email-login')} className="text-primary font-bold hover:underline">سجّل دخولك</button>
+                    <button type="button" onClick={() => setAuthMode('email-login')} className="text-primary">سجّل دخولك</button>
                   </p>
                 )}
                 {authMode === 'email-login' && (
                   <p className="text-center text-xs text-muted-foreground pt-2">
                     ليس لديك حساب؟{' '}
-                    <button type="button" onClick={() => setAuthMode('email-signup')} className="text-primary font-bold hover:underline">أنشئ حساب جديد</button>
+                    <button type="button" onClick={() => setAuthMode('email-signup')} className="text-primary">أنشئ حساب جديد</button>
                   </p>
                 )}
               </motion.div>
             </form>
 
-            {/* Security note */}
             <motion.div variants={fadeIn} className="mt-8 flex items-center justify-center gap-1.5 text-muted-foreground/40">
               <Shield className="w-3 h-3" />
-              <span className="text-[9px] font-medium">بياناتك محمية ومشفرة بالكامل</span>
+              <span className="text-[9px]">بياناتك محمية ومشفرة بالكامل</span>
             </motion.div>
           </motion.div>
         </div>
@@ -260,13 +239,8 @@ const Registration = () => {
 
   // ── Main Registration View ──
   return (
-    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
-      {/* Decorative backgrounds */}
-      <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-primary/4 -translate-y-1/3 translate-x-1/4 blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-56 h-56 rounded-full bg-accent/6 translate-y-1/4 -translate-x-1/4 blur-3xl" />
-
-
-      <div className="flex-1 flex flex-col justify-center px-6 py-8 relative">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex-1 flex flex-col justify-center px-6 py-8">
         <motion.div
           initial="hidden"
           animate="visible"
@@ -275,14 +249,11 @@ const Registration = () => {
         >
           {/* Logo + Header */}
           <motion.div variants={fadeIn} className="text-center mb-10">
-            <div className="relative inline-block mb-5">
-              <div className="absolute inset-0 islamic-gradient opacity-10 rounded-3xl blur-xl scale-150" />
-              <img src={logoAr} alt="عِتَرَةً" className="w-20 h-auto relative object-contain" />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
+            <img src={logoAr} alt="عِتَرَةً" className="w-20 h-auto mx-auto mb-5 object-contain" />
+            <h1 className="text-2xl text-foreground mb-2">
               {isEditing ? 'تعديل الملف الشخصي' : 'مرحباً بك في عِتَرَةً'}
             </h1>
-            <p className="text-muted-foreground text-sm leading-relaxed">
+            <p className="text-muted-foreground text-sm font-light leading-relaxed">
               {isEditing ? 'عدّل معلوماتك الشخصية' : 'رفيقك الإسلامي الذكي'}
             </p>
           </motion.div>
@@ -290,31 +261,25 @@ const Registration = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Name */}
             <motion.div variants={fadeIn}>
-              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">الاسم</label>
-              <div className="relative">
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="أدخل اسمك الكريم" className={`${inputClass} pr-11`} required />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg bg-primary/8 flex items-center justify-center">
-                  <User className="w-3.5 h-3.5 text-primary/60" />
-                </div>
-              </div>
+              <label className="block text-[11px] text-muted-foreground mb-2">الاسم</label>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="أدخل اسمك الكريم" className={inputClass} required />
             </motion.div>
 
             {/* Title */}
             <motion.div variants={fadeIn}>
-              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2.5">اللقب</label>
+              <label className="block text-[11px] text-muted-foreground mb-2.5">اللقب</label>
               <div className="flex flex-wrap gap-2">
                 {titleOptions.map(option => (
                   <button
                     key={option.value}
                     type="button"
                     onClick={() => setTitle(option.value)}
-                    className={`px-4 py-2.5 rounded-2xl text-[13px] font-semibold transition-all flex items-center gap-1.5 ${
+                    className={`px-4 py-2.5 rounded-2xl text-[13px] transition-all ${
                       title === option.value
-                        ? 'islamic-gradient text-primary-foreground shadow-lg shadow-primary/15 scale-[1.02]'
-                        : 'bg-card/80 backdrop-blur-sm border border-border/40 text-foreground hover:border-primary/30 hover:bg-card'
+                        ? 'islamic-gradient text-primary-foreground'
+                        : 'bg-card/80 backdrop-blur-sm border border-border/40 text-foreground'
                     }`}
                   >
-                    <span className="text-xs">{option.icon}</span>
                     {option.label}
                   </button>
                 ))}
@@ -325,13 +290,8 @@ const Registration = () => {
             <AnimatePresence>
               {title === 'custom' && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                  <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">اللقب المخصص</label>
-                  <div className="relative">
-                    <input type="text" value={customTitle} onChange={(e) => setCustomTitle(e.target.value)} placeholder="أدخل اللقب المراد" className={`${inputClass} pr-11`} />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg bg-accent/15 flex items-center justify-center">
-                      <Tag className="w-3.5 h-3.5 text-accent-foreground/60" />
-                    </div>
-                  </div>
+                  <label className="block text-[11px] text-muted-foreground mb-2">اللقب المخصص</label>
+                  <input type="text" value={customTitle} onChange={(e) => setCustomTitle(e.target.value)} placeholder="أدخل اللقب المراد" className={inputClass} />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -351,7 +311,7 @@ const Registration = () => {
                     <span className="w-full border-t border-border/40" />
                   </div>
                   <div className="relative flex justify-center text-[10px]">
-                    <span className="bg-background px-4 text-muted-foreground/50 font-semibold tracking-wide">أو أنشئ حساب</span>
+                    <span className="bg-background px-4 text-muted-foreground/50">أو أنشئ حساب</span>
                   </div>
                 </motion.div>
 
@@ -360,11 +320,9 @@ const Registration = () => {
                   <button
                     type="button"
                     onClick={() => setAuthMode('email-signup')}
-                    className="w-full py-4 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/40 text-foreground font-bold text-sm transition-all hover:bg-card hover:border-primary/30 active:scale-[0.98] flex items-center justify-center gap-2.5 shadow-sm"
+                    className="w-full py-4 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/40 text-foreground text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2.5"
                   >
-                    <div className="w-7 h-7 rounded-xl bg-primary/8 flex items-center justify-center">
-                      <Mail className="w-3.5 h-3.5 text-primary" />
-                    </div>
+                    <Mail className="w-4 h-4 text-primary" />
                     تسجيل بالبريد الإلكتروني
                   </button>
                 </motion.div>
@@ -373,7 +331,7 @@ const Registration = () => {
                 <motion.div variants={fadeIn}>
                   <p className="text-center text-xs text-muted-foreground pt-1">
                     لديك حساب بالفعل؟{' '}
-                    <button type="button" onClick={() => setAuthMode('email-login')} className="text-primary font-bold hover:underline">
+                    <button type="button" onClick={() => setAuthMode('email-login')} className="text-primary">
                       سجّل دخولك
                     </button>
                   </p>
@@ -386,7 +344,7 @@ const Registration = () => {
                 <button
                   type="button"
                   onClick={() => navigate(-1)}
-                  className="w-full py-3.5 rounded-2xl bg-secondary/60 text-foreground text-sm font-semibold hover:bg-secondary/80 transition-colors active:scale-[0.98]"
+                  className="w-full py-3.5 rounded-2xl bg-secondary/60 text-foreground text-sm transition-colors active:scale-[0.98]"
                 >
                   إلغاء
                 </button>
@@ -396,7 +354,7 @@ const Registration = () => {
 
           {/* Footer */}
           <motion.div variants={fadeIn} className="mt-10 text-center">
-            <p className="text-[9px] text-muted-foreground/30 font-medium">عِتَرَةً · رفيقك الإسلامي</p>
+            <p className="text-[9px] text-muted-foreground/30 font-light">عِتَرَةً · رفيقك الإسلامي</p>
           </motion.div>
         </motion.div>
       </div>
