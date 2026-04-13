@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Send, Check, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -29,7 +29,6 @@ const ContactForm = ({ onClose }: ContactFormProps) => {
     const subject = encodeURIComponent(`[عِتَرَةً] ${reasons.find(r => r.value === reason)?.label} - ${name}`);
     const body = encodeURIComponent(`الاسم: ${name}\nالسبب: ${reasons.find(r => r.value === reason)?.label}\n\n${message}`);
     
-    // Open Gmail compose
     window.open(`https://mail.google.com/mail/?view=cm&to=a.jaafar.dev@gmail.com&su=${subject}&body=${body}`, '_blank');
     
     setSending(false);
@@ -52,25 +51,23 @@ const ContactForm = ({ onClose }: ContactFormProps) => {
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-card rounded-3xl p-5 shadow-elevated max-w-sm w-full border border-border/30"
+        className="bg-card rounded-3xl p-5 max-w-sm w-full border border-border/30"
         onClick={e => e.stopPropagation()}
       >
         {sent ? (
           <div className="text-center py-6">
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
-              <Check className="w-7 h-7 text-primary" />
-            </div>
-            <p className="text-sm font-bold text-foreground">تم بنجاح!</p>
-            <p className="text-[11px] text-muted-foreground mt-1">شكراً لتواصلك معنا</p>
+            <Check className="w-7 h-7 text-primary mx-auto mb-3" />
+            <p className="text-sm text-foreground">تم بنجاح!</p>
+            <p className="text-[11px] text-muted-foreground font-light mt-1">شكراً لتواصلك معنا</p>
           </div>
         ) : (
           <>
-            <h2 className="text-base font-bold text-foreground mb-1 text-center">التواصل السريع</h2>
-            <p className="text-[11px] text-muted-foreground text-center mb-4">أرسل رسالتك وسنرد في أقرب وقت</p>
+            <h2 className="text-base text-foreground mb-1 text-center">التواصل السريع</h2>
+            <p className="text-[11px] text-muted-foreground font-light text-center mb-4">أرسل رسالتك وسنرد في أقرب وقت</p>
 
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
-                <label className="block text-[11px] font-semibold text-foreground mb-1">الاسم</label>
+                <label className="block text-[11px] text-foreground mb-1">الاسم</label>
                 <input
                   type="text"
                   value={name}
@@ -82,16 +79,16 @@ const ContactForm = ({ onClose }: ContactFormProps) => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-foreground mb-1.5">السبب</label>
+                <label className="block text-[11px] text-foreground mb-1.5">السبب</label>
                 <div className="grid grid-cols-3 gap-1.5">
                   {reasons.map(r => (
                     <button
                       key={r.value}
                       type="button"
                       onClick={() => setReason(r.value)}
-                      className={`px-2.5 py-2 rounded-xl text-[11px] font-medium transition-all ${
+                      className={`px-2.5 py-2 rounded-xl text-[11px] transition-all ${
                         reason === r.value
-                          ? 'islamic-gradient text-primary-foreground shadow-sm'
+                          ? 'islamic-gradient text-primary-foreground'
                           : 'bg-secondary/50 text-muted-foreground hover:bg-secondary/70'
                       }`}
                     >
@@ -102,7 +99,7 @@ const ContactForm = ({ onClose }: ContactFormProps) => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-foreground mb-1">الرسالة</label>
+                <label className="block text-[11px] text-foreground mb-1">الرسالة</label>
                 <textarea
                   value={message}
                   onChange={e => setMessage(e.target.value)}
@@ -116,7 +113,7 @@ const ContactForm = ({ onClose }: ContactFormProps) => {
               <button
                 type="submit"
                 disabled={sending || !name.trim() || !reason || !message.trim()}
-                className="w-full py-3 rounded-xl islamic-gradient text-primary-foreground font-bold text-sm shadow-card active:scale-[0.97] transition-transform disabled:opacity-40 flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-xl islamic-gradient text-primary-foreground text-sm active:scale-[0.97] transition-transform disabled:opacity-40 flex items-center justify-center gap-2"
               >
                 {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 إرسال
@@ -125,7 +122,7 @@ const ContactForm = ({ onClose }: ContactFormProps) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full py-2.5 rounded-xl bg-secondary/60 text-foreground text-sm font-medium"
+                className="w-full py-2.5 rounded-xl bg-secondary/60 text-foreground text-sm"
               >
                 إلغاء
               </button>

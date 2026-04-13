@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPin, Search, LocateFixed, ChevronDown, ChevronUp, Globe } from 'lucide-react';
+import { MapPin, Search, LocateFixed, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface CityPickerProps {
   selectedCity: string;
@@ -8,14 +8,12 @@ interface CityPickerProps {
 
 type CityGroup = {
   region: string;
-  emoji: string;
   cities: { value: string; label: string }[];
 };
 
 const cityGroups: CityGroup[] = [
   {
     region: 'السعودية',
-    emoji: '🇸🇦',
     cities: [
       { value: 'Qatif', label: 'القطيف' },
       { value: 'Riyadh', label: 'الرياض' },
@@ -38,7 +36,6 @@ const cityGroups: CityGroup[] = [
   },
   {
     region: 'الخليج العربي',
-    emoji: '🌊',
     cities: [
       { value: 'Kuwait City', label: 'الكويت' },
       { value: 'Manama', label: 'المنامة' },
@@ -51,7 +48,6 @@ const cityGroups: CityGroup[] = [
   },
   {
     region: 'الشام والعراق',
-    emoji: '🏛️',
     cities: [
       { value: 'Baghdad', label: 'بغداد' },
       { value: 'Karbala', label: 'كربلاء' },
@@ -64,7 +60,6 @@ const cityGroups: CityGroup[] = [
   },
   {
     region: 'شمال أفريقيا',
-    emoji: '🌍',
     cities: [
       { value: 'Cairo', label: 'القاهرة' },
       { value: 'Alexandria', label: 'الإسكندرية' },
@@ -77,7 +72,6 @@ const cityGroups: CityGroup[] = [
   },
   {
     region: 'آسيا',
-    emoji: '🌏',
     cities: [
       { value: 'Tehran', label: 'طهران' },
       { value: 'Istanbul', label: 'إسطنبول' },
@@ -93,7 +87,6 @@ const cityGroups: CityGroup[] = [
   },
   {
     region: 'أوروبا',
-    emoji: '🌐',
     cities: [
       { value: 'London', label: 'لندن' },
       { value: 'Paris', label: 'باريس' },
@@ -108,7 +101,6 @@ const cityGroups: CityGroup[] = [
   },
   {
     region: 'الأمريكتان',
-    emoji: '🌎',
     cities: [
       { value: 'New York', label: 'نيويورك' },
       { value: 'Los Angeles', label: 'لوس أنجلوس' },
@@ -121,7 +113,6 @@ const cityGroups: CityGroup[] = [
   },
   {
     region: 'أفريقيا',
-    emoji: '🌍',
     cities: [
       { value: 'Lagos', label: 'لاغوس' },
       { value: 'Nairobi', label: 'نيروبي' },
@@ -132,7 +123,6 @@ const cityGroups: CityGroup[] = [
   },
   {
     region: 'أوقيانوسيا',
-    emoji: '🏝️',
     cities: [
       { value: 'Sydney', label: 'سيدني' },
       { value: 'Melbourne', label: 'ملبورن' },
@@ -187,21 +177,18 @@ const CityPicker = ({ selectedCity, onCityChange }: CityPickerProps) => {
     : cityGroups;
 
   return (
-    <div className="bg-card rounded-2xl shadow-card border border-border/30 p-4">
+    <div className="bg-card rounded-2xl border border-border/30 p-4">
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-8 h-8 rounded-lg bg-primary/8 flex items-center justify-center">
-          <Globe className="w-4 h-4 text-primary" />
-        </div>
+        <MapPin className="w-[18px] h-[18px] text-primary/70" />
         <div className="text-right flex-1">
-          <p className="text-sm font-medium text-foreground">المنطقة والطقس</p>
-          <p className="text-[10px] text-muted-foreground">اختر مدينتك لعرض الطقس وأوقات الصلاة</p>
+          <p className="text-sm text-foreground">المنطقة والطقس</p>
+          <p className="text-[10px] text-muted-foreground font-light">اختر مدينتك لعرض الطقس وأوقات الصلاة</p>
         </div>
       </div>
 
       <div className="flex items-center gap-1.5 mb-2.5 px-1">
-        <MapPin className="w-3 h-3 text-primary flex-shrink-0" />
-        <p className="text-[11px] text-muted-foreground">
-          الحالية: <span className="text-foreground font-semibold">{currentCityLabel}</span>
+        <p className="text-[11px] text-muted-foreground font-light">
+          الحالية: <span className="text-foreground">{currentCityLabel}</span>
         </p>
       </div>
 
@@ -220,7 +207,7 @@ const CityPicker = ({ selectedCity, onCityChange }: CityPickerProps) => {
         <button
           onClick={detectLocation}
           disabled={detecting}
-          className="px-2.5 py-2 rounded-xl bg-primary/8 text-primary flex items-center gap-1 text-xs font-medium disabled:opacity-40"
+          className="px-2.5 py-2 rounded-xl bg-primary/8 text-primary flex items-center gap-1 text-xs disabled:opacity-40"
         >
           <LocateFixed className={`w-3.5 h-3.5 ${detecting ? 'animate-spin' : ''}`} />
         </button>
@@ -235,12 +222,11 @@ const CityPicker = ({ selectedCity, onCityChange }: CityPickerProps) => {
             <div key={group.region} className="rounded-lg overflow-hidden">
               <button
                 onClick={() => setExpandedRegion(isExpanded && !search ? null : group.region)}
-                className={`w-full flex items-center justify-between px-3 py-2 text-xs font-medium transition-colors ${
+                className={`w-full flex items-center justify-between px-3 py-2 text-xs transition-colors ${
                   hasSelected ? 'bg-primary/6 text-primary' : 'bg-secondary/30 text-foreground hover:bg-secondary/50'
                 }`}
               >
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm">{group.emoji}</span>
                   <span>{group.region}</span>
                   <span className="text-[9px] text-muted-foreground">({group.cities.length})</span>
                 </div>
@@ -253,9 +239,9 @@ const CityPicker = ({ selectedCity, onCityChange }: CityPickerProps) => {
                     <button
                       key={city.value}
                       onClick={() => onCityChange(city.value)}
-                      className={`px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all ${
+                      className={`px-2.5 py-1 rounded-lg text-[10px] transition-all ${
                         selectedCity === city.value
-                          ? 'islamic-gradient text-primary-foreground shadow-card'
+                          ? 'islamic-gradient text-primary-foreground'
                           : 'bg-card text-foreground hover:bg-primary/6 hover:text-primary border border-border/20'
                       }`}
                     >
