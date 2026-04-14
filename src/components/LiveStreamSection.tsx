@@ -60,53 +60,40 @@ const LiveStreamSection = () => {
     <div>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-[13px] text-foreground">مُبــــــــاشر</h2>
-          <div className="flex items-center gap-1 mr-1">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive"></span>
-            </span>
-            <span className="text-[9px] text-destructive font-light">مباشر</span>
-          </div>
+          <h2 className="text-[13px] text-foreground">مُبــاشر</h2>
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive/60 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-destructive/70"></span>
+          </span>
         </div>
         {currentTime && (
-          <span className="text-[10px] text-muted-foreground font-light">
-            بتوقيت بغداد · {currentTime}
+          <span className="text-[9px] text-muted-foreground/40 font-light tabular-nums">
+            {currentTime}
           </span>
         )}
       </div>
 
-      <div className="space-y-2.5">
+      <div className="space-y-1.5">
         {channels.map((channel, i) => (
           <motion.button
             key={channel.id}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.08 }}
+            transition={{ delay: i * 0.06 }}
             onClick={() => openStream(channel.liveUrl)}
-            className="w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/30 hover:border-primary/30 transition-all active:scale-[0.98] shadow-card group"
+            className="w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/20 active:scale-[0.98] transition-transform"
           >
-            <div className="w-12 h-12 rounded-xl bg-secondary/60 flex items-center justify-center flex-shrink-0 overflow-hidden relative">
-              <Play className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-              <div className="absolute top-1 left-1">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-destructive"></span>
-                </span>
-              </div>
+            <div className="w-11 h-11 rounded-xl bg-secondary/40 flex items-center justify-center flex-shrink-0">
+              <Play className="w-4 h-4 text-foreground/60" />
             </div>
             <div className="flex-1 min-w-0 text-right">
-              <p className="text-[13px] text-foreground truncate">{channel.name}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5 font-light">بث مباشر</p>
+              <p className="text-[12px] text-foreground truncate">{channel.name}</p>
+              <p className="text-[9px] text-muted-foreground/40 mt-0.5 font-light">بث مباشر</p>
             </div>
-            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground/30 flex-shrink-0 group-hover:text-primary transition-colors" />
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground/20 flex-shrink-0" />
           </motion.button>
         ))}
       </div>
-
-      <p className="text-[9px] text-muted-foreground/40 text-center mt-2.5 font-light">
-        يتم التحديث يومياً · ١٠:٣٠ بتوقيت غرينتش
-      </p>
     </div>
   );
 };

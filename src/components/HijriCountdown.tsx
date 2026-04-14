@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Calendar } from 'lucide-react';
 import { getHijriAdjustment } from '@/lib/user';
 
 interface HijriData {
@@ -52,37 +51,33 @@ const HijriCountdown = () => {
   const progress = hijri ? (hijri.day / hijri.daysInMonth) * 100 : 0;
 
   return (
-    <div className="rounded-2xl glass-card p-4 min-h-[110px] flex flex-col justify-between relative overflow-hidden">
-      <div className="flex items-center justify-between mb-3 relative">
-        <span className="text-[10px] text-muted-foreground tracking-widest font-light">التقويم</span>
-        <Calendar className="w-4 h-4 text-primary/60" />
+    <div className="rounded-2xl bg-card border border-border/30 p-4 min-h-[110px] flex flex-col justify-between">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[9px] text-muted-foreground/50 tracking-widest font-light uppercase">التقويم</span>
       </div>
       {hijri ? (
-        <div className="relative">
+        <div>
           <p className="text-[16px] text-foreground leading-snug">
             {hijri.day} {hijri.month}
           </p>
-          <p className="text-[11px] text-muted-foreground mt-0.5 font-light">{hijri.year} هـ</p>
+          <p className="text-[10px] text-muted-foreground/50 mt-0.5 font-light">{hijri.year} هـ</p>
           
-          <div className="mt-3 relative">
-            <div className="h-1 rounded-full bg-secondary/50 overflow-hidden">
+          <div className="mt-3">
+            <div className="h-[3px] rounded-full bg-secondary/40 overflow-hidden">
               <div
-                className="h-full rounded-full islamic-gradient transition-all duration-700 ease-out"
+                className="h-full rounded-full bg-foreground/20 transition-all duration-700 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <div className="flex items-center justify-between mt-1">
-              <p className="text-[9px] text-muted-foreground/60 font-light">
-                {daysRemaining > 0 ? `${daysRemaining} يوم متبقي` : 'آخر يوم'}
-              </p>
-              <p className="text-[9px] text-primary/50">{Math.round(progress)}%</p>
-            </div>
+            <p className="text-[8px] text-muted-foreground/40 mt-1 font-light">
+              {daysRemaining > 0 ? `${daysRemaining} يوم متبقي` : 'آخر يوم'}
+            </p>
           </div>
         </div>
       ) : (
         <div className="space-y-2.5">
-          <div className="h-5 w-24 rounded-lg bg-secondary/50 animate-pulse" />
-          <div className="h-3 w-16 rounded-lg bg-secondary/30 animate-pulse" />
+          <div className="h-5 w-24 rounded-lg bg-secondary/40 animate-pulse" />
+          <div className="h-3 w-16 rounded-lg bg-secondary/25 animate-pulse" />
         </div>
       )}
     </div>

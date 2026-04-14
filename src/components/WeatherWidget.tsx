@@ -59,23 +59,23 @@ const WeatherWidget = () => {
   const Icon = weather ? getWeatherIcon(weather.code) : Cloud;
 
   return (
-    <div className="rounded-2xl glass-card p-4 min-h-[110px] flex flex-col justify-between relative overflow-hidden">
-      <div className="flex items-center justify-between mb-3 relative">
-        <span className="text-[10px] text-muted-foreground tracking-widest font-light">الطقس</span>
-        <Icon className="w-4 h-4 text-primary/60" />
+    <div className="rounded-2xl bg-card border border-border/30 p-4 min-h-[110px] flex flex-col justify-between">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[9px] text-muted-foreground/50 tracking-widest font-light uppercase">الطقس</span>
+        <Icon className="w-4 h-4 text-muted-foreground/30" />
       </div>
       {weather ? (
-        <div className="relative">
+        <div>
           <div className="flex items-baseline gap-0.5">
             <p className="text-4xl text-foreground tracking-tighter leading-none font-light">{weather.temp}</p>
-            <span className="text-lg text-muted-foreground/50 font-light">°</span>
+            <span className="text-lg text-muted-foreground/40 font-light">°</span>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-2 line-clamp-1 font-light">{weather.description}</p>
+          <p className="text-[10px] text-muted-foreground/50 mt-2 line-clamp-1 font-light">{weather.description}</p>
         </div>
       ) : (
         <div className="space-y-2.5">
-          <div className="h-9 w-16 rounded-xl bg-secondary/50 animate-pulse" />
-          <div className="h-3 w-20 rounded-lg bg-secondary/30 animate-pulse" />
+          <div className="h-9 w-16 rounded-xl bg-secondary/40 animate-pulse" />
+          <div className="h-3 w-20 rounded-lg bg-secondary/25 animate-pulse" />
         </div>
       )}
     </div>

@@ -20,10 +20,10 @@ function playTasbihSound() {
     gain.connect(ctx.destination);
     osc.type = 'sine';
     osc.frequency.value = 440;
-    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
     osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.15);
+    osc.stop(ctx.currentTime + 0.12);
   } catch {}
 }
 
@@ -53,13 +53,13 @@ const TasbihPage = () => {
   const totalDone = tasbihatZahra.slice(0, step).reduce((s, t) => s + t.target, 0) + count;
 
   const doFeedback = useCallback(() => {
-    if (vibration && navigator.vibrate) navigator.vibrate(15);
+    if (vibration && navigator.vibrate) navigator.vibrate(12);
     if (sound) playTasbihSound();
   }, [vibration, sound]);
 
   const triggerPulse = useCallback(() => {
     setShowPulse(true);
-    setTimeout(() => setShowPulse(false), 300);
+    setTimeout(() => setShowPulse(false), 250);
   }, []);
 
   const handleTapZahra = useCallback(() => {
@@ -96,7 +96,7 @@ const TasbihPage = () => {
       onClick={mode === 'open' ? handleScreenTap : undefined}
     >
       {/* Mode selector */}
-      <div className="flex gap-2 mb-5" data-control>
+      <div className="flex gap-1.5 mb-5" data-control>
         {[
           { key: 'zahra' as const, label: 'تسبيح الزهراء (ع)', desc: '١٠٠ تسبيحة' },
           { key: 'open' as const, label: 'تسبيح حر', desc: 'بلا حدود' },
@@ -104,14 +104,14 @@ const TasbihPage = () => {
           <button
             key={m.key}
             onClick={() => { setMode(m.key); setStep(0); setCount(0); }}
-            className={`flex-1 py-3.5 px-3 rounded-2xl text-center transition-all active:scale-[0.97] ${
+            className={`flex-1 py-3 px-3 rounded-2xl text-center transition-all active:scale-[0.97] ${
               mode === m.key
                 ? 'bg-foreground text-background'
-                : 'bg-card/80 backdrop-blur-sm border border-border/30 text-foreground'
+                : 'bg-card border border-border/20 text-foreground'
             }`}
           >
-            <span className="text-[13px] block">{m.label}</span>
-            <span className={`text-[9px] font-light block mt-0.5 ${mode === m.key ? 'text-background/60' : 'text-muted-foreground/50'}`}>{m.desc}</span>
+            <span className="text-[12px] block">{m.label}</span>
+            <span className={`text-[8px] font-light block mt-0.5 ${mode === m.key ? 'text-background/50' : 'text-muted-foreground/40'}`}>{m.desc}</span>
           </button>
         ))}
       </div>
@@ -119,16 +119,16 @@ const TasbihPage = () => {
       {/* Controls */}
       <div className="flex items-center justify-between mb-3 px-1" data-control>
         <button onClick={handleReset}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[11px] text-muted-foreground hover:text-destructive transition-all active:scale-95">
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] text-muted-foreground/50 active:scale-95 transition-transform">
           <RotateCcw className="w-3.5 h-3.5" /> إعادة
         </button>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <button onClick={toggleVibration}
-            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${vibration ? 'text-primary' : 'text-muted-foreground/40'}`}>
+            className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${vibration ? 'text-foreground' : 'text-muted-foreground/25'}`}>
             <Vibrate className="w-4 h-4" />
           </button>
           <button onClick={toggleSound}
-            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${sound ? 'text-primary' : 'text-muted-foreground/40'}`}>
+            className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${sound ? 'text-foreground' : 'text-muted-foreground/25'}`}>
             <Volume2 className="w-4 h-4" />
           </button>
         </div>
@@ -146,66 +146,65 @@ const TasbihPage = () => {
                   const isCurrent = i === step && !isComplete;
                   return (
                     <div key={i} className="flex-1 text-center">
-                      <div className={`mx-auto w-10 h-10 rounded-2xl flex items-center justify-center text-xs mb-2 transition-all ${
+                      <div className={`mx-auto w-10 h-10 rounded-2xl flex items-center justify-center text-[11px] mb-2 transition-all ${
                         isDone ? 'bg-foreground text-background'
-                          : isCurrent ? 'border-2 border-primary/50 text-primary'
-                          : 'bg-secondary/40 text-muted-foreground/50'
+                          : isCurrent ? 'border border-foreground/20 text-foreground'
+                          : 'bg-secondary/30 text-muted-foreground/35'
                       }`}>
                         {isDone ? <Check className="w-4 h-4" /> : i + 1}
                       </div>
-                      <p className={`text-[11px] ${isCurrent ? 'text-primary' : isDone ? 'text-foreground' : 'text-muted-foreground/50'}`}>{t.text}</p>
-                      <p className={`text-[9px] mt-0.5 font-light ${isCurrent ? 'text-primary/60' : 'text-muted-foreground/30'}`}>{t.target}×</p>
+                      <p className={`text-[10px] ${isCurrent ? 'text-foreground' : isDone ? 'text-foreground' : 'text-muted-foreground/35'}`}>{t.text}</p>
+                      <p className={`text-[8px] mt-0.5 font-light ${isCurrent ? 'text-muted-foreground/50' : 'text-muted-foreground/25'}`}>{t.target}×</p>
                     </div>
                   );
                 })}
               </div>
 
-              {/* Overall progress */}
+              {/* Progress */}
               <div className="w-full max-w-[300px] mb-8">
-                <div className="h-1 rounded-full bg-secondary/40 overflow-hidden">
-                  <motion.div className="h-full rounded-full bg-foreground" animate={{ width: `${(totalDone / totalAll) * 100}%` }} transition={{ duration: 0.3 }} />
+                <div className="h-[3px] rounded-full bg-secondary/30 overflow-hidden">
+                  <motion.div className="h-full rounded-full bg-foreground/25" animate={{ width: `${(totalDone / totalAll) * 100}%` }} transition={{ duration: 0.3 }} />
                 </div>
                 <div className="flex items-center justify-between mt-1.5">
-                  <span className="text-[9px] text-muted-foreground/40 font-light">{totalDone} / {totalAll}</span>
-                  <span className="text-[9px] text-primary/50">{Math.round((totalDone / totalAll) * 100)}%</span>
+                  <span className="text-[8px] text-muted-foreground/30 font-light">{totalDone} / {totalAll}</span>
+                  <span className="text-[8px] text-muted-foreground/40">{Math.round((totalDone / totalAll) * 100)}%</span>
                 </div>
               </div>
 
               {isComplete ? (
                 <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center py-6">
-                  <div className="w-24 h-24 mx-auto mb-5 rounded-full border-2 border-primary/30 flex items-center justify-center">
-                    <Check className="w-12 h-12 text-primary" />
+                  <div className="w-24 h-24 mx-auto mb-5 rounded-full border border-foreground/15 flex items-center justify-center">
+                    <Check className="w-12 h-12 text-foreground/60" />
                   </div>
                   <p className="text-2xl text-foreground mb-1.5">تم بحمد الله</p>
-                  <p className="text-sm text-muted-foreground font-light">{totalAll} تسبيحة</p>
+                  <p className="text-[12px] text-muted-foreground/50 font-light">{totalAll} تسبيحة</p>
                 </motion.div>
               ) : (
                 <>
-                  <motion.p key={step} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
-                    className="text-xl text-primary mb-8 tracking-tight">
+                  <motion.p key={step} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+                    className="text-xl text-foreground mb-8 tracking-tight">
                     {current.text}
                   </motion.p>
 
-                  {/* Counter ring */}
                   <div className="relative mb-6">
                     {showPulse && (
-                      <motion.div initial={{ scale: 1, opacity: 0.3 }} animate={{ scale: 1.5, opacity: 0 }} transition={{ duration: 0.3 }}
-                        className="absolute inset-0 rounded-full border-2 border-primary/30" />
+                      <motion.div initial={{ scale: 1, opacity: 0.2 }} animate={{ scale: 1.4, opacity: 0 }} transition={{ duration: 0.25 }}
+                        className="absolute inset-0 rounded-full border border-foreground/15" />
                     )}
-                    <motion.button whileTap={{ scale: 0.92 }} onClick={handleTapZahra}
+                    <motion.button whileTap={{ scale: 0.93 }} onClick={handleTapZahra}
                       className="relative w-40 h-40 rounded-full flex flex-col items-center justify-center active:opacity-90 transition-opacity">
                       <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 160 160">
-                        <circle cx="80" cy="80" r="72" fill="none" stroke="hsl(var(--secondary) / 0.4)" strokeWidth="3" />
-                        <circle cx="80" cy="80" r="72" fill="none" stroke="hsl(var(--primary))" strokeWidth="3" strokeLinecap="round"
+                        <circle cx="80" cy="80" r="72" fill="none" stroke="hsl(var(--secondary) / 0.3)" strokeWidth="2" />
+                        <circle cx="80" cy="80" r="72" fill="none" stroke="hsl(var(--foreground) / 0.3)" strokeWidth="2" strokeLinecap="round"
                           strokeDasharray={`${2 * Math.PI * 72}`}
                           strokeDashoffset={`${2 * Math.PI * 72 * (1 - count / current.target)}`}
                           className="transition-all duration-200" />
                       </svg>
                       <span className="text-5xl text-foreground tracking-tighter font-light">{count}</span>
-                      <span className="text-xs text-muted-foreground/50 mt-1 font-light">/ {current.target}</span>
+                      <span className="text-[10px] text-muted-foreground/40 mt-1 font-light">/ {current.target}</span>
                     </motion.button>
                   </div>
-                  <p className="text-[11px] text-muted-foreground/40 font-light">اضغط للتسبيح</p>
+                  <p className="text-[10px] text-muted-foreground/30 font-light">اضغط للتسبيح</p>
                 </>
               )}
             </motion.div>
@@ -213,18 +212,18 @@ const TasbihPage = () => {
             <motion.div key="open" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center">
               <div className="relative mb-6">
                 {showPulse && (
-                  <motion.div initial={{ scale: 1, opacity: 0.25 }} animate={{ scale: 1.6, opacity: 0 }} transition={{ duration: 0.3 }}
-                    className="absolute inset-0 rounded-full border-2 border-primary/20" />
+                  <motion.div initial={{ scale: 1, opacity: 0.2 }} animate={{ scale: 1.5, opacity: 0 }} transition={{ duration: 0.25 }}
+                    className="absolute inset-0 rounded-full border border-foreground/15" />
                 )}
-                <div className="w-48 h-48 rounded-full border-[3px] border-primary/15 flex flex-col items-center justify-center bg-card/30 backdrop-blur-sm">
-                  <motion.span key={openCount} initial={{ scale: 1.1 }} animate={{ scale: 1 }} transition={{ duration: 0.1 }}
+                <div className="w-48 h-48 rounded-full border border-border/15 flex flex-col items-center justify-center">
+                  <motion.span key={openCount} initial={{ scale: 1.08 }} animate={{ scale: 1 }} transition={{ duration: 0.1 }}
                     className="text-6xl text-foreground tracking-tighter font-light">
                     {openCount}
                   </motion.span>
-                  <span className="text-sm text-muted-foreground/60 mt-1 font-light">تسبيحة</span>
+                  <span className="text-[12px] text-muted-foreground/40 mt-1 font-light">تسبيحة</span>
                 </div>
               </div>
-              <p className="text-[11px] text-muted-foreground/30 mt-4 font-light">اضغط في أي مكان على الشاشة</p>
+              <p className="text-[10px] text-muted-foreground/25 mt-4 font-light">اضغط في أي مكان على الشاشة</p>
             </motion.div>
           )}
         </AnimatePresence>

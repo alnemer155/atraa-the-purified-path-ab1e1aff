@@ -34,10 +34,11 @@ const AppHeader = () => {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 bg-background/70 backdrop-blur-2xl backdrop-saturate-150 border-b border-border/30">
-      <div className="flex items-center justify-end px-4 py-2 max-w-lg mx-auto">
-        <img src={logoMap[season]} alt="عِتَرَةً" className="h-9 w-auto object-contain" />
+    <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-3xl backdrop-saturate-200">
+      <div className="flex items-center justify-end px-5 py-2.5 max-w-lg mx-auto">
+        <img src={logoMap[season]} alt="عِتَرَةً" className="h-8 w-auto object-contain" />
       </div>
+      <div className="h-px bg-border/20" />
     </header>
   );
 };
