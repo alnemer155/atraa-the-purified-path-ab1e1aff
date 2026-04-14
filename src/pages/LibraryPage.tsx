@@ -17,34 +17,31 @@ const LibraryPage = () => {
 
   return (
     <div className="animate-fade-in">
-      {/* Header */}
-      <div className="sticky top-[42px] z-30 bg-background/60 backdrop-blur-2xl backdrop-saturate-150">
+      <div className="sticky top-[41px] z-30 bg-background/80 backdrop-blur-3xl backdrop-saturate-200">
         <div className="px-4 pt-4 pb-3">
-          {/* Title */}
           <div className="mb-4">
             <h1 className="text-lg text-foreground leading-tight tracking-tight">المكتبة</h1>
-            <p className="text-[11px] text-muted-foreground font-light">أدعية · تسبيح · قبلة</p>
+            <p className="text-[10px] text-muted-foreground/50 font-light mt-0.5">أدعية · تسبيح · قبلة</p>
           </div>
 
-          {/* Tab bar */}
-          <div className="flex gap-1.5 p-1.5 bg-secondary/30 backdrop-blur-sm rounded-2xl border border-border/20">
+          <div className="flex gap-1 p-1 bg-secondary/25 rounded-2xl">
             {tabs.map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className="relative flex-1 py-3 rounded-xl text-sm transition-all"
+                className="relative flex-1 py-2.5 rounded-xl text-[12px] transition-all"
               >
                 {activeTab === tab.key && (
                   <motion.div
                     layoutId="library-tab"
-                    className="absolute inset-0 rounded-xl bg-card shadow-card border border-border/30"
+                    className="absolute inset-0 rounded-xl bg-card border border-border/20"
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
                 )}
-                <span className={`relative flex items-center justify-center ${
-                  activeTab === tab.key ? 'text-primary' : 'text-muted-foreground'
+                <span className={`relative ${
+                  activeTab === tab.key ? 'text-foreground' : 'text-muted-foreground/50'
                 }`}>
-                  <span className="text-[12px]">{tab.label}</span>
+                  {tab.label}
                 </span>
               </button>
             ))}
@@ -55,9 +52,9 @@ const LibraryPage = () => {
 
       <motion.div
         key={activeTab}
-        initial={{ opacity: 0, y: 8 }}
+        initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
       >
         {activeTab === 'duas' && <DuasPage />}
         {activeTab === 'tasbih' && <TasbihPage />}
