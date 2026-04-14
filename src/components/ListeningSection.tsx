@@ -55,17 +55,16 @@ const ListeningSection = () => {
     <div>
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-[13px] text-foreground">استماع</h2>
-        <button onClick={handleRefresh} className="p-1.5 rounded-lg hover:bg-secondary/40 transition-colors active:scale-95">
-          <RefreshCw className="w-3.5 h-3.5 text-muted-foreground" />
+        <button onClick={handleRefresh} className="p-1.5 rounded-lg text-muted-foreground/30 active:scale-95 transition-transform">
+          <RefreshCw className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      {/* Artist filter chips */}
-      <div className="flex gap-1.5 mb-3 overflow-x-auto pb-1 scrollbar-hide">
+      <div className="flex gap-1.5 mb-3 overflow-x-auto pb-1 hide-scrollbar">
         <button
           onClick={() => setSelectedArtist(null)}
-          className={`px-3 py-1.5 rounded-xl text-[11px] whitespace-nowrap transition-all ${
-            !selectedArtist ? 'bg-foreground text-background' : 'bg-secondary/50 text-muted-foreground'
+          className={`px-3 py-1.5 rounded-xl text-[10px] whitespace-nowrap transition-all ${
+            !selectedArtist ? 'bg-foreground text-background' : 'bg-secondary/40 text-muted-foreground/60'
           }`}
         >
           الكل
@@ -74,8 +73,8 @@ const ListeningSection = () => {
           <button
             key={a.id}
             onClick={() => setSelectedArtist(selectedArtist === a.id ? null : a.id)}
-            className={`px-3 py-1.5 rounded-xl text-[11px] whitespace-nowrap transition-all ${
-              selectedArtist === a.id ? 'bg-foreground text-background' : 'bg-secondary/50 text-muted-foreground'
+            className={`px-3 py-1.5 rounded-xl text-[10px] whitespace-nowrap transition-all ${
+              selectedArtist === a.id ? 'bg-foreground text-background' : 'bg-secondary/40 text-muted-foreground/60'
             }`}
           >
             {a.name}
@@ -83,52 +82,39 @@ const ListeningSection = () => {
         ))}
       </div>
 
-      {/* Content cards */}
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <AnimatePresence mode="popLayout">
           {filteredContent.map((item, i) => (
             <motion.div
               key={item.id}
               layout
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ delay: i * 0.05 }}
-              className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/30 shadow-card group"
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ delay: i * 0.04 }}
+              className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/20"
             >
               <button
                 onClick={() => window.open(item.youtubeUrl, '_blank', 'noopener,noreferrer')}
-                className="w-12 h-12 rounded-xl bg-secondary/60 flex items-center justify-center flex-shrink-0 relative overflow-hidden hover:bg-primary/10 transition-colors active:scale-95"
+                className="w-11 h-11 rounded-xl bg-secondary/40 flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform"
               >
-                <Play className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-                <div className="absolute top-1 right-1">
-                  <span className={`text-[7px] px-1 py-0.5 rounded ${
-                    item.category === 'hussaini' ? 'bg-destructive/15 text-destructive' : 'bg-accent/20 text-accent-foreground'
-                  }`}>
-                    {item.category === 'hussaini' ? 'عزاء' : 'مولد'}
-                  </span>
-                </div>
+                <Play className="w-4 h-4 text-foreground/60" />
               </button>
 
               <div className="flex-1 min-w-0 text-right">
-                <p className="text-[13px] text-foreground truncate">{item.title}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5 font-light">{item.artist}</p>
+                <p className="text-[12px] text-foreground truncate">{item.title}</p>
+                <p className="text-[9px] text-muted-foreground/50 mt-0.5 font-light">{item.artist}</p>
               </div>
 
-              <button
-                onClick={() => window.open(item.youtubeUrl, '_blank', 'noopener,noreferrer')}
-                className="p-2 rounded-xl hover:bg-secondary/40 transition-colors"
-              >
-                <ExternalLink className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-primary transition-colors" />
-              </button>
+              <span className={`text-[7px] px-1.5 py-0.5 rounded-md font-light ${
+                item.category === 'hussaini' ? 'bg-destructive/8 text-destructive/60' : 'bg-secondary/40 text-muted-foreground/50'
+              }`}>
+                {item.category === 'hussaini' ? 'عزاء' : 'مولد'}
+              </span>
             </motion.div>
           ))}
         </AnimatePresence>
       </div>
-
-      <p className="text-[9px] text-muted-foreground/40 text-center mt-2.5 font-light">
-        عزاء حسيني ومواليد أهل البيت ﴿ع﴾ · تحديث يومي ١٠:٣٠ غرينتش
-      </p>
     </div>
   );
 };

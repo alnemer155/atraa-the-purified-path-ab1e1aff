@@ -142,36 +142,33 @@ const PrayerTimes = () => {
   }, [timings]);
 
   return (
-    <div className="rounded-2xl glass-card p-4">
+    <div className="rounded-2xl bg-card border border-border/30 p-4">
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Sun className="w-4 h-4 text-primary" />
-          <h2 className="text-[13px] text-foreground">أوقات الصلاة</h2>
-        </div>
+        <h2 className="text-[13px] text-foreground">أوقات الصلاة</h2>
         {isSupported && (
           <button
             onClick={handleToggleNotif}
-            className={`p-2 rounded-xl transition-all ${notifEnabled ? 'text-primary' : 'text-muted-foreground/40 hover:text-foreground'}`}
+            className={`p-2 rounded-xl transition-colors ${notifEnabled ? 'text-primary' : 'text-muted-foreground/30'}`}
           >
             {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
           </button>
         )}
       </div>
       {!isSupported ? (
-        <div className="flex flex-col items-center gap-2.5 py-8">
-          <p className="text-xs text-muted-foreground text-center leading-relaxed font-light">
+        <div className="flex flex-col items-center gap-2 py-8">
+          <p className="text-xs text-muted-foreground/60 text-center leading-relaxed font-light">
             سيتم دعم <span className="text-foreground">{currentCity}</span> قريباً بإذن الله
           </p>
         </div>
       ) : loading ? (
         <div className="grid grid-cols-3 gap-2">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-[72px] rounded-xl bg-secondary/40 animate-pulse" />
+            <div key={i} className="h-[72px] rounded-xl bg-secondary/30 animate-pulse" />
           ))}
         </div>
       ) : timings ? (
         <div className="grid grid-cols-3 gap-2">
-          {prayerInfo.map(({ key, label, icon: Icon }) => {
+          {prayerInfo.map(({ key, label }) => {
             const isCurrent = indicators.current === key;
             const isNext = indicators.next === key;
             return (
@@ -179,24 +176,23 @@ const PrayerTimes = () => {
                 key={key}
                 className={`relative flex flex-col items-center gap-1.5 py-3.5 px-2 rounded-xl transition-all ${
                   isCurrent
-                    ? 'islamic-gradient shadow-lg shadow-primary/20'
+                    ? 'bg-foreground'
                     : isNext
-                    ? 'bg-primary/6 border border-primary/15'
-                    : 'bg-secondary/30'
+                    ? 'bg-primary/5 border border-primary/10'
+                    : 'bg-secondary/25'
                 }`}
               >
                 {(isCurrent || isNext) && (
-                  <span className={`absolute -top-2 text-[8px] px-2 py-0.5 rounded-full ${
+                  <span className={`absolute -top-2 text-[7px] px-2 py-0.5 rounded-full ${
                     isCurrent
-                      ? 'bg-accent text-accent-foreground'
-                      : 'bg-primary/15 text-primary'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-primary/10 text-primary'
                   }`}>
                     {isCurrent ? 'الآن' : 'التالي'}
                   </span>
                 )}
-                <Icon className={`w-4 h-4 ${isCurrent ? 'text-primary-foreground' : 'text-primary/70'}`} />
-                <span className={`text-[10px] font-light ${isCurrent ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>{label}</span>
-                <span className={`text-[13px] tabular-nums ${isCurrent ? 'text-primary-foreground' : 'text-foreground'}`}>
+                <span className={`text-[10px] font-light ${isCurrent ? 'text-background/70' : 'text-muted-foreground/60'}`}>{label}</span>
+                <span className={`text-[13px] tabular-nums ${isCurrent ? 'text-background' : 'text-foreground'}`}>
                   {to12Hour((timings as any)[key]?.split(' ')[0] || '')}
                 </span>
               </div>
@@ -204,7 +200,7 @@ const PrayerTimes = () => {
           })}
         </div>
       ) : (
-        <p className="text-xs text-muted-foreground text-center py-6 font-light">تعذر تحميل أوقات الصلاة</p>
+        <p className="text-xs text-muted-foreground/50 text-center py-6 font-light">تعذر تحميل أوقات الصلاة</p>
       )}
     </div>
   );
