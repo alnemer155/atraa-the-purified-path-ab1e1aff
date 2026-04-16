@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, ExternalLink, RefreshCw } from 'lucide-react';
+import { Play, RefreshCw } from 'lucide-react';
 
 interface AudioItem {
   id: string;
@@ -53,18 +53,18 @@ const ListeningSection = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-[13px] text-foreground">استماع</h2>
-        <button onClick={handleRefresh} className="p-1.5 rounded-lg text-muted-foreground/30 active:scale-95 transition-transform">
-          <RefreshCw className="w-3.5 h-3.5" />
+      <div className="flex items-center justify-between mb-2.5">
+        <h2 className="text-[12px] text-foreground">استماع</h2>
+        <button onClick={handleRefresh} className="p-1 rounded-md text-muted-foreground/25 active:scale-95 transition-transform">
+          <RefreshCw className="w-3 h-3" />
         </button>
       </div>
 
-      <div className="flex gap-1.5 mb-3 overflow-x-auto pb-1 hide-scrollbar">
+      <div className="flex gap-1 mb-2.5 overflow-x-auto pb-0.5 hide-scrollbar">
         <button
           onClick={() => setSelectedArtist(null)}
-          className={`px-3 py-1.5 rounded-xl text-[10px] whitespace-nowrap transition-all ${
-            !selectedArtist ? 'bg-foreground text-background' : 'bg-secondary/40 text-muted-foreground/60'
+          className={`px-2.5 py-1 rounded-lg text-[9px] whitespace-nowrap transition-all ${
+            !selectedArtist ? 'bg-foreground text-background' : 'bg-secondary/30 text-muted-foreground/50'
           }`}
         >
           الكل
@@ -73,8 +73,8 @@ const ListeningSection = () => {
           <button
             key={a.id}
             onClick={() => setSelectedArtist(selectedArtist === a.id ? null : a.id)}
-            className={`px-3 py-1.5 rounded-xl text-[10px] whitespace-nowrap transition-all ${
-              selectedArtist === a.id ? 'bg-foreground text-background' : 'bg-secondary/40 text-muted-foreground/60'
+            className={`px-2.5 py-1 rounded-lg text-[9px] whitespace-nowrap transition-all ${
+              selectedArtist === a.id ? 'bg-foreground text-background' : 'bg-secondary/30 text-muted-foreground/50'
             }`}
           >
             {a.name}
@@ -82,32 +82,32 @@ const ListeningSection = () => {
         ))}
       </div>
 
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         <AnimatePresence mode="popLayout">
           {filteredContent.map((item, i) => (
             <motion.div
               key={item.id}
               layout
-              initial={{ opacity: 0, y: 6 }}
+              initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ delay: i * 0.04 }}
-              className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/20"
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ delay: i * 0.03 }}
+              className="flex items-center gap-3 p-2.5 rounded-xl bg-card border border-border/15"
             >
               <button
                 onClick={() => window.open(item.youtubeUrl, '_blank', 'noopener,noreferrer')}
-                className="w-11 h-11 rounded-xl bg-secondary/40 flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform"
+                className="w-10 h-10 rounded-lg bg-secondary/30 flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform"
               >
-                <Play className="w-4 h-4 text-foreground/60" />
+                <Play className="w-3.5 h-3.5 text-foreground/50" />
               </button>
 
               <div className="flex-1 min-w-0 text-right">
-                <p className="text-[12px] text-foreground truncate">{item.title}</p>
-                <p className="text-[9px] text-muted-foreground/50 mt-0.5 font-light">{item.artist}</p>
+                <p className="text-[11px] text-foreground truncate">{item.title}</p>
+                <p className="text-[8px] text-muted-foreground/40 mt-0.5 font-light">{item.artist}</p>
               </div>
 
-              <span className={`text-[7px] px-1.5 py-0.5 rounded-md font-light ${
-                item.category === 'hussaini' ? 'bg-destructive/8 text-destructive/60' : 'bg-secondary/40 text-muted-foreground/50'
+              <span className={`text-[7px] px-1.5 py-0.5 rounded font-light ${
+                item.category === 'hussaini' ? 'bg-destructive/6 text-destructive/50' : 'bg-secondary/30 text-muted-foreground/40'
               }`}>
                 {item.category === 'hussaini' ? 'عزاء' : 'مولد'}
               </span>
