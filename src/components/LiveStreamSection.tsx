@@ -58,39 +58,39 @@ const LiveStreamSection = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <h2 className="text-[13px] text-foreground">مُبــاشر</h2>
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive/60 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-destructive/70"></span>
+      <div className="flex items-center justify-between mb-2.5">
+        <div className="flex items-center gap-1.5">
+          <h2 className="text-[12px] text-foreground">مُبــاشر</h2>
+          <span className="relative flex h-1 w-1">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive/50 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-1 w-1 bg-destructive/60"></span>
           </span>
         </div>
         {currentTime && (
-          <span className="text-[9px] text-muted-foreground/40 font-light tabular-nums">
+          <span className="text-[8px] text-muted-foreground/30 font-light tabular-nums">
             {currentTime}
           </span>
         )}
       </div>
 
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         {channels.map((channel, i) => (
           <motion.button
             key={channel.id}
-            initial={{ opacity: 0, y: 6 }}
+            initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06 }}
+            transition={{ delay: i * 0.04 }}
             onClick={() => openStream(channel.liveUrl)}
-            className="w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/20 active:scale-[0.98] transition-transform"
+            className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-card border border-border/15 active:scale-[0.98] transition-transform"
           >
-            <div className="w-11 h-11 rounded-xl bg-secondary/40 flex items-center justify-center flex-shrink-0">
-              <Play className="w-4 h-4 text-foreground/60" />
+            <div className="w-10 h-10 rounded-lg bg-secondary/30 flex items-center justify-center flex-shrink-0">
+              <Play className="w-3.5 h-3.5 text-foreground/50" />
             </div>
             <div className="flex-1 min-w-0 text-right">
-              <p className="text-[12px] text-foreground truncate">{channel.name}</p>
-              <p className="text-[9px] text-muted-foreground/40 mt-0.5 font-light">بث مباشر</p>
+              <p className="text-[11px] text-foreground truncate">{channel.name}</p>
+              <p className="text-[8px] text-muted-foreground/30 mt-0.5 font-light">بث مباشر</p>
             </div>
-            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground/20 flex-shrink-0" />
+            <ExternalLink className="w-3 h-3 text-muted-foreground/15 flex-shrink-0" />
           </motion.button>
         ))}
       </div>

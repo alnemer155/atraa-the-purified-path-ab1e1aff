@@ -46,25 +46,25 @@ const WallpapersSection = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-[13px] text-foreground">خلفيات عِتَرَةً</h2>
-        <span className="text-[8px] text-muted-foreground/35 font-light">{wallpapers.length} خلفية</span>
+      <div className="flex items-center justify-between mb-2.5">
+        <h2 className="text-[12px] text-foreground">خلفيات عِتَرَةً</h2>
+        <span className="text-[7px] text-muted-foreground/25 font-light">{wallpapers.length} خلفية</span>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2 -mx-4 px-4">
+      <div className="flex gap-1.5 overflow-x-auto hide-scrollbar pb-1.5 -mx-4 px-4">
         {wallpapers.map((w, i) => (
           <motion.button
             key={i}
-            initial={{ opacity: 0, scale: 0.96 }}
+            initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.03 }}
+            transition={{ delay: i * 0.02 }}
             onClick={() => setSelectedWallpaper(i)}
-            className="relative flex-shrink-0 w-[68px] rounded-2xl overflow-hidden aspect-[9/16] bg-secondary/20 border border-border/15 active:scale-95 transition-transform"
+            className="relative flex-shrink-0 w-[64px] rounded-xl overflow-hidden aspect-[9/16] bg-secondary/15 border border-border/10 active:scale-95 transition-transform"
           >
             <img src={w.src} alt={w.name} className="w-full h-full object-cover" loading="lazy" />
             {downloaded.has(i) && (
-              <div className="absolute top-1 left-1 w-3.5 h-3.5 rounded-full bg-foreground flex items-center justify-center">
-                <Check className="w-2 h-2 text-background" />
+              <div className="absolute top-1 left-1 w-3 h-3 rounded-full bg-foreground flex items-center justify-center">
+                <Check className="w-1.5 h-1.5 text-background" />
               </div>
             )}
           </motion.button>
@@ -76,32 +76,32 @@ const WallpapersSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 backdrop-blur-md px-8"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/25 backdrop-blur-md px-8"
           onClick={() => setSelectedWallpaper(null)}
         >
           <motion.div
-            initial={{ scale: 0.92, opacity: 0 }}
+            initial={{ scale: 0.94, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="relative max-w-[220px] w-full"
+            className="relative max-w-[200px] w-full"
             onClick={e => e.stopPropagation()}
           >
             <img
               src={wallpapers[selectedWallpaper].src}
               alt={wallpapers[selectedWallpaper].name}
-              className="w-full rounded-3xl"
+              className="w-full rounded-2xl"
             />
-            <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-foreground/50 to-transparent rounded-b-3xl">
-              <p className="text-[10px] text-background/80 text-center mb-2 font-light">{wallpapers[selectedWallpaper].name}</p>
+            <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-foreground/40 to-transparent rounded-b-2xl">
+              <p className="text-[9px] text-background/70 text-center mb-1.5 font-light">{wallpapers[selectedWallpaper].name}</p>
               <button
                 onClick={() => handleDownload(wallpapers[selectedWallpaper].src, wallpapers[selectedWallpaper].name, selectedWallpaper)}
-                className="w-full py-2 rounded-xl bg-background/90 backdrop-blur-sm text-foreground text-[11px] flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
+                className="w-full py-1.5 rounded-lg bg-background/85 backdrop-blur-sm text-foreground text-[10px] flex items-center justify-center gap-1 active:scale-95 transition-transform"
               >
                 {downloading === selectedWallpaper ? (
-                  <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8 }} className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full" />
+                  <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8 }} className="w-2.5 h-2.5 border-2 border-primary border-t-transparent rounded-full" />
                 ) : downloaded.has(selectedWallpaper) ? (
-                  <><Check className="w-3 h-3 text-primary" /> تم</>
+                  <><Check className="w-2.5 h-2.5 text-primary" /> تم</>
                 ) : (
-                  <><Download className="w-3 h-3" /> تحميل</>
+                  <><Download className="w-2.5 h-2.5" /> تحميل</>
                 )}
               </button>
             </div>

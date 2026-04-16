@@ -51,33 +51,33 @@ const HijriCountdown = () => {
   const progress = hijri ? (hijri.day / hijri.daysInMonth) * 100 : 0;
 
   return (
-    <div className="rounded-2xl bg-card border border-border/30 p-4 min-h-[110px] flex flex-col justify-between">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[9px] text-muted-foreground/50 tracking-widest font-light uppercase">التقويم</span>
+    <div className="rounded-2xl bg-card border border-border/20 p-3.5 min-h-[100px] flex flex-col justify-between">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[8px] text-muted-foreground/40 tracking-widest font-light">التقويم</span>
       </div>
       {hijri ? (
         <div>
-          <p className="text-[16px] text-foreground leading-snug">
+          <p className="text-[15px] text-foreground leading-snug">
             {hijri.day} {hijri.month}
           </p>
-          <p className="text-[10px] text-muted-foreground/50 mt-0.5 font-light">{hijri.year} هـ</p>
+          <p className="text-[9px] text-muted-foreground/40 mt-0.5 font-light">{hijri.year} هـ</p>
           
-          <div className="mt-3">
-            <div className="h-[3px] rounded-full bg-secondary/40 overflow-hidden">
+          <div className="mt-2.5">
+            <div className="h-[2px] rounded-full bg-secondary/30 overflow-hidden">
               <div
-                className="h-full rounded-full bg-foreground/20 transition-all duration-700 ease-out"
+                className="h-full rounded-full bg-foreground/15 transition-all duration-700 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className="text-[8px] text-muted-foreground/40 mt-1 font-light">
+            <p className="text-[7px] text-muted-foreground/30 mt-1 font-light">
               {daysRemaining > 0 ? `${daysRemaining} يوم متبقي` : 'آخر يوم'}
             </p>
           </div>
         </div>
       ) : (
-        <div className="space-y-2.5">
-          <div className="h-5 w-24 rounded-lg bg-secondary/40 animate-pulse" />
-          <div className="h-3 w-16 rounded-lg bg-secondary/25 animate-pulse" />
+        <div className="space-y-2">
+          <div className="h-4 w-20 rounded-md bg-secondary/30 animate-pulse" />
+          <div className="h-2.5 w-14 rounded-md bg-secondary/20 animate-pulse" />
         </div>
       )}
     </div>
