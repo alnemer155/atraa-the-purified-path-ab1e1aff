@@ -1,0 +1,77 @@
+{
+  "app": {
+    "name": "عِتَرَةً",
+    "version": "v11 · بناء 450"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "library": "المكتبة",
+    "settings": "الإعدادات"
+  },
+  "home": {
+    "greeting": "حيّاك الله",
+    "prayerTimes": "أوقات الصلاة",
+    "weather": "الطقس",
+    "hijri": "التاريخ الهجري",
+    "recommendations": "اقتراحات اليوم",
+    "wallpapers": "الخلفيات",
+    "now": "الآن",
+    "next": "التالي",
+    "loadingError": "تعذّر تحميل البيانات"
+  },
+  "prayers": {
+    "Fajr": "الفجر",
+    "Sunrise": "الشروق",
+    "Dhuhr": "الظهر",
+    "Asr": "العصر",
+    "Maghrib": "المغرب",
+    "Isha": "العشاء"
+  },
+  "library": {
+    "title": "المكتبة",
+    "subtitle": "تسبيح، أدعية، زيارات وأذكار",
+    "tasbih": "التسبيح",
+    "duas": "الأدعية",
+    "ziyarat": "الزيارات",
+    "adhkar": "الأذكار",
+    "qibla": "القبلة"
+  },
+  "qibla": {
+    "title": "بوصلة القبلة",
+    "aligned": "أنت متجه نحو القبلة",
+    "calibrate": "حرّك الجهاز على شكل ٨ للمعايرة",
+    "permission": "السماح باستخدام البوصلة",
+    "unsupported": "جهازك لا يدعم البوصلة"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "subtitle": "تخصيص التجربة",
+    "language": "اللغة",
+    "languageArabic": "العربية",
+    "languageEnglish": "English",
+    "city": "المدينة",
+    "hijriAdjust": "تعديل التاريخ الهجري",
+    "hijriAdjustHint": "تصحيح فرق الأيام",
+    "notifications": "الإشعارات",
+    "adhanNotif": "إشعارات الأذان",
+    "adhanNotifHint": "تنبيه عند دخول وقت الصلاة",
+    "share": "مشاركة التطبيق",
+    "shareHint": "شارك عِتَرَةً مع أصدقائك",
+    "legal": "قانوني",
+    "privacy": "سياسة الخصوصية",
+    "terms": "شروط الاستخدام",
+    "disclaimer": "إخلاء المسؤولية",
+    "data": "جمع البيانات",
+    "about": "عن التطبيق",
+    "version": "الإصدار"
+  },
+  "common": {
+    "back": "رجوع",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "ok": "حسناً",
+    "loading": "جارٍ التحميل...",
+    "search": "بحث",
+    "select": "اختر"
+  }
+}

@@ -1,85 +1,71 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Atraa v11 design tokens — App Store ready.
+ * Light-only theme. Apple "Liquid Glass" inspired surfaces.
+ * Islamic palette: emerald primary, soft warm background, gold accent.
+ */
+
 @layer base {
   :root {
-    --background: 30 15% 98%;
-    --foreground: 0 0% 7%;
+    /* Surfaces */
+    --background: 38 24% 97%;
+    --foreground: 158 32% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 7%;
+    --card-foreground: 158 32% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
+    --popover-foreground: 158 32% 12%;
 
-    --primary: 155 38% 18%;
-    --primary-foreground: 0 0% 100%;
+    /* Brand — Islamic emerald */
+    --primary: 158 48% 22%;
+    --primary-foreground: 38 30% 98%;
+    --primary-light: 158 30% 95%;
+    --primary-glow: 158 50% 32%;
 
-    --primary-light: 150 15% 96%;
-    --primary-glow: 150 40% 26%;
+    /* Secondary surfaces */
+    --secondary: 38 18% 93%;
+    --secondary-foreground: 158 30% 18%;
 
-    --secondary: 30 8% 93%;
-    --secondary-foreground: 0 0% 15%;
+    --muted: 38 14% 92%;
+    --muted-foreground: 158 12% 38%;
 
-    --muted: 30 6% 91%;
-    --muted-foreground: 0 0% 40%;
+    /* Accent — soft gold */
+    --accent: 38 65% 52%;
+    --accent-foreground: 158 35% 14%;
 
-    --accent: 42 65% 52%;
-    --accent-foreground: 0 0% 7%;
+    --gold: 38 65% 52%;
+    --gold-light: 38 60% 95%;
 
-    --destructive: 0 72% 55%;
+    --destructive: 0 70% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 8% 89%;
-    --input: 30 8% 89%;
-    --ring: 155 38% 18%;
+    --border: 38 16% 88%;
+    --input: 38 16% 88%;
+    --ring: 158 48% 22%;
 
     --radius: 1rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 26%;
-    --sidebar-primary: 0 0% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 0 0% 91%;
-    --sidebar-ring: 155 38% 18%;
+    /* Sidebar (kept for shadcn defaults) */
+    --sidebar-background: 38 24% 97%;
+    --sidebar-foreground: 158 32% 12%;
+    --sidebar-primary: 158 48% 22%;
+    --sidebar-primary-foreground: 38 30% 98%;
+    --sidebar-accent: 38 18% 93%;
+    --sidebar-accent-foreground: 158 30% 18%;
+    --sidebar-border: 38 16% 88%;
+    --sidebar-ring: 158 48% 22%;
 
-    --gold: 42 65% 52%;
-    --gold-light: 42 30% 94%;
-
-    --gradient-islamic: linear-gradient(135deg, hsl(155 38% 18%), hsl(150 40% 26%));
-    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.02);
-    --shadow-elevated: 0 4px 12px -4px hsl(0 0% 0% / 0.04);
-  }
-
-  .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 0%;
-    --primary-light: 0 0% 7%;
-    --primary-glow: 0 0% 85%;
-    --secondary: 0 0% 9%;
-    --secondary-foreground: 0 0% 90%;
-    --muted: 0 0% 11%;
-    --muted-foreground: 0 0% 50%;
-    --accent: 0 0% 80%;
-    --accent-foreground: 0 0% 0%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 12%;
-    --input: 0 0% 12%;
-    --ring: 0 0% 100%;
-    --gold: 0 0% 80%;
-    --gold-light: 0 0% 10%;
+    --gradient-islamic: linear-gradient(135deg, hsl(158 48% 22%), hsl(158 50% 32%));
+    --gradient-glow: radial-gradient(circle at 50% 50%, hsl(38 65% 52% / 0.25), transparent 70%);
+    --shadow-card: 0 1px 3px 0 hsl(158 30% 15% / 0.04);
+    --shadow-elevated: 0 8px 24px -8px hsl(158 30% 15% / 0.08);
+    --shadow-glass: 0 8px 32px hsl(158 30% 15% / 0.06);
   }
 }
 
@@ -89,10 +75,13 @@
   }
 
   html {
-    font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
-    direction: rtl;
+    font-family: 'IBM Plex Sans Arabic', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
+  }
+
+  html[lang='en'] {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   }
 
   body {
@@ -103,23 +92,18 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-weight: 400;
+    font-weight: 600;
     letter-spacing: -0.01em;
   }
-
-  /* Force only 300/400 weights — Apple-clean typography */
-  .font-light { font-weight: 300 !important; }
-  .font-normal { font-weight: 400 !important; }
-  .font-medium { font-weight: 400 !important; }
-  .font-semibold { font-weight: 400 !important; }
-  .font-bold { font-weight: 400 !important; }
-  .font-extrabold { font-weight: 400 !important; }
-  .font-black { font-weight: 400 !important; }
 }
 
 @layer utilities {
   .islamic-gradient {
     background: var(--gradient-islamic);
+  }
+
+  .glow-gradient {
+    background: var(--gradient-glow);
   }
 
   .shadow-card {
@@ -128,6 +112,10 @@
 
   .shadow-elevated {
     box-shadow: var(--shadow-elevated);
+  }
+
+  .shadow-glass {
+    box-shadow: var(--shadow-glass);
   }
 
   .text-gold {
@@ -139,7 +127,7 @@
   }
 
   .safe-bottom {
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 6rem);
   }
 
   .hide-scrollbar {
@@ -155,17 +143,31 @@
     line-height: 2.2;
   }
 
+  /* iOS 26 Liquid Glass — used for cards and surfaces */
   .glass-card {
-    @apply bg-card/80 backdrop-blur-2xl border border-border/30 rounded-2xl;
-    box-shadow: var(--shadow-card);
+    @apply bg-card/70 backdrop-blur-xl border border-white/40 rounded-2xl;
+    box-shadow: var(--shadow-glass);
   }
 
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.1); }
-    50% { box-shadow: 0 0 16px 2px hsl(var(--primary) / 0.06); }
+  .glass-surface {
+    @apply bg-background/55 backdrop-blur-2xl backdrop-saturate-200;
   }
 
-  .animate-pulse-glow {
-    animation: pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  @keyframes qibla-pulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.08); }
+  }
+
+  .animate-qibla-pulse {
+    animation: qibla-pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes light-orbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .animate-light-orbit {
+    animation: light-orbit 12s linear infinite;
   }
 }
