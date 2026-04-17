@@ -1,154 +1,86 @@
-import { useState } from 'react';
-import { MapPin, Search, LocateFixed, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { MapPin, Search, LocateFixed } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
+interface CityRecord {
+  value: string;
+  labelAr: string;
+  labelEn: string;
+  lat: number;
+  lng: number;
+  region: string;
+}
+
+const CITIES: CityRecord[] = [
+  { value: 'Qatif', labelAr: 'القطيف', labelEn: 'Qatif', lat: 26.5196, lng: 50.0115, region: 'SA' },
+  { value: 'Riyadh', labelAr: 'الرياض', labelEn: 'Riyadh', lat: 24.7136, lng: 46.6753, region: 'SA' },
+  { value: 'Jeddah', labelAr: 'جدة', labelEn: 'Jeddah', lat: 21.4858, lng: 39.1925, region: 'SA' },
+  { value: 'Dammam', labelAr: 'الدمام', labelEn: 'Dammam', lat: 26.3927, lng: 49.9777, region: 'SA' },
+  { value: 'Mecca', labelAr: 'مكة المكرمة', labelEn: 'Mecca', lat: 21.3891, lng: 39.8579, region: 'SA' },
+  { value: 'Medina', labelAr: 'المدينة المنورة', labelEn: 'Medina', lat: 24.5247, lng: 39.5692, region: 'SA' },
+  { value: 'Khobar', labelAr: 'الخبر', labelEn: 'Khobar', lat: 26.2172, lng: 50.1971, region: 'SA' },
+  { value: 'Ahsa', labelAr: 'الأحساء', labelEn: 'Al-Ahsa', lat: 25.3548, lng: 49.5870, region: 'SA' },
+  { value: 'Tabuk', labelAr: 'تبوك', labelEn: 'Tabuk', lat: 28.3838, lng: 36.5550, region: 'SA' },
+  { value: 'Abha', labelAr: 'أبها', labelEn: 'Abha', lat: 18.2164, lng: 42.5053, region: 'SA' },
+  { value: 'Taif', labelAr: 'الطائف', labelEn: 'Taif', lat: 21.2854, lng: 40.4183, region: 'SA' },
+  { value: 'Kuwait', labelAr: 'الكويت', labelEn: 'Kuwait City', lat: 29.3759, lng: 47.9774, region: 'GCC' },
+  { value: 'Manama', labelAr: 'المنامة', labelEn: 'Manama', lat: 26.2285, lng: 50.5860, region: 'GCC' },
+  { value: 'Doha', labelAr: 'الدوحة', labelEn: 'Doha', lat: 25.2854, lng: 51.5310, region: 'GCC' },
+  { value: 'Dubai', labelAr: 'دبي', labelEn: 'Dubai', lat: 25.2048, lng: 55.2708, region: 'GCC' },
+  { value: 'Abu Dhabi', labelAr: 'أبوظبي', labelEn: 'Abu Dhabi', lat: 24.4539, lng: 54.3773, region: 'GCC' },
+  { value: 'Muscat', labelAr: 'مسقط', labelEn: 'Muscat', lat: 23.5859, lng: 58.4059, region: 'GCC' },
+  { value: 'Baghdad', labelAr: 'بغداد', labelEn: 'Baghdad', lat: 33.3152, lng: 44.3661, region: 'IQ' },
+  { value: 'Karbala', labelAr: 'كربلاء', labelEn: 'Karbala', lat: 32.6160, lng: 44.0247, region: 'IQ' },
+  { value: 'Najaf', labelAr: 'النجف', labelEn: 'Najaf', lat: 32.0000, lng: 44.3333, region: 'IQ' },
+  { value: 'Basra', labelAr: 'البصرة', labelEn: 'Basra', lat: 30.5085, lng: 47.7804, region: 'IQ' },
+  { value: 'Damascus', labelAr: 'دمشق', labelEn: 'Damascus', lat: 33.5138, lng: 36.2765, region: 'LV' },
+  { value: 'Beirut', labelAr: 'بيروت', labelEn: 'Beirut', lat: 33.8938, lng: 35.5018, region: 'LV' },
+  { value: 'Amman', labelAr: 'عمّان', labelEn: 'Amman', lat: 31.9454, lng: 35.9284, region: 'LV' },
+  { value: 'Cairo', labelAr: 'القاهرة', labelEn: 'Cairo', lat: 30.0444, lng: 31.2357, region: 'AF' },
+  { value: 'Tehran', labelAr: 'طهران', labelEn: 'Tehran', lat: 35.6892, lng: 51.3890, region: 'AS' },
+  { value: 'Istanbul', labelAr: 'إسطنبول', labelEn: 'Istanbul', lat: 41.0082, lng: 28.9784, region: 'AS' },
+  { value: 'London', labelAr: 'لندن', labelEn: 'London', lat: 51.5074, lng: -0.1278, region: 'EU' },
+  { value: 'Paris', labelAr: 'باريس', labelEn: 'Paris', lat: 48.8566, lng: 2.3522, region: 'EU' },
+  { value: 'New York', labelAr: 'نيويورك', labelEn: 'New York', lat: 40.7128, lng: -74.0060, region: 'AM' },
+  { value: 'Toronto', labelAr: 'تورنتو', labelEn: 'Toronto', lat: 43.6532, lng: -79.3832, region: 'AM' },
+  { value: 'Sydney', labelAr: 'سيدني', labelEn: 'Sydney', lat: -33.8688, lng: 151.2093, region: 'OC' },
+];
 
 interface CityPickerProps {
   selectedCity: string;
-  onCityChange: (city: string) => void;
+  onCityChange: (city: string, coords: { lat: number; lng: number }) => void;
 }
 
-type CityGroup = {
-  region: string;
-  cities: { value: string; label: string }[];
-};
-
-const cityGroups: CityGroup[] = [
-  {
-    region: 'السعودية',
-    cities: [
-      { value: 'Qatif', label: 'القطيف' },
-      { value: 'Riyadh', label: 'الرياض' },
-      { value: 'Jeddah', label: 'جدة' },
-      { value: 'Dammam', label: 'الدمام' },
-      { value: 'Mecca', label: 'مكة المكرمة' },
-      { value: 'Medina', label: 'المدينة المنورة' },
-      { value: 'Khobar', label: 'الخبر' },
-      { value: 'Ahsa', label: 'الأحساء' },
-      { value: 'Saihat', label: 'سيهات' },
-      { value: 'Tarut', label: 'تاروت' },
-      { value: 'Tabuk', label: 'تبوك' },
-      { value: 'Abha', label: 'أبها' },
-      { value: 'Hail', label: 'حائل' },
-      { value: 'Jubail', label: 'الجبيل' },
-      { value: 'Yanbu', label: 'ينبع' },
-      { value: 'Najran', label: 'نجران' },
-      { value: 'Taif', label: 'الطائف' },
-    ],
-  },
-  {
-    region: 'الخليج العربي',
-    cities: [
-      { value: 'Kuwait City', label: 'الكويت' },
-      { value: 'Manama', label: 'المنامة' },
-      { value: 'Doha', label: 'الدوحة' },
-      { value: 'Dubai', label: 'دبي' },
-      { value: 'Abu Dhabi', label: 'أبوظبي' },
-      { value: 'Sharjah', label: 'الشارقة' },
-      { value: 'Muscat', label: 'مسقط' },
-    ],
-  },
-  {
-    region: 'الشام والعراق',
-    cities: [
-      { value: 'Baghdad', label: 'بغداد' },
-      { value: 'Karbala', label: 'كربلاء' },
-      { value: 'Najaf', label: 'النجف' },
-      { value: 'Basra', label: 'البصرة' },
-      { value: 'Damascus', label: 'دمشق' },
-      { value: 'Beirut', label: 'بيروت' },
-      { value: 'Amman', label: 'عمّان' },
-    ],
-  },
-  {
-    region: 'شمال أفريقيا',
-    cities: [
-      { value: 'Cairo', label: 'القاهرة' },
-      { value: 'Alexandria', label: 'الإسكندرية' },
-      { value: 'Tripoli', label: 'طرابلس' },
-      { value: 'Tunis', label: 'تونس' },
-      { value: 'Algiers', label: 'الجزائر' },
-      { value: 'Casablanca', label: 'الدار البيضاء' },
-      { value: 'Khartoum', label: 'الخرطوم' },
-    ],
-  },
-  {
-    region: 'آسيا',
-    cities: [
-      { value: 'Tehran', label: 'طهران' },
-      { value: 'Istanbul', label: 'إسطنبول' },
-      { value: 'Ankara', label: 'أنقرة' },
-      { value: 'Islamabad', label: 'إسلام آباد' },
-      { value: 'Karachi', label: 'كراتشي' },
-      { value: 'Jakarta', label: 'جاكرتا' },
-      { value: 'Kuala Lumpur', label: 'كوالالمبور' },
-      { value: 'Dhaka', label: 'دكا' },
-      { value: 'Tokyo', label: 'طوكيو' },
-      { value: 'Seoul', label: 'سيول' },
-    ],
-  },
-  {
-    region: 'أوروبا',
-    cities: [
-      { value: 'London', label: 'لندن' },
-      { value: 'Paris', label: 'باريس' },
-      { value: 'Berlin', label: 'برلين' },
-      { value: 'Amsterdam', label: 'أمستردام' },
-      { value: 'Stockholm', label: 'ستوكهولم' },
-      { value: 'Madrid', label: 'مدريد' },
-      { value: 'Rome', label: 'روما' },
-      { value: 'Vienna', label: 'فيينا' },
-      { value: 'Moscow', label: 'موسكو' },
-    ],
-  },
-  {
-    region: 'الأمريكتان',
-    cities: [
-      { value: 'New York', label: 'نيويورك' },
-      { value: 'Los Angeles', label: 'لوس أنجلوس' },
-      { value: 'Toronto', label: 'تورنتو' },
-      { value: 'Chicago', label: 'شيكاغو' },
-      { value: 'Houston', label: 'هيوستن' },
-      { value: 'Sao Paulo', label: 'ساو باولو' },
-      { value: 'Buenos Aires', label: 'بوينس آيرس' },
-    ],
-  },
-  {
-    region: 'أفريقيا',
-    cities: [
-      { value: 'Lagos', label: 'لاغوس' },
-      { value: 'Nairobi', label: 'نيروبي' },
-      { value: 'Johannesburg', label: 'جوهانسبرغ' },
-      { value: 'Dar es Salaam', label: 'دار السلام' },
-      { value: 'Mogadishu', label: 'مقديشو' },
-    ],
-  },
-  {
-    region: 'أوقيانوسيا',
-    cities: [
-      { value: 'Sydney', label: 'سيدني' },
-      { value: 'Melbourne', label: 'ملبورن' },
-      { value: 'Auckland', label: 'أوكلاند' },
-    ],
-  },
-];
-
-const allCities = cityGroups.flatMap(g => g.cities);
-
 const CityPicker = ({ selectedCity, onCityChange }: CityPickerProps) => {
+  const { t, i18n } = useTranslation();
   const [search, setSearch] = useState('');
-  const [expandedRegion, setExpandedRegion] = useState<string | null>(null);
   const [detecting, setDetecting] = useState(false);
+  const isAr = i18n.language === 'ar';
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return CITIES;
+    const q = search.trim().toLowerCase();
+    return CITIES.filter(
+      c => c.labelAr.includes(search) ||
+           c.labelEn.toLowerCase().includes(q) ||
+           c.value.toLowerCase().includes(q)
+    );
+  }, [search]);
 
   const detectLocation = () => {
     if (!('geolocation' in navigator)) return;
     setDetecting(true);
     navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const res = await fetch(`https://wttr.in/${pos.coords.latitude},${pos.coords.longitude}?format=j1`);
-          const data = await res.json();
-          const area = data?.nearest_area?.[0]?.areaName?.[0]?.value;
-          if (area) onCityChange(area);
-        } catch {}
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        // Find closest known city
+        let closest = CITIES[0];
+        let minDist = Infinity;
+        for (const c of CITIES) {
+          const d = Math.hypot(c.lat - latitude, c.lng - longitude);
+          if (d < minDist) { minDist = d; closest = c; }
+        }
+        onCityChange(closest.value, { lat: closest.lat, lng: closest.lng });
         setDetecting(false);
       },
       () => setDetecting(false),
@@ -156,103 +88,57 @@ const CityPicker = ({ selectedCity, onCityChange }: CityPickerProps) => {
     );
   };
 
-  const handleSearchSubmit = () => {
-    if (search.trim()) {
-      onCityChange(search.trim());
-      setSearch('');
-    }
-  };
-
-  const currentCityLabel = allCities.find(c => c.value === selectedCity)?.label || selectedCity;
-
-  const filteredGroups = search
-    ? cityGroups
-        .map(g => ({
-          ...g,
-          cities: g.cities.filter(
-            c => c.label.includes(search) || c.value.toLowerCase().includes(search.toLowerCase())
-          ),
-        }))
-        .filter(g => g.cities.length > 0)
-    : cityGroups;
+  const current = CITIES.find(c => c.value === selectedCity);
 
   return (
-    <div className="bg-card rounded-2xl border border-border/30 p-4">
+    <div className="bg-card rounded-2xl border border-border/40 p-4 shadow-card">
       <div className="flex items-center gap-3 mb-3">
-        <MapPin className="w-[18px] h-[18px] text-primary/70" />
-        <div className="text-right flex-1">
-          <p className="text-sm text-foreground">المنطقة والطقس</p>
-          <p className="text-[10px] text-muted-foreground font-light">اختر مدينتك لعرض الطقس وأوقات الصلاة</p>
+        <MapPin className="w-[18px] h-[18px] text-primary" />
+        <div className={`flex-1 ${isAr ? 'text-right' : 'text-left'}`}>
+          <p className="text-[13px] font-semibold text-foreground">{t('settings.city')}</p>
+          {current && (
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              {isAr ? current.labelAr : current.labelEn}
+            </p>
+          )}
         </div>
       </div>
 
-      <div className="flex items-center gap-1.5 mb-2.5 px-1">
-        <p className="text-[11px] text-muted-foreground font-light">
-          الحالية: <span className="text-foreground">{currentCityLabel}</span>
-        </p>
-      </div>
-
-      <div className="flex gap-1.5 mb-2.5">
-        <div className="flex-1 flex items-center gap-2 bg-secondary/40 rounded-xl px-3 py-2">
-          <Search className="w-3.5 h-3.5 text-muted-foreground/50 flex-shrink-0" />
+      <div className="flex gap-1.5 mb-3">
+        <div className="flex-1 flex items-center gap-2 bg-secondary/60 rounded-xl px-3 py-2">
+          <Search className="w-3.5 h-3.5 text-muted-foreground/60 flex-shrink-0" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
-            placeholder="ابحث عن مدينة..."
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+            placeholder={t('common.search')}
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 outline-none"
           />
         </div>
         <button
           onClick={detectLocation}
           disabled={detecting}
-          className="px-2.5 py-2 rounded-xl bg-primary/8 text-primary flex items-center gap-1 text-xs disabled:opacity-40"
+          className="px-3 py-2 rounded-xl bg-primary/10 text-primary flex items-center disabled:opacity-40"
+          aria-label="detect"
         >
-          <LocateFixed className={`w-3.5 h-3.5 ${detecting ? 'animate-spin' : ''}`} />
+          <LocateFixed className={`w-4 h-4 ${detecting ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
-      <div className="space-y-1 max-h-[300px] overflow-y-auto hide-scrollbar">
-        {filteredGroups.map((group) => {
-          const isExpanded = expandedRegion === group.region || !!search;
-          const hasSelected = group.cities.some(c => c.value === selectedCity);
-
-          return (
-            <div key={group.region} className="rounded-lg overflow-hidden">
-              <button
-                onClick={() => setExpandedRegion(isExpanded && !search ? null : group.region)}
-                className={`w-full flex items-center justify-between px-3 py-2 text-xs transition-colors ${
-                  hasSelected ? 'bg-primary/6 text-primary' : 'bg-secondary/30 text-foreground hover:bg-secondary/50'
-                }`}
-              >
-                <div className="flex items-center gap-1.5">
-                  <span>{group.region}</span>
-                  <span className="text-[9px] text-muted-foreground">({group.cities.length})</span>
-                </div>
-                {!search && (isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
-              </button>
-
-              {isExpanded && (
-                <div className="flex flex-wrap gap-1 p-2 bg-secondary/15">
-                  {group.cities.map(city => (
-                    <button
-                      key={city.value}
-                      onClick={() => onCityChange(city.value)}
-                      className={`px-2.5 py-1 rounded-lg text-[10px] transition-all ${
-                        selectedCity === city.value
-                          ? 'islamic-gradient text-primary-foreground'
-                          : 'bg-card text-foreground hover:bg-primary/6 hover:text-primary border border-border/20'
-                      }`}
-                    >
-                      {city.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
+      <div className="flex flex-wrap gap-1.5 max-h-[260px] overflow-y-auto hide-scrollbar">
+        {filtered.map((c) => (
+          <button
+            key={c.value}
+            onClick={() => onCityChange(c.value, { lat: c.lat, lng: c.lng })}
+            className={`px-3 py-1.5 rounded-lg text-[11px] transition-all ${
+              selectedCity === c.value
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-secondary/50 text-foreground border border-border/30'
+            }`}
+          >
+            {isAr ? c.labelAr : c.labelEn}
+          </button>
+        ))}
       </div>
     </div>
   );
