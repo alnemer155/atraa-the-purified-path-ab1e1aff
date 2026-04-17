@@ -2,20 +2,26 @@ import { Outlet } from 'react-router-dom';
 import AppHeader from './AppHeader';
 import BottomNav from './BottomNav';
 import DesktopBlocker from './DesktopBlocker';
-import UpdateBanner from './UpdateBanner';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const AppLayout = () => {
   const isMobile = useIsMobile();
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    document.documentElement.lang = i18n.language;
+    document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
+  }, [i18n.language]);
 
   if (isMobile === undefined) return null;
-  
+
   return (
     <>
       {!isMobile && <DesktopBlocker />}
       <div className={`min-h-screen bg-background max-w-lg mx-auto relative ${!isMobile ? 'hidden' : ''}`}>
         <AppHeader />
-        <UpdateBanner />
         <main className="safe-bottom">
           <Outlet />
         </main>

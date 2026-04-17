@@ -1,12 +1,10 @@
-// Enhanced prayer time & app notifications
+// Local-only prayer notifications (no backend, no push subscriptions)
+// v11: only Adhan/prayer reminders are supported, scheduled in the user's browser
 
-const PRAYER_LABELS: Record<string, string> = {
-  Fajr: 'الفجر',
-  Dhuhr: 'الظهر',
-  Asr: 'العصر',
-  Maghrib: 'المغرب',
-  Isha: 'العشاء',
-};
+export function getNotificationPermission(): NotificationPermission {
+  if (!('Notification' in window)) return 'denied';
+  return Notification.permission;
+}
 
 export async function requestNotificationPermission(): Promise<boolean> {
   if (!('Notification' in window)) return false;
@@ -16,156 +14,73 @@ export async function requestNotificationPermission(): Promise<boolean> {
   return result === 'granted';
 }
 
-export function getNotificationPermission(): NotificationPermission | 'unsupported' {
-  if (!('Notification' in window)) return 'unsupported';
-  return Notification.permission;
+interface PrayerTimings {
+  Fajr?: string;
+  Dhuhr?: string;
+  Asr?: string;
+  Maghrib?: string;
+  Isha?: string;
+  [k: string]: string | undefined;
 }
 
-function toMinutes(time24: string): number {
-  const [h, m] = time24.split(':').map(Number);
-  return h * 60 + m;
+const PRAYER_LABELS_AR: Record<string, string> = {
+  Fajr: 'الفجر',
+  Dhuhr: 'الظهر',
+  Asr: 'العصر',
+  Maghrib: 'المغرب',
+  Isha: 'العشاء',
+};
+
+const PRAYER_LABELS_EN: Record<string, string> = {
+  Fajr: 'Fajr',
+  Dhuhr: 'Dhuhr',
+  Asr: 'Asr',
+  Maghrib: 'Maghrib',
+  Isha: 'Isha',
+};
+
+const TIMERS: number[] = [];
+
+export function clearScheduledNotifications() {
+  while (TIMERS.length) {
+    const id = TIMERS.pop();
+    if (id !== undefined) clearTimeout(id);
+  }
 }
 
-let scheduledTimers: ReturnType<typeof setTimeout>[] = [];
+export function schedulePrayerNotifications(timings: PrayerTimings) {
+  if (getNotificationPermission() !== 'granted') return;
+  clearScheduledNotifications();
 
-export function schedulePrayerNotifications(timings: Record<string, any>) {
-  scheduledTimers.forEach(t => clearTimeout(t));
-  scheduledTimers = [];
+  const lang = document.documentElement.lang === 'en' ? 'en' : 'ar';
+  const labels = lang === 'en' ? PRAYER_LABELS_EN : PRAYER_LABELS_AR;
+  const titlePrefix = lang === 'en' ? 'Prayer time: ' : 'حان وقت صلاة ';
 
-  if (Notification.permission !== 'granted') return;
-  if (localStorage.getItem('atraa_notif_adhan') !== 'true') return;
+  const enabled = localStorage.getItem('atraa_notif_adhan') === 'true';
+  if (!enabled) return;
 
   const now = new Date();
-  const riyadhNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Riyadh' }));
-  const nowMinutes = riyadhNow.getHours() * 60 + riyadhNow.getMinutes();
-  const nowSeconds = riyadhNow.getSeconds();
-
-  Object.entries(PRAYER_LABELS).forEach(([key, label]) => {
-    const timeStr = timings[key]?.split(' ')[0];
-    if (!timeStr) return;
-
-    const prayerMinutes = toMinutes(timeStr);
-    let diffMinutes = prayerMinutes - nowMinutes;
-    if (diffMinutes <= 0) return;
-
-    const delayMs = (diffMinutes * 60 - nowSeconds) * 1000;
-
-    const timer = setTimeout(() => {
-      if (Notification.permission === 'granted') {
-        new Notification('عِتْرَة', {
-          body: `نداء السماء ينتظرك 🕌 (${label})`,
-          icon: '/logo.png',
-          badge: '/logo.png',
+  Object.keys(labels).forEach((key) => {
+    const raw = timings[key];
+    if (!raw) return;
+    const [h, m] = raw.split(' ')[0].split(':').map(Number);
+    if (Number.isNaN(h) || Number.isNaN(m)) return;
+    const target = new Date();
+    target.setHours(h, m, 0, 0);
+    const delay = target.getTime() - now.getTime();
+    if (delay <= 0 || delay > 24 * 60 * 60 * 1000) return;
+    const id = window.setTimeout(() => {
+      try {
+        new Notification(titlePrefix + labels[key], {
+          body: lang === 'en' ? 'It is time to pray.' : 'حان الآن وقت الصلاة',
+          icon: '/icon-192.png',
+          badge: '/icon-192.png',
           tag: `prayer-${key}`,
         });
+      } catch {
+        /* ignore */
       }
-    }, delayMs);
-
-    scheduledTimers.push(timer);
-  });
-}
-
-// Schedule quiz notifications
-export function scheduleQuizNotifications() {
-  if (Notification.permission !== 'granted') return;
-  if (localStorage.getItem('atraa_notif_quiz') !== 'true') return;
-
-  const now = new Date();
-  const h = now.getHours(), m = now.getMinutes();
-
-  // Before questions start at 9:00 AM — notify at 8:45 AM
-  if (h < 8 || (h === 8 && m < 45)) {
-    const target = new Date(now);
-    target.setHours(8, 45, 0, 0);
-    const delay = target.getTime() - now.getTime();
-    const t = setTimeout(() => {
-      new Notification('عِتْرَة · المسابقة', {
-        body: '⏰ أسئلة اليوم تبدأ بعد ١٥ دقيقة، استعد!',
-        icon: '/logo.png',
-        tag: 'quiz-start',
-      });
     }, delay);
-    scheduledTimers.push(t);
-  }
-
-  // Before questions close at 9:30 PM — notify at 9:20 PM
-  if (h < 21 || (h === 21 && m < 20)) {
-    const target = new Date(now);
-    target.setHours(21, 20, 0, 0);
-    const delay = target.getTime() - now.getTime();
-    if (delay > 0) {
-      const t = setTimeout(() => {
-        new Notification('عِتْرَة · المسابقة', {
-          body: '⚡ باقي ١٠ دقائق على إغلاق أسئلة اليوم!',
-          icon: '/logo.png',
-          tag: 'quiz-close',
-        });
-      }, delay);
-      scheduledTimers.push(t);
-    }
-  }
-}
-
-// Schedule dhikr and salawat reminders
-export function scheduleDhikrReminders() {
-  if (Notification.permission !== 'granted') return;
-
-  const now = new Date();
-  const h = now.getHours();
-
-  // Morning dhikr at 7:00 AM
-  if (localStorage.getItem('atraa_notif_dhikr') === 'true' && h < 7) {
-    const target = new Date(now);
-    target.setHours(7, 0, 0, 0);
-    const t = setTimeout(() => {
-      new Notification('عِتْرَة', {
-        body: '🌅 صباح الخير، لا تنسَ أذكار الصباح',
-        icon: '/logo.png',
-        tag: 'dhikr-morning',
-      });
-    }, target.getTime() - now.getTime());
-    scheduledTimers.push(t);
-  }
-
-  // Evening dhikr at 5:00 PM
-  if (localStorage.getItem('atraa_notif_dhikr') === 'true' && h < 17) {
-    const target = new Date(now);
-    target.setHours(17, 0, 0, 0);
-    const t = setTimeout(() => {
-      new Notification('عِتْرَة', {
-        body: '🌇 لا تنسَ أذكار المساء',
-        icon: '/logo.png',
-        tag: 'dhikr-evening',
-      });
-    }, target.getTime() - now.getTime());
-    scheduledTimers.push(t);
-  }
-
-  // Salawat reminder at 12:00 PM
-  if (localStorage.getItem('atraa_notif_salawat') === 'true' && h < 12) {
-    const target = new Date(now);
-    target.setHours(12, 0, 0, 0);
-    const t = setTimeout(() => {
-      new Notification('عِتْرَة', {
-        body: '🤲🏻 اللهم صلِّ على محمد وآل محمد',
-        icon: '/logo.png',
-        tag: 'salawat',
-      });
-    }, target.getTime() - now.getTime());
-    scheduledTimers.push(t);
-  }
-
-  // Daily dua reminder at 10:00 AM
-  if (localStorage.getItem('atraa_notif_dua') === 'true' && h < 10) {
-    const target = new Date(now);
-    target.setHours(10, 0, 0, 0);
-    const t = setTimeout(() => {
-      new Notification('عِتْرَة', {
-        body: '📖 لا تنسَ قراءة دعاء اليوم',
-        icon: '/logo.png',
-        tag: 'dua-daily',
-      });
-    }, target.getTime() - now.getTime());
-    scheduledTimers.push(t);
-  }
+    TIMERS.push(id);
+  });
 }

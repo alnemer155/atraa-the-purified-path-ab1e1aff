@@ -7,28 +7,23 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AppLayout from "./components/AppLayout";
-import SplashScreen from "./components/SplashScreen";
 import HomePage from "./pages/HomePage";
-import Registration from "./pages/Registration";
 
-// Lazy-loaded routes for performance
 const LibraryPage = lazy(() => import("./pages/LibraryPage"));
-const AiPage = lazy(() => import("./pages/AiPage"));
-const QuizPage = lazy(() => import("./pages/QuizPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const PoliciesPage = lazy(() => import("./pages/PoliciesPage"));
+const PrivacyPage = lazy(() => import("./pages/legal/PrivacyPage"));
+const TermsPage = lazy(() => import("./pages/legal/TermsPage"));
+const DisclaimerPage = lazy(() => import("./pages/legal/DisclaimerPage"));
+const DataPage = lazy(() => import("./pages/legal/DataPage"));
+const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const UnsubscribePage = lazy(() => import("./pages/UnsubscribePage"));
-const SupportPage = lazy(() => import("./pages/SupportPage"));
 
 const queryClient = new QueryClient();
 
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
-    <div className="flex flex-col items-center gap-3">
-      <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-      <p className="text-[11px] text-muted-foreground font-medium">جاري التحميل...</p>
-    </div>
+    <div className="w-7 h-7 border-2 border-primary/15 border-t-primary rounded-full animate-spin" />
   </div>
 );
 
@@ -38,21 +33,19 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <SplashScreen />
         <BrowserRouter>
           <Suspense fallback={<PageLoader />}>
             <Routes>
-              <Route path="/register" element={<Registration />} />
               <Route element={<AppLayout />}>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/library" element={<LibraryPage />} />
-                <Route path="/ai" element={<AiPage />} />
-                <Route path="/quiz" element={<QuizPage />} />
-                <Route path="/q/:shareCode" element={<QuizPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/policies" element={<PoliciesPage />} />
-                <Route path="/support" element={<SupportPage />} />
-                <Route path="/unsubscribe" element={<UnsubscribePage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/disclaimer" element={<DisclaimerPage />} />
+                <Route path="/data" element={<DataPage />} />
+                <Route path="/about" element={<AboutPage />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>

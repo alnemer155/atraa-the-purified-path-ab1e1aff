@@ -1,0 +1,77 @@
+{
+  "app": {
+    "name": "Atraa",
+    "version": "v11 · build 450"
+  },
+  "nav": {
+    "home": "Home",
+    "library": "Library",
+    "settings": "Settings"
+  },
+  "home": {
+    "greeting": "Welcome",
+    "prayerTimes": "Prayer Times",
+    "weather": "Weather",
+    "hijri": "Hijri Date",
+    "recommendations": "Daily Picks",
+    "wallpapers": "Wallpapers",
+    "now": "Now",
+    "next": "Next",
+    "loadingError": "Could not load data"
+  },
+  "prayers": {
+    "Fajr": "Fajr",
+    "Sunrise": "Sunrise",
+    "Dhuhr": "Dhuhr",
+    "Asr": "Asr",
+    "Maghrib": "Maghrib",
+    "Isha": "Isha"
+  },
+  "library": {
+    "title": "Library",
+    "subtitle": "Tasbih, Duas, Ziyarat and Adhkar",
+    "tasbih": "Tasbih",
+    "duas": "Duas",
+    "ziyarat": "Ziyarat",
+    "adhkar": "Adhkar",
+    "qibla": "Qibla"
+  },
+  "qibla": {
+    "title": "Qibla Compass",
+    "aligned": "You are facing the Qibla",
+    "calibrate": "Move device in a figure-8 to calibrate",
+    "permission": "Allow compass access",
+    "unsupported": "Your device does not support the compass"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Customize your experience",
+    "language": "Language",
+    "languageArabic": "العربية",
+    "languageEnglish": "English",
+    "city": "City",
+    "hijriAdjust": "Hijri Date Adjustment",
+    "hijriAdjustHint": "Fine-tune day offset",
+    "notifications": "Notifications",
+    "adhanNotif": "Adhan Reminders",
+    "adhanNotifHint": "Notify at prayer time",
+    "share": "Share App",
+    "shareHint": "Share Atraa with friends",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use",
+    "disclaimer": "Disclaimer",
+    "data": "Data Collection",
+    "about": "About",
+    "version": "Version"
+  },
+  "common": {
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "loading": "Loading...",
+    "search": "Search",
+    "select": "Select"
+  }
+}
