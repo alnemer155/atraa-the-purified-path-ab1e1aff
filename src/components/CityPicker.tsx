@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { MapPin, Search, LocateFixed } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
