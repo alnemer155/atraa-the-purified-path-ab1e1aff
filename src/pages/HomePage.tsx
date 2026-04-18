@@ -141,13 +141,6 @@ const HomePage = () => {
         <motion.div variants={fadeUp}>
           <DailyRecommendations />
         </motion.div>
-
-        {/* Footer */}
-        <motion.div variants={fadeUp} className="flex items-center justify-center pt-10 pb-4">
-          <p className="text-[9px] text-muted-foreground/40 tracking-wide">
-            {t('app.name')} · {t('app.version')}
-          </p>
-        </motion.div>
       </div>
     </motion.div>
   );

@@ -20,7 +20,7 @@ const AppLayout = () => {
   return (
     <>
       {!isMobile && <DesktopBlocker />}
-      <div className={`min-h-screen bg-background max-w-lg mx-auto relative ${!isMobile ? 'hidden' : ''}`}>
+      <div className={`min-h-screen bg-background max-w-lg md:max-w-2xl mx-auto relative ${!isMobile ? 'hidden' : ''}`}>
         <AppHeader />
         <main className="safe-bottom">
           <Outlet />
