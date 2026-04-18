@@ -13,14 +13,28 @@ const categories = [
 
 const categoryLabels: Record<string, string> = { dua: 'الأدعية', ziyara: 'الزيارات', dhikr: 'الأذكار' };
 
-const DuasPage = () => {
+interface DuasPageProps {
+  initialItemId?: string;
+}
+
+const DuasPage = ({ initialItemId }: DuasPageProps = {}) => {
   const [items, setItems] = useState<DuaItem[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('dua');
   const [selectedItem, setSelectedItem] = useState<DuaItem | null>(null);
   const [search, setSearch] = useState('');
   const [fontSize, setFontSize] = useState(18);
 
-  useEffect(() => { setItems(parseDuasContent(duasRaw)); }, []);
+  useEffect(() => {
+    const parsed = parseDuasContent(duasRaw);
+    setItems(parsed);
+    if (initialItemId) {
+      const found = parsed.find(p => p.id === initialItemId);
+      if (found) {
+        setActiveCategory(found.category);
+        setSelectedItem(found);
+      }
+    }
+  }, [initialItemId]);
 
   const filtered = useMemo(() => {
     let result = items.filter(i => i.category === activeCategory);

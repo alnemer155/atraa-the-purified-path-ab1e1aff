@@ -26,7 +26,7 @@ const AboutPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">التواصل</h2>
-            <p>support@atraa.xyz</p>
+            <p>info@atraa.xyz</p>
           </section>
         </>
       ) : (
@@ -45,7 +45,7 @@ const AboutPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">Contact</h2>
-            <p>support@atraa.xyz</p>
+            <p>info@atraa.xyz</p>
           </section>
         </>
       )}
