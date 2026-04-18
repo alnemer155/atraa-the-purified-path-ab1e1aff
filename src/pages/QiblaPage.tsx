@@ -322,7 +322,7 @@ const QiblaPage = () => {
       </AnimatePresence>
 
       <div className="flex-1 flex flex-col items-center justify-center">
-        <CompassDial heading={heading} rotation={rotation} isPointingQibla={isPointingQibla} />
+        <CompassDial heading={heading} rotation={rotation} isPointingQibla={isPointingQibla} alignmentScore={alignmentScore} />
 
         {compassActive && <DeviationBar rotation={rotation} />}
 
