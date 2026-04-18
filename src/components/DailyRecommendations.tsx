@@ -4,9 +4,12 @@ import { parseDuasContent } from '@/lib/duas-parser';
 import duasRaw from '@/data/duas-content.txt?raw';
 import { ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const DailyRecommendations = () => {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
 
   const recommendations = useMemo(() => {
     const items = parseDuasContent(duasRaw);
@@ -18,32 +21,34 @@ const DailyRecommendations = () => {
     const adhkar = items.filter(i => i.category === 'dhikr');
 
     return [
-      { label: 'دعاء اليوم', item: duas[dayOfYear % Math.max(duas.length, 1)] },
-      { label: 'زيارة اليوم', item: ziyarat[dayOfYear % Math.max(ziyarat.length, 1)] },
-      { label: 'ذكر اليوم', item: adhkar[dayOfYear % Math.max(adhkar.length, 1)] },
+      { label: isAr ? 'دعاء اليوم' : 'Dua of the day', tab: 'duas', item: duas[dayOfYear % Math.max(duas.length, 1)] },
+      { label: isAr ? 'زيارة اليوم' : 'Ziyara of the day', tab: 'duas', item: ziyarat[dayOfYear % Math.max(ziyarat.length, 1)] },
+      { label: isAr ? 'ذكر اليوم' : 'Dhikr of the day', tab: 'duas', item: adhkar[dayOfYear % Math.max(adhkar.length, 1)] },
     ].filter(r => r.item);
-  }, []);
+  }, [isAr]);
 
   if (recommendations.length === 0) return null;
 
   return (
     <div>
-      <h2 className="text-[12px] text-foreground mb-2.5">مقترحات اليوم</h2>
+      <h2 className={`text-[12px] text-foreground mb-2.5 ${isAr ? 'text-right' : 'text-left'}`}>
+        {isAr ? 'مقترحات اليوم' : 'Daily picks'}
+      </h2>
       <div className="space-y-1.5">
-        {recommendations.map(({ label, item }, i) => (
+        {recommendations.map(({ label, tab, item }, i) => (
           <motion.button
             key={item!.id}
-            initial={{ opacity: 0, x: 6 }}
+            initial={{ opacity: 0, x: isAr ? 6 : -6 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.05 }}
-            onClick={() => navigate('/library')}
-            className="w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/20 text-right active:scale-[0.98] transition-transform"
+            onClick={() => navigate('/library', { state: { tab, itemId: item!.id } })}
+            className={`w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/20 active:scale-[0.98] transition-transform ${isAr ? 'text-right' : 'text-left'}`}
           >
             <div className="flex-1 min-w-0">
               <p className="text-[8px] text-muted-foreground/40 tracking-wide font-light">{label}</p>
               <p className="text-[12px] text-foreground truncate mt-0.5">{item!.title}</p>
             </div>
-            <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground/15 flex-shrink-0" />
+            <ChevronLeft className={`w-3.5 h-3.5 text-muted-foreground/15 flex-shrink-0 ${isAr ? '' : 'rotate-180'}`} />
           </motion.button>
         ))}
       </div>
