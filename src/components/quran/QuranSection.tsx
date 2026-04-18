@@ -105,11 +105,50 @@ const QuranSection = () => {
   const [ayahsError, setAyahsError] = useState(false);
   const [fontSize, setFontSize] = useState(22);
 
-  // Ayah of the day
-  const ayahOfDay = useMemo(() => {
-    const today = new Date();
-    const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
-    return AYAH_POOL[dayOfYear % AYAH_POOL.length];
+  // Ayah of the day — deterministic per calendar day, fetched live from the
+  // canonical Mushaf (AlQuran.cloud /ayah/{n}/quran-uthmani) so the verse is
+  // a real, verified Quran ayah — never random words.
+  const [ayahOfDay, setAyahOfDay] = useState<AyahOfDay | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const key = todayKey();
+    const cacheKey = 'atraa_ayah_of_day';
+    try {
+      const cached = JSON.parse(localStorage.getItem(cacheKey) || 'null') as { key: string; ayah: AyahOfDay } | null;
+      if (cached && cached.key === key && cached.ayah) {
+        setAyahOfDay(cached.ayah);
+        return;
+      }
+    } catch { /* ignore */ }
+
+    // Pick a deterministic ayah number in [1..6236] for today
+    const ayahNumber = (dayIndex() % TOTAL_QURAN_AYAHS) + 1;
+    fetch(`https://api.alquran.cloud/v1/ayah/${ayahNumber}/quran-uthmani`)
+      .then(r => r.json())
+      .then(data => {
+        if (cancelled) return;
+        const a = data?.data;
+        if (a?.text && a?.surah?.name && a?.numberInSurah && a?.surah?.number) {
+          const verse: AyahOfDay = {
+            text: a.text,
+            surahName: a.surah.name.replace(/^سُورَةُ\s*/, ''),
+            surahNumber: a.surah.number,
+            numberInSurah: a.numberInSurah,
+          };
+          setAyahOfDay(verse);
+          try { localStorage.setItem(cacheKey, JSON.stringify({ key, ayah: verse })); } catch { /* ignore */ }
+        } else {
+          // API responded but malformed — use verified fallback
+          setAyahOfDay(VERIFIED_DAILY_AYAHS[dayIndex() % VERIFIED_DAILY_AYAHS.length]);
+        }
+      })
+      .catch(() => {
+        if (cancelled) return;
+        // Network failure — use verified fallback (still deterministic by day)
+        setAyahOfDay(VERIFIED_DAILY_AYAHS[dayIndex() % VERIFIED_DAILY_AYAHS.length]);
+      });
+    return () => { cancelled = true; };
   }, []);
 
   // Fetch surah list once
