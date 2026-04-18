@@ -22,22 +22,43 @@ interface Ayah {
 
 interface AyahOfDay {
   text: string;
-  surah: string;
+  surahName: string;
   surahNumber: number;
-  ayah: number;
+  numberInSurah: number;
 }
 
-const AYAH_POOL: AyahOfDay[] = [
-  { text: 'إِنَّ مَعَ ٱلْعُسْرِ يُسْرًۭا', surah: 'الشرح', surahNumber: 94, ayah: 6 },
-  { text: 'وَمَن يَتَّقِ ٱللَّهَ يَجْعَل لَّهُۥ مَخْرَجًۭا', surah: 'الطلاق', surahNumber: 65, ayah: 2 },
-  { text: 'فَٱذْكُرُونِىٓ أَذْكُرْكُمْ', surah: 'البقرة', surahNumber: 2, ayah: 152 },
-  { text: 'وَقُل رَّبِّ زِدْنِى عِلْمًۭا', surah: 'طه', surahNumber: 20, ayah: 114 },
-  { text: 'إِنَّ ٱللَّهَ مَعَ ٱلصَّـٰبِرِينَ', surah: 'البقرة', surahNumber: 2, ayah: 153 },
-  { text: 'حَسْبُنَا ٱللَّهُ وَنِعْمَ ٱلْوَكِيلُ', surah: 'آل عمران', surahNumber: 3, ayah: 173 },
-  { text: 'وَتَوَكَّلْ عَلَى ٱلْحَىِّ ٱلَّذِى لَا يَمُوتُ', surah: 'الفرقان', surahNumber: 25, ayah: 58 },
-  { text: 'رَبِّ ٱشْرَحْ لِى صَدْرِى وَيَسِّرْ لِىٓ أَمْرِى', surah: 'طه', surahNumber: 20, ayah: 25 },
-  { text: 'إِنَّ ٱللَّهَ يُحِبُّ ٱلْمُتَوَكِّلِينَ', surah: 'آل عمران', surahNumber: 3, ayah: 159 },
+// Verified, manually selected verses (Uthmani script) — used as a deterministic
+// fallback when the network is unavailable. Each entry is a real, well-known
+// ayah whose location is confirmed in the Mushaf.
+const VERIFIED_DAILY_AYAHS: AyahOfDay[] = [
+  { text: 'إِنَّ مَعَ ٱلْعُسْرِ يُسْرًۭا', surahName: 'الشرح', surahNumber: 94, numberInSurah: 6 },
+  { text: 'وَمَن يَتَّقِ ٱللَّهَ يَجْعَل لَّهُۥ مَخْرَجًۭا', surahName: 'الطلاق', surahNumber: 65, numberInSurah: 2 },
+  { text: 'فَٱذْكُرُونِىٓ أَذْكُرْكُمْ وَٱشْكُرُوا۟ لِى وَلَا تَكْفُرُونِ', surahName: 'البقرة', surahNumber: 2, numberInSurah: 152 },
+  { text: 'وَقُل رَّبِّ زِدْنِى عِلْمًۭا', surahName: 'طه', surahNumber: 20, numberInSurah: 114 },
+  { text: 'وَٱصْبِرُوا۟ ۚ إِنَّ ٱللَّهَ مَعَ ٱلصَّـٰبِرِينَ', surahName: 'الأنفال', surahNumber: 8, numberInSurah: 46 },
+  { text: 'حَسْبُنَا ٱللَّهُ وَنِعْمَ ٱلْوَكِيلُ', surahName: 'آل عمران', surahNumber: 3, numberInSurah: 173 },
+  { text: 'وَتَوَكَّلْ عَلَى ٱلْحَىِّ ٱلَّذِى لَا يَمُوتُ وَسَبِّحْ بِحَمْدِهِۦ', surahName: 'الفرقان', surahNumber: 25, numberInSurah: 58 },
+  { text: 'رَبِّ ٱشْرَحْ لِى صَدْرِى وَيَسِّرْ لِىٓ أَمْرِى', surahName: 'طه', surahNumber: 20, numberInSurah: 25 },
+  { text: 'إِنَّ ٱللَّهَ يُحِبُّ ٱلْمُتَوَكِّلِينَ', surahName: 'آل عمران', surahNumber: 3, numberInSurah: 159 },
+  { text: 'وَبَشِّرِ ٱلصَّـٰبِرِينَ', surahName: 'البقرة', surahNumber: 2, numberInSurah: 155 },
+  { text: 'إِنَّ ٱللَّهَ لَا يُغَيِّرُ مَا بِقَوْمٍ حَتَّىٰ يُغَيِّرُوا۟ مَا بِأَنفُسِهِمْ', surahName: 'الرعد', surahNumber: 13, numberInSurah: 11 },
+  { text: 'وَمَن يَتَوَكَّلْ عَلَى ٱللَّهِ فَهُوَ حَسْبُهُۥٓ', surahName: 'الطلاق', surahNumber: 65, numberInSurah: 3 },
 ];
+
+const TOTAL_QURAN_AYAHS = 6236;
+
+// Deterministic day-of-year index — same value for every user on the same calendar day
+const dayIndex = () => {
+  const now = new Date();
+  const start = Date.UTC(now.getUTCFullYear(), 0, 0);
+  const diff = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - start;
+  return Math.floor(diff / 86400000);
+};
+
+const todayKey = () => {
+  const d = new Date();
+  return `${d.getUTCFullYear()}-${d.getUTCMonth() + 1}-${d.getUTCDate()}`;
+};
 
 // Ornate Heritage divider (illuminated arabesque)
 const Ornament = ({ className = '' }: { className?: string }) => (
@@ -84,11 +105,50 @@ const QuranSection = () => {
   const [ayahsError, setAyahsError] = useState(false);
   const [fontSize, setFontSize] = useState(22);
 
-  // Ayah of the day
-  const ayahOfDay = useMemo(() => {
-    const today = new Date();
-    const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
-    return AYAH_POOL[dayOfYear % AYAH_POOL.length];
+  // Ayah of the day — deterministic per calendar day, fetched live from the
+  // canonical Mushaf (AlQuran.cloud /ayah/{n}/quran-uthmani) so the verse is
+  // a real, verified Quran ayah — never random words.
+  const [ayahOfDay, setAyahOfDay] = useState<AyahOfDay | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const key = todayKey();
+    const cacheKey = 'atraa_ayah_of_day';
+    try {
+      const cached = JSON.parse(localStorage.getItem(cacheKey) || 'null') as { key: string; ayah: AyahOfDay } | null;
+      if (cached && cached.key === key && cached.ayah) {
+        setAyahOfDay(cached.ayah);
+        return;
+      }
+    } catch { /* ignore */ }
+
+    // Pick a deterministic ayah number in [1..6236] for today
+    const ayahNumber = (dayIndex() % TOTAL_QURAN_AYAHS) + 1;
+    fetch(`https://api.alquran.cloud/v1/ayah/${ayahNumber}/quran-uthmani`)
+      .then(r => r.json())
+      .then(data => {
+        if (cancelled) return;
+        const a = data?.data;
+        if (a?.text && a?.surah?.name && a?.numberInSurah && a?.surah?.number) {
+          const verse: AyahOfDay = {
+            text: a.text,
+            surahName: a.surah.name.replace(/^سُورَةُ\s*/, ''),
+            surahNumber: a.surah.number,
+            numberInSurah: a.numberInSurah,
+          };
+          setAyahOfDay(verse);
+          try { localStorage.setItem(cacheKey, JSON.stringify({ key, ayah: verse })); } catch { /* ignore */ }
+        } else {
+          // API responded but malformed — use verified fallback
+          setAyahOfDay(VERIFIED_DAILY_AYAHS[dayIndex() % VERIFIED_DAILY_AYAHS.length]);
+        }
+      })
+      .catch(() => {
+        if (cancelled) return;
+        // Network failure — use verified fallback (still deterministic by day)
+        setAyahOfDay(VERIFIED_DAILY_AYAHS[dayIndex() % VERIFIED_DAILY_AYAHS.length]);
+      });
+    return () => { cancelled = true; };
   }, []);
 
   // Fetch surah list once
@@ -145,6 +205,7 @@ const QuranSection = () => {
   }, [surahs, search]);
 
   const openAyahOfDay = () => {
+    if (!ayahOfDay) return;
     const found = surahs?.find(s => s.number === ayahOfDay.surahNumber);
     if (found) setOpenSurah(found);
   };
@@ -154,10 +215,9 @@ const QuranSection = () => {
       {/* Ayah of the day — illuminated card */}
       <button
         onClick={openAyahOfDay}
-        disabled={!surahs}
+        disabled={!surahs || !ayahOfDay}
         className="group w-full bg-card border border-border/15 rounded-3xl p-6 text-center mb-5 relative overflow-hidden active:scale-[0.99] transition-transform"
       >
-        {/* Subtle Heritage geometric pattern */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.05]">
           <svg viewBox="0 0 200 200" className="w-full h-full">
             <defs>
@@ -169,7 +229,6 @@ const QuranSection = () => {
             <rect width="200" height="200" fill="url(#quran-pattern)" />
           </svg>
         </div>
-        {/* Gold corner flourishes */}
         <svg className="absolute top-2 left-2 w-5 h-5 text-gold opacity-50" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="0.8">
           <path d="M2 8 V2 H8 M2 2 q4 2 6 6" />
         </svg>
@@ -181,13 +240,25 @@ const QuranSection = () => {
           {isAr ? 'آية اليوم' : 'Verse of the day'}
         </p>
         <Ornament className="relative w-32 h-3 mx-auto text-gold mb-4" />
-        <p className="relative religious-text text-[19px] text-foreground leading-[2.4] mb-4 px-2">
-          {ayahOfDay.text}
-        </p>
-        <Ornament className="relative w-32 h-3 mx-auto text-gold mb-3 rotate-180" />
-        <p className="relative text-[10px] text-muted-foreground/55 font-light tracking-wide">
-          {isAr ? `سورة ${ayahOfDay.surah} · الآية ${ayahOfDay.ayah}` : `Surah ${ayahOfDay.surah} · Ayah ${ayahOfDay.ayah}`}
-        </p>
+        {ayahOfDay ? (
+          <>
+            <p className="relative religious-text text-[19px] text-foreground leading-[2.4] mb-4 px-2">
+              {ayahOfDay.text}
+            </p>
+            <Ornament className="relative w-32 h-3 mx-auto text-gold mb-3 rotate-180" />
+            <p className="relative text-[10px] text-muted-foreground/55 font-light tracking-wide">
+              {isAr
+                ? `سورة ${ayahOfDay.surahName} · الآية ${ayahOfDay.numberInSurah}`
+                : `Surah ${ayahOfDay.surahName} · Ayah ${ayahOfDay.numberInSurah}`}
+            </p>
+          </>
+        ) : (
+          <div className="relative space-y-2 px-4 py-3">
+            <div className="h-3 w-3/4 mx-auto rounded-md bg-secondary/40 animate-pulse" />
+            <div className="h-3 w-1/2 mx-auto rounded-md bg-secondary/30 animate-pulse" />
+            <div className="h-2 w-1/3 mx-auto rounded-md bg-secondary/20 animate-pulse mt-3" />
+          </div>
+        )}
       </button>
 
       {/* Search */}
