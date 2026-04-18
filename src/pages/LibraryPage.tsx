@@ -2,76 +2,12 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { BookOpen } from 'lucide-react';
 import DuasPage from './DuasPage';
 import TasbihPage from './TasbihPage';
 import QiblaPage from './QiblaPage';
+import QuranSection from '@/components/quran/QuranSection';
 
 type Tab = 'duas' | 'tasbih' | 'qibla' | 'quran';
-
-interface AyahOfDay {
-  text: string;
-  surah: string;
-  ayah: number;
-}
-
-const AYAH_POOL: AyahOfDay[] = [
-  { text: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا', surah: 'الشرح', ayah: 6 },
-  { text: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', surah: 'الطلاق', ayah: 2 },
-  { text: 'فَاذْكُرُونِي أَذْكُرْكُمْ', surah: 'البقرة', ayah: 152 },
-  { text: 'وَقُل رَّبِّ زِدْنِي عِلْمًا', surah: 'طه', ayah: 114 },
-  { text: 'إِنَّ اللَّهَ مَعَ الصَّابِرِينَ', surah: 'البقرة', ayah: 153 },
-  { text: 'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ', surah: 'آل عمران', ayah: 173 },
-  { text: 'وَتَوَكَّلْ عَلَى الْحَيِّ الَّذِي لَا يَمُوتُ', surah: 'الفرقان', ayah: 58 },
-];
-
-const QuranPlaceholder = () => {
-  const { i18n } = useTranslation();
-  const isAr = i18n.language === 'ar';
-  const today = new Date();
-  const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
-  const ayah = AYAH_POOL[dayOfYear % AYAH_POOL.length];
-
-  return (
-    <div className="px-4 py-6 animate-fade-in">
-      {/* Ayah of the day */}
-      <div className="bg-card border border-border/15 rounded-3xl p-6 text-center mb-5 relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none opacity-[0.04]">
-          <svg viewBox="0 0 200 200" className="w-full h-full">
-            <pattern id="islamic-pattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M20 0 L40 20 L20 40 L0 20 Z" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-            </pattern>
-            <rect width="200" height="200" fill="url(#islamic-pattern)" />
-          </svg>
-        </div>
-        <p className="text-[8px] text-muted-foreground/40 tracking-widest font-light mb-3 uppercase">
-          {isAr ? 'آية اليوم' : 'Verse of the day'}
-        </p>
-        <p className="religious-text text-[18px] text-foreground leading-[2.2] mb-3">
-          {ayah.text}
-        </p>
-        <p className="text-[10px] text-muted-foreground/50 font-light">
-          {isAr ? `سورة ${ayah.surah} · الآية ${ayah.ayah}` : `Surah ${ayah.surah} · Ayah ${ayah.ayah}`}
-        </p>
-      </div>
-
-      {/* Quran coming soon */}
-      <div className="bg-card border border-border/15 rounded-2xl p-8 text-center">
-        <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-secondary/40 flex items-center justify-center">
-          <BookOpen className="w-5 h-5 text-foreground/50" />
-        </div>
-        <p className="text-[14px] text-foreground mb-1.5">
-          {isAr ? 'القرآن الكريم' : 'The Holy Quran'}
-        </p>
-        <p className="text-[11px] text-muted-foreground/50 font-light leading-relaxed">
-          {isAr
-            ? 'قريباً — قراءة وتلاوة كاملة بترتيب المصحف الشريف'
-            : 'Coming soon — Full Quran with original order'}
-        </p>
-      </div>
-    </div>
-  );
-};
 
 const LibraryPage = () => {
   const { t, i18n } = useTranslation();
