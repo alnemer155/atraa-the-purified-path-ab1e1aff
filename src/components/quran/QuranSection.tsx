@@ -205,6 +205,7 @@ const QuranSection = () => {
   }, [surahs, search]);
 
   const openAyahOfDay = () => {
+    if (!ayahOfDay) return;
     const found = surahs?.find(s => s.number === ayahOfDay.surahNumber);
     if (found) setOpenSurah(found);
   };
@@ -214,10 +215,9 @@ const QuranSection = () => {
       {/* Ayah of the day — illuminated card */}
       <button
         onClick={openAyahOfDay}
-        disabled={!surahs}
+        disabled={!surahs || !ayahOfDay}
         className="group w-full bg-card border border-border/15 rounded-3xl p-6 text-center mb-5 relative overflow-hidden active:scale-[0.99] transition-transform"
       >
-        {/* Subtle Heritage geometric pattern */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.05]">
           <svg viewBox="0 0 200 200" className="w-full h-full">
             <defs>
@@ -229,7 +229,6 @@ const QuranSection = () => {
             <rect width="200" height="200" fill="url(#quran-pattern)" />
           </svg>
         </div>
-        {/* Gold corner flourishes */}
         <svg className="absolute top-2 left-2 w-5 h-5 text-gold opacity-50" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="0.8">
           <path d="M2 8 V2 H8 M2 2 q4 2 6 6" />
         </svg>
@@ -241,13 +240,25 @@ const QuranSection = () => {
           {isAr ? 'آية اليوم' : 'Verse of the day'}
         </p>
         <Ornament className="relative w-32 h-3 mx-auto text-gold mb-4" />
-        <p className="relative religious-text text-[19px] text-foreground leading-[2.4] mb-4 px-2">
-          {ayahOfDay.text}
-        </p>
-        <Ornament className="relative w-32 h-3 mx-auto text-gold mb-3 rotate-180" />
-        <p className="relative text-[10px] text-muted-foreground/55 font-light tracking-wide">
-          {isAr ? `سورة ${ayahOfDay.surah} · الآية ${ayahOfDay.ayah}` : `Surah ${ayahOfDay.surah} · Ayah ${ayahOfDay.ayah}`}
-        </p>
+        {ayahOfDay ? (
+          <>
+            <p className="relative religious-text text-[19px] text-foreground leading-[2.4] mb-4 px-2">
+              {ayahOfDay.text}
+            </p>
+            <Ornament className="relative w-32 h-3 mx-auto text-gold mb-3 rotate-180" />
+            <p className="relative text-[10px] text-muted-foreground/55 font-light tracking-wide">
+              {isAr
+                ? `سورة ${ayahOfDay.surahName} · الآية ${ayahOfDay.numberInSurah}`
+                : `Surah ${ayahOfDay.surahName} · Ayah ${ayahOfDay.numberInSurah}`}
+            </p>
+          </>
+        ) : (
+          <div className="relative space-y-2 px-4 py-3">
+            <div className="h-3 w-3/4 mx-auto rounded-md bg-secondary/40 animate-pulse" />
+            <div className="h-3 w-1/2 mx-auto rounded-md bg-secondary/30 animate-pulse" />
+            <div className="h-2 w-1/3 mx-auto rounded-md bg-secondary/20 animate-pulse mt-3" />
+          </div>
+        )}
       </button>
 
       {/* Search */}
