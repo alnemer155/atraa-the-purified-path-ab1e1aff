@@ -74,7 +74,7 @@ const LibraryPage = () => {
         transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
       >
         {activeTab === 'duas' && <DuasPage initialItemId={(location.state as { itemId?: string } | null)?.itemId} />}
-        {activeTab === 'quran' && <QuranPlaceholder />}
+        {activeTab === 'quran' && <QuranSection />}
         {activeTab === 'tasbih' && <TasbihPage />}
         {activeTab === 'qibla' && <QiblaPage />}
       </motion.div>
