@@ -35,7 +35,7 @@ const KaabaIcon = ({ size = 28 }: { size?: number }) => (
 const COMPASS_SIZE = 320;
 const R = COMPASS_SIZE / 2;
 
-const CompassDial = ({ heading, rotation, isPointingQibla }: { heading: number; rotation: number; isPointingQibla: boolean }) => {
+const CompassDial = ({ heading, rotation, isPointingQibla, alignmentScore }: { heading: number; rotation: number; isPointingQibla: boolean; alignmentScore: number }) => {
   const cardinals = [
     { label: 'ش', angle: 0, primary: true },
     { label: 'شر', angle: 90 },
@@ -43,14 +43,32 @@ const CompassDial = ({ heading, rotation, isPointingQibla }: { heading: number; 
     { label: 'غر', angle: 270 },
   ];
 
+  const glow = alignmentScore;
+
   return (
     <div className="relative" style={{ width: COMPASS_SIZE, height: COMPASS_SIZE }}>
-      {/* Outer ring */}
-      <div className={`absolute inset-0 rounded-full border transition-colors duration-500 ${
-        isPointingQibla ? 'border-primary/20' : 'border-border/10'
-      }`} />
+      {/* Noor outer halo */}
+      <motion.div
+        className="absolute inset-[-30px] rounded-full pointer-events-none"
+        animate={{
+          opacity: 0.15 + glow * 0.55,
+          scale: isPointingQibla ? [1, 1.04, 1] : 1,
+        }}
+        transition={{
+          opacity: { duration: 0.4 },
+          scale: isPointingQibla ? { duration: 2.4, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.3 },
+        }}
+        style={{
+          background: `radial-gradient(circle, hsl(var(--gold) / ${0.35 + glow * 0.4}) 0%, hsl(var(--primary) / ${0.18 + glow * 0.3}) 35%, transparent 70%)`,
+          filter: `blur(${20 + glow * 25}px)`,
+        }}
+      />
 
-      {/* Degree marks */}
+      <motion.div
+        className="absolute inset-0 rounded-full border transition-colors duration-500"
+        animate={{ borderColor: `hsl(var(--gold) / ${0.05 + glow * 0.5})` }}
+      />
+
       <svg className="absolute inset-0" viewBox={`0 0 ${COMPASS_SIZE} ${COMPASS_SIZE}`}>
         {Array.from({ length: 72 }).map((_, i) => {
           const deg = i * 5;
@@ -74,7 +92,6 @@ const CompassDial = ({ heading, rotation, isPointingQibla }: { heading: number; 
         })}
       </svg>
 
-      {/* Cardinal directions */}
       {cardinals.map(({ label, angle, primary }) => {
         const rad = (angle * Math.PI) / 180 - Math.PI / 2;
         const dist = R - 36;
@@ -89,23 +106,33 @@ const CompassDial = ({ heading, rotation, isPointingQibla }: { heading: number; 
         );
       })}
 
-      {/* Qibla pointer */}
       <motion.div className="absolute inset-0" animate={{ rotate: rotation }}
         transition={{ type: 'spring', stiffness: 50, damping: 16 }}>
         <div className="w-full h-full flex flex-col items-center">
           <div className="flex flex-col items-center mt-4">
             <motion.div
-              animate={isPointingQibla ? { scale: [1, 1.04, 1] } : { scale: 1 }}
+              animate={isPointingQibla ? { scale: [1, 1.06, 1] } : { scale: 1 }}
               transition={isPointingQibla ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : {}}
-              className="w-12 h-12 rounded-2xl flex items-center justify-center bg-card border border-border/15">
+              className="w-12 h-12 rounded-2xl flex items-center justify-center bg-card border border-border/15"
+              style={{
+                boxShadow: glow > 0.3 ? `0 0 ${glow * 24}px hsl(var(--gold) / ${glow * 0.7})` : undefined,
+              }}>
               <KaabaIcon size={26} />
             </motion.div>
-            <div className="w-px rounded-full bg-foreground/15" style={{ height: R - 60 }} />
+            <motion.div
+              className="rounded-full"
+              style={{
+                width: 2,
+                height: R - 60,
+                background: `linear-gradient(to bottom, hsl(var(--gold) / ${0.4 + glow * 0.6}), hsl(var(--gold) / ${0.05 + glow * 0.2}))`,
+                boxShadow: glow > 0.5 ? `0 0 ${glow * 12}px hsl(var(--gold) / ${glow * 0.8})` : 'none',
+              }}
+              animate={{ opacity: 0.5 + glow * 0.5 }}
+            />
           </div>
         </div>
       </motion.div>
 
-      {/* Tail */}
       <motion.div className="absolute inset-0 pointer-events-none" animate={{ rotate: rotation }}
         transition={{ type: 'spring', stiffness: 50, damping: 16 }}>
         <div className="w-full h-full flex flex-col items-center justify-end">
@@ -116,23 +143,45 @@ const CompassDial = ({ heading, rotation, isPointingQibla }: { heading: number; 
         </div>
       </motion.div>
 
-      {/* Center */}
+      {/* Noor center orb */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full bg-foreground flex items-center justify-center">
-          <div className="w-2.5 h-2.5 rounded-full bg-background" />
-        </div>
+        <motion.div
+          className="relative w-12 h-12 rounded-full flex items-center justify-center bg-foreground"
+          animate={{
+            boxShadow: `0 0 ${10 + glow * 30}px hsl(var(--gold) / ${0.2 + glow * 0.7}), inset 0 0 ${4 + glow * 12}px hsl(var(--gold) / ${0.1 + glow * 0.4})`,
+          }}
+          transition={{ duration: 0.4 }}
+        >
+          <motion.div
+            className="rounded-full bg-background"
+            animate={{
+              width: 8 + glow * 8,
+              height: 8 + glow * 8,
+            }}
+            transition={{ duration: 0.3 }}
+          />
+        </motion.div>
       </div>
 
-      {/* Qibla aligned ripple */}
       <AnimatePresence>
         {isPointingQibla && (
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0.3 }}
-            animate={{ scale: 1.15, opacity: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="absolute inset-0 rounded-full border border-primary/10 pointer-events-none"
-          />
+          <>
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0.5 }}
+              animate={{ scale: 1.3, opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute inset-0 rounded-full border-2 pointer-events-none"
+              style={{ borderColor: 'hsl(var(--gold) / 0.4)' }}
+            />
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0.3 }}
+              animate={{ scale: 1.5, opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 2.4, repeat: Infinity, delay: 0.3 }}
+              className="absolute inset-0 rounded-full border border-primary/20 pointer-events-none"
+            />
+          </>
         )}
       </AnimatePresence>
     </div>
@@ -232,7 +281,9 @@ const QiblaPage = () => {
   const rotation = qiblaDirection !== null ? qiblaDirection - heading : 0;
   const distanceToKaaba = coords ? Math.round(getDistance(coords.lat, coords.lng, KAABA_LAT, KAABA_LNG)) : null;
   const normalizedRotation = ((rotation % 360) + 360) % 360;
-  const isPointingQibla = compassActive && (normalizedRotation < 4 || normalizedRotation > 356);
+  const deviationDeg = normalizedRotation > 180 ? 360 - normalizedRotation : normalizedRotation;
+  const alignmentScore = compassActive ? Math.max(0, 1 - deviationDeg / 45) : 0;
+  const isPointingQibla = compassActive && deviationDeg < 4;
 
   useEffect(() => {
     if (isPointingQibla && !hasVibrated.current) {
