@@ -34,7 +34,7 @@ const TermsPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">6. التواصل</h2>
-            <p>terms@atraa.xyz</p>
+            <p>info@atraa.xyz</p>
           </section>
         </>
       ) : (
@@ -61,7 +61,7 @@ const TermsPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">6. Contact</h2>
-            <p>terms@atraa.xyz</p>
+            <p>info@atraa.xyz</p>
           </section>
         </>
       )}
