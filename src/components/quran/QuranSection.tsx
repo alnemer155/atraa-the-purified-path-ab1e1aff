@@ -242,7 +242,7 @@ const QuranSection = () => {
         <Ornament className="relative w-32 h-3 mx-auto text-gold mb-4" />
         {ayahOfDay ? (
           <>
-            <p className="relative religious-text text-[19px] text-foreground leading-[2.4] mb-4 px-2">
+            <p className="relative quran-uthmani text-[22px] text-foreground mb-4 px-2">
               {ayahOfDay.text}
             </p>
             <Ornament className="relative w-32 h-3 mx-auto text-gold mb-3 rotate-180" />
@@ -312,7 +312,7 @@ const QuranSection = () => {
               <span className="relative text-[10px] text-foreground/80 tabular-nums">{s.number}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[14px] text-foreground religious-text leading-tight truncate">{s.name}</p>
+              <p className="text-[14px] text-foreground quran-uthmani leading-tight truncate" style={{ lineHeight: 1.6 }}>{s.name}</p>
               <p className="text-[9px] text-muted-foreground/50 font-light mt-0.5 truncate">
                 {isAr
                   ? `${s.englishNameTranslation} · ${s.numberOfAyahs} آية · ${s.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`
@@ -344,7 +344,7 @@ const QuranSection = () => {
                 <X className="w-4 h-4 text-foreground/70" />
               </button>
               <div className="text-center">
-                <p className="text-[14px] text-foreground religious-text leading-tight">{openSurah.name}</p>
+                <p className="text-[14px] text-foreground quran-uthmani leading-tight" style={{ lineHeight: 1.6 }}>{openSurah.name}</p>
                 <p className="text-[9px] text-muted-foreground/50 font-light mt-0.5">
                   {openSurah.numberOfAyahs} {isAr ? 'آية' : 'verses'} · {openSurah.revelationType === 'Meccan' ? (isAr ? 'مكية' : 'Meccan') : (isAr ? 'مدنية' : 'Medinan')}
                 </p>
@@ -389,7 +389,7 @@ const QuranSection = () => {
                     <Ornament className="w-40 h-4 mx-auto text-gold mb-3" />
                     <div className="inline-flex items-center justify-center px-6 py-2 rounded-full border border-gold/30 bg-gold/5">
                       <BookOpen className="w-3 h-3 text-gold/70 ml-2" strokeWidth={1.5} />
-                      <span className="text-[11px] text-foreground/80 religious-text">{openSurah.name}</span>
+                      <span className="text-[12px] text-foreground/80 quran-uthmani" style={{ lineHeight: 1.6 }}>{openSurah.name}</span>
                     </div>
                     <Ornament className="w-40 h-4 mx-auto text-gold mt-3 rotate-180" />
                   </div>
@@ -397,8 +397,8 @@ const QuranSection = () => {
                   {/* Bismillah (skip for Surah 1 — already part of it; skip for Surah 9 which has no Bismillah) */}
                   {openSurah.number !== 1 && openSurah.number !== 9 && (
                     <p
-                      className="text-center religious-text text-foreground/85 mb-6"
-                      style={{ fontSize: fontSize - 2, lineHeight: 2 }}
+                      className="text-center quran-uthmani text-foreground/85 mb-6"
+                      style={{ fontSize: fontSize - 2 }}
                     >
                       بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
                     </p>
@@ -406,8 +406,8 @@ const QuranSection = () => {
 
                   {/* Continuous mushaf-style flow */}
                   <p
-                    className="religious-text text-foreground text-justify"
-                    style={{ fontSize, lineHeight: 2.5, wordSpacing: '0.05em' }}
+                    className="quran-uthmani text-foreground text-justify"
+                    style={{ fontSize, wordSpacing: '0.05em' }}
                   >
                     {ayahs.map((a, idx) => {
                       // Strip the leading Bismillah from first ayah for surahs other than Fatiha
@@ -428,8 +428,14 @@ const QuranSection = () => {
 
                   <div className="text-center mt-8 pb-6">
                     <Ornament className="w-32 h-3 mx-auto text-gold/70" />
-                    <p className="text-[9px] text-muted-foreground/40 font-light mt-2 tracking-wide">
-                      {isAr ? 'صدق الله العلي العظيم' : 'صدق الله العلي العظيم'}
+                    <p className="text-[10px] text-muted-foreground/50 font-light mt-2 quran-uthmani" style={{ lineHeight: 1.6 }}>
+                      صَدَقَ ٱللَّهُ ٱلْعَلِىُّ ٱلْعَظِيم
+                    </p>
+                    {/* Quran source disclaimer */}
+                    <p className="text-[9px] text-muted-foreground/40 font-light mt-4 leading-relaxed px-4">
+                      {isAr
+                        ? 'النص بالرسم العثماني — مصدر: مجمع الملك فهد لطباعة المصحف الشريف عبر AlQuran.cloud. عند ملاحظة أي خطأ يُرجى التواصل عبر support@atraa.xyz'
+                        : 'Uthmani script — sourced from King Fahd Glorious Quran Printing Complex via AlQuran.cloud. Report any issue at support@atraa.xyz'}
                     </p>
                   </div>
                 </>
