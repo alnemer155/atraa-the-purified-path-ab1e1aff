@@ -19,6 +19,18 @@ const dhikrPhrases = [
   'اللهم عجّل لوليك الفرج',
 ];
 
+// Short, recurring verses shown under the greeting (Uthmani script).
+// Selected for brevity, frequent use, and universal benefit.
+const SHORT_AYAHS = [
+  'وَمَن يَتَّقِ ٱللَّهَ يَجْعَل لَّهُۥ مَخْرَجًۭا',
+  'إِنَّ مَعَ ٱلْعُسْرِ يُسْرًۭا',
+  'حَسْبُنَا ٱللَّهُ وَنِعْمَ ٱلْوَكِيلُ',
+  'وَٱصْبِرُوا۟ ۚ إِنَّ ٱللَّهَ مَعَ ٱلصَّـٰبِرِينَ',
+  'وَقُل رَّبِّ زِدْنِى عِلْمًۭا',
+  'فَٱذْكُرُونِىٓ أَذْكُرْكُمْ',
+  'وَبَشِّرِ ٱلصَّـٰبِرِينَ',
+];
+
 const tasbihatLabels = ['الله أكبر', 'الحمد لله', 'سبحان الله'];
 
 const stagger = {
