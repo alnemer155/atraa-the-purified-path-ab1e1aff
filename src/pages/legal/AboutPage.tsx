@@ -31,7 +31,7 @@ const AboutPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">المطوّر</h2>
-            <p className="mb-2">تطوير وتصميم: <span className="text-foreground">ABJ Dev</span></p>
+            <p className="mb-2">تطوير وتصميم: <span className="text-foreground">Abdullah Bin Jaafar | Developed</span></p>
             <a
               href="https://abj-dev.xyz"
               target="_blank"
