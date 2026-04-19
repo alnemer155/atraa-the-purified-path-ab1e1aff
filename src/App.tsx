@@ -11,6 +11,7 @@ import AppLayout from "./components/AppLayout";
 import HomePage from "./pages/HomePage";
 
 const LibraryPage = lazy(() => import("./pages/LibraryPage"));
+const QuranPage = lazy(() => import("./pages/QuranPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const PoliciesPage = lazy(() => import("./pages/PoliciesPage"));
 const PrivacyPage = lazy(() => import("./pages/legal/PrivacyPage"));
@@ -63,6 +64,7 @@ const App = () => {
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/library" element={<LibraryPage />} />
+                  <Route path="/quran" element={<QuranPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/policies" element={<PoliciesPage />} />
                   <Route path="/privacy" element={<PrivacyPage />} />

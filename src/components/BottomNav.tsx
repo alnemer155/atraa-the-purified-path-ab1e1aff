@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, BookOpen, Settings } from 'lucide-react';
+import { Home, BookOpen, Settings, BookText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
@@ -10,6 +10,7 @@ const BottomNav = () => {
 
   const items = [
     { path: '/settings', label: t('nav.settings'), icon: Settings },
+    { path: '/quran', label: isAr ? 'القرآن' : 'Quran', icon: BookText },
     { path: '/library', label: t('nav.library'), icon: BookOpen },
     { path: '/', label: t('nav.home'), icon: Home },
   ];
@@ -26,7 +27,7 @@ const BottomNav = () => {
         <div className="rounded-[28px] overflow-hidden border border-white/20 dark:border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
           {/* iOS 26 Liquid Glass effect */}
           <div className="bg-background/55 backdrop-blur-[40px] backdrop-saturate-200">
-            <div className="flex items-center justify-around px-2 py-1.5">
+            <div className="flex items-center justify-around px-1.5 py-1.5">
               {ordered.map(({ path, label, icon: Icon }) => {
                 const isActive = location.pathname === path;
                 return (
@@ -36,7 +37,7 @@ const BottomNav = () => {
                     onClick={() => {
                       if ('vibrate' in navigator) navigator.vibrate(4);
                     }}
-                    className="relative flex flex-col items-center gap-1 py-2 px-4 min-w-[64px]"
+                    className="relative flex flex-col items-center gap-1 py-2 px-3 min-w-[58px]"
                   >
                     {isActive && (
                       <motion.div
