@@ -1,18 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
 import { parseDuasContent, type DuaItem } from '@/lib/duas-parser';
 import duasRaw from '@/data/duas-content.txt?raw';
-import { ChevronLeft, ChevronRight, Search, X, ArrowRight } from 'lucide-react';
+import { ChevronLeft, Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { saveLastReading } from '@/lib/user';
-import { useHideChrome } from '@/contexts/UIContext';
+import DuaReader from '@/components/DuaReader';
 
 const categories = [
   { key: 'dua', label: 'الأدعية' },
   { key: 'ziyara', label: 'الزيارات' },
   { key: 'dhikr', label: 'الأذكار' },
 ];
-
-const categoryLabels: Record<string, string> = { dua: 'الأدعية', ziyara: 'الزيارات', dhikr: 'الأذكار' };
 
 interface DuasPageProps {
   initialItemId?: string;
