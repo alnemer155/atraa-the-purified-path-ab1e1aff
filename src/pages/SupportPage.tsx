@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Shield, X, Check, FileText, Copy } from 'lucide-react';
+import { Heart, Shield, Check, FileText, Copy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const AMOUNTS_SAR = [10, 25, 50, 100, 250, 500];
@@ -56,8 +56,8 @@ const SupportPage = () => {
           >
             <div className="bg-card border border-border/30 rounded-2xl p-5 shadow-card">
               <div className="flex items-start gap-3 mb-3">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-4 h-4 text-amber-600 dark:text-amber-500" strokeWidth={1.5} />
+                <div className="w-9 h-9 rounded-xl bg-accent/15 flex items-center justify-center flex-shrink-0">
+                  <Shield className="w-4 h-4 text-accent" strokeWidth={1.5} />
                 </div>
                 <div className="flex-1">
                   <h2 className="text-[13px] text-foreground font-medium">
