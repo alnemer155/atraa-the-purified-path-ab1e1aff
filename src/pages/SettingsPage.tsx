@@ -151,8 +151,8 @@ const SettingsPage = () => {
         </div>
       </motion.div>
 
-      {/* Share */}
-      <motion.div variants={fadeUp} custom={4}>
+      {/* Share + Support */}
+      <motion.div variants={fadeUp} custom={4} className="space-y-1.5">
         <div className="bg-card rounded-2xl border border-border/40 overflow-hidden shadow-card">
           <button onClick={handleShareApp} className="w-full flex items-center justify-between p-3.5 active:bg-secondary/30 transition-colors">
             <div className="flex items-center gap-3">
@@ -165,7 +165,20 @@ const SettingsPage = () => {
             {shareCopied ? <Check className="w-4 h-4 text-primary" /> : <Chevron className="w-4 h-4 text-muted-foreground/40" />}
           </button>
         </div>
+        <div className="bg-card rounded-2xl border border-border/40 overflow-hidden shadow-card">
+          <Link to="/support" className="w-full flex items-center justify-between p-3.5 active:bg-secondary/30 transition-colors">
+            <div className="flex items-center gap-3">
+              <Heart className="w-4 h-4 text-primary" />
+              <div className={isAr ? 'text-right' : 'text-left'}>
+                <p className="text-[13px] text-foreground font-medium">{t('settings.support')}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{t('settings.supportHint')}</p>
+              </div>
+            </div>
+            <Chevron className="w-4 h-4 text-muted-foreground/40" />
+          </Link>
+        </div>
       </motion.div>
+
 
       {/* Legal */}
       <motion.div variants={fadeUp} custom={5}>
