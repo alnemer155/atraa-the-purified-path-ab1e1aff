@@ -55,8 +55,8 @@ const PoliciesPage = () => {
             {isAr ? 'للتواصل والاستفسارات' : 'Contact & inquiries'}
           </p>
         </div>
-        <a href="mailto:info@atraa.xyz" className={`block text-[11px] text-foreground/70 font-mono ${isAr ? 'text-right' : 'text-left'}`}>
-          info@atraa.xyz
+        <a href="mailto:support@atraa.xyz" className={`block text-[11px] text-foreground/70 font-mono ${isAr ? 'text-right' : 'text-left'}`}>
+          support@atraa.xyz
         </a>
       </div>
     </div>
