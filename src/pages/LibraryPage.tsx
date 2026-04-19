@@ -5,9 +5,8 @@ import { useTranslation } from 'react-i18next';
 import DuasPage from './DuasPage';
 import TasbihPage from './TasbihPage';
 import QiblaPage from './QiblaPage';
-import QuranSection from '@/components/quran/QuranSection';
 
-type Tab = 'duas' | 'tasbih' | 'qibla' | 'quran';
+type Tab = 'duas' | 'tasbih' | 'qibla';
 
 const LibraryPage = () => {
   const { t, i18n } = useTranslation();
@@ -23,7 +22,6 @@ const LibraryPage = () => {
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'duas', label: isAr ? 'الأدعية' : 'Duas' },
-    { key: 'quran', label: isAr ? 'القرآن' : 'Quran' },
     { key: 'tasbih', label: isAr ? 'التسبيح' : 'Tasbih' },
     { key: 'qibla', label: isAr ? 'القبلة' : 'Qibla' },
   ];
@@ -37,7 +35,7 @@ const LibraryPage = () => {
               {t('library.title')}
             </h1>
             <p className="text-[10px] text-muted-foreground/50 font-light mt-0.5">
-              {isAr ? 'قرآن · أدعية · تسبيح · قبلة' : 'Quran · Duas · Tasbih · Qibla'}
+              {isAr ? 'أدعية · تسبيح · قبلة' : 'Duas · Tasbih · Qibla'}
             </p>
           </div>
 
@@ -74,7 +72,6 @@ const LibraryPage = () => {
         transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
       >
         {activeTab === 'duas' && <DuasPage initialItemId={(location.state as { itemId?: string } | null)?.itemId} />}
-        {activeTab === 'quran' && <QuranSection />}
         {activeTab === 'tasbih' && <TasbihPage />}
         {activeTab === 'qibla' && <QiblaPage />}
       </motion.div>
