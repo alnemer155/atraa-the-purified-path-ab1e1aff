@@ -76,8 +76,12 @@ const HomePage = () => {
         <h1 className="text-[20px] text-foreground leading-snug tracking-tight font-semibold">
           {t('home.greeting')}
         </h1>
+        {/* Short Quranic verse under the greeting (Uthmani script) */}
+        <p className="quran-uthmani text-[14px] text-primary/80 leading-relaxed mt-1.5" dir="rtl">
+          {SHORT_AYAHS[new Date().getDate() % SHORT_AYAHS.length]}
+        </p>
         {isAr && (
-          <div className="h-5 overflow-hidden mt-1">
+          <div className="h-5 overflow-hidden mt-2">
             <AnimatePresence mode="wait">
               <motion.p
                 key={dhikrIndex}
@@ -85,7 +89,7 @@ const HomePage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -5 }}
                 transition={{ duration: 0.2 }}
-                className="text-[11px] text-primary/70"
+                className="text-[11px] text-muted-foreground/55"
               >
                 {dhikrPhrases[dhikrIndex]}
               </motion.p>
