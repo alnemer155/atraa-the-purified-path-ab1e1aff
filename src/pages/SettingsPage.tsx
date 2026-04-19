@@ -186,12 +186,6 @@ const SettingsPage = () => {
         </div>
       </motion.div>
 
-      {/* Version */}
-      <motion.div variants={fadeUp} custom={6} className="flex items-center justify-center pt-6">
-        <p className="text-[10px] text-muted-foreground/50 tracking-wide">
-          {t('app.name')} · {t('app.version')}
-        </p>
-      </motion.div>
     </motion.div>
   );
 };
