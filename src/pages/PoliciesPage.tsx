@@ -1,4 +1,4 @@
-import { Shield, FileText, Scale, Database, Info, Mail } from 'lucide-react';
+import { Shield, FileText, Scale, Database, Info, Mail, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -14,6 +14,7 @@ const PoliciesPage = () => {
     { icon: Scale, key: 'disclaimer', label: t('settings.disclaimer'), path: '/disclaimer', desc: isAr ? 'إخلاء المسؤولية الديني والتقني' : 'Religious & technical disclaimer' },
     { icon: Database, key: 'data', label: t('settings.data'), path: '/data', desc: isAr ? 'ما الذي نجمعه (محلياً فقط)' : 'What we collect (local only)' },
     { icon: Info, key: 'about', label: t('settings.about'), path: '/about', desc: isAr ? 'من نحن وفلسفتنا' : 'About us & philosophy' },
+    { icon: Heart, key: 'support', label: t('settings.support'), path: '/support', desc: isAr ? 'ساهم في تطوير عِتَرَةً' : 'Contribute to Atraa' },
   ];
 
   return (
