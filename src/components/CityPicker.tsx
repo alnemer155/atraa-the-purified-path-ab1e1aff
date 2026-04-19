@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { MapPin, Search, LocateFixed } from 'lucide-react';
+import { MapPin, LocateFixed, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface CityRecord {
@@ -11,7 +11,8 @@ interface CityRecord {
   region: string;
 }
 
-// Worldwide list (Israel deliberately excluded per project policy)
+// Worldwide list (Israel deliberately excluded per project policy).
+// Region codes: SA, GCC, IQ, LV, AF, AS, EU, AM, US (United States — state capitals + major), OC.
 const CITIES: CityRecord[] = [
   // Saudi Arabia
   { value: 'Qatif', labelAr: 'القطيف', labelEn: 'Qatif', lat: 26.5196, lng: 50.0115, region: 'SA' },
@@ -91,21 +92,100 @@ const CITIES: CityRecord[] = [
   { value: 'Stockholm', labelAr: 'ستوكهولم', labelEn: 'Stockholm', lat: 59.3293, lng: 18.0686, region: 'EU' },
   { value: 'Oslo', labelAr: 'أوسلو', labelEn: 'Oslo', lat: 59.9139, lng: 10.7522, region: 'EU' },
   { value: 'Moscow', labelAr: 'موسكو', labelEn: 'Moscow', lat: 55.7558, lng: 37.6173, region: 'EU' },
-  // Americas
-  { value: 'New York', labelAr: 'نيويورك', labelEn: 'New York', lat: 40.7128, lng: -74.0060, region: 'AM' },
-  { value: 'Los Angeles', labelAr: 'لوس أنجلوس', labelEn: 'Los Angeles', lat: 34.0522, lng: -118.2437, region: 'AM' },
-  { value: 'Chicago', labelAr: 'شيكاغو', labelEn: 'Chicago', lat: 41.8781, lng: -87.6298, region: 'AM' },
-  { value: 'Houston', labelAr: 'هيوستن', labelEn: 'Houston', lat: 29.7604, lng: -95.3698, region: 'AM' },
+  // Americas (non-US)
   { value: 'Toronto', labelAr: 'تورنتو', labelEn: 'Toronto', lat: 43.6532, lng: -79.3832, region: 'AM' },
   { value: 'Montreal', labelAr: 'مونتريال', labelEn: 'Montreal', lat: 45.5017, lng: -73.5673, region: 'AM' },
   { value: 'Mexico City', labelAr: 'مكسيكو سيتي', labelEn: 'Mexico City', lat: 19.4326, lng: -99.1332, region: 'AM' },
   { value: 'Sao Paulo', labelAr: 'ساو باولو', labelEn: 'São Paulo', lat: -23.5505, lng: -46.6333, region: 'AM' },
   { value: 'Buenos Aires', labelAr: 'بوينس آيرس', labelEn: 'Buenos Aires', lat: -34.6037, lng: -58.3816, region: 'AM' },
+  // United States — all 50 state capitals + DC + a few major non-capital cities
+  { value: 'Washington DC', labelAr: 'واشنطن العاصمة', labelEn: 'Washington, D.C.', lat: 38.9072, lng: -77.0369, region: 'US' },
+  { value: 'New York', labelAr: 'نيويورك', labelEn: 'New York', lat: 40.7128, lng: -74.0060, region: 'US' },
+  { value: 'Los Angeles', labelAr: 'لوس أنجلوس', labelEn: 'Los Angeles', lat: 34.0522, lng: -118.2437, region: 'US' },
+  { value: 'Chicago', labelAr: 'شيكاغو', labelEn: 'Chicago', lat: 41.8781, lng: -87.6298, region: 'US' },
+  { value: 'Houston', labelAr: 'هيوستن', labelEn: 'Houston', lat: 29.7604, lng: -95.3698, region: 'US' },
+  { value: 'Dearborn', labelAr: 'ديربورن', labelEn: 'Dearborn', lat: 42.3223, lng: -83.1763, region: 'US' },
+  { value: 'Montgomery', labelAr: 'مونتغمري (ألاباما)', labelEn: 'Montgomery, AL', lat: 32.3792, lng: -86.3077, region: 'US' },
+  { value: 'Juneau', labelAr: 'جونو (ألاسكا)', labelEn: 'Juneau, AK', lat: 58.3019, lng: -134.4197, region: 'US' },
+  { value: 'Phoenix', labelAr: 'فينيكس (أريزونا)', labelEn: 'Phoenix, AZ', lat: 33.4484, lng: -112.0740, region: 'US' },
+  { value: 'Little Rock', labelAr: 'ليتل روك (أركنساس)', labelEn: 'Little Rock, AR', lat: 34.7465, lng: -92.2896, region: 'US' },
+  { value: 'Sacramento', labelAr: 'ساكرامنتو (كاليفورنيا)', labelEn: 'Sacramento, CA', lat: 38.5816, lng: -121.4944, region: 'US' },
+  { value: 'Denver', labelAr: 'دنفر (كولورادو)', labelEn: 'Denver, CO', lat: 39.7392, lng: -104.9903, region: 'US' },
+  { value: 'Hartford', labelAr: 'هارتفورد (كونيتيكت)', labelEn: 'Hartford, CT', lat: 41.7658, lng: -72.6734, region: 'US' },
+  { value: 'Dover', labelAr: 'دوفر (ديلاوير)', labelEn: 'Dover, DE', lat: 39.1582, lng: -75.5244, region: 'US' },
+  { value: 'Tallahassee', labelAr: 'تالاهاسي (فلوريدا)', labelEn: 'Tallahassee, FL', lat: 30.4383, lng: -84.2807, region: 'US' },
+  { value: 'Atlanta', labelAr: 'أتلانتا (جورجيا)', labelEn: 'Atlanta, GA', lat: 33.7490, lng: -84.3880, region: 'US' },
+  { value: 'Honolulu', labelAr: 'هونولولو (هاواي)', labelEn: 'Honolulu, HI', lat: 21.3099, lng: -157.8581, region: 'US' },
+  { value: 'Boise', labelAr: 'بويزي (آيداهو)', labelEn: 'Boise, ID', lat: 43.6150, lng: -116.2023, region: 'US' },
+  { value: 'Springfield IL', labelAr: 'سبرينغفيلد (إلينوي)', labelEn: 'Springfield, IL', lat: 39.7817, lng: -89.6501, region: 'US' },
+  { value: 'Indianapolis', labelAr: 'إنديانابوليس (إنديانا)', labelEn: 'Indianapolis, IN', lat: 39.7684, lng: -86.1581, region: 'US' },
+  { value: 'Des Moines', labelAr: 'دي موين (آيوا)', labelEn: 'Des Moines, IA', lat: 41.5868, lng: -93.6250, region: 'US' },
+  { value: 'Topeka', labelAr: 'توبيكا (كانساس)', labelEn: 'Topeka, KS', lat: 39.0473, lng: -95.6752, region: 'US' },
+  { value: 'Frankfort', labelAr: 'فرانكفورت (كنتاكي)', labelEn: 'Frankfort, KY', lat: 38.2009, lng: -84.8733, region: 'US' },
+  { value: 'Baton Rouge', labelAr: 'باتون روج (لويزيانا)', labelEn: 'Baton Rouge, LA', lat: 30.4515, lng: -91.1871, region: 'US' },
+  { value: 'Augusta', labelAr: 'أوغوستا (مين)', labelEn: 'Augusta, ME', lat: 44.3106, lng: -69.7795, region: 'US' },
+  { value: 'Annapolis', labelAr: 'أنابوليس (ميريلاند)', labelEn: 'Annapolis, MD', lat: 38.9784, lng: -76.4922, region: 'US' },
+  { value: 'Boston', labelAr: 'بوسطن (ماساتشوستس)', labelEn: 'Boston, MA', lat: 42.3601, lng: -71.0589, region: 'US' },
+  { value: 'Lansing', labelAr: 'لانسينغ (ميشيغان)', labelEn: 'Lansing, MI', lat: 42.7325, lng: -84.5555, region: 'US' },
+  { value: 'Saint Paul', labelAr: 'سانت بول (مينيسوتا)', labelEn: 'Saint Paul, MN', lat: 44.9537, lng: -93.0900, region: 'US' },
+  { value: 'Jackson', labelAr: 'جاكسون (ميسيسيبي)', labelEn: 'Jackson, MS', lat: 32.2988, lng: -90.1848, region: 'US' },
+  { value: 'Jefferson City', labelAr: 'جيفرسون سيتي (ميزوري)', labelEn: 'Jefferson City, MO', lat: 38.5767, lng: -92.1735, region: 'US' },
+  { value: 'Helena', labelAr: 'هيلينا (مونتانا)', labelEn: 'Helena, MT', lat: 46.5891, lng: -112.0391, region: 'US' },
+  { value: 'Lincoln', labelAr: 'لينكولن (نبراسكا)', labelEn: 'Lincoln, NE', lat: 40.8136, lng: -96.7026, region: 'US' },
+  { value: 'Carson City', labelAr: 'كارسون سيتي (نيفادا)', labelEn: 'Carson City, NV', lat: 39.1638, lng: -119.7674, region: 'US' },
+  { value: 'Concord', labelAr: 'كونكورد (نيوهامبشاير)', labelEn: 'Concord, NH', lat: 43.2081, lng: -71.5376, region: 'US' },
+  { value: 'Trenton', labelAr: 'ترنتون (نيوجيرسي)', labelEn: 'Trenton, NJ', lat: 40.2206, lng: -74.7597, region: 'US' },
+  { value: 'Santa Fe', labelAr: 'سانتا في (نيومكسيكو)', labelEn: 'Santa Fe, NM', lat: 35.6870, lng: -105.9378, region: 'US' },
+  { value: 'Albany', labelAr: 'ألباني (نيويورك)', labelEn: 'Albany, NY', lat: 42.6526, lng: -73.7562, region: 'US' },
+  { value: 'Raleigh', labelAr: 'رالي (كارولاينا الشمالية)', labelEn: 'Raleigh, NC', lat: 35.7796, lng: -78.6382, region: 'US' },
+  { value: 'Bismarck', labelAr: 'بسمارك (داكوتا الشمالية)', labelEn: 'Bismarck, ND', lat: 46.8083, lng: -100.7837, region: 'US' },
+  { value: 'Columbus', labelAr: 'كولومبوس (أوهايو)', labelEn: 'Columbus, OH', lat: 39.9612, lng: -82.9988, region: 'US' },
+  { value: 'Oklahoma City', labelAr: 'أوكلاهوما سيتي (أوكلاهوما)', labelEn: 'Oklahoma City, OK', lat: 35.4676, lng: -97.5164, region: 'US' },
+  { value: 'Salem', labelAr: 'سالم (أوريغون)', labelEn: 'Salem, OR', lat: 44.9429, lng: -123.0351, region: 'US' },
+  { value: 'Harrisburg', labelAr: 'هاريسبرغ (بنسلفانيا)', labelEn: 'Harrisburg, PA', lat: 40.2732, lng: -76.8867, region: 'US' },
+  { value: 'Providence', labelAr: 'بروفيدنس (رود آيلاند)', labelEn: 'Providence, RI', lat: 41.8240, lng: -71.4128, region: 'US' },
+  { value: 'Columbia SC', labelAr: 'كولومبيا (كارولاينا الجنوبية)', labelEn: 'Columbia, SC', lat: 34.0007, lng: -81.0348, region: 'US' },
+  { value: 'Pierre', labelAr: 'بيير (داكوتا الجنوبية)', labelEn: 'Pierre, SD', lat: 44.3683, lng: -100.3510, region: 'US' },
+  { value: 'Nashville', labelAr: 'ناشفيل (تينيسي)', labelEn: 'Nashville, TN', lat: 36.1627, lng: -86.7816, region: 'US' },
+  { value: 'Austin', labelAr: 'أوستن (تكساس)', labelEn: 'Austin, TX', lat: 30.2672, lng: -97.7431, region: 'US' },
+  { value: 'Salt Lake City', labelAr: 'سولت ليك سيتي (يوتا)', labelEn: 'Salt Lake City, UT', lat: 40.7608, lng: -111.8910, region: 'US' },
+  { value: 'Montpelier', labelAr: 'مونتبلييه (فيرمونت)', labelEn: 'Montpelier, VT', lat: 44.2601, lng: -72.5754, region: 'US' },
+  { value: 'Richmond', labelAr: 'ريتشموند (فرجينيا)', labelEn: 'Richmond, VA', lat: 37.5407, lng: -77.4360, region: 'US' },
+  { value: 'Olympia', labelAr: 'أولمبيا (واشنطن)', labelEn: 'Olympia, WA', lat: 47.0379, lng: -122.9007, region: 'US' },
+  { value: 'Charleston WV', labelAr: 'تشارلستون (فرجينيا الغربية)', labelEn: 'Charleston, WV', lat: 38.3498, lng: -81.6326, region: 'US' },
+  { value: 'Madison', labelAr: 'ماديسون (ويسكونسن)', labelEn: 'Madison, WI', lat: 43.0731, lng: -89.4012, region: 'US' },
+  { value: 'Cheyenne', labelAr: 'شايان (وايومنغ)', labelEn: 'Cheyenne, WY', lat: 41.1399, lng: -104.8202, region: 'US' },
   // Oceania
   { value: 'Sydney', labelAr: 'سيدني', labelEn: 'Sydney', lat: -33.8688, lng: 151.2093, region: 'OC' },
   { value: 'Melbourne', labelAr: 'ملبورن', labelEn: 'Melbourne', lat: -37.8136, lng: 144.9631, region: 'OC' },
   { value: 'Auckland', labelAr: 'أوكلاند', labelEn: 'Auckland', lat: -36.8485, lng: 174.7633, region: 'OC' },
 ];
+
+const REGION_LABELS_AR: Record<string, string> = {
+  SA: 'السعودية',
+  GCC: 'الخليج',
+  IQ: 'العراق',
+  LV: 'الشام',
+  AF: 'أفريقيا',
+  AS: 'آسيا',
+  EU: 'أوروبا',
+  AM: 'الأمريكتين',
+  US: 'الولايات المتحدة',
+  OC: 'أوقيانوسيا',
+};
+const REGION_LABELS_EN: Record<string, string> = {
+  SA: 'Saudi Arabia',
+  GCC: 'Gulf',
+  IQ: 'Iraq',
+  LV: 'Levant',
+  AF: 'Africa',
+  AS: 'Asia',
+  EU: 'Europe',
+  AM: 'Americas',
+  US: 'United States',
+  OC: 'Oceania',
+};
+const REGION_ORDER = ['SA', 'GCC', 'IQ', 'LV', 'AF', 'AS', 'EU', 'AM', 'US', 'OC'];
 
 interface CityPickerProps {
   selectedCity: string;
@@ -114,27 +194,30 @@ interface CityPickerProps {
 
 const CityPicker = ({ selectedCity, onCityChange }: CityPickerProps) => {
   const { t, i18n } = useTranslation();
-  const [search, setSearch] = useState('');
   const [detecting, setDetecting] = useState(false);
+  const [gpsSuccess, setGpsSuccess] = useState(false);
+  const [gpsError, setGpsError] = useState<string | null>(null);
+  const [activeRegion, setActiveRegion] = useState<string>(() => {
+    const found = CITIES.find(c => c.value === (typeof window !== 'undefined' ? localStorage.getItem('atraa_city') : null));
+    return found?.region || 'SA';
+  });
   const isAr = i18n.language === 'ar';
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return CITIES;
-    const q = search.trim().toLowerCase();
-    return CITIES.filter(
-      c => c.labelAr.includes(search) ||
-           c.labelEn.toLowerCase().includes(q) ||
-           c.value.toLowerCase().includes(q)
-    );
-  }, [search]);
+  const grouped = useMemo(() => {
+    return CITIES.filter(c => c.region === activeRegion);
+  }, [activeRegion]);
 
   const detectLocation = () => {
-    if (!('geolocation' in navigator)) return;
+    if (!('geolocation' in navigator)) {
+      setGpsError(isAr ? 'GPS غير مدعوم' : 'GPS unsupported');
+      return;
+    }
     setDetecting(true);
+    setGpsError(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        // Find closest known city
+        // Find closest known city by haversine-ish euclidean (sufficient for local nearest match)
         let closest = CITIES[0];
         let minDist = Infinity;
         for (const c of CITIES) {
@@ -142,10 +225,21 @@ const CityPicker = ({ selectedCity, onCityChange }: CityPickerProps) => {
           if (d < minDist) { minDist = d; closest = c; }
         }
         onCityChange(closest.value, { lat: closest.lat, lng: closest.lng });
+        setActiveRegion(closest.region);
         setDetecting(false);
+        setGpsSuccess(true);
+        setTimeout(() => setGpsSuccess(false), 2200);
       },
-      () => setDetecting(false),
-      { enableHighAccuracy: true, timeout: 10000 }
+      (err) => {
+        setDetecting(false);
+        setGpsError(
+          err.code === err.PERMISSION_DENIED
+            ? (isAr ? 'لم يُسمح بالموقع' : 'Permission denied')
+            : (isAr ? 'تعذّر تحديد الموقع' : 'Location unavailable')
+        );
+        setTimeout(() => setGpsError(null), 3000);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   };
 
@@ -163,31 +257,48 @@ const CityPicker = ({ selectedCity, onCityChange }: CityPickerProps) => {
             </p>
           )}
         </div>
-      </div>
-
-      <div className="flex gap-1.5 mb-3">
-        <div className="flex-1 flex items-center gap-2 bg-secondary/60 rounded-xl px-3 py-2">
-          <Search className="w-3.5 h-3.5 text-muted-foreground/60 flex-shrink-0" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('common.search')}
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 outline-none"
-          />
-        </div>
         <button
           onClick={detectLocation}
           disabled={detecting}
-          className="px-3 py-2 rounded-xl bg-primary/10 text-primary flex items-center disabled:opacity-40"
-          aria-label="detect"
+          className={`flex items-center gap-1.5 px-3 h-9 rounded-xl text-[11px] font-medium transition-all ${
+            gpsSuccess
+              ? 'bg-primary/15 text-primary'
+              : 'bg-primary/10 text-primary active:scale-95 disabled:opacity-40'
+          }`}
+          aria-label="detect location"
         >
-          <LocateFixed className={`w-4 h-4 ${detecting ? 'animate-spin' : ''}`} />
+          {gpsSuccess ? (
+            <Check className="w-3.5 h-3.5" />
+          ) : (
+            <LocateFixed className={`w-3.5 h-3.5 ${detecting ? 'animate-spin' : ''}`} />
+          )}
+          <span>{detecting ? (isAr ? 'جارٍ...' : '...') : (isAr ? 'موقعي' : 'GPS')}</span>
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-1.5 max-h-[260px] overflow-y-auto hide-scrollbar">
-        {filtered.map((c) => (
+      {gpsError && (
+        <p className="text-[10px] text-destructive mb-2 px-1">{gpsError}</p>
+      )}
+
+      {/* Region tabs */}
+      <div className="flex gap-1 mb-3 overflow-x-auto hide-scrollbar -mx-1 px-1 pb-1">
+        {REGION_ORDER.map(r => (
+          <button
+            key={r}
+            onClick={() => setActiveRegion(r)}
+            className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[10px] transition-all whitespace-nowrap ${
+              activeRegion === r
+                ? 'bg-foreground text-background'
+                : 'bg-secondary/40 text-muted-foreground/70 border border-border/20'
+            }`}
+          >
+            {isAr ? REGION_LABELS_AR[r] : REGION_LABELS_EN[r]}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-1.5 max-h-[220px] overflow-y-auto hide-scrollbar">
+        {grouped.map((c) => (
           <button
             key={c.value}
             onClick={() => onCityChange(c.value, { lat: c.lat, lng: c.lng })}

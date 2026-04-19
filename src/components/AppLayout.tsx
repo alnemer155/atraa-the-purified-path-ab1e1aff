@@ -5,10 +5,12 @@ import DesktopBlocker from './DesktopBlocker';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useUI } from '@/contexts/UIContext';
 
 const AppLayout = () => {
   const isMobile = useIsMobile();
   const { i18n } = useTranslation();
+  const { hideHeader, hideBottomNav } = useUI();
 
   useEffect(() => {
     document.documentElement.lang = i18n.language;
@@ -21,11 +23,11 @@ const AppLayout = () => {
     <>
       {!isMobile && <DesktopBlocker />}
       <div className={`min-h-screen bg-background max-w-lg md:max-w-2xl mx-auto relative ${!isMobile ? 'hidden' : ''}`}>
-        <AppHeader />
+        {!hideHeader && <AppHeader />}
         <main className="safe-bottom">
           <Outlet />
         </main>
-        <BottomNav />
+        {!hideBottomNav && <BottomNav />}
       </div>
     </>
   );

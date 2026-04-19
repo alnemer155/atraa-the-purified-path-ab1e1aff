@@ -1,11 +1,12 @@
 {
   "app": {
     "name": "Atraa",
-    "version": "v11 · build 450"
+    "version": "v2.6.88 · build 120"
   },
   "nav": {
     "home": "Home",
     "library": "Library",
+    "quran": "Quran",
     "settings": "Settings"
   },
   "home": {
@@ -17,7 +18,8 @@
     "wallpapers": "Wallpapers",
     "now": "Now",
     "next": "Next",
-    "loadingError": "Could not load data"
+    "loadingError": "Could not load data",
+    "ayahOfDay": "Ayah of the day"
   },
   "prayers": {
     "Fajr": "Fajr",
@@ -36,12 +38,10 @@
     "adhkar": "Adhkar",
     "qibla": "Qibla"
   },
-  "qibla": {
-    "title": "Qibla Compass",
-    "aligned": "You are facing the Qibla",
-    "calibrate": "Move device in a figure-8 to calibrate",
-    "permission": "Allow compass access",
-    "unsupported": "Your device does not support the compass"
+  "quran": {
+    "title": "The Holy Quran",
+    "subtitle": "114 surahs · Uthmani script",
+    "disclaimer": "Texts are presented in Uthmani script as published by the King Fahd Glorious Quran Printing Complex, sourced via AlQuran.cloud. Spelling differences from common print editions are normal. Report any error to support@atraa.xyz"
   },
   "settings": {
     "title": "Settings",
@@ -57,6 +57,8 @@
     "adhanNotifHint": "Notify at prayer time",
     "share": "Share App",
     "shareHint": "Share Atraa with friends",
+    "support": "Support Atraa",
+    "supportHint": "Contribute to development",
     "legal": "Legal",
     "privacy": "Privacy Policy",
     "terms": "Terms of Use",
@@ -65,6 +67,13 @@
     "about": "About",
     "version": "Version"
   },
+  "qibla": {
+    "title": "Qibla Compass",
+    "aligned": "You are facing the Qibla",
+    "calibrate": "Move device in a figure-8 to calibrate",
+    "permission": "Allow compass access",
+    "unsupported": "Your device does not support the compass"
+  },
   "common": {
     "back": "Back",
     "save": "Save",
@@ -72,6 +81,8 @@
     "ok": "OK",
     "loading": "Loading...",
     "search": "Search",
-    "select": "Select"
+    "select": "Select",
+    "next": "Next",
+    "previous": "Previous"
   }
 }

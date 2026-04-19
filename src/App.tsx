@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import SplashScreen from "@/components/SplashScreen";
+import { UIProvider } from "@/contexts/UIContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AppLayout from "./components/AppLayout";
@@ -14,6 +15,7 @@ const LibraryPage = lazy(() => import("./pages/LibraryPage"));
 const QuranPage = lazy(() => import("./pages/QuranPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const PoliciesPage = lazy(() => import("./pages/PoliciesPage"));
+const SupportPage = lazy(() => import("./pages/SupportPage"));
 const PrivacyPage = lazy(() => import("./pages/legal/PrivacyPage"));
 const TermsPage = lazy(() => import("./pages/legal/TermsPage"));
 const DisclaimerPage = lazy(() => import("./pages/legal/DisclaimerPage"));
@@ -59,14 +61,16 @@ const App = () => {
           <Sonner />
           {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
           <BrowserRouter>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route element={<AppLayout />}>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/library" element={<LibraryPage />} />
-                  <Route path="/quran" element={<QuranPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/policies" element={<PoliciesPage />} />
+            <UIProvider>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route element={<AppLayout />}>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/library" element={<LibraryPage />} />
+                    <Route path="/quran" element={<QuranPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/policies" element={<PoliciesPage />} />
+                    <Route path="/support" element={<SupportPage />} />
                   <Route path="/privacy" element={<PrivacyPage />} />
                   <Route path="/terms" element={<TermsPage />} />
                   <Route path="/disclaimer" element={<DisclaimerPage />} />
@@ -76,6 +80,7 @@ const App = () => {
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
+            </UIProvider>
           </BrowserRouter>
           <Analytics />
         </TooltipProvider>
