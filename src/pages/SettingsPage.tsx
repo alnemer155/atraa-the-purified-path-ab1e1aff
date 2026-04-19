@@ -58,7 +58,7 @@ const SettingsPage = () => {
     const shareText = isAr
       ? 'عِتَرَةً منصة إسلامية شيعية. اكتشفها: https://atraa.xyz'
       : 'Atraa — an Islamic Shia platform. Discover it: https://atraa.xyz';
-    void shareText;
+    
     if (navigator.share) {
       try { await navigator.share({ text: shareText }); return; } catch { /* ignore */ }
     }
