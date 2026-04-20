@@ -1,5 +1,7 @@
-import { ChevronLeft, ChevronRight, ArrowRight, Minus, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { ChevronLeft, ChevronRight, ArrowRight, Type } from 'lucide-react';
 import { useHideChrome } from '@/contexts/UIContext';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { DuaItem } from '@/lib/duas-parser';
 
 const CATEGORY_LABELS: Record<string, string> = { dua: 'الأدعية', ziyara: 'الزيارات', dhikr: 'الأذكار' };
@@ -14,11 +16,14 @@ interface DuaReaderProps {
 }
 
 /**
- * Immersive reader view — hides the global AppHeader and bottom nav so
- * only the dua content is visible (per v2.6.88 spec).
+ * Immersive reader view — hides ONLY the AppHeader (top bar).
+ * Keeps the BottomNav visible and adds an inline switcher (prev/next)
+ * pinned just above it, per v2.6.89 spec.
  */
 const DuaReader = ({ item, filtered, fontSize, setFontSize, onClose, onSelect }: DuaReaderProps) => {
-  useHideChrome({ header: true, bottomNav: true });
+  // Hide only the global header — keep BottomNav visible.
+  useHideChrome({ header: true, bottomNav: false });
+  const [showFontMenu, setShowFontMenu] = useState(false);
 
   const currentIndex = filtered.findIndex(i => i.id === item.id);
   const hasPrev = currentIndex > 0;
@@ -26,38 +31,52 @@ const DuaReader = ({ item, filtered, fontSize, setFontSize, onClose, onSelect }:
 
   return (
     <div className="animate-fade-in min-h-screen flex flex-col bg-background">
-      {/* Minimal floating header — only "back" + font controls */}
-      <div className="sticky top-0 z-30 bg-background/85 backdrop-blur-2xl px-4 py-3 border-b border-border/10">
-        <div className="flex items-center justify-between">
+      {/* Reader body — back button + font menu live as small floating chips */}
+      <div className="flex-1 px-5 pt-4 pb-32">
+        {/* Top floating chips (back + font size) */}
+        <div className="flex items-center justify-between mb-5">
           <button
             onClick={onClose}
-            className="flex items-center gap-1 text-foreground text-[13px] active:scale-95 transition-transform"
+            className="flex items-center gap-1.5 text-foreground text-[12px] active:scale-95 transition-transform px-3 py-1.5 rounded-full bg-secondary/40 border border-border/20"
             aria-label="back"
           >
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3.5 h-3.5" />
             <span className="font-light">رجوع</span>
           </button>
-          <div className="flex items-center gap-1.5">
+
+          <div className="relative">
             <button
-              onClick={() => setFontSize(s => Math.max(14, s - 2))}
-              className="w-9 h-9 rounded-full bg-secondary/40 text-foreground flex items-center justify-center active:scale-90 transition-transform"
-              aria-label="decrease font"
+              onClick={() => setShowFontMenu(v => !v)}
+              className="w-9 h-9 rounded-full bg-secondary/40 border border-border/20 text-foreground flex items-center justify-center active:scale-90 transition-transform"
+              aria-label="font size"
             >
-              <Minus className="w-3.5 h-3.5" strokeWidth={2} />
+              <Type className="w-3.5 h-3.5" strokeWidth={1.6} />
             </button>
-            <button
-              onClick={() => setFontSize(s => Math.min(32, s + 2))}
-              className="w-9 h-9 rounded-full bg-secondary/40 text-foreground flex items-center justify-center active:scale-90 transition-transform"
-              aria-label="increase font"
-            >
-              <Plus className="w-3.5 h-3.5" strokeWidth={2} />
-            </button>
+            <AnimatePresence>
+              {showFontMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -4, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute top-full mt-2 right-0 bg-card border border-border/30 rounded-2xl shadow-elevated p-1.5 flex items-center gap-1 z-20"
+                >
+                  <button
+                    onClick={() => setFontSize(s => Math.max(14, s - 2))}
+                    className="w-8 h-8 rounded-xl bg-secondary/40 text-foreground text-[14px] active:scale-90 transition-transform"
+                  >−</button>
+                  <span className="text-[10px] text-muted-foreground tabular-nums w-7 text-center">{fontSize}</span>
+                  <button
+                    onClick={() => setFontSize(s => Math.min(32, s + 2))}
+                    className="w-8 h-8 rounded-xl bg-secondary/40 text-foreground text-[14px] active:scale-90 transition-transform"
+                  >+</button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
-      </div>
 
-      {/* Reader body */}
-      <div className="flex-1 px-5 py-6 pb-28">
+        {/* Title */}
         <div className="mb-6">
           <span className="text-[9px] text-primary/60 tracking-wider font-light">
             {CATEGORY_LABELS[item.category]}
@@ -65,6 +84,8 @@ const DuaReader = ({ item, filtered, fontSize, setFontSize, onClose, onSelect }:
           <h1 className="text-xl text-foreground leading-snug tracking-tight mt-1">{item.title}</h1>
           <p className="text-[9px] text-muted-foreground/40 mt-1.5 font-light">المصدر: حقيبة المؤمن</p>
         </div>
+
+        {/* Body */}
         <div
           className="bg-card rounded-3xl p-6 border border-border/15 text-foreground whitespace-pre-wrap religious-text leading-[2.4]"
           style={{ fontSize: `${fontSize}px`, fontWeight: 400 }}
@@ -73,25 +94,30 @@ const DuaReader = ({ item, filtered, fontSize, setFontSize, onClose, onSelect }:
         </div>
       </div>
 
-      {/* Floating nav — fixed at bottom (since BottomNav is hidden) */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg md:max-w-2xl px-5 py-3 flex items-center justify-between bg-background/85 backdrop-blur-2xl border-t border-border/10 safe-bottom">
-        <button
-          onClick={() => hasNext && onSelect(filtered[currentIndex + 1])}
-          disabled={!hasNext}
-          className="flex items-center gap-1 text-[12px] text-foreground disabled:opacity-20 active:scale-95 transition-transform"
-        >
-          التالي <ChevronLeft className="w-3.5 h-3.5" />
-        </button>
-        <span className="text-[10px] text-muted-foreground/50 tabular-nums">
-          {currentIndex + 1} / {filtered.length}
-        </span>
-        <button
-          onClick={() => hasPrev && onSelect(filtered[currentIndex - 1])}
-          disabled={!hasPrev}
-          className="flex items-center gap-1 text-[12px] text-foreground disabled:opacity-20 active:scale-95 transition-transform"
-        >
-          <ChevronRight className="w-3.5 h-3.5" /> السابق
-        </button>
+      {/* Floating prev/next switcher — pinned just above BottomNav */}
+      <div
+        className="fixed left-1/2 -translate-x-1/2 w-full max-w-lg md:max-w-2xl px-4 z-40 pointer-events-none"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 76px)' }}
+      >
+        <div className="pointer-events-auto mx-2 flex items-center justify-between gap-2 px-3 py-2 rounded-full bg-card/85 backdrop-blur-2xl border border-border/30 shadow-elevated">
+          <button
+            onClick={() => hasNext && onSelect(filtered[currentIndex + 1])}
+            disabled={!hasNext}
+            className="flex items-center gap-1 text-[11px] text-foreground disabled:opacity-25 active:scale-95 transition-transform px-2 py-1"
+          >
+            التالي <ChevronLeft className="w-3.5 h-3.5" />
+          </button>
+          <span className="text-[10px] text-muted-foreground/60 tabular-nums">
+            {currentIndex + 1} / {filtered.length}
+          </span>
+          <button
+            onClick={() => hasPrev && onSelect(filtered[currentIndex - 1])}
+            disabled={!hasPrev}
+            className="flex items-center gap-1 text-[11px] text-foreground disabled:opacity-25 active:scale-95 transition-transform px-2 py-1"
+          >
+            <ChevronRight className="w-3.5 h-3.5" /> السابق
+          </button>
+        </div>
       </div>
     </div>
   );
