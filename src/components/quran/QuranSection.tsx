@@ -449,9 +449,12 @@ const QuranSection = () => {
                         text = text.replace(/^بِسْمِ\s*ٱللَّهِ\s*ٱلرَّحْمَـٰنِ\s*ٱلرَّحِيمِ\s*/, '');
                       }
                       return (
-                        <span key={a.number}>
+                        <span
+                          key={a.number}
+                          ref={(el) => { ayahRefs.current[a.numberInSurah] = el; }}
+                        >
                           {text}
-                          <AyahMarker n={a.numberInSurah} />
+                          <AyahMarker n={a.numberInSurah} sajdah={getSajdahType(openSurah.number, a.numberInSurah)} />
                           {' '}
                         </span>
                       );
