@@ -10,25 +10,26 @@ import HijriCountdown from '@/components/HijriCountdown';
 import DailyRecommendations from '@/components/DailyRecommendations';
 import WallpapersSection from '@/components/WallpapersSection';
 
-const dhikrPhrases = [
-  'اللهم صلِّ على محمد وآل محمد',
-  'سبحان الله وبحمده',
-  'الحمد لله رب العالمين',
-  'استغفر الله ربي وأتوب إليه',
-  'لا إله إلا الله',
-  'اللهم عجّل لوليك الفرج',
-];
+// Mixed devotional rotation under the greeting:
+// short ayat, salawat, and well-known du'a phrases.
+// Each item is tagged so we can render verses in Uthmani script.
+type DevotionalItem = { text: string; type: 'ayah' | 'salawat' | 'dua' };
 
-// Short, recurring verses shown under the greeting (Uthmani script).
-// Selected for brevity, frequent use, and universal benefit.
-const SHORT_AYAHS = [
-  'وَمَن يَتَّقِ ٱللَّهَ يَجْعَل لَّهُۥ مَخْرَجًۭا',
-  'إِنَّ مَعَ ٱلْعُسْرِ يُسْرًۭا',
-  'حَسْبُنَا ٱللَّهُ وَنِعْمَ ٱلْوَكِيلُ',
-  'وَٱصْبِرُوا۟ ۚ إِنَّ ٱللَّهَ مَعَ ٱلصَّـٰبِرِينَ',
-  'وَقُل رَّبِّ زِدْنِى عِلْمًۭا',
-  'فَٱذْكُرُونِىٓ أَذْكُرْكُمْ',
-  'وَبَشِّرِ ٱلصَّـٰبِرِينَ',
+const DEVOTIONAL_ROTATION: DevotionalItem[] = [
+  // Short ayat (Uthmani)
+  { text: 'وَمَن يَتَّقِ ٱللَّهَ يَجْعَل لَّهُۥ مَخْرَجًۭا', type: 'ayah' },
+  { text: 'إِنَّ مَعَ ٱلْعُسْرِ يُسْرًۭا', type: 'ayah' },
+  { text: 'حَسْبُنَا ٱللَّهُ وَنِعْمَ ٱلْوَكِيلُ', type: 'ayah' },
+  { text: 'وَٱصْبِرُوا۟ ۚ إِنَّ ٱللَّهَ مَعَ ٱلصَّـٰبِرِينَ', type: 'ayah' },
+  { text: 'وَقُل رَّبِّ زِدْنِى عِلْمًۭا', type: 'ayah' },
+  { text: 'فَٱذْكُرُونِىٓ أَذْكُرْكُمْ', type: 'ayah' },
+  // Salawat & Du'a
+  { text: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَآلِ مُحَمَّد', type: 'salawat' },
+  { text: 'اللَّهُمَّ عَجِّلْ لِوَلِيِّكَ الْفَرَج', type: 'salawat' },
+  { text: 'اللَّهُمَّ كُنْ لِوَلِيِّكَ الْحُجَّةِ بْنِ الْحَسَن', type: 'salawat' },
+  { text: 'يَا عَلِيُّ يَا عَظِيم', type: 'dua' },
+  { text: 'يَا حُسَيْنُ يَا شَهِيد', type: 'dua' },
+  { text: 'حَسْبِيَ اللَّهُ لِدِينِي وَدُنْيَاي', type: 'dua' },
 ];
 
 const tasbihatLabels = ['الله أكبر', 'الحمد لله', 'سبحان الله'];
