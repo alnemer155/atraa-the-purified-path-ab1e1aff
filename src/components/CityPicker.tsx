@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { MapPin, LocateFixed, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { haversineKm, reverseGeocode, getAccurateLocation } from '@/lib/geo';
 
 interface CityRecord {
   value: string;
@@ -187,6 +188,76 @@ const REGION_LABELS_EN: Record<string, string> = {
 };
 const REGION_ORDER = ['SA', 'GCC', 'IQ', 'LV', 'AF', 'AS', 'EU', 'AM', 'US', 'OC'];
 
+// Map a CITY entry to an ISO-3166 alpha-2 country code so we can prefer
+// in-country matches when reverse-geocoding returns a valid country.
+function cityToCountryCode(region: string, value: string): string {
+  if (region === 'SA') return 'SA';
+  if (region === 'IQ') return 'IQ';
+  if (region === 'US') return 'US';
+  if (region === 'GCC') {
+    if (value === 'Kuwait') return 'KW';
+    if (value === 'Manama') return 'BH';
+    if (value === 'Doha') return 'QA';
+    if (['Dubai', 'Abu Dhabi', 'Sharjah'].includes(value)) return 'AE';
+    if (value === 'Muscat') return 'OM';
+  }
+  if (region === 'LV') {
+    if (['Damascus', 'Aleppo'].includes(value)) return 'SY';
+    if (value === 'Beirut') return 'LB';
+    if (value === 'Amman') return 'JO';
+    if (['Gaza', 'Ramallah'].includes(value)) return 'PS';
+  }
+  if (region === 'AF') {
+    if (['Cairo', 'Alexandria'].includes(value)) return 'EG';
+    if (value === 'Khartoum') return 'SD';
+    if (value === 'Tripoli') return 'LY';
+    if (value === 'Tunis') return 'TN';
+    if (value === 'Algiers') return 'DZ';
+    if (value === 'Casablanca') return 'MA';
+    if (value === 'Lagos') return 'NG';
+    if (value === 'Nairobi') return 'KE';
+    if (value === 'Johannesburg') return 'ZA';
+  }
+  if (region === 'AS') {
+    if (['Tehran', 'Mashhad', 'Qom'].includes(value)) return 'IR';
+    if (['Istanbul', 'Ankara'].includes(value)) return 'TR';
+    if (['Karachi', 'Lahore', 'Islamabad'].includes(value)) return 'PK';
+    if (['Delhi', 'Mumbai'].includes(value)) return 'IN';
+    if (value === 'Dhaka') return 'BD';
+    if (value === 'Jakarta') return 'ID';
+    if (value === 'Kuala Lumpur') return 'MY';
+    if (value === 'Singapore') return 'SG';
+    if (value === 'Bangkok') return 'TH';
+    if (value === 'Tokyo') return 'JP';
+    if (value === 'Seoul') return 'KR';
+    if (['Beijing', 'Hong Kong'].includes(value)) return 'CN';
+  }
+  if (region === 'EU') {
+    if (value === 'London') return 'GB';
+    if (value === 'Paris') return 'FR';
+    if (value === 'Berlin') return 'DE';
+    if (value === 'Madrid') return 'ES';
+    if (value === 'Rome') return 'IT';
+    if (value === 'Amsterdam') return 'NL';
+    if (value === 'Brussels') return 'BE';
+    if (value === 'Vienna') return 'AT';
+    if (value === 'Stockholm') return 'SE';
+    if (value === 'Oslo') return 'NO';
+    if (value === 'Moscow') return 'RU';
+  }
+  if (region === 'AM') {
+    if (['Toronto', 'Montreal'].includes(value)) return 'CA';
+    if (value === 'Mexico City') return 'MX';
+    if (value === 'Sao Paulo') return 'BR';
+    if (value === 'Buenos Aires') return 'AR';
+  }
+  if (region === 'OC') {
+    if (['Sydney', 'Melbourne'].includes(value)) return 'AU';
+    if (value === 'Auckland') return 'NZ';
+  }
+  return '';
+}
+
 interface CityPickerProps {
   selectedCity: string;
   onCityChange: (city: string, coords: { lat: number; lng: number }) => void;
@@ -207,40 +278,64 @@ const CityPicker = ({ selectedCity, onCityChange }: CityPickerProps) => {
     return CITIES.filter(c => c.region === activeRegion);
   }, [activeRegion]);
 
-  const detectLocation = () => {
+  const detectLocation = async () => {
     if (!('geolocation' in navigator)) {
       setGpsError(isAr ? 'GPS غير مدعوم' : 'GPS unsupported');
+      setTimeout(() => setGpsError(null), 3000);
       return;
     }
     setDetecting(true);
     setGpsError(null);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        // Find closest known city by haversine-ish euclidean (sufficient for local nearest match)
-        let closest = CITIES[0];
-        let minDist = Infinity;
-        for (const c of CITIES) {
-          const d = Math.hypot(c.lat - latitude, c.lng - longitude);
-          if (d < minDist) { minDist = d; closest = c; }
+    try {
+      const pos = await getAccurateLocation(15000);
+      const { latitude, longitude } = pos.coords;
+
+      // 1) True great-circle nearest-city match (fixes the "Washington vs Dammam" bug
+      //    caused by Euclidean math wrapping incorrectly across longitudes).
+      let closest = CITIES[0];
+      let minDist = haversineKm(latitude, longitude, closest.lat, closest.lng);
+      for (const c of CITIES) {
+        const d = haversineKm(latitude, longitude, c.lat, c.lng);
+        if (d < minDist) { minDist = d; closest = c; }
+      }
+
+      // 2) Cross-check with Nominatim reverse geocoding when nearest is > 80 km away
+      //    or to bias selection toward the actual country.
+      try {
+        const geo = await reverseGeocode(latitude, longitude, isAr ? 'ar' : 'en');
+        if (geo?.countryCode) {
+          // Filter cities to the same country and re-pick nearest within country
+          const sameCountry = CITIES.filter(c => cityToCountryCode(c.region, c.value) === geo.countryCode);
+          if (sameCountry.length) {
+            let bestInCountry = sameCountry[0];
+            let bestInCountryDist = haversineKm(latitude, longitude, bestInCountry.lat, bestInCountry.lng);
+            for (const c of sameCountry) {
+              const d = haversineKm(latitude, longitude, c.lat, c.lng);
+              if (d < bestInCountryDist) { bestInCountryDist = d; bestInCountry = c; }
+            }
+            // Prefer the in-country match if it's reasonably close (< 500 km)
+            if (bestInCountryDist < 500) {
+              closest = bestInCountry;
+            }
+          }
         }
-        onCityChange(closest.value, { lat: closest.lat, lng: closest.lng });
-        setActiveRegion(closest.region);
-        setDetecting(false);
-        setGpsSuccess(true);
-        setTimeout(() => setGpsSuccess(false), 2200);
-      },
-      (err) => {
-        setDetecting(false);
-        setGpsError(
-          err.code === err.PERMISSION_DENIED
-            ? (isAr ? 'لم يُسمح بالموقع' : 'Permission denied')
-            : (isAr ? 'تعذّر تحديد الموقع' : 'Location unavailable')
-        );
-        setTimeout(() => setGpsError(null), 3000);
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-    );
+      } catch { /* fall through to nearest-by-haversine */ }
+
+      onCityChange(closest.value, { lat: closest.lat, lng: closest.lng });
+      setActiveRegion(closest.region);
+      setDetecting(false);
+      setGpsSuccess(true);
+      setTimeout(() => setGpsSuccess(false), 2200);
+    } catch (err: any) {
+      setDetecting(false);
+      const denied = err?.code === 1 || /denied/i.test(err?.message || '');
+      setGpsError(
+        denied
+          ? (isAr ? 'لم يُسمح بالموقع' : 'Permission denied')
+          : (isAr ? 'تعذّر تحديد الموقع' : 'Location unavailable')
+      );
+      setTimeout(() => setGpsError(null), 3000);
+    }
   };
 
   const current = CITIES.find(c => c.value === selectedCity);

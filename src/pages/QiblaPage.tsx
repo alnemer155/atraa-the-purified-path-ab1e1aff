@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Navigation, MapPin, LocateFixed, Info, Check } from 'lucide-react';
+import { LocateFixed, Info, Check, Compass } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const KAABA_LAT = 21.422487;
 const KAABA_LNG = 39.826206;
@@ -24,194 +25,200 @@ function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): nu
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-const KaabaIcon = ({ size = 28 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-    <rect x="12" y="18" width="40" height="36" rx="3" fill="hsl(var(--foreground))" />
-    <rect x="12" y="28" width="40" height="8" fill="hsl(var(--gold))" opacity="0.7" />
-    <rect x="27" y="36" width="10" height="16" rx="5" fill="hsl(var(--gold))" opacity="0.6" />
+const SIZE = 320;
+const CENTER = SIZE / 2;
+const RING_R = CENTER - 10;
+const TICK_OUT = RING_R - 2;
+const TICK_LONG = 14;
+const TICK_SHORT = 5;
+
+/**
+ * KaabaGlyph — minimal stylized Kaaba (rectangle with kiswah band).
+ */
+const KaabaGlyph = ({ size = 36, glow = 0 }: { size?: number; glow?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 40 40">
+    <defs>
+      <linearGradient id="kaaba-grad" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stopColor="hsl(var(--foreground))" />
+        <stop offset="1" stopColor="hsl(var(--foreground))" stopOpacity="0.85" />
+      </linearGradient>
+    </defs>
+    <rect x="9" y="11" width="22" height="22" rx="1.5" fill="url(#kaaba-grad)" />
+    <rect x="9" y="17" width="22" height="3.6" fill="hsl(var(--gold))" opacity={0.7 + glow * 0.3} />
+    <rect x="9" y="17" width="22" height="0.6" fill="hsl(var(--gold))" />
+    <rect x="9" y="20.6" width="22" height="0.6" fill="hsl(var(--gold))" />
+    <rect x="17" y="22" width="6" height="11" rx="0.6" fill="hsl(var(--gold))" opacity={0.55 + glow * 0.4} />
   </svg>
 );
 
-const COMPASS_SIZE = 320;
-const R = COMPASS_SIZE / 2;
+interface CompassProps {
+  rotation: number;
+  alignmentScore: number;
+  isPointingQibla: boolean;
+  active: boolean;
+}
 
-const CompassDial = ({ heading, rotation, isPointingQibla, alignmentScore }: { heading: number; rotation: number; isPointingQibla: boolean; alignmentScore: number }) => {
+const CompassDial = ({ rotation, alignmentScore, isPointingQibla, active }: CompassProps) => {
   const cardinals = [
-    { label: 'ش', angle: 0, primary: true },
-    { label: 'شر', angle: 90 },
-    { label: 'ج', angle: 180 },
-    { label: 'غر', angle: 270 },
+    { label: 'N', angle: 0 },
+    { label: 'E', angle: 90 },
+    { label: 'S', angle: 180 },
+    { label: 'W', angle: 270 },
   ];
 
-  const glow = alignmentScore;
-
   return (
-    <div className="relative" style={{ width: COMPASS_SIZE, height: COMPASS_SIZE }}>
-      {/* Noor outer halo */}
+    <div className="relative" style={{ width: SIZE, height: SIZE }}>
+      {/* Soft outer aura — golden when aligned */}
       <motion.div
-        className="absolute inset-[-30px] rounded-full pointer-events-none"
+        className="absolute inset-[-40px] rounded-full pointer-events-none"
         animate={{
-          opacity: 0.15 + glow * 0.55,
+          opacity: active ? 0.18 + alignmentScore * 0.6 : 0,
           scale: isPointingQibla ? [1, 1.04, 1] : 1,
         }}
         transition={{
           opacity: { duration: 0.4 },
-          scale: isPointingQibla ? { duration: 2.4, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.3 },
+          scale: isPointingQibla ? { duration: 2.6, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.3 },
         }}
         style={{
-          background: `radial-gradient(circle, hsl(var(--gold) / ${0.35 + glow * 0.4}) 0%, hsl(var(--primary) / ${0.18 + glow * 0.3}) 35%, transparent 70%)`,
-          filter: `blur(${20 + glow * 25}px)`,
+          background: `radial-gradient(circle, hsl(var(--gold) / ${0.35 + alignmentScore * 0.45}) 0%, hsl(var(--primary) / ${0.12 + alignmentScore * 0.25}) 40%, transparent 70%)`,
+          filter: `blur(${22 + alignmentScore * 22}px)`,
         }}
       />
 
-      <motion.div
-        className="absolute inset-0 rounded-full border transition-colors duration-500"
-        animate={{ borderColor: `hsl(var(--gold) / ${0.05 + glow * 0.5})` }}
-      />
+      {/* Outer ring */}
+      <div className="absolute inset-0 rounded-full bg-card border border-border/30" />
 
-      <svg className="absolute inset-0" viewBox={`0 0 ${COMPASS_SIZE} ${COMPASS_SIZE}`}>
+      {/* Inner ring */}
+      <div className="absolute inset-[18px] rounded-full border border-border/20" />
+
+      <motion.svg
+        className="absolute inset-0"
+        viewBox={`0 0 ${SIZE} ${SIZE}`}
+        animate={{ rotate: rotation }}
+        transition={{ type: 'spring', stiffness: 50, damping: 16 }}
+      >
+        {/* 72 ticks every 5° */}
         {Array.from({ length: 72 }).map((_, i) => {
           const deg = i * 5;
           const angle = (deg * Math.PI) / 180 - Math.PI / 2;
           const isMajor = deg % 90 === 0;
-          const isMid = deg % 45 === 0;
-          const isMinor = deg % 5 === 0;
-          const len = isMajor ? 16 : isMid ? 8 : 3;
-          const outerR = R - 4;
-          const x1 = R + outerR * Math.cos(angle);
-          const y1 = R + outerR * Math.sin(angle);
-          const x2 = R + (outerR - len) * Math.cos(angle);
-          const y2 = R + (outerR - len) * Math.sin(angle);
+          const isMid = deg % 30 === 0;
+          const len = isMajor ? TICK_LONG : isMid ? 9 : TICK_SHORT;
+          const x1 = CENTER + TICK_OUT * Math.cos(angle);
+          const y1 = CENTER + TICK_OUT * Math.sin(angle);
+          const x2 = CENTER + (TICK_OUT - len) * Math.cos(angle);
+          const y2 = CENTER + (TICK_OUT - len) * Math.sin(angle);
           return (
             <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
-              stroke={isMajor ? 'hsl(var(--foreground))' : 'hsl(var(--border))'}
-              strokeWidth={isMajor ? 1.5 : isMid ? 0.8 : 0.4}
+              stroke={isMajor ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))'}
+              strokeWidth={isMajor ? 1.5 : isMid ? 0.9 : 0.5}
               strokeLinecap="round"
-              opacity={isMajor ? 0.6 : isMid ? 0.25 : isMinor ? 0.12 : 0} />
+              opacity={isMajor ? 0.55 : isMid ? 0.25 : 0.12} />
           );
         })}
-      </svg>
 
-      {cardinals.map(({ label, angle, primary }) => {
-        const rad = (angle * Math.PI) / 180 - Math.PI / 2;
-        const dist = R - 36;
-        const x = R + dist * Math.cos(rad);
-        const y = R + dist * Math.sin(rad);
-        return (
-          <span key={label}
-            className={`absolute text-[11px] ${primary ? 'text-foreground/60' : 'text-muted-foreground/25'}`}
-            style={{ left: x, top: y, transform: 'translate(-50%, -50%)' }}>
-            {label}
-          </span>
-        );
-      })}
+        {/* Cardinal letters */}
+        {cardinals.map(({ label, angle }) => {
+          const rad = (angle * Math.PI) / 180 - Math.PI / 2;
+          const dist = RING_R - 32;
+          const x = CENTER + dist * Math.cos(rad);
+          const y = CENTER + dist * Math.sin(rad);
+          return (
+            <text
+              key={label}
+              x={x}
+              y={y}
+              textAnchor="middle"
+              dominantBaseline="central"
+              className="fill-foreground"
+              fontSize="11"
+              opacity={label === 'N' ? 0.9 : 0.35}
+              transform={`rotate(${-rotation} ${x} ${y})`}
+            >
+              {label}
+            </text>
+          );
+        })}
 
-      <motion.div className="absolute inset-0" animate={{ rotate: rotation }}
-        transition={{ type: 'spring', stiffness: 50, damping: 16 }}>
-        <div className="w-full h-full flex flex-col items-center">
-          <div className="flex flex-col items-center mt-4">
-            <motion.div
-              animate={isPointingQibla ? { scale: [1, 1.06, 1] } : { scale: 1 }}
-              transition={isPointingQibla ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : {}}
-              className="w-12 h-12 rounded-2xl flex items-center justify-center bg-card border border-border/15"
-              style={{
-                boxShadow: glow > 0.3 ? `0 0 ${glow * 24}px hsl(var(--gold) / ${glow * 0.7})` : undefined,
-              }}>
-              <KaabaIcon size={26} />
-            </motion.div>
-            <motion.div
-              className="rounded-full"
-              style={{
-                width: 2,
-                height: R - 60,
-                background: `linear-gradient(to bottom, hsl(var(--gold) / ${0.4 + glow * 0.6}), hsl(var(--gold) / ${0.05 + glow * 0.2}))`,
-                boxShadow: glow > 0.5 ? `0 0 ${glow * 12}px hsl(var(--gold) / ${glow * 0.8})` : 'none',
-              }}
-              animate={{ opacity: 0.5 + glow * 0.5 }}
-            />
-          </div>
-        </div>
-      </motion.div>
-
-      <motion.div className="absolute inset-0 pointer-events-none" animate={{ rotate: rotation }}
-        transition={{ type: 'spring', stiffness: 50, damping: 16 }}>
-        <div className="w-full h-full flex flex-col items-center justify-end">
-          <div className="flex flex-col items-center mb-6">
-            <div className="w-px bg-muted-foreground/6 rounded-full" style={{ height: R - 70 }} />
-            <div className="w-1 h-1 rounded-full bg-muted-foreground/8" />
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Noor center orb */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <motion.div
-          className="relative w-12 h-12 rounded-full flex items-center justify-center bg-foreground"
-          animate={{
-            boxShadow: `0 0 ${10 + glow * 30}px hsl(var(--gold) / ${0.2 + glow * 0.7}), inset 0 0 ${4 + glow * 12}px hsl(var(--gold) / ${0.1 + glow * 0.4})`,
-          }}
-          transition={{ duration: 0.4 }}
-        >
-          <motion.div
-            className="rounded-full bg-background"
-            animate={{
-              width: 8 + glow * 8,
-              height: 8 + glow * 8,
-            }}
-            transition={{ duration: 0.3 }}
+        {/* Qibla pointer — fixed to dial (rotates with it) */}
+        <g>
+          {/* Gold needle */}
+          <line
+            x1={CENTER}
+            y1={CENTER}
+            x2={CENTER}
+            y2={28}
+            stroke={`hsl(var(--gold) / ${0.4 + alignmentScore * 0.55})`}
+            strokeWidth="2"
+            strokeLinecap="round"
           />
+          {/* Tail */}
+          <line
+            x1={CENTER}
+            y1={CENTER}
+            x2={CENTER}
+            y2={SIZE - 60}
+            stroke="hsl(var(--foreground))"
+            strokeWidth="1"
+            strokeLinecap="round"
+            opacity="0.12"
+          />
+        </g>
+      </motion.svg>
+
+      {/* Kaaba glyph at top, also rotating with the dial */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none flex items-start justify-center"
+        animate={{ rotate: rotation }}
+        transition={{ type: 'spring', stiffness: 50, damping: 16 }}
+      >
+        <motion.div
+          className="mt-2 rounded-2xl bg-background border border-border/40 p-1.5 flex items-center justify-center"
+          animate={isPointingQibla ? { scale: [1, 1.06, 1] } : { scale: 1 }}
+          transition={isPointingQibla ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : {}}
+          style={{
+            boxShadow: alignmentScore > 0.3 ? `0 0 ${alignmentScore * 22}px hsl(var(--gold) / ${alignmentScore * 0.7})` : undefined,
+          }}
+        >
+          <KaabaGlyph size={32} glow={alignmentScore} />
         </motion.div>
+      </motion.div>
+
+      {/* Static fixed top indicator (current direction marker) */}
+      <div className="absolute inset-x-0 top-0 flex justify-center pointer-events-none">
+        <div className="w-[2px] h-3 rounded-full bg-foreground/70 mt-1" />
       </div>
 
+      {/* Center hub */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <motion.div
+          className="w-3 h-3 rounded-full bg-foreground"
+          animate={{
+            boxShadow: `0 0 ${6 + alignmentScore * 22}px hsl(var(--gold) / ${0.2 + alignmentScore * 0.6})`,
+          }}
+        />
+      </div>
+
+      {/* Aligned ripple */}
       <AnimatePresence>
         {isPointingQibla && (
-          <>
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0.5 }}
-              animate={{ scale: 1.3, opacity: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="absolute inset-0 rounded-full border-2 pointer-events-none"
-              style={{ borderColor: 'hsl(var(--gold) / 0.4)' }}
-            />
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0.3 }}
-              animate={{ scale: 1.5, opacity: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 2.4, repeat: Infinity, delay: 0.3 }}
-              className="absolute inset-0 rounded-full border border-primary/20 pointer-events-none"
-            />
-          </>
+          <motion.div
+            initial={{ scale: 0.85, opacity: 0.5 }}
+            animate={{ scale: 1.25, opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="absolute inset-0 rounded-full border-2 pointer-events-none"
+            style={{ borderColor: 'hsl(var(--gold) / 0.4)' }}
+          />
         )}
       </AnimatePresence>
     </div>
   );
 };
 
-const DeviationBar = ({ rotation }: { rotation: number }) => {
-  const normalized = ((rotation % 360) + 360) % 360;
-  const deviation = normalized > 180 ? normalized - 360 : normalized;
-  const clampedDev = Math.max(-45, Math.min(45, deviation));
-  const percent = ((clampedDev + 45) / 90) * 100;
-
-  return (
-    <div className="w-full max-w-[200px] mx-auto mt-5">
-      <div className="h-[2px] rounded-full bg-secondary/30 relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 w-px h-full bg-foreground/10 -translate-x-1/2" />
-        <motion.div
-          className="absolute top-[-1.5px] w-1.5 h-[5px] rounded-full bg-foreground/50"
-          animate={{ left: `calc(${percent}% - 3px)` }}
-          transition={{ type: 'spring', stiffness: 80, damping: 15 }}
-        />
-      </div>
-      <p className="text-[8px] text-muted-foreground/30 text-center mt-1.5 font-light">
-        {Math.abs(Math.round(deviation))}° {deviation > 1 ? 'يسار' : deviation < -1 ? 'يمين' : ''}
-      </p>
-    </div>
-  );
-};
-
 const QiblaPage = () => {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const [qiblaDirection, setQiblaDirection] = useState<number | null>(null);
   const [heading, setHeading] = useState<number>(0);
   const [error, setError] = useState('');
@@ -232,12 +239,12 @@ const QiblaPage = () => {
         () => {
           setCoords({ lat: 26.4207, lng: 50.0888 });
           setQiblaDirection(calculateQibla(26.4207, 50.0888));
-          setError('تم استخدام الموقع الافتراضي (القطيف)');
+          setError(isAr ? 'تم استخدام الموقع الافتراضي (القطيف)' : 'Using default location (Qatif)');
         },
         { enableHighAccuracy: true, timeout: 10000 }
       );
     }
-  }, []);
+  }, [isAr]);
 
   const handleOrientation = useCallback((e: DeviceOrientationEvent) => {
     let alpha = e.alpha;
@@ -274,8 +281,11 @@ const QiblaPage = () => {
         if (perm === 'granted') {
           window.addEventListener('deviceorientation', handleOrientation, true);
         }
+      } else {
+        // Already attached on mount (non-iOS), but force-enable state
+        setCompassActive(true);
       }
-    } catch {}
+    } catch { /* ignore */ }
   };
 
   const rotation = qiblaDirection !== null ? qiblaDirection - heading : 0;
@@ -288,9 +298,7 @@ const QiblaPage = () => {
   useEffect(() => {
     if (isPointingQibla && !hasVibrated.current) {
       hasVibrated.current = true;
-      if ('vibrate' in navigator) {
-        navigator.vibrate([25, 40, 25]);
-      }
+      if ('vibrate' in navigator) navigator.vibrate([25, 40, 25]);
     } else if (!isPointingQibla) {
       hasVibrated.current = false;
     }
@@ -298,68 +306,87 @@ const QiblaPage = () => {
 
   return (
     <div className="px-4 py-5 animate-fade-in min-h-[calc(100vh-130px)] flex flex-col">
-      <div className="flex items-center justify-between mb-3">
-        <div className="text-right flex-1">
-          <h1 className="text-lg text-foreground tracking-tight">اتجاه القبلة</h1>
-          <p className="text-[9px] text-muted-foreground/40 font-light mt-0.5">الكعبة المشرّفة · مكة المكرمة</p>
+      {/* Heritage header */}
+      <div className="flex items-center justify-between mb-5">
+        <div className={`flex-1 ${isAr ? 'text-right' : 'text-left'}`}>
+          <h1 className="text-lg text-foreground tracking-tight">{isAr ? 'اتجاه القبلة' : 'Qibla Direction'}</h1>
+          <p className="text-[9px] text-muted-foreground/45 font-light mt-0.5 tracking-wide">
+            {isAr ? 'الكعبة المشرّفة · مكة المكرمة' : 'The Holy Kaaba · Makkah'}
+          </p>
         </div>
-        <button onClick={() => setShowInfo(!showInfo)}
-          className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${showInfo ? 'text-foreground' : 'text-muted-foreground/30'}`}>
+        <button
+          onClick={() => setShowInfo(!showInfo)}
+          className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-colors ${showInfo ? 'bg-foreground text-background' : 'bg-card border border-border/30 text-muted-foreground/50'}`}
+          aria-label="info"
+        >
           <Info className="w-4 h-4" />
         </button>
       </div>
 
       <AnimatePresence>
         {showInfo && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-3">
-            <div className="bg-card border border-border/15 rounded-2xl p-3.5">
-              <p className="text-[10px] text-muted-foreground/50 leading-relaxed font-light">
-                وجّه هاتفك بشكل مسطّح وأدر جسمك حتى تشير علامة الكعبة للأعلى.
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-4">
+            <div className="bg-card border border-border/20 rounded-2xl p-4">
+              <p className="text-[11px] text-muted-foreground/70 leading-relaxed font-light">
+                {isAr
+                  ? 'ضع الهاتف بشكل مسطّح وأدر جسمك حتى تتطابق علامة الكعبة مع المؤشّر العلوي. عند المحاذاة الكاملة سيهتزّ الهاتف ويتوهج المؤشّر بلون ذهبي.'
+                  : 'Hold the phone flat and turn your body until the Kaaba glyph aligns with the top marker. On full alignment the phone will vibrate and the dial will glow gold.'}
               </p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Compass */}
       <div className="flex-1 flex flex-col items-center justify-center">
-        <CompassDial heading={heading} rotation={rotation} isPointingQibla={isPointingQibla} alignmentScore={alignmentScore} />
-
-        {compassActive && <DeviationBar rotation={rotation} />}
+        <CompassDial
+          rotation={rotation}
+          alignmentScore={alignmentScore}
+          isPointingQibla={isPointingQibla}
+          active={compassActive}
+        />
 
         <AnimatePresence>
           {isPointingQibla && (
             <motion.div
-              initial={{ opacity: 0, y: 4, scale: 0.96 }}
+              initial={{ opacity: 0, y: 6, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -3, scale: 0.98 }}
-              className="flex items-center gap-2 mt-5 px-5 py-2.5 rounded-2xl bg-foreground"
+              exit={{ opacity: 0, y: -4, scale: 0.97 }}
+              className="flex items-center gap-2 mt-6 px-5 py-2.5 rounded-2xl bg-foreground"
             >
               <Check className="w-3.5 h-3.5 text-background" />
-              <span className="text-[12px] text-background">أنت تواجه القبلة</span>
+              <span className="text-[12px] text-background">{isAr ? 'أنت تواجه القبلة' : 'You are facing the Qibla'}</span>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-2 mt-4 mb-2">
-        <div className="bg-card border border-border/15 rounded-2xl p-3.5 text-center">
-          <span className="text-[8px] text-muted-foreground/35 font-light">الاتجاه</span>
-          <p className="text-2xl text-foreground tracking-tight font-light mt-1">
+      <div className="grid grid-cols-2 gap-2 mt-6 mb-2">
+        <div className="bg-card border border-border/20 rounded-2xl p-3.5">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Compass className="w-3 h-3 text-muted-foreground/40" />
+            <span className="text-[9px] text-muted-foreground/45 font-light tracking-wide">{isAr ? 'الاتجاه' : 'Bearing'}</span>
+          </div>
+          <p className="text-[22px] text-foreground tracking-tight font-light tabular-nums">
             {qiblaDirection !== null ? `${Math.round(qiblaDirection)}°` : '—'}
           </p>
         </div>
-        <div className="bg-card border border-border/15 rounded-2xl p-3.5 text-center">
-          <span className="text-[8px] text-muted-foreground/35 font-light">المسافة</span>
-          <p className="text-2xl text-foreground tracking-tight font-light mt-1">
-            {distanceToKaaba !== null ? `${distanceToKaaba.toLocaleString()}` : '—'}
-            {distanceToKaaba !== null && <span className="text-[10px] text-muted-foreground/30 mr-1 font-light">كم</span>}
+        <div className="bg-card border border-border/20 rounded-2xl p-3.5">
+          <div className="flex items-center gap-1.5 mb-1">
+            <span className="text-[9px] text-muted-foreground/45 font-light tracking-wide">{isAr ? 'المسافة' : 'Distance'}</span>
+          </div>
+          <p className="text-[22px] text-foreground tracking-tight font-light tabular-nums">
+            {distanceToKaaba !== null ? distanceToKaaba.toLocaleString() : '—'}
+            {distanceToKaaba !== null && (
+              <span className="text-[10px] text-muted-foreground/40 ms-1 font-light">{isAr ? 'كم' : 'km'}</span>
+            )}
           </p>
         </div>
       </div>
 
       {error && (
-        <p className="text-[9px] text-muted-foreground/50 text-center mt-1 py-2 font-light">{error}</p>
+        <p className="text-[9px] text-muted-foreground/50 text-center mt-2 font-light">{error}</p>
       )}
 
       {!compassActive && (
@@ -370,7 +397,7 @@ const QiblaPage = () => {
           className="mt-4 mx-auto flex items-center gap-2 px-6 py-3 rounded-2xl bg-foreground text-background text-[12px] active:scale-[0.97] transition-transform"
         >
           <LocateFixed className="w-4 h-4" />
-          تفعيل البوصلة
+          {isAr ? 'تفعيل البوصلة' : 'Enable compass'}
         </motion.button>
       )}
     </div>

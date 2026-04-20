@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Search, BookOpen, X, Loader2 } from 'lucide-react';
+import { ChevronLeft, Search, BookOpen, X, Loader2, BookmarkCheck, List } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { saveContinueReading, getContinueReading, type ContinueReading } from '@/lib/quran-meta';
+import { JUZ_STARTS, HIZB_STARTS, getSajdahType } from '@/lib/quran-meta';
 
 interface Surah {
   number: number;
@@ -75,18 +77,22 @@ const Ornament = ({ className = '' }: { className?: string }) => (
 );
 
 // Decorative ayah-end medallion with the verse number inside
-const AyahMarker = ({ n }: { n: number }) => (
+const AyahMarker = ({ n, sajdah }: { n: number; sajdah?: 'wajib' | 'mustahabb' | null }) => (
   <span
-    className="inline-flex items-center justify-center align-middle mx-1"
+    className="inline-flex items-center justify-center align-middle mx-1 relative"
     style={{ width: 28, height: 28 }}
+    title={sajdah === 'wajib' ? 'سجدة واجبة' : sajdah === 'mustahabb' ? 'سجدة مستحبة' : undefined}
   >
     <svg viewBox="0 0 32 32" className="absolute" style={{ width: 28, height: 28 }} aria-hidden>
-      <g fill="none" stroke="hsl(var(--gold))" strokeWidth="0.8">
-        <circle cx="16" cy="16" r="13" opacity="0.55" />
+      <g fill="none" stroke={sajdah ? 'hsl(var(--accent))' : 'hsl(var(--gold))'} strokeWidth={sajdah ? '1.1' : '0.8'}>
+        <circle cx="16" cy="16" r="13" opacity={sajdah ? 0.85 : 0.55} />
         <path d="M16 3 l3 3 -3 3 -3 -3z M16 23 l3 3 -3 3 -3 -3z M3 16 l3 -3 3 3 -3 3z M23 16 l3 -3 3 3 -3 3z" opacity="0.45" />
       </g>
     </svg>
     <span className="relative text-[10px] text-foreground/70 tabular-nums font-light">{n}</span>
+    {sajdah && (
+      <span className="absolute -top-1 -right-1 text-[7px] text-accent font-medium" aria-hidden>۩</span>
+    )}
   </span>
 );
 
@@ -104,6 +110,10 @@ const QuranSection = () => {
   const [loadingAyahs, setLoadingAyahs] = useState(false);
   const [ayahsError, setAyahsError] = useState(false);
   const [fontSize, setFontSize] = useState(22);
+  const [continueReading, setContinueReading] = useState<ContinueReading | null>(() => getContinueReading());
+  const [showIndex, setShowIndex] = useState(false);
+  const [scrollToAyah, setScrollToAyah] = useState<number | null>(null);
+  const ayahRefs = useRef<Record<number, HTMLSpanElement | null>>({});
 
   // Ayah of the day — deterministic per calendar day, fetched live from the
   // canonical Mushaf (AlQuran.cloud /ayah/{n}/quran-uthmani) so the verse is
@@ -191,6 +201,28 @@ const QuranSection = () => {
       .finally(() => !cancelled && setLoadingAyahs(false));
     return () => { cancelled = true; };
   }, [openSurah]);
+
+  // Save continue-reading state when a surah is opened
+  useEffect(() => {
+    if (!openSurah) return;
+    const c: ContinueReading = {
+      surahNumber: openSurah.number,
+      surahName: openSurah.name,
+      ayahNumber: scrollToAyah || 1,
+      timestamp: Date.now(),
+    };
+    saveContinueReading(c);
+    setContinueReading(c);
+  }, [openSurah, scrollToAyah]);
+
+  // Scroll to specific ayah after load (from index or continue)
+  useEffect(() => {
+    if (!scrollToAyah || loadingAyahs || !ayahs.length) return;
+    const el = ayahRefs.current[scrollToAyah];
+    if (el) {
+      setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+    }
+  }, [scrollToAyah, loadingAyahs, ayahs]);
 
   const filteredSurahs = useMemo(() => {
     if (!surahs) return [];
@@ -417,9 +449,12 @@ const QuranSection = () => {
                         text = text.replace(/^بِسْمِ\s*ٱللَّهِ\s*ٱلرَّحْمَـٰنِ\s*ٱلرَّحِيمِ\s*/, '');
                       }
                       return (
-                        <span key={a.number}>
+                        <span
+                          key={a.number}
+                          ref={(el) => { ayahRefs.current[a.numberInSurah] = el; }}
+                        >
                           {text}
-                          <AyahMarker n={a.numberInSurah} />
+                          <AyahMarker n={a.numberInSurah} sajdah={getSajdahType(openSurah.number, a.numberInSurah)} />
                           {' '}
                         </span>
                       );
