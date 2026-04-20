@@ -49,14 +49,16 @@ const HomePage = () => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   const Chevron = isAr ? ChevronLeft : ChevronRight;
-  const [dhikrIndex, setDhikrIndex] = useState(0);
+  const [devotionalIndex, setDevotionalIndex] = useState(() =>
+    new Date().getDate() % DEVOTIONAL_ROTATION.length
+  );
   const lastReading = getLastReading();
   const tasbihState = getTasbihState();
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setDhikrIndex(prev => (prev + 1) % dhikrPhrases.length);
-    }, 30000);
+      setDevotionalIndex(prev => (prev + 1) % DEVOTIONAL_ROTATION.length);
+    }, 25000);
     return () => clearInterval(interval);
   }, []);
 
@@ -77,22 +79,24 @@ const HomePage = () => {
         <h1 className="text-[20px] text-foreground leading-snug tracking-tight font-semibold">
           {t('home.greeting')}
         </h1>
-        {/* Short Quranic verse under the greeting (Uthmani script) */}
-        <p className="quran-uthmani text-[14px] text-primary/80 leading-relaxed mt-1.5" dir="rtl">
-          {SHORT_AYAHS[new Date().getDate() % SHORT_AYAHS.length]}
-        </p>
+        {/* Rotating ayat / salawat / du'a under the greeting */}
         {isAr && (
-          <div className="h-5 overflow-hidden mt-2">
+          <div className="min-h-[28px] mt-2 overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.p
-                key={dhikrIndex}
-                initial={{ opacity: 0, y: 5 }}
+                key={devotionalIndex}
+                initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                transition={{ duration: 0.2 }}
-                className="text-[11px] text-muted-foreground/55"
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                className={
+                  DEVOTIONAL_ROTATION[devotionalIndex].type === 'ayah'
+                    ? 'quran-uthmani text-[15px] text-primary/85 leading-relaxed'
+                    : 'text-[13px] text-primary/75 leading-relaxed font-medium'
+                }
+                dir="rtl"
               >
-                {dhikrPhrases[dhikrIndex]}
+                {DEVOTIONAL_ROTATION[devotionalIndex].text}
               </motion.p>
             </AnimatePresence>
           </div>
