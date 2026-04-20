@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Search, BookOpen, X, Loader2 } from 'lucide-react';
+import { ChevronLeft, Search, BookOpen, X, Loader2, BookmarkCheck, List } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { saveContinueReading, getContinueReading, type ContinueReading } from '@/lib/quran-meta';
+import { JUZ_STARTS, HIZB_STARTS, getSajdahType } from '@/lib/quran-meta';
 
 interface Surah {
   number: number;
