@@ -61,7 +61,7 @@ const SupportPage = () => {
                 </div>
                 <div className="flex-1">
                   <h2 className="text-[13px] text-foreground font-medium">
-                    {isAr ? 'تنبيه شرعي مهم' : 'Important Sharia notice'}
+                    {isAr ? 'تنبيه شرعي مهم جدًا' : 'Very important Sharia notice'}
                   </h2>
                   <p className="text-[11px] text-muted-foreground/70 mt-0.5 font-light">
                     {isAr ? 'يرجى القراءة قبل المتابعة' : 'Please read before proceeding'}
@@ -69,29 +69,35 @@ const SupportPage = () => {
                 </div>
               </div>
 
-              <div className="space-y-2.5 text-[12px] leading-relaxed text-foreground/80 font-light">
+              <div className="space-y-2.5 text-[12px] leading-relaxed text-foreground/85 font-light">
                 {isAr ? (
                   <>
                     <p>
-                      هذا المبلغ <span className="text-foreground font-medium">ليس صدقة شرعية</span> ولا يُحتسب من الزكاة أو الخمس أو الكفّارات.
+                      أودّ التنويه بأنني من <span className="text-foreground font-medium">السادة الهاشميين</span>، ولا تجوز لي الصدقة شرعًا.
                     </p>
                     <p>
-                      هو تبرّع تطوّعي مخصّص <span className="text-foreground font-medium">لتشغيل وصيانة وتطوير</span> منصة عِتَرَةً (تكاليف الخوادم، الذكاء الاصطناعي، البنية التحتية).
+                      لذلك، في حال كانت نيتك تقديم <span className="text-foreground font-medium">صدقة</span>، فيُرجى صرفها إلى مستحقيها، وعدم إرسالها لهذا المشروع.
                     </p>
                     <p>
-                      الحقوق الشرعية يجب أن تُسلَّم إلى <span className="text-foreground font-medium">المراجع المعتمدين</span> أو وكلائهم المخوّلين، وليس إلى أيّ منصة تقنية.
+                      أمّا إن كان الدعم بقصد <span className="text-foreground font-medium">التقدير أو المكافأة</span> على الجهد المبذول، فيُقبل ذلك بكل امتنان.
+                    </p>
+                    <p className="text-muted-foreground/70">
+                      شكرًا لتفهمكم واحترامكم.
                     </p>
                   </>
                 ) : (
                   <>
                     <p>
-                      This amount is <span className="text-foreground font-medium">not a Sharia donation</span>. It is not counted as Zakat, Khums, or Kaffarah.
+                      Please note that the developer is <span className="text-foreground font-medium">a Hashemite Sayyid</span>, to whom Sadaqah is not religiously permitted.
                     </p>
                     <p>
-                      It is a voluntary contribution dedicated to <span className="text-foreground font-medium">operating, maintaining and developing</span> Atraa (servers, AI, infrastructure).
+                      If your intention is to give <span className="text-foreground font-medium">Sadaqah</span>, kindly direct it to its rightful recipients and not to this project.
                     </p>
                     <p>
-                      Religious obligations must be paid to <span className="text-foreground font-medium">authorized maraji'</span> or their deputies, not to any technical platform.
+                      However, if your support is intended as an <span className="text-foreground font-medium">appreciation or reward</span> for the effort, it is accepted with gratitude.
+                    </p>
+                    <p className="text-muted-foreground/70">
+                      Thank you for your understanding and respect.
                     </p>
                   </>
                 )}

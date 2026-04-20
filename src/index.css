@@ -1,5 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Amiri+Quran&display=swap');
 
+/* KFGQPC Uthmanic Script — official mushaf font from King Fahd Complex (via jsDelivr CDN). */
+@font-face {
+  font-family: 'KFGQPC Uthmanic Script';
+  src: url('https://cdn.jsdelivr.net/gh/quran/quran.com-frontend-next@main/public/fonts/quran/KFGQPC-Uthmanic-Script-HAFS-Regular.otf') format('opentype'),
+       url('https://cdn.jsdelivr.net/npm/@quranjs/api@latest/dist/UthmanTN1Ver18.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -145,11 +155,20 @@
 
   /* Quran Uthmani script — used ONLY for Quranic verses */
   .quran-uthmani {
-    font-family: 'Amiri Quran', 'Traditional Arabic', 'KFGQPC Uthmanic Hafs', 'Scheherazade New', serif;
+    font-family: 'KFGQPC Uthmanic Script', 'Amiri Quran', 'Traditional Arabic', 'Scheherazade New', serif;
     font-weight: 400;
     line-height: 2.6;
     letter-spacing: 0;
     font-feature-settings: 'liga' 1, 'calt' 1;
+  }
+
+  /* End-of-ayah marker (۝) styling — slightly emphasized */
+  .ayah-mark {
+    color: hsl(var(--accent));
+    font-family: 'KFGQPC Uthmanic Script', 'Amiri Quran', serif;
+    font-size: 0.9em;
+    margin: 0 0.15em;
+    display: inline-block;
   }
 
   /* iOS 26 Liquid Glass — used for cards and surfaces */

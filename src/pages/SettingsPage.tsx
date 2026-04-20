@@ -55,12 +55,12 @@ const SettingsPage = () => {
   };
 
   const handleShareApp = async () => {
-    const shareText = isAr
-      ? 'عِتَرَةً منصة إسلامية شيعية. اكتشفها: https://atraa.xyz'
-      : 'Atraa — an Islamic Shia platform. Discover it: https://atraa.xyz';
-    
+    const shareTextAr = `عِتْرَةً\n\nموقع وتطبيق ديني يقدّم الأدعية، الزيارات، أوقات الصلاة، والقبلة بشكل بسيط وموثوق.\n\nتجربة هادئة ومريحة للاستخدام اليومي، مع اعتماد على مصادر واضحة وإمكانية الرجوع إليها.\n\n🔗 https://atraa.xyz`;
+    const shareTextEn = `Atraa\n\nA religious app and website offering supplications, ziyarat, prayer times, and Qibla in a simple, trustworthy way.\n\nA calm, comfortable daily experience, grounded in clear sources you can always trace back.\n\n🔗 https://atraa.xyz`;
+    const shareText = isAr ? shareTextAr : shareTextEn;
+
     if (navigator.share) {
-      try { await navigator.share({ text: shareText }); return; } catch { /* ignore */ }
+      try { await navigator.share({ text: shareText, url: 'https://atraa.xyz' }); return; } catch { /* ignore */ }
     }
     await navigator.clipboard.writeText(shareText);
     setShareCopied(true);
