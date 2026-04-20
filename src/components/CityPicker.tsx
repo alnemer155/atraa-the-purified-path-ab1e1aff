@@ -188,6 +188,76 @@ const REGION_LABELS_EN: Record<string, string> = {
 };
 const REGION_ORDER = ['SA', 'GCC', 'IQ', 'LV', 'AF', 'AS', 'EU', 'AM', 'US', 'OC'];
 
+// Map a CITY entry to an ISO-3166 alpha-2 country code so we can prefer
+// in-country matches when reverse-geocoding returns a valid country.
+function cityToCountryCode(region: string, value: string): string {
+  if (region === 'SA') return 'SA';
+  if (region === 'IQ') return 'IQ';
+  if (region === 'US') return 'US';
+  if (region === 'GCC') {
+    if (value === 'Kuwait') return 'KW';
+    if (value === 'Manama') return 'BH';
+    if (value === 'Doha') return 'QA';
+    if (['Dubai', 'Abu Dhabi', 'Sharjah'].includes(value)) return 'AE';
+    if (value === 'Muscat') return 'OM';
+  }
+  if (region === 'LV') {
+    if (['Damascus', 'Aleppo'].includes(value)) return 'SY';
+    if (value === 'Beirut') return 'LB';
+    if (value === 'Amman') return 'JO';
+    if (['Gaza', 'Ramallah'].includes(value)) return 'PS';
+  }
+  if (region === 'AF') {
+    if (['Cairo', 'Alexandria'].includes(value)) return 'EG';
+    if (value === 'Khartoum') return 'SD';
+    if (value === 'Tripoli') return 'LY';
+    if (value === 'Tunis') return 'TN';
+    if (value === 'Algiers') return 'DZ';
+    if (value === 'Casablanca') return 'MA';
+    if (value === 'Lagos') return 'NG';
+    if (value === 'Nairobi') return 'KE';
+    if (value === 'Johannesburg') return 'ZA';
+  }
+  if (region === 'AS') {
+    if (['Tehran', 'Mashhad', 'Qom'].includes(value)) return 'IR';
+    if (['Istanbul', 'Ankara'].includes(value)) return 'TR';
+    if (['Karachi', 'Lahore', 'Islamabad'].includes(value)) return 'PK';
+    if (['Delhi', 'Mumbai'].includes(value)) return 'IN';
+    if (value === 'Dhaka') return 'BD';
+    if (value === 'Jakarta') return 'ID';
+    if (value === 'Kuala Lumpur') return 'MY';
+    if (value === 'Singapore') return 'SG';
+    if (value === 'Bangkok') return 'TH';
+    if (value === 'Tokyo') return 'JP';
+    if (value === 'Seoul') return 'KR';
+    if (['Beijing', 'Hong Kong'].includes(value)) return 'CN';
+  }
+  if (region === 'EU') {
+    if (value === 'London') return 'GB';
+    if (value === 'Paris') return 'FR';
+    if (value === 'Berlin') return 'DE';
+    if (value === 'Madrid') return 'ES';
+    if (value === 'Rome') return 'IT';
+    if (value === 'Amsterdam') return 'NL';
+    if (value === 'Brussels') return 'BE';
+    if (value === 'Vienna') return 'AT';
+    if (value === 'Stockholm') return 'SE';
+    if (value === 'Oslo') return 'NO';
+    if (value === 'Moscow') return 'RU';
+  }
+  if (region === 'AM') {
+    if (['Toronto', 'Montreal'].includes(value)) return 'CA';
+    if (value === 'Mexico City') return 'MX';
+    if (value === 'Sao Paulo') return 'BR';
+    if (value === 'Buenos Aires') return 'AR';
+  }
+  if (region === 'OC') {
+    if (['Sydney', 'Melbourne'].includes(value)) return 'AU';
+    if (value === 'Auckland') return 'NZ';
+  }
+  return '';
+}
+
 interface CityPickerProps {
   selectedCity: string;
   onCityChange: (city: string, coords: { lat: number; lng: number }) => void;
