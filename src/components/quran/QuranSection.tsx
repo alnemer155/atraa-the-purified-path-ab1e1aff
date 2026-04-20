@@ -106,6 +106,10 @@ const QuranSection = () => {
   const [loadingAyahs, setLoadingAyahs] = useState(false);
   const [ayahsError, setAyahsError] = useState(false);
   const [fontSize, setFontSize] = useState(22);
+  const [continueReading, setContinueReading] = useState<ContinueReading | null>(() => getContinueReading());
+  const [showIndex, setShowIndex] = useState(false);
+  const [scrollToAyah, setScrollToAyah] = useState<number | null>(null);
+  const ayahRefs = useRef<Record<number, HTMLSpanElement | null>>({});
 
   // Ayah of the day — deterministic per calendar day, fetched live from the
   // canonical Mushaf (AlQuran.cloud /ayah/{n}/quran-uthmani) so the verse is
