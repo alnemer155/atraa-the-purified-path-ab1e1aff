@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { MapPin, LocateFixed, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { haversineKm, reverseGeocode, getAccurateLocation } from '@/lib/geo';
 
 interface CityRecord {
   value: string;
