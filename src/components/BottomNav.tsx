@@ -1,7 +1,8 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, BookOpen, Settings, BookText } from 'lucide-react';
+import { Home, Settings, BookText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import BookAlt from './icons/BookAlt';
 
 const BottomNav = () => {
   const location = useLocation();
@@ -11,7 +12,7 @@ const BottomNav = () => {
   const items = [
     { path: '/settings', label: t('nav.settings'), icon: Settings },
     { path: '/quran', label: isAr ? 'القرآن' : 'Quran', icon: BookText },
-    { path: '/library', label: t('nav.library'), icon: BookOpen },
+    { path: '/library', label: t('nav.library'), icon: BookAlt },
     { path: '/', label: t('nav.home'), icon: Home },
   ];
 
