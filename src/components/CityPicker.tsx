@@ -208,40 +208,64 @@ const CityPicker = ({ selectedCity, onCityChange }: CityPickerProps) => {
     return CITIES.filter(c => c.region === activeRegion);
   }, [activeRegion]);
 
-  const detectLocation = () => {
+  const detectLocation = async () => {
     if (!('geolocation' in navigator)) {
       setGpsError(isAr ? 'GPS غير مدعوم' : 'GPS unsupported');
+      setTimeout(() => setGpsError(null), 3000);
       return;
     }
     setDetecting(true);
     setGpsError(null);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        // Find closest known city by haversine-ish euclidean (sufficient for local nearest match)
-        let closest = CITIES[0];
-        let minDist = Infinity;
-        for (const c of CITIES) {
-          const d = Math.hypot(c.lat - latitude, c.lng - longitude);
-          if (d < minDist) { minDist = d; closest = c; }
+    try {
+      const pos = await getAccurateLocation(15000);
+      const { latitude, longitude } = pos.coords;
+
+      // 1) True great-circle nearest-city match (fixes the "Washington vs Dammam" bug
+      //    caused by Euclidean math wrapping incorrectly across longitudes).
+      let closest = CITIES[0];
+      let minDist = haversineKm(latitude, longitude, closest.lat, closest.lng);
+      for (const c of CITIES) {
+        const d = haversineKm(latitude, longitude, c.lat, c.lng);
+        if (d < minDist) { minDist = d; closest = c; }
+      }
+
+      // 2) Cross-check with Nominatim reverse geocoding when nearest is > 80 km away
+      //    or to bias selection toward the actual country.
+      try {
+        const geo = await reverseGeocode(latitude, longitude, isAr ? 'ar' : 'en');
+        if (geo?.countryCode) {
+          // Filter cities to the same country and re-pick nearest within country
+          const sameCountry = CITIES.filter(c => cityToCountryCode(c.region, c.value) === geo.countryCode);
+          if (sameCountry.length) {
+            let bestInCountry = sameCountry[0];
+            let bestInCountryDist = haversineKm(latitude, longitude, bestInCountry.lat, bestInCountry.lng);
+            for (const c of sameCountry) {
+              const d = haversineKm(latitude, longitude, c.lat, c.lng);
+              if (d < bestInCountryDist) { bestInCountryDist = d; bestInCountry = c; }
+            }
+            // Prefer the in-country match if it's reasonably close (< 500 km)
+            if (bestInCountryDist < 500) {
+              closest = bestInCountry;
+            }
+          }
         }
-        onCityChange(closest.value, { lat: closest.lat, lng: closest.lng });
-        setActiveRegion(closest.region);
-        setDetecting(false);
-        setGpsSuccess(true);
-        setTimeout(() => setGpsSuccess(false), 2200);
-      },
-      (err) => {
-        setDetecting(false);
-        setGpsError(
-          err.code === err.PERMISSION_DENIED
-            ? (isAr ? 'لم يُسمح بالموقع' : 'Permission denied')
-            : (isAr ? 'تعذّر تحديد الموقع' : 'Location unavailable')
-        );
-        setTimeout(() => setGpsError(null), 3000);
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-    );
+      } catch { /* fall through to nearest-by-haversine */ }
+
+      onCityChange(closest.value, { lat: closest.lat, lng: closest.lng });
+      setActiveRegion(closest.region);
+      setDetecting(false);
+      setGpsSuccess(true);
+      setTimeout(() => setGpsSuccess(false), 2200);
+    } catch (err: any) {
+      setDetecting(false);
+      const denied = err?.code === 1 || /denied/i.test(err?.message || '');
+      setGpsError(
+        denied
+          ? (isAr ? 'لم يُسمح بالموقع' : 'Permission denied')
+          : (isAr ? 'تعذّر تحديد الموقع' : 'Location unavailable')
+      );
+      setTimeout(() => setGpsError(null), 3000);
+    }
   };
 
   const current = CITIES.find(c => c.value === selectedCity);
