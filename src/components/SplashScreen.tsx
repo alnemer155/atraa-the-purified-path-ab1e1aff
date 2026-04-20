@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import logo from '@/assets/logo-v11.png';
+import { getSeasonalLogo } from '@/lib/seasonal-logo';
+
+const logo = getSeasonalLogo();
 
 interface SplashScreenProps {
   onFinish: () => void;
