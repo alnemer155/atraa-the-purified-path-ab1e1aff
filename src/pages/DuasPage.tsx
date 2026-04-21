@@ -5,6 +5,7 @@ import { ChevronLeft, Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { saveLastReading } from '@/lib/user';
 import DuaReader from '@/components/DuaReader';
+import SmartText from '@/components/SmartText';
 
 const categories = [
   { key: 'dua', label: 'الأدعية' },
@@ -131,7 +132,7 @@ const DuasPage = ({ initialItemId }: DuasPageProps = {}) => {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12px] text-foreground leading-snug">{item.title}</p>
+                  <SmartText as="p" className="text-[12px] text-foreground leading-snug" iconSize={13}>{item.title}</SmartText>
                   <p className="text-[10px] text-muted-foreground/40 mt-1 line-clamp-1 leading-relaxed font-light">
                     {item.content.slice(0, 80)}...
                   </p>
