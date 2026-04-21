@@ -246,20 +246,46 @@ const QiblaPage = () => {
     }
   }, [isAr]);
 
+  // Smoothing buffer + low-pass filter for stable, accurate compass motion.
+  // Kalman-lite: combine angular EMA with circular-mean of recent samples.
+  const samplesRef = useRef<number[]>([]);
+  const SAMPLE_SIZE = 8;
+  const SMOOTHING = 0.18; // higher = snappier, lower = smoother
+
   const handleOrientation = useCallback((e: DeviceOrientationEvent) => {
     let alpha = e.alpha;
     if (alpha === null) return;
-    // @ts-ignore
+    // @ts-ignore — webkitCompassHeading is true magnetic north on iOS
     if (e.webkitCompassHeading !== undefined) {
       // @ts-ignore
       alpha = e.webkitCompassHeading;
     } else {
-      alpha = 360 - alpha;
+      // Android/desktop: invert and apply screen orientation correction
+      const screenAngle = (typeof window !== 'undefined' && window.screen?.orientation?.angle) || 0;
+      alpha = (360 - alpha + screenAngle) % 360;
     }
-    let diff = alpha - headingRef.current;
+
+    // Push into circular sample buffer
+    const arr = samplesRef.current;
+    arr.push(alpha);
+    if (arr.length > SAMPLE_SIZE) arr.shift();
+
+    // Compute circular mean of buffer (handles 359↔0 wrap-around correctly)
+    let sumSin = 0, sumCos = 0;
+    for (const a of arr) {
+      const rad = (a * Math.PI) / 180;
+      sumSin += Math.sin(rad);
+      sumCos += Math.cos(rad);
+    }
+    const meanRad = Math.atan2(sumSin / arr.length, sumCos / arr.length);
+    let meanDeg = (meanRad * 180) / Math.PI;
+    if (meanDeg < 0) meanDeg += 360;
+
+    // Low-pass towards circular mean (shortest angular delta)
+    let diff = meanDeg - headingRef.current;
     if (diff > 180) diff -= 360;
     if (diff < -180) diff += 360;
-    headingRef.current = (headingRef.current + diff * 0.12 + 360) % 360;
+    headingRef.current = (headingRef.current + diff * SMOOTHING + 360) % 360;
     setHeading(headingRef.current);
     setCompassActive(true);
   }, []);
@@ -267,8 +293,10 @@ const QiblaPage = () => {
   useEffect(() => {
     // @ts-ignore
     if (typeof DeviceOrientationEvent.requestPermission !== 'function') {
-      window.addEventListener('deviceorientation', handleOrientation, true);
-      return () => window.removeEventListener('deviceorientation', handleOrientation, true);
+      // Use the more accurate `deviceorientationabsolute` when available
+      const evt = 'ondeviceorientationabsolute' in window ? 'deviceorientationabsolute' : 'deviceorientation';
+      window.addEventListener(evt, handleOrientation as EventListener, true);
+      return () => window.removeEventListener(evt, handleOrientation as EventListener, true);
     }
   }, [handleOrientation]);
 
@@ -282,7 +310,6 @@ const QiblaPage = () => {
           window.addEventListener('deviceorientation', handleOrientation, true);
         }
       } else {
-        // Already attached on mount (non-iOS), but force-enable state
         setCompassActive(true);
       }
     } catch { /* ignore */ }
