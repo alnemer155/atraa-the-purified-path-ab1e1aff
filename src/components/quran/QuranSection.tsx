@@ -4,6 +4,7 @@ import { ChevronLeft, Search, BookOpen, X, Loader2, BookmarkCheck, List } from '
 import { useTranslation } from 'react-i18next';
 import { saveContinueReading, getContinueReading, type ContinueReading } from '@/lib/quran-meta';
 import { JUZ_STARTS, HIZB_STARTS, getSajdahType } from '@/lib/quran-meta';
+import { ayahMark } from '@/lib/islamic-symbols';
 
 interface Surah {
   number: number;
@@ -76,22 +77,18 @@ const Ornament = ({ className = '' }: { className?: string }) => (
   </svg>
 );
 
-// Decorative ayah-end medallion with the verse number inside
+// Decorative ayah-end marker using the official ۝ glyph (U+06DD) with verse number.
 const AyahMarker = ({ n, sajdah }: { n: number; sajdah?: 'wajib' | 'mustahabb' | null }) => (
   <span
-    className="inline-flex items-center justify-center align-middle mx-1 relative"
-    style={{ width: 28, height: 28 }}
+    className="inline-flex items-center justify-center align-middle mx-1 quran-uthmani"
+    style={{ fontSize: '1em' }}
     title={sajdah === 'wajib' ? 'سجدة واجبة' : sajdah === 'mustahabb' ? 'سجدة مستحبة' : undefined}
   >
-    <svg viewBox="0 0 32 32" className="absolute" style={{ width: 28, height: 28 }} aria-hidden>
-      <g fill="none" stroke={sajdah ? 'hsl(var(--accent))' : 'hsl(var(--gold))'} strokeWidth={sajdah ? '1.1' : '0.8'}>
-        <circle cx="16" cy="16" r="13" opacity={sajdah ? 0.85 : 0.55} />
-        <path d="M16 3 l3 3 -3 3 -3 -3z M16 23 l3 3 -3 3 -3 -3z M3 16 l3 -3 3 3 -3 3z M23 16 l3 -3 3 3 -3 3z" opacity="0.45" />
-      </g>
-    </svg>
-    <span className="relative text-[10px] text-foreground/70 tabular-nums font-light">{n}</span>
+    <span className={`ayah-mark ${sajdah ? 'text-accent' : 'text-gold'}`} style={{ fontSize: '1.15em' }}>
+      {ayahMark(n)}
+    </span>
     {sajdah && (
-      <span className="absolute -top-1 -right-1 text-[7px] text-accent font-medium" aria-hidden>۩</span>
+      <span className="text-accent font-medium ms-0.5" style={{ fontSize: '0.7em' }} aria-hidden>۩</span>
     )}
   </span>
 );
