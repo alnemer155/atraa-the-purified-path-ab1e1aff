@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, ArrowRight, Type } from 'lucide-react';
 import { useHideChrome } from '@/contexts/UIContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { DuaItem } from '@/lib/duas-parser';
+import SmartText from '@/components/SmartText';
 
 const CATEGORY_LABELS: Record<string, string> = { dua: 'الأدعية', ziyara: 'الزيارات', dhikr: 'الأذكار' };
 
@@ -81,7 +82,7 @@ const DuaReader = ({ item, filtered, fontSize, setFontSize, onClose, onSelect }:
           <span className="text-[9px] text-primary/60 tracking-wider font-light">
             {CATEGORY_LABELS[item.category]}
           </span>
-          <h1 className="text-xl text-foreground leading-snug tracking-tight mt-1">{item.title}</h1>
+          <SmartText as="div" className="text-xl text-foreground leading-snug tracking-tight mt-1 block" iconSize={16}>{item.title}</SmartText>
           <p className="text-[9px] text-muted-foreground/40 mt-1.5 font-light">المصدر: حقيبة المؤمن</p>
         </div>
 

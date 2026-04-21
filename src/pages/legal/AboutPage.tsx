@@ -27,7 +27,7 @@ const AboutPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">الإصدار</h2>
-            <p className="tabular-nums">v2.6.88 · بناء 120</p>
+            <p className="tabular-nums">v2.6.92 · بناء 136</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">المطوّر</h2>
@@ -63,7 +63,7 @@ const AboutPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">Version</h2>
-            <p className="tabular-nums">v2.6.88 · build 120</p>
+            <p className="tabular-nums">v2.6.92 · build 136</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">Developer</h2>

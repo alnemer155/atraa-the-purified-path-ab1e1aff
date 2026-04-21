@@ -127,27 +127,69 @@ const SettingsPage = () => {
       <motion.div variants={fadeUp} custom={3} className="space-y-2">
         <CityPicker selectedCity={selectedCity} onCityChange={handleCityChange} />
 
-        <div className="bg-card rounded-2xl border border-border/40 p-4 shadow-card">
-          <div className="mb-3">
+        <div className="bg-card rounded-2xl border border-border/40 p-5 shadow-card">
+          <div className="flex items-center justify-between mb-1">
             <p className="text-[13px] text-foreground font-semibold">{t('settings.hijriAdjust')}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{t('settings.hijriAdjustHint')}</p>
+            <span className="text-[10px] text-muted-foreground/60 tabular-nums font-light px-2 py-0.5 rounded-md bg-secondary/40">
+              {hijriAdj > 0 ? `+${hijriAdj}` : hijriAdj} {isAr ? (Math.abs(hijriAdj) === 1 ? 'يوم' : 'أيام') : (Math.abs(hijriAdj) === 1 ? 'day' : 'days')}
+            </span>
           </div>
-          <div className="flex items-center justify-center gap-1.5">
-            {[-2, -1, 0, 1, 2].map(val => (
-              <button
-                key={val}
-                onClick={() => handleHijriChange(val)}
-                className={`rounded-lg text-[13px] transition-all ${
-                  hijriAdj === val
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary/50 text-foreground border border-border/30'
-                }`}
-                style={{ width: 50, height: 40 }}
-              >
-                {val > 0 ? `+${val}` : val}
-              </button>
-            ))}
+          <p className="text-[10px] text-muted-foreground mt-0.5 mb-4">{t('settings.hijriAdjustHint')}</p>
+
+          {/* Stepper-style adjuster */}
+          <div className="flex items-center justify-between gap-3">
+            <button
+              onClick={() => handleHijriChange(Math.max(-2, hijriAdj - 1))}
+              disabled={hijriAdj <= -2}
+              className="w-11 h-11 rounded-xl bg-secondary/50 border border-border/30 flex items-center justify-center text-foreground active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed transition-transform"
+              aria-label="decrease"
+            >
+              <span className="text-lg leading-none font-light">−</span>
+            </button>
+
+            {/* Tick scale */}
+            <div className="flex-1 flex items-center justify-between px-2">
+              {[-2, -1, 0, 1, 2].map(val => {
+                const isSel = hijriAdj === val;
+                const isZero = val === 0;
+                return (
+                  <button
+                    key={val}
+                    onClick={() => handleHijriChange(val)}
+                    className="flex flex-col items-center gap-1.5 group"
+                    aria-label={`${val > 0 ? '+' : ''}${val}`}
+                  >
+                    <span
+                      className={`block rounded-full transition-all ${
+                        isSel ? 'bg-primary w-2.5 h-2.5' : isZero ? 'bg-foreground/40 w-1.5 h-1.5' : 'bg-border w-1 h-1 group-active:bg-foreground/30'
+                      }`}
+                    />
+                    <span className={`text-[9px] tabular-nums font-light transition-colors ${isSel ? 'text-primary font-medium' : 'text-muted-foreground/40'}`}>
+                      {val > 0 ? `+${val}` : val}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => handleHijriChange(Math.min(2, hijriAdj + 1))}
+              disabled={hijriAdj >= 2}
+              className="w-11 h-11 rounded-xl bg-secondary/50 border border-border/30 flex items-center justify-center text-foreground active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed transition-transform"
+              aria-label="increase"
+            >
+              <span className="text-lg leading-none font-light">+</span>
+            </button>
           </div>
+
+          {hijriAdj !== 0 && (
+            <button
+              onClick={() => handleHijriChange(0)}
+              className="mt-3 w-full py-2 rounded-lg text-[10px] text-muted-foreground/70 hover:text-foreground active:bg-secondary/40 transition-colors"
+            >
+              {isAr ? 'إعادة للافتراضي' : 'Reset to default'}
+            </button>
+          )}
         </div>
       </motion.div>
 
