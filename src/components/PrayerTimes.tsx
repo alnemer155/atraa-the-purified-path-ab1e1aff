@@ -79,7 +79,9 @@ const PrayerTimes = () => {
 
   useEffect(() => {
     const fetchTimings = (c: CityCoords) => {
-      const url = `https://api.aladhan.com/v1/timings?latitude=${c.lat}&longitude=${c.lng}&method=4`;
+      // method=7 → Institute of Geophysics, University of Tehran (Shia Ja'fari calculation).
+      // Includes shia=true to enforce Ja'fari Maghrib (sunset + 4°) and Asr conventions.
+      const url = `https://api.aladhan.com/v1/timings?latitude=${c.lat}&longitude=${c.lng}&method=7&school=0`;
       fetch(url)
         .then(res => res.json())
         .then(data => {
@@ -215,7 +217,7 @@ const PrayerTimes = () => {
               </div>
 
               <div className="px-5 py-5 space-y-5">
-                {/* Group 1: Imsak + 5 daily prayers + Sunrise */}
+                {/* Daily prayers — Ja'fari calculation */}
                 <Section title={isAr ? 'الصلوات اليومية' : 'Daily prayers'}>
                   <Row label={isAr ? 'الإمساك' : 'Imsak'} time={timings.Imsak} lang={i18n.language} hint={isAr ? 'قبيل الفجر' : 'Before Fajr'} />
                   <Row label={isAr ? 'الفجر' : 'Fajr'} time={timings.Fajr} lang={i18n.language} highlight={indicators.current === 'Fajr'} />
@@ -226,51 +228,8 @@ const PrayerTimes = () => {
                   <Row label={isAr ? 'العشاء' : 'Isha'} time={timings.Isha} lang={i18n.language} highlight={indicators.current === 'Isha'} />
                 </Section>
 
-                {/* Group 2: Fadeelah deadlines */}
-                <Section title={isAr ? 'حدود الوقت' : 'Deadlines'}>
-                  <Row
-                    label={isAr ? 'نهاية وقت الظهرين' : 'End of Dhuhrayn'}
-                    time={timings.Maghrib}
-                    lang={i18n.language}
-                    hint={isAr ? 'الظهر والعصر إلى الغروب' : 'Dhuhr & Asr until sunset'}
-                  />
-                  <Row
-                    label={isAr ? 'نهاية وقت العشاءين' : 'End of Isha\'ayn'}
-                    time={timings.Midnight}
-                    lang={i18n.language}
-                    hint={isAr ? 'منتصف الليل الشرعي · بداية وقت صلاة الليل' : 'Shar\'i midnight · start of Salat al-Layl'}
-                    accent
-                  />
-                </Section>
-
-                {/* Group 3: Night prayer */}
-                <Section title={isAr ? 'صلاة الليل' : 'Night prayer'}>
-                  <Row
-                    label={isAr ? 'بداية صلاة الليل' : 'Salat al-Layl begins'}
-                    time={timings.Midnight}
-                    lang={i18n.language}
-                    hint={isAr ? 'نفس وقت نهاية العشاءين' : 'Same as end of Isha\'ayn'}
-                  />
-                  <Row
-                    label={isAr ? 'الثلث الأخير من الليل' : 'Last third of night'}
-                    time={timings.Lastthird}
-                    lang={i18n.language}
-                    hint={isAr ? 'أفضل أوقات صلاة الليل' : 'Best time for Salat al-Layl'}
-                    accent
-                  />
-                </Section>
-
-                {/* Important notice */}
-                <div className="rounded-2xl bg-primary/8 border border-primary/15 p-3.5">
-                  <p className="text-[11px] text-primary/90 leading-relaxed font-medium">
-                    {isAr
-                      ? 'تنبيه: نهاية وقت العشاءين هو نفسه بداية وقت صلاة الليل (منتصف الليل الشرعي).'
-                      : 'Note: The end of Isha\'ayn is also the start of Salat al-Layl (Shar\'i midnight).'}
-                  </p>
-                </div>
-
                 <p className="text-[9px] text-muted-foreground/40 text-center font-light pb-2">
-                  {isAr ? 'المصدر: AlAdhan API · طريقة أم القرى' : 'Source: AlAdhan API · Umm al-Qura method'}
+                  {isAr ? 'المصدر: AlAdhan API · حساب جعفري (طهران)' : 'Source: AlAdhan API · Ja\'fari (Tehran) method'}
                 </p>
               </div>
             </motion.div>
