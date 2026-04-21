@@ -95,7 +95,7 @@ const CompassDial = ({ rotation, alignmentScore, isPointingQibla, active }: Comp
         className="absolute inset-0"
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         animate={{ rotate: rotation }}
-        transition={{ type: 'spring', stiffness: 50, damping: 16 }}
+        transition={{ type: 'spring', stiffness: 90, damping: 20, mass: 0.8 }}
       >
         {/* 72 ticks every 5° */}
         {Array.from({ length: 72 }).map((_, i) => {
@@ -170,7 +170,7 @@ const CompassDial = ({ rotation, alignmentScore, isPointingQibla, active }: Comp
       <motion.div
         className="absolute inset-0 pointer-events-none flex items-start justify-center"
         animate={{ rotate: rotation }}
-        transition={{ type: 'spring', stiffness: 50, damping: 16 }}
+        transition={{ type: 'spring', stiffness: 90, damping: 20, mass: 0.8 }}
       >
         <motion.div
           className="mt-2 rounded-2xl bg-background border border-border/40 p-1.5 flex items-center justify-center"
