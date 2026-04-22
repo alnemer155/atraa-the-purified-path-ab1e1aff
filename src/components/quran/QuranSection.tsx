@@ -346,6 +346,31 @@ const QuranSection = () => {
         )}
       </button>
 
+      {/* Continue from bookmark / last reading */}
+      {continueReading && surahs && (
+        <button
+          onClick={() => {
+            const found = surahs.find(s => s.number === continueReading.surahNumber);
+            if (found) {
+              setOpenSurah(found);
+              setScrollToAyah(continueReading.ayahNumber);
+            }
+          }}
+          className={`w-full flex items-center gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/15 active:scale-[0.985] transition-transform mb-3 ${isAr ? 'text-right' : 'text-left'}`}
+        >
+          <BookmarkCheck className="w-4 h-4 text-primary/70 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] text-primary/80 font-medium">
+              {isAr ? 'متابعة من العلامة' : 'Continue from bookmark'}
+            </p>
+            <p className="text-[10px] text-muted-foreground/60 font-light mt-0.5 truncate">
+              {stripArabicDiacritics(continueReading.surahName)} · {isAr ? 'الآية' : 'Ayah'} {continueReading.ayahNumber}
+            </p>
+          </div>
+          <ChevronLeft className={`w-3.5 h-3.5 text-primary/30 flex-shrink-0 ${isAr ? '' : 'rotate-180'}`} />
+        </button>
+      )}
+
       {/* Search */}
       <div className="relative mb-4">
         <Search className={`absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/40 ${isAr ? 'right-3' : 'left-3'}`} />
