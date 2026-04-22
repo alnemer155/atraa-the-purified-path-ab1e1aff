@@ -83,19 +83,36 @@ const Ornament = ({ className = '' }: { className?: string }) => (
 );
 
 // Decorative ayah-end marker using the official ۝ glyph (U+06DD) with verse number.
-const AyahMarker = ({ n, sajdah }: { n: number; sajdah?: 'wajib' | 'mustahabb' | null }) => (
-  <span
-    className="inline-flex items-center justify-center align-middle mx-1 quran-uthmani"
+// Tap to bookmark / unbookmark the verse. Long-press friendly hit area.
+const AyahMarker = ({
+  n,
+  sajdah,
+  bookmarked,
+  onToggle,
+}: {
+  n: number;
+  sajdah?: 'wajib' | 'mustahabb' | null;
+  bookmarked?: boolean;
+  onToggle?: () => void;
+}) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    className="inline-flex items-center justify-center align-middle mx-1 quran-uthmani active:scale-90 transition-transform cursor-pointer"
     style={{ fontSize: '1em' }}
-    title={sajdah === 'wajib' ? 'سجدة واجبة' : sajdah === 'mustahabb' ? 'سجدة مستحبة' : undefined}
+    title={bookmarked ? 'إزالة العلامة' : sajdah === 'wajib' ? 'سجدة واجبة — اضغط لإضافة علامة' : sajdah === 'mustahabb' ? 'سجدة مستحبة — اضغط لإضافة علامة' : 'إضافة علامة'}
+    aria-label={bookmarked ? 'إزالة العلامة' : 'إضافة علامة'}
   >
-    <span className={`ayah-mark ${sajdah ? 'text-accent' : 'text-gold'}`} style={{ fontSize: '1.15em' }}>
+    <span className={`ayah-mark ${bookmarked ? 'text-primary' : sajdah ? 'text-accent' : 'text-gold'}`} style={{ fontSize: '1.15em' }}>
       {ayahMark(n)}
     </span>
     {sajdah && (
       <span className="text-accent font-medium ms-0.5" style={{ fontSize: '0.7em' }} aria-hidden>۩</span>
     )}
-  </span>
+    {bookmarked && (
+      <span className="text-primary ms-0.5" style={{ fontSize: '0.55em' }} aria-hidden>●</span>
+    )}
+  </button>
 );
 
 const QuranSection = () => {
