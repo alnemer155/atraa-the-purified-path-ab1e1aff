@@ -380,7 +380,10 @@ const QuranSection = () => {
               <span className="relative text-[10px] text-foreground/80 tabular-nums">{s.number}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[14px] text-foreground quran-uthmani leading-tight truncate" style={{ lineHeight: 1.6 }}>{s.name}</p>
+              {/* Surah name in the site's primary font, no diacritics — easy to scan & search */}
+              <p className="text-[15px] text-foreground leading-tight truncate font-medium">
+                {stripArabicDiacritics(s.name)}
+              </p>
               <p className="text-[9px] text-muted-foreground/50 font-light mt-0.5 truncate">
                 {isAr
                   ? `${s.englishNameTranslation} · ${s.numberOfAyahs} آية · ${s.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`
@@ -405,14 +408,17 @@ const QuranSection = () => {
             {/* Header */}
             <div className="bg-background/85 backdrop-blur-2xl border-b border-border/10 px-4 py-3 flex items-center justify-between flex-shrink-0">
               <button
-                onClick={() => setOpenSurah(null)}
+                onClick={handleCloseSurah}
                 className="w-8 h-8 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95"
                 aria-label="close"
               >
                 <X className="w-4 h-4 text-foreground/70" />
               </button>
               <div className="text-center">
-                <p className="text-[14px] text-foreground quran-uthmani leading-tight" style={{ lineHeight: 1.6 }}>{openSurah.name}</p>
+                {/* Reader header — clean name without diacritics + small Uthmani subtitle */}
+                <p className="text-[15px] text-foreground leading-tight font-medium">
+                  {stripArabicDiacritics(openSurah.name)}
+                </p>
                 <p className="text-[9px] text-muted-foreground/50 font-light mt-0.5">
                   {openSurah.numberOfAyahs} {isAr ? 'آية' : 'verses'} · {openSurah.revelationType === 'Meccan' ? (isAr ? 'مكية' : 'Meccan') : (isAr ? 'مدنية' : 'Medinan')}
                 </p>
