@@ -107,6 +107,8 @@ const QuranSection = () => {
   const [listError, setListError] = useState(false);
   const [search, setSearch] = useState('');
 
+  const navigate = useNavigate();
+  const params = useParams();
   const [openSurah, setOpenSurah] = useState<Surah | null>(null);
   const [ayahs, setAyahs] = useState<Ayah[]>([]);
   const [loadingAyahs, setLoadingAyahs] = useState(false);
@@ -115,6 +117,7 @@ const QuranSection = () => {
   const [continueReading, setContinueReading] = useState<ContinueReading | null>(() => getContinueReading());
   const [showIndex, setShowIndex] = useState(false);
   const [scrollToAyah, setScrollToAyah] = useState<number | null>(null);
+  const [bookmarkVersion, setBookmarkVersion] = useState(0); // forces re-render after toggle
   const ayahRefs = useRef<Record<number, HTMLSpanElement | null>>({});
 
   // Ayah of the day — deterministic per calendar day, fetched live from the
