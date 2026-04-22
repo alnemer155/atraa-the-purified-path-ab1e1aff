@@ -279,10 +279,10 @@ const QuranSection = () => {
 
   const filteredSurahs = useMemo(() => {
     if (!surahs) return [];
-    const q = search.trim().toLowerCase();
+    const q = stripArabicDiacritics(search.trim()).toLowerCase();
     if (!q) return surahs;
     return surahs.filter(s =>
-      s.name.toLowerCase().includes(q) ||
+      stripArabicDiacritics(s.name).toLowerCase().includes(q) ||
       s.englishName.toLowerCase().includes(q) ||
       s.englishNameTranslation.toLowerCase().includes(q) ||
       String(s.number).includes(q)
