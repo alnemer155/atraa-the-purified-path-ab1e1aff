@@ -220,6 +220,30 @@ const QuranSection = () => {
     setContinueReading(c);
   }, [openSurah, scrollToAyah]);
 
+  // Open surah from URL slug (e.g. /quran/Al-Fatiha or /SA-ar/quran/Al-Fatiha)
+  useEffect(() => {
+    if (!surahs || !params.slug) return;
+    const num = surahFromSlug(params.slug);
+    if (!num) return;
+    const found = surahs.find(s => s.number === num);
+    if (found && (!openSurah || openSurah.number !== num)) {
+      setOpenSurah(found);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [surahs, params.slug]);
+
+  // Sync URL when user opens/closes a surah
+  useEffect(() => {
+    if (!openSurah) return;
+    const slug = slugForSurah(openSurah.number);
+    const localePrefix = params.locale ? `/${params.locale}` : '';
+    const target = `${localePrefix}/quran/${slug}`;
+    if (window.location.pathname !== target) {
+      navigate(target, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openSurah]);
+
   // Scroll to specific ayah after load (from index or continue)
   useEffect(() => {
     if (!scrollToAyah || loadingAyahs || !ayahs.length) return;
@@ -228,6 +252,13 @@ const QuranSection = () => {
       setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
     }
   }, [scrollToAyah, loadingAyahs, ayahs]);
+
+  const handleCloseSurah = () => {
+    setOpenSurah(null);
+    setScrollToAyah(null);
+    const localePrefix = params.locale ? `/${params.locale}` : '';
+    navigate(`${localePrefix}/quran`, { replace: true });
+  };
 
   const filteredSurahs = useMemo(() => {
     if (!surahs) return [];
