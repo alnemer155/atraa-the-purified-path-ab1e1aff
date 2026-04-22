@@ -1,5 +1,5 @@
 // Quran metadata — Sajdah ayahs (Shia + standard), Juz/Hizb starting points,
-// and "continue reading" persistence.
+// "continue reading" persistence, surname slugs, and bookmarks.
 
 export interface ContinueReading {
   surahNumber: number;
@@ -8,7 +8,17 @@ export interface ContinueReading {
   timestamp: number;
 }
 
+export interface AyahBookmark {
+  surahNumber: number;
+  surahName: string;
+  ayahNumber: number;
+  ayahPreview?: string;
+  note?: string;
+  createdAt: number;
+}
+
 const KEY = 'atraa_quran_continue';
+const BOOKMARKS_KEY = 'atraa_quran_bookmarks';
 
 export function saveContinueReading(c: ContinueReading): void {
   try { localStorage.setItem(KEY, JSON.stringify(c)); } catch { /* ignore */ }
@@ -19,6 +29,87 @@ export function getContinueReading(): ContinueReading | null {
     const raw = localStorage.getItem(KEY);
     return raw ? (JSON.parse(raw) as ContinueReading) : null;
   } catch { return null; }
+}
+
+/* ============ Bookmarks ============ */
+
+export function getBookmarks(): AyahBookmark[] {
+  try {
+    const raw = localStorage.getItem(BOOKMARKS_KEY);
+    return raw ? (JSON.parse(raw) as AyahBookmark[]) : [];
+  } catch { return []; }
+}
+
+export function isBookmarked(surahNumber: number, ayahNumber: number): boolean {
+  return getBookmarks().some(b => b.surahNumber === surahNumber && b.ayahNumber === ayahNumber);
+}
+
+export function toggleBookmark(b: Omit<AyahBookmark, 'createdAt'>): boolean {
+  const list = getBookmarks();
+  const idx = list.findIndex(x => x.surahNumber === b.surahNumber && x.ayahNumber === b.ayahNumber);
+  if (idx >= 0) {
+    list.splice(idx, 1);
+    try { localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(list)); } catch { /* ignore */ }
+    return false;
+  }
+  list.unshift({ ...b, createdAt: Date.now() });
+  try { localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(list.slice(0, 200))); } catch { /* ignore */ }
+  return true;
+}
+
+/* ============ Surah slug helpers (for /quran/Al-Fatiha style URLs) ============ */
+
+/** ASCII slug for routing — uses canonical English surah names. */
+export const SURAH_SLUGS: Record<number, string> = {
+  1: 'Al-Fatiha', 2: 'Al-Baqarah', 3: 'Aal-Imran', 4: 'An-Nisa', 5: 'Al-Maidah',
+  6: 'Al-Anam', 7: 'Al-Araf', 8: 'Al-Anfal', 9: 'At-Tawbah', 10: 'Yunus',
+  11: 'Hud', 12: 'Yusuf', 13: 'Ar-Rad', 14: 'Ibrahim', 15: 'Al-Hijr',
+  16: 'An-Nahl', 17: 'Al-Isra', 18: 'Al-Kahf', 19: 'Maryam', 20: 'Ta-Ha',
+  21: 'Al-Anbiya', 22: 'Al-Hajj', 23: 'Al-Muminun', 24: 'An-Nur', 25: 'Al-Furqan',
+  26: 'Ash-Shuara', 27: 'An-Naml', 28: 'Al-Qasas', 29: 'Al-Ankabut', 30: 'Ar-Rum',
+  31: 'Luqman', 32: 'As-Sajdah', 33: 'Al-Ahzab', 34: 'Saba', 35: 'Fatir',
+  36: 'Ya-Sin', 37: 'As-Saffat', 38: 'Sad', 39: 'Az-Zumar', 40: 'Ghafir',
+  41: 'Fussilat', 42: 'Ash-Shuraa', 43: 'Az-Zukhruf', 44: 'Ad-Dukhan', 45: 'Al-Jathiyah',
+  46: 'Al-Ahqaf', 47: 'Muhammad', 48: 'Al-Fath', 49: 'Al-Hujurat', 50: 'Qaf',
+  51: 'Adh-Dhariyat', 52: 'At-Tur', 53: 'An-Najm', 54: 'Al-Qamar', 55: 'Ar-Rahman',
+  56: 'Al-Waqiah', 57: 'Al-Hadid', 58: 'Al-Mujadila', 59: 'Al-Hashr', 60: 'Al-Mumtahanah',
+  61: 'As-Saff', 62: 'Al-Jumuah', 63: 'Al-Munafiqun', 64: 'At-Taghabun', 65: 'At-Talaq',
+  66: 'At-Tahrim', 67: 'Al-Mulk', 68: 'Al-Qalam', 69: 'Al-Haqqah', 70: 'Al-Maarij',
+  71: 'Nuh', 72: 'Al-Jinn', 73: 'Al-Muzzammil', 74: 'Al-Muddaththir', 75: 'Al-Qiyamah',
+  76: 'Al-Insan', 77: 'Al-Mursalat', 78: 'An-Naba', 79: 'An-Naziat', 80: 'Abasa',
+  81: 'At-Takwir', 82: 'Al-Infitar', 83: 'Al-Mutaffifin', 84: 'Al-Inshiqaq', 85: 'Al-Buruj',
+  86: 'At-Tariq', 87: 'Al-Ala', 88: 'Al-Ghashiyah', 89: 'Al-Fajr', 90: 'Al-Balad',
+  91: 'Ash-Shams', 92: 'Al-Layl', 93: 'Ad-Duhaa', 94: 'Ash-Sharh', 95: 'At-Tin',
+  96: 'Al-Alaq', 97: 'Al-Qadr', 98: 'Al-Bayyinah', 99: 'Az-Zalzalah', 100: 'Al-Adiyat',
+  101: 'Al-Qariah', 102: 'At-Takathur', 103: 'Al-Asr', 104: 'Al-Humazah', 105: 'Al-Fil',
+  106: 'Quraysh', 107: 'Al-Maun', 108: 'Al-Kawthar', 109: 'Al-Kafirun', 110: 'An-Nasr',
+  111: 'Al-Masad', 112: 'Al-Ikhlas', 113: 'Al-Falaq', 114: 'An-Nas',
+};
+
+export function slugForSurah(n: number): string {
+  return SURAH_SLUGS[n] || `surah-${n}`;
+}
+
+export function surahFromSlug(slug: string): number | null {
+  const lower = slug.toLowerCase();
+  for (const [num, s] of Object.entries(SURAH_SLUGS)) {
+    if (s.toLowerCase() === lower) return Number(num);
+  }
+  // Allow numeric fallback like /quran/2
+  const asNum = Number(slug);
+  if (Number.isInteger(asNum) && asNum >= 1 && asNum <= 114) return asNum;
+  return null;
+}
+
+/* ============ Diacritics helper (search-friendly Arabic surah name) ============ */
+
+/** Removes Arabic harakat/tashkeel and the leading "سُورَةُ " word. */
+export function stripArabicDiacritics(input: string): string {
+  return input
+    .replace(/[\u064B-\u0652\u0670\u0640]/g, '') // tashkeel + tatweel
+    .replace(/^سُورَةُ\s*/, '')
+    .replace(/^سورة\s*/, '')
+    .trim();
 }
 
 /** Sajdah ayahs in the Mushaf. Format: [surah, ayah, type] type: 'wajib' | 'mustahabb' (per Ja'fari fiqh). */

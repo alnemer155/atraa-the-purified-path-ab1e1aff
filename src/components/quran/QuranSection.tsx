@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Search, BookOpen, X, Loader2, BookmarkCheck, List } from 'lucide-react';
+import { ChevronLeft, Search, BookOpen, X, Loader2, BookmarkCheck, Bookmark, List } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { saveContinueReading, getContinueReading, type ContinueReading } from '@/lib/quran-meta';
-import { JUZ_STARTS, HIZB_STARTS, getSajdahType } from '@/lib/quran-meta';
+import {
+  saveContinueReading, getContinueReading, type ContinueReading,
+  JUZ_STARTS, HIZB_STARTS, getSajdahType,
+  slugForSurah, surahFromSlug, stripArabicDiacritics,
+  toggleBookmark, isBookmarked,
+} from '@/lib/quran-meta';
 import { ayahMark } from '@/lib/islamic-symbols';
 
 interface Surah {
@@ -78,19 +83,36 @@ const Ornament = ({ className = '' }: { className?: string }) => (
 );
 
 // Decorative ayah-end marker using the official ۝ glyph (U+06DD) with verse number.
-const AyahMarker = ({ n, sajdah }: { n: number; sajdah?: 'wajib' | 'mustahabb' | null }) => (
-  <span
-    className="inline-flex items-center justify-center align-middle mx-1 quran-uthmani"
+// Tap to bookmark / unbookmark the verse. Long-press friendly hit area.
+const AyahMarker = ({
+  n,
+  sajdah,
+  bookmarked,
+  onToggle,
+}: {
+  n: number;
+  sajdah?: 'wajib' | 'mustahabb' | null;
+  bookmarked?: boolean;
+  onToggle?: () => void;
+}) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    className="inline-flex items-center justify-center align-middle mx-1 quran-uthmani active:scale-90 transition-transform cursor-pointer"
     style={{ fontSize: '1em' }}
-    title={sajdah === 'wajib' ? 'سجدة واجبة' : sajdah === 'mustahabb' ? 'سجدة مستحبة' : undefined}
+    title={bookmarked ? 'إزالة العلامة' : sajdah === 'wajib' ? 'سجدة واجبة — اضغط لإضافة علامة' : sajdah === 'mustahabb' ? 'سجدة مستحبة — اضغط لإضافة علامة' : 'إضافة علامة'}
+    aria-label={bookmarked ? 'إزالة العلامة' : 'إضافة علامة'}
   >
-    <span className={`ayah-mark ${sajdah ? 'text-accent' : 'text-gold'}`} style={{ fontSize: '1.15em' }}>
+    <span className={`ayah-mark ${bookmarked ? 'text-primary' : sajdah ? 'text-accent' : 'text-gold'}`} style={{ fontSize: '1.15em' }}>
       {ayahMark(n)}
     </span>
     {sajdah && (
       <span className="text-accent font-medium ms-0.5" style={{ fontSize: '0.7em' }} aria-hidden>۩</span>
     )}
-  </span>
+    {bookmarked && (
+      <span className="text-primary ms-0.5" style={{ fontSize: '0.55em' }} aria-hidden>●</span>
+    )}
+  </button>
 );
 
 const QuranSection = () => {
@@ -102,6 +124,8 @@ const QuranSection = () => {
   const [listError, setListError] = useState(false);
   const [search, setSearch] = useState('');
 
+  const navigate = useNavigate();
+  const params = useParams();
   const [openSurah, setOpenSurah] = useState<Surah | null>(null);
   const [ayahs, setAyahs] = useState<Ayah[]>([]);
   const [loadingAyahs, setLoadingAyahs] = useState(false);
@@ -110,6 +134,7 @@ const QuranSection = () => {
   const [continueReading, setContinueReading] = useState<ContinueReading | null>(() => getContinueReading());
   const [showIndex, setShowIndex] = useState(false);
   const [scrollToAyah, setScrollToAyah] = useState<number | null>(null);
+  const [bookmarkVersion, setBookmarkVersion] = useState(0); // forces re-render after toggle
   const ayahRefs = useRef<Record<number, HTMLSpanElement | null>>({});
 
   // Ayah of the day — deterministic per calendar day, fetched live from the
@@ -212,6 +237,30 @@ const QuranSection = () => {
     setContinueReading(c);
   }, [openSurah, scrollToAyah]);
 
+  // Open surah from URL slug (e.g. /quran/Al-Fatiha or /SA-ar/quran/Al-Fatiha)
+  useEffect(() => {
+    if (!surahs || !params.slug) return;
+    const num = surahFromSlug(params.slug);
+    if (!num) return;
+    const found = surahs.find(s => s.number === num);
+    if (found && (!openSurah || openSurah.number !== num)) {
+      setOpenSurah(found);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [surahs, params.slug]);
+
+  // Sync URL when user opens/closes a surah
+  useEffect(() => {
+    if (!openSurah) return;
+    const slug = slugForSurah(openSurah.number);
+    const localePrefix = params.locale ? `/${params.locale}` : '';
+    const target = `${localePrefix}/quran/${slug}`;
+    if (window.location.pathname !== target) {
+      navigate(target, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openSurah]);
+
   // Scroll to specific ayah after load (from index or continue)
   useEffect(() => {
     if (!scrollToAyah || loadingAyahs || !ayahs.length) return;
@@ -221,12 +270,19 @@ const QuranSection = () => {
     }
   }, [scrollToAyah, loadingAyahs, ayahs]);
 
+  const handleCloseSurah = () => {
+    setOpenSurah(null);
+    setScrollToAyah(null);
+    const localePrefix = params.locale ? `/${params.locale}` : '';
+    navigate(`${localePrefix}/quran`, { replace: true });
+  };
+
   const filteredSurahs = useMemo(() => {
     if (!surahs) return [];
-    const q = search.trim().toLowerCase();
+    const q = stripArabicDiacritics(search.trim()).toLowerCase();
     if (!q) return surahs;
     return surahs.filter(s =>
-      s.name.toLowerCase().includes(q) ||
+      stripArabicDiacritics(s.name).toLowerCase().includes(q) ||
       s.englishName.toLowerCase().includes(q) ||
       s.englishNameTranslation.toLowerCase().includes(q) ||
       String(s.number).includes(q)
@@ -290,6 +346,31 @@ const QuranSection = () => {
         )}
       </button>
 
+      {/* Continue from bookmark / last reading */}
+      {continueReading && surahs && (
+        <button
+          onClick={() => {
+            const found = surahs.find(s => s.number === continueReading.surahNumber);
+            if (found) {
+              setOpenSurah(found);
+              setScrollToAyah(continueReading.ayahNumber);
+            }
+          }}
+          className={`w-full flex items-center gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/15 active:scale-[0.985] transition-transform mb-3 ${isAr ? 'text-right' : 'text-left'}`}
+        >
+          <BookmarkCheck className="w-4 h-4 text-primary/70 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] text-primary/80 font-medium">
+              {isAr ? 'متابعة من العلامة' : 'Continue from bookmark'}
+            </p>
+            <p className="text-[10px] text-muted-foreground/60 font-light mt-0.5 truncate">
+              {stripArabicDiacritics(continueReading.surahName)} · {isAr ? 'الآية' : 'Ayah'} {continueReading.ayahNumber}
+            </p>
+          </div>
+          <ChevronLeft className={`w-3.5 h-3.5 text-primary/30 flex-shrink-0 ${isAr ? '' : 'rotate-180'}`} />
+        </button>
+      )}
+
       {/* Search */}
       <div className="relative mb-4">
         <Search className={`absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/40 ${isAr ? 'right-3' : 'left-3'}`} />
@@ -341,7 +422,10 @@ const QuranSection = () => {
               <span className="relative text-[10px] text-foreground/80 tabular-nums">{s.number}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[14px] text-foreground quran-uthmani leading-tight truncate" style={{ lineHeight: 1.6 }}>{s.name}</p>
+              {/* Surah name in the site's primary font, no diacritics — easy to scan & search */}
+              <p className="text-[15px] text-foreground leading-tight truncate font-medium">
+                {stripArabicDiacritics(s.name)}
+              </p>
               <p className="text-[9px] text-muted-foreground/50 font-light mt-0.5 truncate">
                 {isAr
                   ? `${s.englishNameTranslation} · ${s.numberOfAyahs} آية · ${s.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`
@@ -366,14 +450,17 @@ const QuranSection = () => {
             {/* Header */}
             <div className="bg-background/85 backdrop-blur-2xl border-b border-border/10 px-4 py-3 flex items-center justify-between flex-shrink-0">
               <button
-                onClick={() => setOpenSurah(null)}
+                onClick={handleCloseSurah}
                 className="w-8 h-8 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95"
                 aria-label="close"
               >
                 <X className="w-4 h-4 text-foreground/70" />
               </button>
               <div className="text-center">
-                <p className="text-[14px] text-foreground quran-uthmani leading-tight" style={{ lineHeight: 1.6 }}>{openSurah.name}</p>
+                {/* Reader header — clean name without diacritics + small Uthmani subtitle */}
+                <p className="text-[15px] text-foreground leading-tight font-medium">
+                  {stripArabicDiacritics(openSurah.name)}
+                </p>
                 <p className="text-[9px] text-muted-foreground/50 font-light mt-0.5">
                   {openSurah.numberOfAyahs} {isAr ? 'آية' : 'verses'} · {openSurah.revelationType === 'Meccan' ? (isAr ? 'مكية' : 'Meccan') : (isAr ? 'مدنية' : 'Medinan')}
                 </p>
@@ -445,13 +532,29 @@ const QuranSection = () => {
                       if (idx === 0 && openSurah.number !== 1 && openSurah.number !== 9) {
                         text = text.replace(/^بِسْمِ\s*ٱللَّهِ\s*ٱلرَّحْمَـٰنِ\s*ٱلرَّحِيمِ\s*/, '');
                       }
+                      const marked = isBookmarked(openSurah.number, a.numberInSurah);
+                      // bookmarkVersion read forces React to recompute marked after toggle
+                      void bookmarkVersion;
                       return (
                         <span
                           key={a.number}
                           ref={(el) => { ayahRefs.current[a.numberInSurah] = el; }}
                         >
                           {text}
-                          <AyahMarker n={a.numberInSurah} sajdah={getSajdahType(openSurah.number, a.numberInSurah)} />
+                          <AyahMarker
+                            n={a.numberInSurah}
+                            sajdah={getSajdahType(openSurah.number, a.numberInSurah)}
+                            bookmarked={marked}
+                            onToggle={() => {
+                              toggleBookmark({
+                                surahNumber: openSurah.number,
+                                surahName: stripArabicDiacritics(openSurah.name),
+                                ayahNumber: a.numberInSurah,
+                                ayahPreview: text.slice(0, 60),
+                              });
+                              setBookmarkVersion(v => v + 1);
+                            }}
+                          />
                           {' '}
                         </span>
                       );

@@ -68,18 +68,27 @@ const App = () => {
                     <Route path="/" element={<HomePage />} />
                     <Route path="/library" element={<LibraryPage />} />
                     <Route path="/quran" element={<QuranPage />} />
+                    <Route path="/quran/:slug" element={<QuranPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/policies" element={<PoliciesPage />} />
                     <Route path="/support" element={<SupportPage />} />
-                  <Route path="/privacy" element={<PrivacyPage />} />
-                  <Route path="/terms" element={<TermsPage />} />
-                  <Route path="/disclaimer" element={<DisclaimerPage />} />
-                  <Route path="/data" element={<DataPage />} />
-                  <Route path="/about" element={<AboutPage />} />
-                </Route>
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
+                    <Route path="/privacy" element={<PrivacyPage />} />
+                    <Route path="/terms" element={<TermsPage />} />
+                    <Route path="/disclaimer" element={<DisclaimerPage />} />
+                    <Route path="/data" element={<DataPage />} />
+                    <Route path="/about" element={<AboutPage />} />
+
+                    {/* Locale-aware aliases: /SA-ar, /SA-en, /US-en, etc. */}
+                    <Route path="/:locale" element={<HomePage />} />
+                    <Route path="/:locale/library" element={<LibraryPage />} />
+                    <Route path="/:locale/quran" element={<QuranPage />} />
+                    <Route path="/:locale/quran/:slug" element={<QuranPage />} />
+                    <Route path="/:locale/settings" element={<SettingsPage />} />
+                    <Route path="/:locale/about" element={<AboutPage />} />
+                  </Route>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
             </UIProvider>
           </BrowserRouter>
           <Analytics />
