@@ -507,13 +507,29 @@ const QuranSection = () => {
                       if (idx === 0 && openSurah.number !== 1 && openSurah.number !== 9) {
                         text = text.replace(/^بِسْمِ\s*ٱللَّهِ\s*ٱلرَّحْمَـٰنِ\s*ٱلرَّحِيمِ\s*/, '');
                       }
+                      const marked = isBookmarked(openSurah.number, a.numberInSurah);
+                      // bookmarkVersion read forces React to recompute marked after toggle
+                      void bookmarkVersion;
                       return (
                         <span
                           key={a.number}
                           ref={(el) => { ayahRefs.current[a.numberInSurah] = el; }}
                         >
                           {text}
-                          <AyahMarker n={a.numberInSurah} sajdah={getSajdahType(openSurah.number, a.numberInSurah)} />
+                          <AyahMarker
+                            n={a.numberInSurah}
+                            sajdah={getSajdahType(openSurah.number, a.numberInSurah)}
+                            bookmarked={marked}
+                            onToggle={() => {
+                              toggleBookmark({
+                                surahNumber: openSurah.number,
+                                surahName: stripArabicDiacritics(openSurah.name),
+                                ayahNumber: a.numberInSurah,
+                                ayahPreview: text.slice(0, 60),
+                              });
+                              setBookmarkVersion(v => v + 1);
+                            }}
+                          />
                           {' '}
                         </span>
                       );
