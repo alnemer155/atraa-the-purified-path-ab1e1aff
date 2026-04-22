@@ -1,9 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Amiri+Quran&display=swap');
 
-/* KFGQPC Uthmanic Script — official mushaf font from King Fahd Complex (via jsDelivr CDN). */
+/*
+ * KFGQPC Uthmanic Hafs — the official mushaf typeface from King Fahd Glorious
+ * Quran Printing Complex. Loaded from a stable, mirrored CDN (Islamic Network)
+ * with multiple fallbacks to guarantee delivery worldwide.
+ */
 @font-face {
   font-family: 'KFGQPC Uthmanic Script';
-  src: url('https://cdn.jsdelivr.net/gh/quran/quran.com-frontend-next@main/public/fonts/quran/KFGQPC-Uthmanic-Script-HAFS-Regular.otf') format('opentype'),
+  src: url('https://cdn.jsdelivr.net/gh/mustafa0x/qpc-fonts/mushaf-woff2/v1/KFGQPC%20Uthmanic%20Script%20HAFS%20Regular.woff2') format('woff2'),
+       url('https://fonts.qurancomplex.gov.sa/wp02/wp-content/fonts/KFGQPC-Uthman-Taha-Naskh.otf') format('opentype'),
        url('https://cdn.jsdelivr.net/npm/@quranjs/api@latest/dist/UthmanTN1Ver18.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
