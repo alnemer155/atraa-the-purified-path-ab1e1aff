@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Search, BookOpen, X, Loader2, BookmarkCheck, List } from 'lucide-react';
+import { ChevronLeft, Search, BookOpen, X, Loader2, BookmarkCheck, Bookmark, List } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { saveContinueReading, getContinueReading, type ContinueReading } from '@/lib/quran-meta';
-import { JUZ_STARTS, HIZB_STARTS, getSajdahType } from '@/lib/quran-meta';
+import {
+  saveContinueReading, getContinueReading, type ContinueReading,
+  JUZ_STARTS, HIZB_STARTS, getSajdahType,
+  slugForSurah, surahFromSlug, stripArabicDiacritics,
+  toggleBookmark, isBookmarked,
+} from '@/lib/quran-meta';
 import { ayahMark } from '@/lib/islamic-symbols';
 
 interface Surah {
