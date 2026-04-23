@@ -21,6 +21,8 @@ const TermsPage = lazy(() => import("./pages/legal/TermsPage"));
 const DisclaimerPage = lazy(() => import("./pages/legal/DisclaimerPage"));
 const DataPage = lazy(() => import("./pages/legal/DataPage"));
 const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
+const InvoicePage = lazy(() => import("./pages/InvoicePage"));
+const SupportThanksPage = lazy(() => import("./pages/SupportThanksPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -77,7 +79,13 @@ const App = () => {
                     <Route path="/disclaimer" element={<DisclaimerPage />} />
                     <Route path="/data" element={<DataPage />} />
                     <Route path="/about" element={<AboutPage />} />
+                    <Route path="/support/thanks" element={<SupportThanksPage />} />
+                  </Route>
 
+                  {/* Standalone routes without main layout (full-page) */}
+                  <Route path="/invoice/:id" element={<InvoicePage />} />
+
+                  <Route element={<AppLayout />}>
                     {/* Locale-aware aliases: /SA-ar, /SA-en, /US-en, etc. */}
                     <Route path="/:locale" element={<HomePage />} />
                     <Route path="/:locale/library" element={<LibraryPage />} />
