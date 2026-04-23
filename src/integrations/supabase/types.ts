@@ -14,13 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      invoices: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          customer_email: string | null
+          customer_name: string | null
+          display_amount_sar: number | null
+          environment: string
+          id: string
+          invoice_number: string
+          metadata: Json | null
+          paddle_customer_id: string | null
+          paddle_transaction_id: string | null
+          paid_at: string | null
+          price_id: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          display_amount_sar?: number | null
+          environment?: string
+          id?: string
+          invoice_number: string
+          metadata?: Json | null
+          paddle_customer_id?: string | null
+          paddle_transaction_id?: string | null
+          paid_at?: string | null
+          price_id: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          display_amount_sar?: number | null
+          environment?: string
+          id?: string
+          invoice_number?: string
+          metadata?: Json | null
+          paddle_customer_id?: string | null
+          paddle_transaction_id?: string | null
+          paid_at?: string | null
+          price_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_invoice_number: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never
