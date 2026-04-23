@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Shield, Loader2, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { initializePaddle, getPaddlePriceId, getPaddleEnvironment } from '@/lib/paddle';
+import { initializePaddle, getPaddlePriceId } from '@/lib/paddle';
 import { PaymentTestModeBanner } from '@/components/PaymentTestModeBanner';
 import { toast } from 'sonner';
 
