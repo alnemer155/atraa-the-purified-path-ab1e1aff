@@ -1,36 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Search, BookOpen, X, Loader2, BookmarkCheck } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import {
-  saveContinueReading, getContinueReading, type ContinueReading,
-  getSajdahType,
-  slugForSurah, surahFromSlug, stripArabicDiacritics,
-  toggleBookmark, isBookmarked,
-} from '@/lib/quran-meta';
-import { ayahMark } from '@/lib/islamic-symbols';
+import { Loader2 } from 'lucide-react';
+import { surahFromSlug } from '@/lib/quran-meta';
 import QuranPageReader from './QuranPageReader';
 
 interface Surah {
   number: number;
-  name: string;             // Arabic name (e.g. سُورَةُ ٱلْفَاتِحَةِ)
+  name: string;
   englishName: string;
-  englishNameTranslation: string;
   numberOfAyahs: number;
   revelationType: 'Meccan' | 'Medinan';
 }
 
-interface Ayah {
-  number: number;            // global mushaf number
-  numberInSurah: number;
-  text: string;
-  juz?: number;
-  page?: number;
-}
-
-// Official Madinah Mushaf start page for every surah. Keeping this local avoids
-// opening the fallback reader while a network-only chapter map is still loading.
+// Official Madinah Mushaf start page for every surah. Used to map a surah slug
+// in the URL (/quran/Al-Baqarah) to the correct opening Mushaf page.
 const SURAH_START_PAGES: Record<number, number> = {
   1: 1, 2: 2, 3: 50, 4: 77, 5: 106, 6: 128, 7: 151, 8: 177, 9: 187, 10: 208, 11: 221, 12: 235,
   13: 249, 14: 255, 15: 262, 16: 267, 17: 282, 18: 293, 19: 305, 20: 312, 21: 322, 22: 332, 23: 342, 24: 350,
@@ -44,80 +27,45 @@ const SURAH_START_PAGES: Record<number, number> = {
   109: 603, 110: 603, 111: 603, 112: 604, 113: 604, 114: 604,
 };
 
-// Ornate Heritage divider (illuminated arabesque)
-const Ornament = ({ className = '' }: { className?: string }) => (
-  <svg viewBox="0 0 240 18" className={className} aria-hidden>
-    <g fill="none" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round">
-      <path d="M0 9 H80" opacity="0.35" />
-      <path d="M160 9 H240" opacity="0.35" />
-      <circle cx="120" cy="9" r="6" opacity="0.6" />
-      <circle cx="120" cy="9" r="2.2" opacity="0.9" />
-      <path d="M105 9 q7 -7 15 0 q7 7 15 0" opacity="0.7" />
-      <path d="M85 9 q3 -3 6 0 M149 9 q3 3 6 0" opacity="0.5" />
-    </g>
-  </svg>
-);
+const LAST_PAGE_KEY = 'atraa_quran_last_page_v2';
 
-// Decorative ayah-end marker using the official ۝ glyph (U+06DD) with verse number.
-// Tap to bookmark / unbookmark the verse. Long-press friendly hit area.
-const AyahMarker = ({
-  n,
-  sajdah,
-  bookmarked,
-  onToggle,
-}: {
-  n: number;
-  sajdah?: 'wajib' | 'mustahabb' | null;
-  bookmarked?: boolean;
-  onToggle?: () => void;
-}) => (
-  <button
-    type="button"
-    onClick={onToggle}
-    className="inline-flex items-center justify-center align-middle mx-1 quran-uthmani active:scale-90 transition-transform cursor-pointer"
-    style={{ fontSize: '1em' }}
-    title={bookmarked ? 'إزالة العلامة' : sajdah === 'wajib' ? 'سجدة واجبة — اضغط لإضافة علامة' : sajdah === 'mustahabb' ? 'سجدة مستحبة — اضغط لإضافة علامة' : 'إضافة علامة'}
-    aria-label={bookmarked ? 'إزالة العلامة' : 'إضافة علامة'}
-  >
-    <span className={`ayah-mark ${bookmarked ? 'text-primary' : sajdah ? 'text-accent' : 'text-gold'}`} style={{ fontSize: '1.15em' }}>
-      {ayahMark(n)}
-    </span>
-    {sajdah && (
-      <span className="text-accent font-medium ms-0.5" style={{ fontSize: '0.7em' }} aria-hidden>۩</span>
-    )}
-    {bookmarked && (
-      <span className="text-primary ms-0.5" style={{ fontSize: '0.55em' }} aria-hidden>●</span>
-    )}
-  </button>
-);
+const getLastPage = (): number => {
+  try {
+    const raw = localStorage.getItem(LAST_PAGE_KEY);
+    const n = raw ? parseInt(raw, 10) : 1;
+    return Number.isFinite(n) && n >= 1 && n <= 604 ? n : 1;
+  } catch {
+    return 1;
+  }
+};
 
+const setLastPage = (p: number) => {
+  try { localStorage.setItem(LAST_PAGE_KEY, String(p)); } catch { /* ignore */ }
+};
+
+/**
+ * Quran section — opens the QPC V2 page-by-page Madinah Mushaf reader directly,
+ * inline (no surah picker). The reader self-verifies fonts and never displays
+ * uncertain glyphs. Persists the last viewed page locally so users resume where
+ * they left off.
+ */
 const QuranSection = () => {
-  const { i18n } = useTranslation();
-  const isAr = i18n.language === 'ar';
-
+  const navigate = useNavigate();
+  const params = useParams();
   const [surahs, setSurahs] = useState<Surah[] | null>(null);
   const [loadingList, setLoadingList] = useState(true);
   const [listError, setListError] = useState(false);
-  const [search, setSearch] = useState('');
 
-  const navigate = useNavigate();
-  const params = useParams();
-  const [openSurah, setOpenSurah] = useState<Surah | null>(null);
-  const [ayahs, setAyahs] = useState<Ayah[]>([]);
-  const [loadingAyahs, setLoadingAyahs] = useState(false);
-  const [ayahsError, setAyahsError] = useState(false);
-  const [fontSize, setFontSize] = useState(22);
-  const [continueReading, setContinueReading] = useState<ContinueReading | null>(() => getContinueReading());
-  const [scrollToAyah, setScrollToAyah] = useState<number | null>(null);
-  const [bookmarkVersion, setBookmarkVersion] = useState(0); // forces re-render after toggle
-  const ayahRefs = useRef<Record<number, HTMLSpanElement | null>>({});
+  // Resolve initial page: URL slug > stored last page > page 1
+  const [initialPage] = useState(() => {
+    if (params.slug) {
+      const num = surahFromSlug(params.slug);
+      if (num && SURAH_START_PAGES[num]) return SURAH_START_PAGES[num];
+    }
+    return getLastPage();
+  });
 
-  // QPC V2 page-by-page renderer state. The renderer itself enforces strict
-  // font-verification — it will refuse to display any text until ALL required
-  // page fonts are verifiably loaded (no fallback fonts, no risk of corruption).
-  const [openPage, setOpenPage] = useState<number | null>(null);
-
-  // Fetch surah list once
+  // Fetch surah metadata once (needed for the inline surah-name banner)
   useEffect(() => {
     let cancelled = false;
     setLoadingList(true);
@@ -136,378 +84,48 @@ const QuranSection = () => {
     return () => { cancelled = true; };
   }, []);
 
-  // Fetch surah ayahs when opened
-  useEffect(() => {
-    if (!openSurah) return;
-    let cancelled = false;
-    setLoadingAyahs(true);
-    setAyahsError(false);
-    setAyahs([]);
-    fetch(`https://api.alquran.cloud/v1/surah/${openSurah.number}/quran-uthmani`)
-      .then(r => r.json())
-      .then(data => {
-        if (cancelled) return;
-        if (data?.data?.ayahs) {
-          setAyahs(data.data.ayahs as Ayah[]);
-        } else {
-          setAyahsError(true);
-        }
-      })
-      .catch(() => !cancelled && setAyahsError(true))
-      .finally(() => !cancelled && setLoadingAyahs(false));
-    return () => { cancelled = true; };
-  }, [openSurah]);
+  const surahsByNumber = useMemo(() => {
+    if (!surahs) return new Map<number, Surah>();
+    return new Map(surahs.map(s => [s.number, s]));
+  }, [surahs]);
 
-  // Save continue-reading state when a surah is opened
-  useEffect(() => {
-    if (!openSurah) return;
-    const c: ContinueReading = {
-      surahNumber: openSurah.number,
-      surahName: openSurah.name,
-      ayahNumber: scrollToAyah || 1,
-      timestamp: Date.now(),
-    };
-    saveContinueReading(c);
-    setContinueReading(c);
-  }, [openSurah, scrollToAyah]);
-
-  // Open surah from URL slug (e.g. /quran/Al-Fatiha or /SA-ar/quran/Al-Fatiha)
-  useEffect(() => {
-    if (!surahs || !params.slug) return;
-    const num = surahFromSlug(params.slug);
-    if (!num) return;
-    const found = surahs.find(s => s.number === num);
-    if (found && (!openSurah || openSurah.number !== num)) {
-      setOpenSurah(found);
+  const handlePageChange = (page: number) => {
+    setLastPage(page);
+    // Keep URL clean — don't push a new entry per page swipe
+    if (params.slug) {
+      const localePrefix = params.locale ? `/${params.locale}` : '';
+      navigate(`${localePrefix}/quran`, { replace: true });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [surahs, params.slug]);
-
-  // Sync URL when user opens/closes a surah
-  useEffect(() => {
-    if (!openSurah) return;
-    const slug = slugForSurah(openSurah.number);
-    const localePrefix = params.locale ? `/${params.locale}` : '';
-    const target = `${localePrefix}/quran/${slug}`;
-    if (window.location.pathname !== target) {
-      navigate(target, { replace: true });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openSurah]);
-
-  // Scroll to specific ayah after load (from index or continue)
-  useEffect(() => {
-    if (!scrollToAyah || loadingAyahs || !ayahs.length) return;
-    const el = ayahRefs.current[scrollToAyah];
-    if (el) {
-      setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
-    }
-  }, [scrollToAyah, loadingAyahs, ayahs]);
-
-  const handleCloseSurah = () => {
-    setOpenSurah(null);
-    setScrollToAyah(null);
-    const localePrefix = params.locale ? `/${params.locale}` : '';
-    navigate(`${localePrefix}/quran`, { replace: true });
   };
 
-  const filteredSurahs = useMemo(() => {
-    if (!surahs) return [];
-    const q = stripArabicDiacritics(search.trim()).toLowerCase();
-    if (!q) return surahs;
-    return surahs.filter(s =>
-      stripArabicDiacritics(s.name).toLowerCase().includes(q) ||
-      s.englishName.toLowerCase().includes(q) ||
-      s.englishNameTranslation.toLowerCase().includes(q) ||
-      String(s.number).includes(q)
+  if (loadingList) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="w-5 h-5 text-muted-foreground/40 animate-spin" />
+      </div>
     );
-  }, [surahs, search]);
+  }
 
-  /**
-   * Open a surah. Prefers the QPC V2 page-by-page renderer (pixel-perfect
-   * Madinah Mushaf) when the chapter→page mapping has loaded. Falls back to
-   * the verified Uthmani text reader (AlQuran.cloud) otherwise. The QPC V2
-   * renderer self-verifies fonts before displaying anything, so corruption
-   * is impossible by design.
-   */
-  const openSurahReader = (s: Surah) => {
-    const startPage = SURAH_START_PAGES[s.number];
-    if (startPage) {
-      setOpenPage(startPage);
-    } else {
-      setOpenSurah(s);
-    }
-  };
+  if (listError || !surahs) {
+    return (
+      <div className="text-center py-16 px-6">
+        <p className="text-[12px] text-foreground/80 font-medium mb-1">
+          تعذّر تحميل بيانات السور
+        </p>
+        <p className="text-[11px] text-muted-foreground/60 font-light">
+          تحقّق من اتصال الإنترنت وأعد المحاولة
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="px-4 py-5 animate-fade-in">
-      {/* Continue from bookmark / last reading */}
-      {continueReading && surahs && (
-        <button
-          onClick={() => {
-            const found = surahs.find(s => s.number === continueReading.surahNumber);
-            if (found) {
-              openSurahReader(found);
-              setScrollToAyah(continueReading.ayahNumber);
-            }
-          }}
-          className={`w-full flex items-center gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/15 active:scale-[0.985] transition-transform mb-3 ${isAr ? 'text-right' : 'text-left'}`}
-        >
-          <BookmarkCheck className="w-4 h-4 text-primary/70 flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] text-primary/80 font-medium">
-              {isAr ? 'متابعة من العلامة' : 'Continue from bookmark'}
-            </p>
-            <p className="text-[10px] text-muted-foreground/60 font-light mt-0.5 truncate">
-              {stripArabicDiacritics(continueReading.surahName)} · {isAr ? 'الآية' : 'Ayah'} {continueReading.ayahNumber}
-            </p>
-          </div>
-          <ChevronLeft className={`w-3.5 h-3.5 text-primary/30 flex-shrink-0 ${isAr ? '' : 'rotate-180'}`} />
-        </button>
-      )}
-
-      {/* Search */}
-      <div className="relative mb-4">
-        <Search className={`absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/40 ${isAr ? 'right-3' : 'left-3'}`} />
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder={isAr ? 'ابحث عن سورة…' : 'Search surah…'}
-          className={`w-full h-10 rounded-2xl bg-card border border-border/15 text-[12px] text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-foreground/20 transition-colors ${isAr ? 'pr-9 pl-3 text-right' : 'pl-9 pr-3 text-left'}`}
-        />
-      </div>
-
-      {/* Surah list */}
-      {loadingList && (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-5 h-5 text-muted-foreground/40 animate-spin" />
-        </div>
-      )}
-      {listError && !loadingList && (
-        <div className="text-center py-10">
-          <p className="text-[11px] text-muted-foreground/60 font-light">
-            {isAr ? 'تعذّر تحميل قائمة السور — تحقق من الاتصال' : 'Could not load surahs — check connection'}
-          </p>
-        </div>
-      )}
-      {!loadingList && !listError && filteredSurahs.length === 0 && (
-        <div className="text-center py-10">
-          <p className="text-[11px] text-muted-foreground/50 font-light">
-            {isAr ? 'لا توجد نتائج' : 'No results'}
-          </p>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 gap-1.5">
-        {filteredSurahs.map((s, i) => (
-          <motion.button
-            key={s.number}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.18, delay: Math.min(i * 0.005, 0.15) }}
-            onClick={() => openSurahReader(s)}
-            className={`w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/15 active:scale-[0.985] transition-transform ${isAr ? 'text-right' : 'text-left'}`}
-          >
-            {/* Heritage illuminated number medallion */}
-            <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center">
-              <svg viewBox="0 0 40 40" className="absolute inset-0 text-gold/70" fill="none" stroke="currentColor" strokeWidth="0.7">
-                <path d="M20 2 L34 8 L34 22 L20 38 L6 22 L6 8 Z" />
-                <path d="M20 6 L30 11 L30 21 L20 33 L10 21 L10 11 Z" opacity="0.4" />
-              </svg>
-              <span className="relative text-[10px] text-foreground/80 tabular-nums">{s.number}</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              {/* Surah name in the site's primary font, no diacritics — easy to scan & search */}
-              <p className="text-[15px] text-foreground leading-tight truncate font-medium">
-                {stripArabicDiacritics(s.name)}
-              </p>
-              <p className="text-[9px] text-muted-foreground/50 font-light mt-0.5 truncate">
-                {isAr
-                  ? `${s.englishNameTranslation} · ${s.numberOfAyahs} آية · ${s.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`
-                  : `${s.englishName} · ${s.numberOfAyahs} verses · ${s.revelationType}`}
-              </p>
-            </div>
-            <ChevronLeft className={`w-3.5 h-3.5 text-muted-foreground/25 flex-shrink-0 ${isAr ? '' : 'rotate-180'}`} />
-          </motion.button>
-        ))}
-      </div>
-
-      {/* Reader modal */}
-      <AnimatePresence>
-        {openSurah && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background flex flex-col"
-            dir="rtl"
-          >
-            {/* Header */}
-            <div className="bg-background/85 backdrop-blur-2xl border-b border-border/10 px-4 py-3 flex items-center justify-between flex-shrink-0">
-              <button
-                onClick={handleCloseSurah}
-                className="w-8 h-8 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95"
-                aria-label="close"
-              >
-                <X className="w-4 h-4 text-foreground/70" />
-              </button>
-              <div className="text-center">
-                {/* Reader header — clean name without diacritics + small Uthmani subtitle */}
-                <p className="text-[15px] text-foreground leading-tight font-medium">
-                  {stripArabicDiacritics(openSurah.name)}
-                </p>
-                <p className="text-[9px] text-muted-foreground/50 font-light mt-0.5">
-                  {openSurah.numberOfAyahs} {isAr ? 'آية' : 'verses'} · {openSurah.revelationType === 'Meccan' ? (isAr ? 'مكية' : 'Meccan') : (isAr ? 'مدنية' : 'Medinan')}
-                </p>
-              </div>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setFontSize(s => Math.max(16, s - 2))}
-                  className="w-8 h-8 rounded-xl bg-secondary/40 flex items-center justify-center text-foreground/70 text-[10px] active:scale-95"
-                  aria-label="smaller"
-                >
-                  −
-                </button>
-                <button
-                  onClick={() => setFontSize(s => Math.min(34, s + 2))}
-                  className="w-8 h-8 rounded-xl bg-secondary/40 flex items-center justify-center text-foreground/70 text-[12px] active:scale-95"
-                  aria-label="larger"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            {/* Body */}
-            <div className="flex-1 overflow-y-auto px-5 py-6">
-              {loadingAyahs && (
-                <div className="flex items-center justify-center py-16">
-                  <Loader2 className="w-5 h-5 text-muted-foreground/40 animate-spin" />
-                </div>
-              )}
-              {ayahsError && !loadingAyahs && (
-                <div className="text-center py-16">
-                  <p className="text-[11px] text-muted-foreground/60 font-light">
-                    {isAr ? 'تعذّر تحميل السورة — حاول مجدداً' : 'Could not load surah — try again'}
-                  </p>
-                </div>
-              )}
-
-              {!loadingAyahs && !ayahsError && ayahs.length > 0 && (
-                <>
-                  {/* Illuminated header */}
-                  <div className="text-center mb-6">
-                    <Ornament className="w-40 h-4 mx-auto text-gold mb-3" />
-                    <div className="inline-flex items-center justify-center px-6 py-2 rounded-full border border-gold/30 bg-gold/5">
-                      <BookOpen className="w-3 h-3 text-gold/70 ml-2" strokeWidth={1.5} />
-                      <span className="text-[12px] text-foreground/80 quran-uthmani" style={{ lineHeight: 1.6 }}>{openSurah.name}</span>
-                    </div>
-                    <Ornament className="w-40 h-4 mx-auto text-gold mt-3 rotate-180" />
-                  </div>
-
-                  {/* Bismillah (skip for Surah 1 — already part of it; skip for Surah 9 which has no Bismillah) */}
-                  {openSurah.number !== 1 && openSurah.number !== 9 && (
-                    <p
-                      className="text-center quran-uthmani text-foreground/85 mb-6"
-                      style={{ fontSize: fontSize - 2 }}
-                    >
-                      بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
-                    </p>
-                  )}
-
-                  {/* Continuous mushaf-style flow */}
-                  <p
-                    className="quran-uthmani text-foreground text-justify"
-                    style={{ fontSize, wordSpacing: '0.05em' }}
-                  >
-                    {ayahs.map((a, idx) => {
-                      // Strip the leading Bismillah from first ayah for surahs other than Fatiha
-                      // because the API includes it inline for many surahs.
-                      let text = a.text;
-                      if (idx === 0 && openSurah.number !== 1 && openSurah.number !== 9) {
-                        const stripped = stripArabicDiacritics(text);
-                        const m = stripped.match(/^\s*بسم\s*الله\s*الرحمـ?ن\s*الرحيم\s*/);
-                        if (m) {
-                          const isDiacritic = (c: string) => /[\u064B-\u065F\u0670\u06D6-\u06ED]/.test(c);
-                          let consumed = 0, i = 0;
-                          while (i < text.length && consumed < m[0].length) {
-                            if (!isDiacritic(text[i])) consumed++;
-                            i++;
-                          }
-                          while (i < text.length && isDiacritic(text[i])) i++;
-                          text = text.slice(i).replace(/^\s+/, "");
-                        }
-                      }
-                      const marked = isBookmarked(openSurah.number, a.numberInSurah);
-                      // bookmarkVersion read forces React to recompute marked after toggle
-                      void bookmarkVersion;
-                      return (
-                        <span
-                          key={a.number}
-                          ref={(el) => { ayahRefs.current[a.numberInSurah] = el; }}
-                        >
-                          {text}
-                          <AyahMarker
-                            n={a.numberInSurah}
-                            sajdah={getSajdahType(openSurah.number, a.numberInSurah)}
-                            bookmarked={marked}
-                            onToggle={() => {
-                              toggleBookmark({
-                                surahNumber: openSurah.number,
-                                surahName: stripArabicDiacritics(openSurah.name),
-                                ayahNumber: a.numberInSurah,
-                                ayahPreview: text.slice(0, 60),
-                              });
-                              setBookmarkVersion(v => v + 1);
-                            }}
-                          />
-                          {' '}
-                        </span>
-                      );
-                    })}
-                  </p>
-
-                  <div className="text-center mt-8 pb-6">
-                    <Ornament className="w-32 h-3 mx-auto text-gold/70" />
-                    <p className="text-[10px] text-muted-foreground/50 font-light mt-2 quran-uthmani" style={{ lineHeight: 1.6 }}>
-                      صَدَقَ ٱللَّهُ ٱلْعَلِىُّ ٱلْعَظِيم
-                    </p>
-                    {/* Quran source disclaimer */}
-                    <p className="text-[9px] text-muted-foreground/40 font-light mt-4 leading-relaxed px-4">
-                      {isAr
-                        ? 'النص بالرسم العثماني — مصدر: مجمع الملك فهد لطباعة المصحف الشريف عبر AlQuran.cloud. عند ملاحظة أي خطأ يُرجى التواصل عبر support@atraa.xyz'
-                        : 'Uthmani script — sourced from King Fahd Glorious Quran Printing Complex via AlQuran.cloud. Report any issue at support@atraa.xyz'}
-                    </p>
-                  </div>
-                </>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* QPC V2 page-by-page Madinah Mushaf reader (font-verified). */}
-      <AnimatePresence>
-        {openPage !== null && surahs && (
-          <QuranPageReader
-            initialPage={openPage}
-            surahsByNumber={new Map(surahs.map(s => [s.number, {
-              number: s.number,
-              name: s.name,
-              englishName: s.englishName,
-              numberOfAyahs: s.numberOfAyahs,
-              revelationType: s.revelationType,
-            }]))}
-            onClose={() => {
-              setOpenPage(null);
-              const localePrefix = params.locale ? `/${params.locale}` : '';
-              navigate(`${localePrefix}/quran`, { replace: true });
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-    </div>
+    <QuranPageReader
+      inline
+      initialPage={initialPage}
+      surahsByNumber={surahsByNumber}
+      onPageChange={handlePageChange}
+    />
   );
 };
 

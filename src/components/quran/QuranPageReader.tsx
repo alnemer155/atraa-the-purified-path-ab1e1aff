@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, ChevronLeft, ChevronRight, X, AlertTriangle } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight, X, AlertTriangle, Hash } from 'lucide-react';
 import {
   fetchPageData,
   loadPageFont,
@@ -25,8 +25,11 @@ interface Props {
   initialPage: number;
   /** Map of surah-number → metadata, used for the surah-name banner */
   surahsByNumber: Map<number, SurahMeta>;
-  onClose: () => void;
+  /** Optional close handler (only shown in modal mode) */
+  onClose?: () => void;
   onPageChange?: (page: number) => void;
+  /** When true, renders inside the page (no fixed positioning, no close button). */
+  inline?: boolean;
 }
 
 /**
@@ -37,12 +40,14 @@ interface Props {
  * verifiably loaded via the Font Loading API. If any font fails, we show
  * an explicit error — never the wrong glyphs in a fallback font.
  */
-const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }: Props) => {
+const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, inline = false }: Props) => {
   const [page, setPage] = useState(initialPage);
   const [data, setData] = useState<QpcPageData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fontsReady, setFontsReady] = useState(false);
+  const [showJump, setShowJump] = useState(false);
+  const [jumpValue, setJumpValue] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Preload neighbour pages (data + their fonts) so swiping is instant
@@ -100,10 +105,14 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }:
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
-  // Scroll to top on page change
+  // Scroll to top on page change (page-level in inline, container in modal)
   useEffect(() => {
-    containerRef.current?.scrollTo({ top: 0 });
-  }, [page]);
+    if (inline) {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    } else {
+      containerRef.current?.scrollTo({ top: 0 });
+    }
+  }, [page, inline]);
 
   const lines = useMemo(() => {
     if (!data) return [];
@@ -142,37 +151,106 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }:
     setPage(p => p);
   };
 
+  const handleJump = () => {
+    const n = parseInt(jumpValue, 10);
+    if (Number.isFinite(n) && n >= 1 && n <= 604) {
+      setPage(n);
+      setShowJump(false);
+      setJumpValue('');
+    }
+  };
+
+  const wrapperClass = inline
+    ? 'flex flex-col bg-background'
+    : 'fixed inset-0 z-50 bg-background flex flex-col overflow-hidden';
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.18 }}
-      className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden"
+      className={wrapperClass}
       dir="rtl"
     >
-      {/* Header bar */}
-      <div className="flex-shrink-0 px-4 py-3 flex items-center justify-between border-b border-border/10 bg-background/85 backdrop-blur-2xl">
+      {/* Header bar — sticky in inline mode so it stays visible while scrolling */}
+      <div className={`${inline ? 'sticky top-[41px] z-30' : 'flex-shrink-0'} px-4 py-2.5 flex items-center justify-between border-b border-border/10 bg-background/85 backdrop-blur-2xl`}>
+        {onClose ? (
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95"
+            aria-label="إغلاق"
+          >
+            <X className="w-4 h-4 text-foreground/70" />
+          </button>
+        ) : (
+          <button
+            onClick={() => setShowJump(true)}
+            className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95"
+            aria-label="انتقال إلى صفحة"
+          >
+            <Hash className="w-4 h-4 text-foreground/70" />
+          </button>
+        )}
         <button
-          onClick={onClose}
-          className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95"
-          aria-label="إغلاق"
+          onClick={() => setShowJump(true)}
+          className="text-center active:scale-95 transition-transform"
+          aria-label="انتقال إلى صفحة"
         >
-          <X className="w-4 h-4 text-foreground/70" />
-        </button>
-        <div className="text-center">
           <p className="text-[12px] text-foreground/85 font-medium tabular-nums">
             صفحة {page}
           </p>
           <p className="text-[9px] text-muted-foreground/55 font-light">
             مصحف المدينة · رواية حفص
           </p>
-        </div>
+        </button>
         <div className="w-9 h-9" />
       </div>
 
-      {/* Page body */}
-      <div ref={containerRef} className="flex-1 overflow-y-auto">
+      {/* Jump-to-page overlay */}
+      {showJump && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-center justify-center px-6"
+          onClick={() => setShowJump(false)}
+        >
+          <div
+            className="w-full max-w-xs bg-card rounded-3xl p-5 border border-border/20 shadow-xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <p className="text-center text-[13px] text-foreground font-medium mb-1">انتقال إلى صفحة</p>
+            <p className="text-center text-[10px] text-muted-foreground/60 font-light mb-4">من ١ إلى ٦٠٤</p>
+            <input
+              type="number"
+              min={1}
+              max={604}
+              autoFocus
+              value={jumpValue}
+              onChange={e => setJumpValue(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleJump()}
+              placeholder={String(page)}
+              className="w-full h-11 rounded-2xl bg-secondary/40 border border-border/20 text-center text-[15px] text-foreground tabular-nums outline-none focus:border-primary/40"
+            />
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => setShowJump(false)}
+                className="flex-1 h-10 rounded-2xl bg-secondary/40 text-[12px] text-foreground active:scale-95"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={handleJump}
+                disabled={!jumpValue}
+                className="flex-1 h-10 rounded-2xl bg-primary text-primary-foreground text-[12px] active:scale-95 disabled:opacity-40"
+              >
+                انتقال
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Page body — uses internal scroll in modal mode, page scroll inline */}
+      <div ref={containerRef} className={inline ? '' : 'flex-1 overflow-y-auto'}>
         {loading && !error && (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <Loader2 className="w-5 h-5 text-muted-foreground/40 animate-spin" />
@@ -198,12 +276,14 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }:
               >
                 إعادة المحاولة
               </button>
-              <button
-                onClick={onClose}
-                className="px-4 py-2 rounded-full bg-secondary/40 text-[11px] text-foreground active:scale-95"
-              >
-                إغلاق
-              </button>
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 rounded-full bg-secondary/40 text-[11px] text-foreground active:scale-95"
+                >
+                  إغلاق
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -222,30 +302,47 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }:
               const surahMeta = surahHeader ? surahsByNumber.get(surahHeader) : undefined;
               return (
                 <div key={lineNum}>
-                  {/* Surah header — Madinah Mushaf style illuminated band */}
+                  {/* Surah header — Authentic Madinah Mushaf illuminated band.
+                      Replicates the gold-on-cream rectangular cartouche printed
+                      above each surah opening in the Madinah Mushaf, with
+                      arabesque corners, double frame, and centered surah name. */}
                   {surahMeta && (
-                    <div className="my-5 text-center select-none">
-                      <div className="relative mx-auto max-w-[420px] h-[64px] flex items-center justify-center">
-                        {/* Illuminated frame mimicking the printed mushaf header */}
+                    <div className="my-6 text-center select-none">
+                      <div className="relative mx-auto max-w-[440px] h-[78px] flex items-center justify-center">
                         <svg
-                          viewBox="0 0 420 64"
-                          className="absolute inset-0 w-full h-full text-gold/70"
+                          viewBox="0 0 440 78"
+                          className="absolute inset-0 w-full h-full text-gold"
                           preserveAspectRatio="none"
                           aria-hidden
                         >
-                          <rect x="2" y="2" width="416" height="60" fill="none" stroke="currentColor" strokeWidth="0.8" />
-                          <rect x="6" y="6" width="408" height="52" fill="none" stroke="currentColor" strokeWidth="0.4" opacity="0.6" />
-                          <path d="M2 32 H40 M380 32 H418" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
-                          <circle cx="22" cy="32" r="3" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                          <circle cx="398" cy="32" r="3" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                          <path d="M14 8 q-6 4 0 8 M14 56 q-6 -4 0 -8 M406 8 q6 4 0 8 M406 56 q6 -4 0 -8" stroke="currentColor" strokeWidth="0.5" fill="none" opacity="0.7" />
+                          {/* Outer double frame */}
+                          <rect x="3" y="3" width="434" height="72" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.85" />
+                          <rect x="7" y="7" width="426" height="64" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.55" />
+                          {/* Inner band */}
+                          <rect x="14" y="14" width="412" height="50" fill="none" stroke="currentColor" strokeWidth="0.4" opacity="0.4" />
+                          {/* Corner arabesques */}
+                          <path d="M14 24 q0 -10 10 -10 M416 14 q10 0 10 10 M14 54 q0 10 10 10 M416 64 q10 0 10 -10"
+                            stroke="currentColor" strokeWidth="0.6" fill="none" opacity="0.7" />
+                          {/* Side medallion separators */}
+                          <circle cx="34" cy="39" r="3" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.7" />
+                          <circle cx="34" cy="39" r="1" fill="currentColor" opacity="0.5" />
+                          <circle cx="406" cy="39" r="3" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.7" />
+                          <circle cx="406" cy="39" r="1" fill="currentColor" opacity="0.5" />
+                          <path d="M40 39 H64 M376 39 H400" stroke="currentColor" strokeWidth="0.4" opacity="0.4" />
+                          {/* Floral accents top/bottom centre */}
+                          <path d="M210 14 q10 -4 20 0 M210 64 q10 4 20 0" stroke="currentColor" strokeWidth="0.4" fill="none" opacity="0.5" />
                         </svg>
-                        <p
-                          className="relative text-[17px] text-foreground tracking-wide quran-uthmani"
-                          style={{ lineHeight: 1 }}
-                        >
-                          سُورَةُ {surahMeta.name.replace(/^سُورَةُ\s*/, '')}
-                        </p>
+                        <div className="relative flex flex-col items-center" style={{ lineHeight: 1 }}>
+                          <p
+                            className="text-[19px] text-foreground tracking-wide quran-uthmani"
+                            style={{ fontFamily: "'KFGQPC Uthmanic Script', serif" }}
+                          >
+                            سُورَةُ {surahMeta.name.replace(/^سُورَةُ\s*/, '')}
+                          </p>
+                          <p className="text-[8px] text-gold/70 font-light mt-1.5 tracking-[0.2em]">
+                            {surahMeta.revelationType === 'Medinan' ? 'مَدَنِيَّة' : 'مَكِّيَّة'} · {surahMeta.numberOfAyahs} آية
+                          </p>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -278,8 +375,9 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }:
         )}
       </div>
 
-      {/* Footer nav — RTL: forward (next page = page+1) is on the LEFT */}
-      <div className="flex-shrink-0 border-t border-border/10 bg-background/85 backdrop-blur-2xl px-4 py-2.5 flex items-center justify-between">
+      {/* Footer nav — RTL: forward (next page = page+1) is on the LEFT.
+          In inline mode it sits above the bottom nav (h-14 = 56px). */}
+      <div className={`${inline ? 'sticky bottom-14 z-30' : 'flex-shrink-0'} border-t border-border/10 bg-background/85 backdrop-blur-2xl px-4 py-2.5 flex items-center justify-between`}>
         <button
           onClick={goNext}
           disabled={page >= 604}
