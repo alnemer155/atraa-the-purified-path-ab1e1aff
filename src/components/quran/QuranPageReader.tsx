@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, ChevronLeft, ChevronRight, X, AlertTriangle } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight, X, AlertTriangle, Hash } from 'lucide-react';
 import {
   fetchPageData,
   loadPageFont,
