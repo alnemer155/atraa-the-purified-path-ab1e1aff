@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, ArrowRight, Type } from 'lucide-react';
-import { useHideChrome } from '@/contexts/UIContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { DuaItem } from '@/lib/duas-parser';
 import SmartText from '@/components/SmartText';
@@ -17,13 +16,11 @@ interface DuaReaderProps {
 }
 
 /**
- * Immersive reader view — hides ONLY the AppHeader (top bar).
- * Keeps the BottomNav visible and adds an inline switcher (prev/next)
- * pinned just above it, per v2.6.89 spec.
+ * Immersive reader view — full-screen overlay (matches Quran reader pattern).
+ * Covers AppHeader, Library tabs and BottomNav for distraction-free reading.
+ * The internal floating switcher provides prev/next navigation.
  */
 const DuaReader = ({ item, filtered, fontSize, setFontSize, onClose, onSelect }: DuaReaderProps) => {
-  // Hide only the global header — keep BottomNav visible.
-  useHideChrome({ header: true, bottomNav: false });
   const [showFontMenu, setShowFontMenu] = useState(false);
 
   const currentIndex = filtered.findIndex(i => i.id === item.id);
@@ -31,9 +28,16 @@ const DuaReader = ({ item, filtered, fontSize, setFontSize, onClose, onSelect }:
   const hasNext = currentIndex < filtered.length - 1;
 
   return (
-    <div className="animate-fade-in min-h-screen flex flex-col bg-background">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.18 }}
+      className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden"
+      dir="rtl"
+    >
       {/* Reader body — back button + font menu live as small floating chips */}
-      <div className="flex-1 px-5 pt-4 pb-32">
+      <div className="flex-1 overflow-y-auto px-5 pt-4 pb-32">
         {/* Top floating chips (back + font size) */}
         <div className="flex items-center justify-between mb-5">
           <button
@@ -97,8 +101,8 @@ const DuaReader = ({ item, filtered, fontSize, setFontSize, onClose, onSelect }:
 
       {/* Floating prev/next switcher — pinned just above BottomNav */}
       <div
-        className="fixed left-1/2 -translate-x-1/2 w-full max-w-lg md:max-w-2xl px-4 z-40 pointer-events-none"
-        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 76px)' }}
+        className="absolute left-1/2 -translate-x-1/2 w-full max-w-lg md:max-w-2xl px-4 z-40 pointer-events-none"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
       >
         <div className="pointer-events-auto mx-2 flex items-center justify-between gap-2 px-3 py-2 rounded-full bg-card/85 backdrop-blur-2xl border border-border/30 shadow-elevated">
           <button
@@ -120,7 +124,7 @@ const DuaReader = ({ item, filtered, fontSize, setFontSize, onClose, onSelect }:
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

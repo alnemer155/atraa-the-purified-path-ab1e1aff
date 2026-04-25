@@ -10,6 +10,7 @@ import {
   toggleBookmark, isBookmarked,
 } from '@/lib/quran-meta';
 import { ayahMark } from '@/lib/islamic-symbols';
+import QuranPageReader from './QuranPageReader';
 
 interface Surah {
   number: number;
@@ -137,6 +138,11 @@ const QuranSection = () => {
   const [bookmarkVersion, setBookmarkVersion] = useState(0); // forces re-render after toggle
   const ayahRefs = useRef<Record<number, HTMLSpanElement | null>>({});
 
+  // Page mapping: surah number → first page in mushaf (from quran.com chapters API).
+  // When available, opening a surah launches the QPC V2 page-by-page renderer.
+  const [surahPages, setSurahPages] = useState<Map<number, number> | null>(null);
+  const [openPage, setOpenPage] = useState<number | null>(null);
+
   // Ayah of the day — deterministic per calendar day, fetched live from the
   // canonical Mushaf (AlQuran.cloud /ayah/{n}/quran-uthmani) so the verse is
   // a real, verified Quran ayah — never random words.
@@ -199,6 +205,23 @@ const QuranSection = () => {
       })
       .catch(() => !cancelled && setListError(true))
       .finally(() => !cancelled && setLoadingList(false));
+    return () => { cancelled = true; };
+  }, []);
+
+  // Fetch chapter→page mapping from quran.com (for QPC V2 page renderer)
+  useEffect(() => {
+    let cancelled = false;
+    fetch('https://api.quran.com/api/v4/chapters?language=ar')
+      .then(r => r.json())
+      .then((d: { chapters?: Array<{ id: number; pages: [number, number] }> }) => {
+        if (cancelled || !d?.chapters) return;
+        const map = new Map<number, number>();
+        for (const c of d.chapters) {
+          if (Array.isArray(c.pages) && c.pages.length > 0) map.set(c.id, c.pages[0]);
+        }
+        setSurahPages(map);
+      })
+      .catch(() => { /* fall back to legacy reader */ });
     return () => { cancelled = true; };
   }, []);
 
@@ -289,10 +312,24 @@ const QuranSection = () => {
     );
   }, [surahs, search]);
 
+  /**
+   * Open a surah in the reader. Prefers QPC V2 page-by-page renderer when
+   * the chapter→page mapping has loaded; falls back to the legacy continuous
+   * Uthmani reader otherwise.
+   */
+  const openSurahReader = (s: Surah) => {
+    const startPage = surahPages?.get(s.number);
+    if (startPage) {
+      setOpenPage(startPage);
+    } else {
+      setOpenSurah(s);
+    }
+  };
+
   const openAyahOfDay = () => {
     if (!ayahOfDay) return;
     const found = surahs?.find(s => s.number === ayahOfDay.surahNumber);
-    if (found) setOpenSurah(found);
+    if (found) openSurahReader(found);
   };
 
   return (
@@ -393,7 +430,7 @@ const QuranSection = () => {
           onClick={() => {
             const found = surahs.find(s => s.number === continueReading.surahNumber);
             if (found) {
-              setOpenSurah(found);
+              openSurahReader(found);
               setScrollToAyah(continueReading.ayahNumber);
             }
           }}
@@ -451,7 +488,7 @@ const QuranSection = () => {
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.18, delay: Math.min(i * 0.005, 0.15) }}
-            onClick={() => setOpenSurah(s)}
+            onClick={() => openSurahReader(s)}
             className={`w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/15 active:scale-[0.985] transition-transform ${isAr ? 'text-right' : 'text-left'}`}
           >
             {/* Heritage illuminated number medallion */}
@@ -618,6 +655,27 @@ const QuranSection = () => {
               )}
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* QPC V2 page-by-page Madinah Mushaf reader */}
+      <AnimatePresence>
+        {openPage !== null && surahs && (
+          <QuranPageReader
+            initialPage={openPage}
+            surahsByNumber={new Map(surahs.map(s => [s.number, {
+              number: s.number,
+              name: s.name,
+              englishName: s.englishName,
+              numberOfAyahs: s.numberOfAyahs,
+              revelationType: s.revelationType,
+            }]))}
+            onClose={() => {
+              setOpenPage(null);
+              const localePrefix = params.locale ? `/${params.locale}` : '';
+              navigate(`${localePrefix}/quran`, { replace: true });
+            }}
+          />
         )}
       </AnimatePresence>
     </div>
