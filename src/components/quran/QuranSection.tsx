@@ -297,53 +297,94 @@ const QuranSection = () => {
 
   return (
     <div className="px-4 py-5 animate-fade-in">
-      {/* Ayah of the day — illuminated card */}
+      {/* Ayah of the day — Heritage illuminated panel
+          Redesigned: layered arabesque frame, embossed Bismillah header,
+          centered ayah with gold ayah-mark, subtle gold corner motifs. */}
       <button
         onClick={openAyahOfDay}
         disabled={!surahs || !ayahOfDay}
-        className="group w-full bg-card border border-border/15 rounded-3xl p-6 text-center mb-5 relative overflow-hidden active:scale-[0.99] transition-transform"
+        className="group w-full rounded-3xl mb-5 relative overflow-hidden active:scale-[0.99] transition-transform"
       >
-        <div className="absolute inset-0 pointer-events-none opacity-[0.05]">
+        {/* Layered background — soft gold gradient on card */}
+        <div className="absolute inset-0 bg-gradient-to-br from-card via-card to-gold/[0.04]" />
+        <div className="absolute inset-0 ring-1 ring-inset ring-gold/15 rounded-3xl pointer-events-none" />
+        <div className="absolute inset-[3px] ring-1 ring-inset ring-border/10 rounded-[22px] pointer-events-none" />
+
+        {/* Subtle arabesque pattern */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.04]">
           <svg viewBox="0 0 200 200" className="w-full h-full">
             <defs>
-              <pattern id="quran-pattern" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-                <path d="M16 2 L30 16 L16 30 L2 16 Z" fill="none" stroke="currentColor" strokeWidth="0.4" />
-                <circle cx="16" cy="16" r="2" fill="currentColor" opacity="0.5" />
+              <pattern id="quran-pattern" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
+                <path d="M14 2 L26 14 L14 26 L2 14 Z" fill="none" stroke="currentColor" strokeWidth="0.4" />
+                <circle cx="14" cy="14" r="1.6" fill="currentColor" opacity="0.5" />
               </pattern>
             </defs>
             <rect width="200" height="200" fill="url(#quran-pattern)" />
           </svg>
         </div>
-        <svg className="absolute top-2 left-2 w-5 h-5 text-gold opacity-50" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="0.8">
-          <path d="M2 8 V2 H8 M2 2 q4 2 6 6" />
+
+        {/* Corner illuminations (4 corners) */}
+        <svg className="absolute top-2.5 right-2.5 w-6 h-6 text-gold/55" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.7">
+          <path d="M2 10 V2 H10 M2 2 q5 2 7 7" />
+          <circle cx="3.5" cy="3.5" r="0.7" fill="currentColor" />
         </svg>
-        <svg className="absolute top-2 right-2 w-5 h-5 text-gold opacity-50 -scale-x-100" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="0.8">
-          <path d="M2 8 V2 H8 M2 2 q4 2 6 6" />
+        <svg className="absolute top-2.5 left-2.5 w-6 h-6 text-gold/55 -scale-x-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.7">
+          <path d="M2 10 V2 H10 M2 2 q5 2 7 7" />
+          <circle cx="3.5" cy="3.5" r="0.7" fill="currentColor" />
+        </svg>
+        <svg className="absolute bottom-2.5 right-2.5 w-6 h-6 text-gold/55 -scale-y-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.7">
+          <path d="M2 10 V2 H10 M2 2 q5 2 7 7" />
+          <circle cx="3.5" cy="3.5" r="0.7" fill="currentColor" />
+        </svg>
+        <svg className="absolute bottom-2.5 left-2.5 w-6 h-6 text-gold/55 -scale-x-100 -scale-y-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.7">
+          <path d="M2 10 V2 H10 M2 2 q5 2 7 7" />
+          <circle cx="3.5" cy="3.5" r="0.7" fill="currentColor" />
         </svg>
 
-        <p className="relative text-[8px] text-muted-foreground/50 tracking-[0.3em] font-light mb-3 uppercase">
-          {isAr ? 'آية اليوم' : 'Verse of the day'}
-        </p>
-        <Ornament className="relative w-32 h-3 mx-auto text-gold mb-4" />
-        {ayahOfDay ? (
-          <>
-            <p className="relative quran-uthmani text-[22px] text-foreground mb-4 px-2">
-              {ayahOfDay.text}
-            </p>
-            <Ornament className="relative w-32 h-3 mx-auto text-gold mb-3 rotate-180" />
-            <p className="relative text-[10px] text-muted-foreground/55 font-light tracking-wide">
-              {isAr
-                ? `سورة ${ayahOfDay.surahName} · الآية ${ayahOfDay.numberInSurah}`
-                : `Surah ${ayahOfDay.surahName} · Ayah ${ayahOfDay.numberInSurah}`}
-            </p>
-          </>
-        ) : (
-          <div className="relative space-y-2 px-4 py-3">
-            <div className="h-3 w-3/4 mx-auto rounded-md bg-secondary/40 animate-pulse" />
-            <div className="h-3 w-1/2 mx-auto rounded-md bg-secondary/30 animate-pulse" />
-            <div className="h-2 w-1/3 mx-auto rounded-md bg-secondary/20 animate-pulse mt-3" />
-          </div>
-        )}
+        <div className="relative px-6 pt-7 pb-6 text-center">
+          {/* Top label */}
+          <p className="text-[8px] text-gold/70 tracking-[0.32em] font-light mb-2 uppercase">
+            {isAr ? 'آية اليوم' : 'Verse of the day'}
+          </p>
+
+          {/* Bismillah — always shown above the ayah */}
+          <p
+            className="quran-uthmani text-foreground/85 mb-3"
+            style={{ fontSize: 18, lineHeight: 1.7 }}
+          >
+            بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
+          </p>
+
+          <Ornament className="w-36 h-3 mx-auto text-gold/80 mb-4" />
+
+          {ayahOfDay ? (
+            <>
+              <p
+                className="quran-uthmani text-foreground mb-1 px-1"
+                style={{ fontSize: 23, lineHeight: 2.0 }}
+              >
+                {ayahOfDay.text}
+                <span className="text-gold ms-1" style={{ fontSize: '0.95em' }}>
+                  {ayahMark(ayahOfDay.numberInSurah)}
+                </span>
+              </p>
+              <Ornament className="w-36 h-3 mx-auto text-gold/80 mt-4 mb-3 rotate-180" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/25">
+                <span className="text-[10px] text-foreground/75 font-light tracking-wide">
+                  {isAr
+                    ? `سورة ${ayahOfDay.surahName} · الآية ${ayahOfDay.numberInSurah}`
+                    : `Surah ${ayahOfDay.surahName} · Ayah ${ayahOfDay.numberInSurah}`}
+                </span>
+              </div>
+            </>
+          ) : (
+            <div className="space-y-2 px-4 py-3">
+              <div className="h-3 w-3/4 mx-auto rounded-md bg-secondary/40 animate-pulse" />
+              <div className="h-3 w-1/2 mx-auto rounded-md bg-secondary/30 animate-pulse" />
+              <div className="h-2 w-1/3 mx-auto rounded-md bg-secondary/20 animate-pulse mt-3" />
+            </div>
+          )}
+        </div>
       </button>
 
       {/* Continue from bookmark / last reading */}
