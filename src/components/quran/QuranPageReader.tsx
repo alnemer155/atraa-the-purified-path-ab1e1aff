@@ -272,12 +272,14 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
               >
                 إعادة المحاولة
               </button>
-              <button
-                onClick={onClose}
-                className="px-4 py-2 rounded-full bg-secondary/40 text-[11px] text-foreground active:scale-95"
-              >
-                إغلاق
-              </button>
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 rounded-full bg-secondary/40 text-[11px] text-foreground active:scale-95"
+                >
+                  إغلاق
+                </button>
+              )}
             </div>
           </div>
         )}
