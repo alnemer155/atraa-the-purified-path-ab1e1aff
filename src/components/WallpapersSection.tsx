@@ -105,30 +105,107 @@ const WallpapersSection = () => {
         </span>
       </div>
 
-      <div className="flex gap-1.5 overflow-x-auto hide-scrollbar pb-1.5 -mx-4 px-4">
-        {wallpapers.map((w, i) => (
+      {/* 3×2 grid: 5 wallpapers + 'More' card as 6th */}
+      <div className="grid grid-cols-3 gap-2">
+        {wallpapers.slice(0, PREVIEW_COUNT - 1).map((w, i) => (
           <motion.button
             key={w.id}
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: Math.min(i * 0.015, 0.2) }}
+            transition={{ delay: Math.min(i * 0.03, 0.18) }}
             onClick={() => setSelectedWallpaper(i)}
-            className="relative flex-shrink-0 w-[68px] rounded-xl overflow-hidden aspect-[9/16] bg-secondary/15 border border-border/10 active:scale-95 transition-transform"
+            className="relative rounded-xl overflow-hidden aspect-[9/16] bg-secondary/15 border border-border/10 active:scale-95 transition-transform"
           >
             <img src={w.src} alt={w.name} className="w-full h-full object-cover" loading="lazy" />
             {downloaded.has(i) && (
-              <div className="absolute top-1 left-1 w-3 h-3 rounded-full bg-foreground flex items-center justify-center">
-                <Check className="w-1.5 h-1.5 text-background" />
+              <div className="absolute top-1.5 start-1.5 w-3.5 h-3.5 rounded-full bg-foreground flex items-center justify-center">
+                <Check className="w-2 h-2 text-background" strokeWidth={3} />
               </div>
             )}
             {reactions[w.id] === 'like' && (
-              <div className="absolute top-1 right-1 w-3 h-3 rounded-full bg-foreground flex items-center justify-center">
-                <Heart className="w-1.5 h-1.5 text-background fill-background" />
+              <div className="absolute top-1.5 end-1.5 w-3.5 h-3.5 rounded-full bg-foreground flex items-center justify-center">
+                <Heart className="w-2 h-2 text-background fill-background" />
               </div>
             )}
           </motion.button>
         ))}
+
+        {/* 'More' card as 6th cell */}
+        <motion.button
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.18 }}
+          onClick={() => setShowAll(true)}
+          className="relative rounded-xl overflow-hidden aspect-[9/16] bg-secondary/40 border border-border/30 flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all hover:bg-secondary/60 hover:border-border/50"
+        >
+          <Grid3x3 className="w-5 h-5 text-foreground/70" strokeWidth={1.4} />
+          <p className="text-[10px] text-foreground font-light">{isAr ? 'المزيد' : 'More'}</p>
+          <p className="text-[8px] text-muted-foreground/60 tabular-nums font-light">
+            +{wallpapers.length - (PREVIEW_COUNT - 1)}
+          </p>
+        </motion.button>
       </div>
+
+      {/* All wallpapers modal */}
+      <AnimatePresence>
+        {showAll && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[55] bg-background flex flex-col"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3.5 border-b border-border/30 bg-card/80 backdrop-blur-md sticky top-0 z-10">
+              <button
+                onClick={() => setShowAll(false)}
+                className="w-9 h-9 rounded-full flex items-center justify-center active:bg-secondary/40 transition-colors"
+                aria-label="back"
+              >
+                {isAr ? <ChevronRight className="w-4 h-4 text-foreground" strokeWidth={1.5} /> : <ChevronLeft className="w-4 h-4 text-foreground" strokeWidth={1.5} />}
+              </button>
+              <div className="text-center">
+                <h2 className="text-[14px] text-foreground font-medium">
+                  {isAr ? 'جميع الخلفيات' : 'All Wallpapers'}
+                </h2>
+                <p className="text-[9px] text-muted-foreground/60 font-light tabular-nums mt-0.5">
+                  {wallpapers.length} · 9:16
+                </p>
+              </div>
+              <div className="w-9 h-9" />
+            </div>
+
+            {/* Grid 3-cols, scrollable */}
+            <div className="flex-1 overflow-y-auto px-4 py-4 pb-20">
+              <div className="grid grid-cols-3 gap-2">
+                {wallpapers.map((w, i) => (
+                  <motion.button
+                    key={w.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(i * 0.02, 0.3) }}
+                    onClick={() => { setShowAll(false); setSelectedWallpaper(i); }}
+                    className="relative rounded-xl overflow-hidden aspect-[9/16] bg-secondary/15 border border-border/10 active:scale-95 transition-transform"
+                  >
+                    <img src={w.src} alt={w.name} className="w-full h-full object-cover" loading="lazy" />
+                    {downloaded.has(i) && (
+                      <div className="absolute top-1.5 start-1.5 w-3.5 h-3.5 rounded-full bg-foreground flex items-center justify-center">
+                        <Check className="w-2 h-2 text-background" strokeWidth={3} />
+                      </div>
+                    )}
+                    {reactions[w.id] === 'like' && (
+                      <div className="absolute top-1.5 end-1.5 w-3.5 h-3.5 rounded-full bg-foreground flex items-center justify-center">
+                        <Heart className="w-2 h-2 text-background fill-background" />
+                      </div>
+                    )}
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Fullscreen viewer */}
       <AnimatePresence>
