@@ -593,7 +593,7 @@ const QuranSection = () => {
                         const stripped = stripArabicDiacritics(text);
                         const m = stripped.match(/^\s*بسم\s*الله\s*الرحمـ?ن\s*الرحيم\s*/);
                         if (m) {
-                          const isDiacritic = (c) => /[\u064B-\u065F\u0670\u06D6-\u06ED]/.test(c);
+                          const isDiacritic = (c: string) => /[\u064B-\u065F\u0670\u06D6-\u06ED]/.test(c);
                           let consumed = 0, i = 0;
                           while (i < text.length && consumed < m[0].length) {
                             if (!isDiacritic(text[i])) consumed++;
