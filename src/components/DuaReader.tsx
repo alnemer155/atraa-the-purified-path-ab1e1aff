@@ -124,7 +124,7 @@ const DuaReader = ({ item, filtered, fontSize, setFontSize, onClose, onSelect }:
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
