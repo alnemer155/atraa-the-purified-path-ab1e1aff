@@ -210,8 +210,24 @@ const QuranSection = () => {
     return () => { cancelled = true; };
   }, []);
 
-  // (QPC V2 chapter→page mapping removed — see note above. Reader uses verified
-  // Uthmani text from AlQuran.cloud only.)
+  // Fetch chapter→page mapping (surah number → first Mushaf page) from the
+  // official Quran Foundation API. Used to launch QPC V2 page reader at the
+  // correct opening page for each surah.
+  useEffect(() => {
+    let cancelled = false;
+    fetch('https://api.quran.com/api/v4/chapters?language=ar')
+      .then(r => r.json())
+      .then((d: { chapters?: Array<{ id: number; pages: [number, number] }> }) => {
+        if (cancelled || !d?.chapters) return;
+        const map = new Map<number, number>();
+        for (const c of d.chapters) {
+          if (Array.isArray(c.pages) && c.pages.length > 0) map.set(c.id, c.pages[0]);
+        }
+        setSurahPages(map);
+      })
+      .catch(() => { /* QPC reader will be unavailable; legacy reader still works */ });
+    return () => { cancelled = true; };
+  }, []);
 
   // Fetch surah ayahs when opened
   useEffect(() => {
