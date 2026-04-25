@@ -10,7 +10,7 @@ import {
   toggleBookmark, isBookmarked,
 } from '@/lib/quran-meta';
 import { ayahMark } from '@/lib/islamic-symbols';
-// QuranPageReader (QPC V2 glyph renderer) intentionally not imported — see note in component
+import QuranPageReader from './QuranPageReader';
 
 interface Surah {
   number: number;
