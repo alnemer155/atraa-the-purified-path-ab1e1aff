@@ -184,7 +184,7 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }:
 
         {error && (
           <div className="text-center py-16 px-6">
-            <AlertTriangle className="w-6 h-6 text-amber-500/70 mx-auto mb-3" strokeWidth={1.5} />
+            <AlertTriangle className="w-6 h-6 text-foreground/40 mx-auto mb-3" strokeWidth={1.5} />
             <p className="text-[12px] text-foreground/80 font-medium leading-relaxed mb-1">
               تعذّر التحقق من خط المصحف
             </p>
