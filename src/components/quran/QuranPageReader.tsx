@@ -371,8 +371,9 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
         )}
       </div>
 
-      {/* Footer nav — RTL: forward (next page = page+1) is on the LEFT */}
-      <div className="flex-shrink-0 border-t border-border/10 bg-background/85 backdrop-blur-2xl px-4 py-2.5 flex items-center justify-between">
+      {/* Footer nav — RTL: forward (next page = page+1) is on the LEFT.
+          In inline mode it sits above the bottom nav (h-14 = 56px). */}
+      <div className={`${inline ? 'sticky bottom-14 z-30' : 'flex-shrink-0'} border-t border-border/10 bg-background/85 backdrop-blur-2xl px-4 py-2.5 flex items-center justify-between`}>
         <button
           onClick={goNext}
           disabled={page >= 604}
