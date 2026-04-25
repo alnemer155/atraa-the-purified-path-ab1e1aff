@@ -657,6 +657,27 @@ const QuranSection = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* QPC V2 page-by-page Madinah Mushaf reader */}
+      <AnimatePresence>
+        {openPage !== null && surahs && (
+          <QuranPageReader
+            initialPage={openPage}
+            surahsByNumber={new Map(surahs.map(s => [s.number, {
+              number: s.number,
+              name: s.name,
+              englishName: s.englishName,
+              numberOfAyahs: s.numberOfAyahs,
+              revelationType: s.revelationType,
+            }]))}
+            onClose={() => {
+              setOpenPage(null);
+              const localePrefix = params.locale ? `/${params.locale}` : '';
+              navigate(`${localePrefix}/quran`, { replace: true });
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
