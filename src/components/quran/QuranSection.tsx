@@ -138,6 +138,11 @@ const QuranSection = () => {
   const [bookmarkVersion, setBookmarkVersion] = useState(0); // forces re-render after toggle
   const ayahRefs = useRef<Record<number, HTMLSpanElement | null>>({});
 
+  // Page mapping: surah number → first page in mushaf (from quran.com chapters API).
+  // When available, opening a surah launches the QPC V2 page-by-page renderer.
+  const [surahPages, setSurahPages] = useState<Map<number, number> | null>(null);
+  const [openPage, setOpenPage] = useState<number | null>(null);
+
   // Ayah of the day — deterministic per calendar day, fetched live from the
   // canonical Mushaf (AlQuran.cloud /ayah/{n}/quran-uthmani) so the verse is
   // a real, verified Quran ayah — never random words.
