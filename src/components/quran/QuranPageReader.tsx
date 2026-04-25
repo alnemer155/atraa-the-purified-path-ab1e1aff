@@ -25,8 +25,11 @@ interface Props {
   initialPage: number;
   /** Map of surah-number → metadata, used for the surah-name banner */
   surahsByNumber: Map<number, SurahMeta>;
-  onClose: () => void;
+  /** Optional close handler (only shown in modal mode) */
+  onClose?: () => void;
   onPageChange?: (page: number) => void;
+  /** When true, renders inside the page (no fixed positioning, no close button). */
+  inline?: boolean;
 }
 
 /**
@@ -37,7 +40,15 @@ interface Props {
  * verifiably loaded via the Font Loading API. If any font fails, we show
  * an explicit error — never the wrong glyphs in a fallback font.
  */
-const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }: Props) => {
+const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, inline = false }: Props) => {
+  const [page, setPage] = useState(initialPage);
+  const [data, setData] = useState<QpcPageData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [fontsReady, setFontsReady] = useState(false);
+  const [showJump, setShowJump] = useState(false);
+  const [jumpValue, setJumpValue] = useState('');
+  const containerRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(initialPage);
   const [data, setData] = useState<QpcPageData | null>(null);
   const [loading, setLoading] = useState(true);
