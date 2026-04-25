@@ -21,9 +21,9 @@
 const FONT_BASE = '/qpc-v2';
 
 const API_BASE = 'https://api.quran.com/api/v4';
-// Versioned cache key; v3 invalidates earlier data that may have been sorted
-// incorrectly by word position across multiple ayahs on the same line.
-const LS_PAGE_PREFIX = 'atraa_qpc2_page_v3_';
+// Versioned cache key; v4 invalidates earlier data that included full boundary
+// verses from neighbouring pages instead of only glyphs whose `v2_page` matches.
+const LS_PAGE_PREFIX = 'atraa_qpc2_page_v4_';
 
 const loadedFonts = new Set<number>();
 const loadingFonts = new Map<number, Promise<boolean>>();
@@ -159,10 +159,12 @@ export async function fetchPageData(page: number): Promise<QpcPageData> {
   const words: QpcWord[] = [];
   const surahSet = new Set<number>();
   for (const v of verses) {
-    const [surahStr] = v.verse_key.split(':');
-    const surahN = parseInt(surahStr, 10);
-    surahSet.add(surahN);
     for (const w of v.words) {
+      // The API returns complete verses for a page. If a verse crosses a page
+      // boundary, some words belong to the previous/next QPC font page. Those
+      // MUST NOT be drawn here or the Mushaf page becomes visibly corrupted.
+      if (w.v2_page !== page) continue;
+
       // V2 line number — fall back to line_number only if line_v2 absent.
       const ln = w.line_v2 ?? w.line_number ?? 1;
       // Each word MUST have a v2_page. If missing, the API response is
@@ -179,6 +181,10 @@ export async function fetchPageData(page: number): Promise<QpcPageData> {
         verse_key: v.verse_key,
         verse_number: v.verse_number,
       });
+
+      const [surahStr] = v.verse_key.split(':');
+      const surahN = parseInt(surahStr, 10);
+      if (Number.isFinite(surahN)) surahSet.add(surahN);
     }
   }
 
