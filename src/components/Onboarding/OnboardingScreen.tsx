@@ -5,6 +5,9 @@ import { ChevronLeft, ChevronRight, Check, Lock, Calendar, MapPin, LocateFixed, 
 import { setHijriAdjustment } from '@/lib/user';
 import { getAccurateLocation } from '@/lib/geo';
 import { toast } from 'sonner';
+import { getSeasonalLogo } from '@/lib/seasonal-logo';
+
+const welcomeLogo = getSeasonalLogo();
 
 const ONBOARDING_KEY = 'atraa_onboarding_done_v1';
 
@@ -46,6 +49,14 @@ const OnboardingScreen = ({ onFinish }: Props) => {
   const ForwardChevron = isAr ? ChevronLeft : ChevronRight;
 
   const [step, setStep] = useState<Step>(0);
+  const [showWelcome, setShowWelcome] = useState(true);
+
+  // Welcome screen — 2 seconds, then transition to first step
+  useEffect(() => {
+    if (!showWelcome) return;
+    const t = setTimeout(() => setShowWelcome(false), 2000);
+    return () => clearTimeout(t);
+  }, [showWelcome]);
 
   // Step 1: Madhhab (only Shia selectable)
   const [madhhab, setMadhhab] = useState<'shia' | null>(null);
