@@ -49,12 +49,6 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
   const [showJump, setShowJump] = useState(false);
   const [jumpValue, setJumpValue] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
-  const [page, setPage] = useState(initialPage);
-  const [data, setData] = useState<QpcPageData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [fontsReady, setFontsReady] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // Preload neighbour pages (data + their fonts) so swiping is instant
   useEffect(() => {
