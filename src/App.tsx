@@ -24,8 +24,6 @@ const DataPage = lazy(() => import("./pages/legal/DataPage"));
 const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
 const RefundPage = lazy(() => import("./pages/legal/RefundPage"));
 const AcceptableUsePage = lazy(() => import("./pages/legal/AcceptableUsePage"));
-const InvoicePage = lazy(() => import("./pages/InvoicePage"));
-const SupportThanksPage = lazy(() => import("./pages/SupportThanksPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -89,11 +87,7 @@ const App = () => {
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/refund" element={<RefundPage />} />
                     <Route path="/acceptable-use" element={<AcceptableUsePage />} />
-                    <Route path="/support/thanks" element={<SupportThanksPage />} />
                   </Route>
-
-                  {/* Standalone routes without main layout (full-page) */}
-                  <Route path="/invoice/:id" element={<InvoicePage />} />
 
                   <Route element={<AppLayout />}>
                     {/* Locale-aware aliases: /SA-ar, /SA-en, /US-en, etc. */}
