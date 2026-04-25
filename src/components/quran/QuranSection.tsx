@@ -488,7 +488,7 @@ const QuranSection = () => {
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.18, delay: Math.min(i * 0.005, 0.15) }}
-            onClick={() => setOpenSurah(s)}
+            onClick={() => openSurahReader(s)}
             className={`w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/15 active:scale-[0.985] transition-transform ${isAr ? 'text-right' : 'text-left'}`}
           >
             {/* Heritage illuminated number medallion */}
