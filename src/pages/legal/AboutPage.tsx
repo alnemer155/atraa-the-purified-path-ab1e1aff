@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, MessageCircle } from 'lucide-react';
 import LegalLayout from '@/components/legal/LegalLayout';
+
+const WHATSAPP_CHANNEL = 'https://whatsapp.com/channel/0029VbCNwblJZg466AM5CC2R';
 
 const AboutPage = () => {
   const { t, i18n } = useTranslation();
@@ -27,11 +29,25 @@ const AboutPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">الإصدار</h2>
-            <p className="tabular-nums">v2.6.99 · بناء 139</p>
+            <p className="tabular-nums">v2.7.21 · بناء 148</p>
+          </section>
+          <section>
+            <h2 className="text-[15px] font-semibold mb-2">قناة التطبيق على واتساب</h2>
+            <p className="mb-2">تابع آخر التحديثات والإعلانات الرسمية عبر قناة <span className="font-semibold">قـــناة عِتْرَة</span> على واتساب:</p>
+            <a
+              href={WHATSAPP_CHANNEL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 text-primary hover:bg-primary/15 transition-colors text-[13px]"
+            >
+              <MessageCircle className="w-3.5 h-3.5" strokeWidth={1.5} />
+              <span>الاشتراك في القناة</span>
+              <ExternalLink className="w-3 h-3 opacity-60" />
+            </a>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">المطوّر</h2>
-            <p className="mb-2">تطوير وتصميم: <span className="text-foreground">Abdullah Bin Jaafar | Developed</span></p>
+            <p className="mb-2">تطوير وتصميم: <span className="text-foreground">Bin Jaafar</span></p>
             <a
               href="https://abj-dev.xyz"
               target="_blank"
@@ -63,11 +79,25 @@ const AboutPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">Version</h2>
-            <p className="tabular-nums">v2.6.99 · build 139</p>
+            <p className="tabular-nums">v2.7.21 · build 148</p>
+          </section>
+          <section>
+            <h2 className="text-[15px] font-semibold mb-2">WhatsApp Channel</h2>
+            <p className="mb-2">Follow the <span className="font-semibold">قـــناة عِتْرَة</span> channel on WhatsApp for official updates and announcements:</p>
+            <a
+              href={WHATSAPP_CHANNEL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 text-primary hover:bg-primary/15 transition-colors text-[13px]"
+            >
+              <MessageCircle className="w-3.5 h-3.5" strokeWidth={1.5} />
+              <span>Join the channel</span>
+              <ExternalLink className="w-3 h-3 opacity-60" />
+            </a>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">Developer</h2>
-            <p className="mb-2">Developed and designed by: <span className="text-foreground">ABJ Dev</span></p>
+            <p className="mb-2">Developed and designed by: <span className="text-foreground">Bin Jaafar</span></p>
             <a
               href="https://abj-dev.xyz"
               target="_blank"
