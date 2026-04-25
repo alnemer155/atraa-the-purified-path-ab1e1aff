@@ -317,11 +317,19 @@ const QuranSection = () => {
   }, [surahs, search]);
 
   /**
-   * Open a surah in the verified Uthmani text reader.
-   * Always uses the canonical AlQuran.cloud Mushaf API to guarantee accuracy.
+   * Open a surah. Prefers the QPC V2 page-by-page renderer (pixel-perfect
+   * Madinah Mushaf) when the chapter→page mapping has loaded. Falls back to
+   * the verified Uthmani text reader (AlQuran.cloud) otherwise. The QPC V2
+   * renderer self-verifies fonts before displaying anything, so corruption
+   * is impossible by design.
    */
   const openSurahReader = (s: Surah) => {
-    setOpenSurah(s);
+    const startPage = surahPages?.get(s.number);
+    if (startPage) {
+      setOpenPage(startPage);
+    } else {
+      setOpenSurah(s);
+    }
   };
 
   const openAyahOfDay = () => {
