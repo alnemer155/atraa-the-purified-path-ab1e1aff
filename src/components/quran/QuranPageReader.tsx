@@ -222,30 +222,47 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }:
               const surahMeta = surahHeader ? surahsByNumber.get(surahHeader) : undefined;
               return (
                 <div key={lineNum}>
-                  {/* Surah header — Madinah Mushaf style illuminated band */}
+                  {/* Surah header — Authentic Madinah Mushaf illuminated band.
+                      Replicates the gold-on-cream rectangular cartouche printed
+                      above each surah opening in the Madinah Mushaf, with
+                      arabesque corners, double frame, and centered surah name. */}
                   {surahMeta && (
-                    <div className="my-5 text-center select-none">
-                      <div className="relative mx-auto max-w-[420px] h-[64px] flex items-center justify-center">
-                        {/* Illuminated frame mimicking the printed mushaf header */}
+                    <div className="my-6 text-center select-none">
+                      <div className="relative mx-auto max-w-[440px] h-[78px] flex items-center justify-center">
                         <svg
-                          viewBox="0 0 420 64"
-                          className="absolute inset-0 w-full h-full text-gold/70"
+                          viewBox="0 0 440 78"
+                          className="absolute inset-0 w-full h-full text-gold"
                           preserveAspectRatio="none"
                           aria-hidden
                         >
-                          <rect x="2" y="2" width="416" height="60" fill="none" stroke="currentColor" strokeWidth="0.8" />
-                          <rect x="6" y="6" width="408" height="52" fill="none" stroke="currentColor" strokeWidth="0.4" opacity="0.6" />
-                          <path d="M2 32 H40 M380 32 H418" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
-                          <circle cx="22" cy="32" r="3" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                          <circle cx="398" cy="32" r="3" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                          <path d="M14 8 q-6 4 0 8 M14 56 q-6 -4 0 -8 M406 8 q6 4 0 8 M406 56 q6 -4 0 -8" stroke="currentColor" strokeWidth="0.5" fill="none" opacity="0.7" />
+                          {/* Outer double frame */}
+                          <rect x="3" y="3" width="434" height="72" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.85" />
+                          <rect x="7" y="7" width="426" height="64" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.55" />
+                          {/* Inner band */}
+                          <rect x="14" y="14" width="412" height="50" fill="none" stroke="currentColor" strokeWidth="0.4" opacity="0.4" />
+                          {/* Corner arabesques */}
+                          <path d="M14 24 q0 -10 10 -10 M416 14 q10 0 10 10 M14 54 q0 10 10 10 M416 64 q10 0 10 -10"
+                            stroke="currentColor" strokeWidth="0.6" fill="none" opacity="0.7" />
+                          {/* Side medallion separators */}
+                          <circle cx="34" cy="39" r="3" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.7" />
+                          <circle cx="34" cy="39" r="1" fill="currentColor" opacity="0.5" />
+                          <circle cx="406" cy="39" r="3" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.7" />
+                          <circle cx="406" cy="39" r="1" fill="currentColor" opacity="0.5" />
+                          <path d="M40 39 H64 M376 39 H400" stroke="currentColor" strokeWidth="0.4" opacity="0.4" />
+                          {/* Floral accents top/bottom centre */}
+                          <path d="M210 14 q10 -4 20 0 M210 64 q10 4 20 0" stroke="currentColor" strokeWidth="0.4" fill="none" opacity="0.5" />
                         </svg>
-                        <p
-                          className="relative text-[17px] text-foreground tracking-wide quran-uthmani"
-                          style={{ lineHeight: 1 }}
-                        >
-                          سُورَةُ {surahMeta.name.replace(/^سُورَةُ\s*/, '')}
-                        </p>
+                        <div className="relative flex flex-col items-center" style={{ lineHeight: 1 }}>
+                          <p
+                            className="text-[19px] text-foreground tracking-wide quran-uthmani"
+                            style={{ fontFamily: "'KFGQPC Uthmanic Script', serif" }}
+                          >
+                            سُورَةُ {surahMeta.name.replace(/^سُورَةُ\s*/, '')}
+                          </p>
+                          <p className="text-[8px] text-gold/70 font-light mt-1.5 tracking-[0.2em]">
+                            {surahMeta.revelationType === 'Medinan' ? 'مَدَنِيَّة' : 'مَكِّيَّة'} · {surahMeta.numberOfAyahs} آية
+                          </p>
+                        </div>
                       </div>
                     </div>
                   )}
