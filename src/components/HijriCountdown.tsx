@@ -1,8 +1,35 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, X, Moon, Star, Sparkles } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getHijriAdjustment } from '@/lib/user';
+
+/**
+ * Render a title with an inline gold honorific glyph "؏" replacing "(عليه السلام)" /
+ * "(عليها السلام)" / "(عجل الله فرجه)" — keeps the meaning visible but uses the
+ * traditional manuscript-style honorific glyph instead of inline parentheses.
+ * Stays purely textual (no Lucide / decorative icons), per design system.
+ */
+const renderHonored = (text: string) => {
+  // Match the most common honorific parentheticals
+  const re = /\s*\((?:عليه السلام|عليها السلام|عليهم السلام|صلى الله عليه وآله|صلى الله عليه وآله وسلم|عجل الله فرجه|عج)\)\s*/g;
+  const parts: Array<string | { honor: true }> = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parts.push(text.slice(last, m.index));
+    parts.push({ honor: true });
+    last = re.lastIndex;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  if (parts.length === 0) parts.push(text);
+  return parts.map((p, i) =>
+    typeof p === 'string'
+      ? <span key={i}>{p}</span>
+      : <span key={i} className="inline-flex items-center justify-center mx-1 align-middle text-gold/85" style={{ fontSize: '0.78em', lineHeight: 1 }} aria-label="عليه السلام">؏</span>
+  );
+};
+
 
 interface HijriData {
   day: number;
