@@ -430,7 +430,7 @@ const QuranSection = () => {
           onClick={() => {
             const found = surahs.find(s => s.number === continueReading.surahNumber);
             if (found) {
-              setOpenSurah(found);
+              openSurahReader(found);
               setScrollToAyah(continueReading.ayahNumber);
             }
           }}
