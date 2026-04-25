@@ -59,13 +59,14 @@
     "shareHint": "Share Atraa with friends",
     "support": "Support Atraa",
     "supportHint": "Contribute to development",
-    "legal": "Legal",
-    "privacy": "Privacy Policy",
-    "terms": "Terms of Use",
-    "disclaimer": "Disclaimer",
-    "data": "Data Collection",
-    "about": "About",
-    "version": "Version"
+      "legal": "Legal",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Use",
+      "refund": "Refund Policy",
+      "disclaimer": "Disclaimer",
+      "data": "Data Collection",
+      "about": "About",
+      "version": "Version"
   },
   "qibla": {
     "title": "Qibla Compass",
