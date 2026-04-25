@@ -1,13 +1,15 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight, X, AlertTriangle } from 'lucide-react';
 import {
   fetchPageData,
   loadPageFont,
   groupByLine,
   pageFontFamily,
   parseVerseKey,
+  uniqueFontPagesFor,
   type QpcPageData,
+  type QpcWord,
 } from '@/lib/qpc-v2';
 
 interface SurahMeta {
@@ -30,46 +32,65 @@ interface Props {
 /**
  * QPC V2 page-by-page Madinah Mushaf renderer.
  *
- * Each page uses its own woff2 font that contains glyphs for the words on that
- * page. We fetch (page → words list with `code_v2` glyphs + `line_number`)
- * from quran.com v4 API, group by line, and render each line in the page's
- * dedicated font with `text-align: justify` so the layout matches the printed
- * mushaf exactly. Ayah end-markers are part of the font (a stylized circle
- * with the verse number), drawn via the same glyph mechanism.
+ * SAFETY MODEL: We render the Qur'an glyphs ONLY when EVERY required font
+ * file (one per `v2_page` referenced by any word on this page) has been
+ * verifiably loaded via the Font Loading API. If any font fails, we show
+ * an explicit error — never the wrong glyphs in a fallback font.
  */
 const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }: Props) => {
   const [page, setPage] = useState(initialPage);
   const [data, setData] = useState<QpcPageData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [fontReady, setFontReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fontsReady, setFontsReady] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Preload neighbour fonts so swiping is instant
+  // Preload neighbour pages (data + their fonts) so swiping is instant
   useEffect(() => {
-    if (page > 1) loadPageFont(page - 1).catch(() => {});
-    if (page < 604) loadPageFont(page + 1).catch(() => {});
+    const preload = async (p: number) => {
+      try {
+        const d = await fetchPageData(p);
+        await Promise.all(uniqueFontPagesFor(d.words).map(loadPageFont));
+      } catch { /* silent */ }
+    };
+    if (page > 1) preload(page - 1);
+    if (page < 604) preload(page + 1);
   }, [page]);
 
-  // Load current page data + font in parallel
+  // Load current page data + ALL fonts referenced by its words.
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    setError(false);
-    setFontReady(false);
+    setError(null);
+    setFontsReady(false);
     setData(null);
 
     (async () => {
       try {
-        const [pageData] = await Promise.all([
-          fetchPageData(page),
-          loadPageFont(page).then(() => !cancelled && setFontReady(true)),
-        ]);
+        // 1) Fetch the canonical word list for this page.
+        const pageData = await fetchPageData(page);
         if (cancelled) return;
         setData(pageData);
+
+        // 2) Identify every font page referenced — usually just one, but
+        //    pages where surahs/juz cross boundaries can reference more.
+        const required = uniqueFontPagesFor(pageData.words);
+        if (required.length === 0) {
+          throw new Error('No font pages identified');
+        }
+
+        // 3) Load and VERIFY every required font. ALL must succeed.
+        const results = await Promise.all(required.map(loadPageFont));
+        if (cancelled) return;
+        if (!results.every(Boolean)) {
+          throw new Error('Font verification failed');
+        }
+
+        setFontsReady(true);
         onPageChange?.(page);
-      } catch {
-        if (!cancelled) setError(true);
+      } catch (e) {
+        if (cancelled) return;
+        setError(e instanceof Error ? e.message : 'Unknown error');
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -92,13 +113,12 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }:
 
   // Determine which surahs start on this page (for surah header banners)
   const surahStartsOnPage = useMemo(() => {
-    if (!data) return new Map<number, number>(); // line_number → surah_number
+    if (!data) return new Map<number, number>();
     const map = new Map<number, number>();
     for (const w of data.words) {
       if (w.verse_key && w.verse_key.endsWith(':1')) {
         const parsed = parseVerseKey(w.verse_key);
         if (parsed && !map.has(w.line_number)) {
-          // Place banner just BEFORE the line where ayah 1 appears
           map.set(w.line_number, parsed.surah);
         }
       }
@@ -109,8 +129,18 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }:
   // Pages 1 and 2 (Fatihah & start of Baqarah) center vertically — others justify
   const isCentered = page <= 2;
 
+  // In RTL mushaf, "next page" is page+1 (forward in reading order = LEFT button).
   const goPrev = () => page > 1 && setPage(p => p - 1);
   const goNext = () => page < 604 && setPage(p => p + 1);
+
+  const retry = () => {
+    // Force re-run by toggling page state to itself
+    setError(null);
+    setLoading(true);
+    setFontsReady(false);
+    setData(null);
+    setPage(p => p);
+  };
 
   return (
     <motion.div
@@ -143,32 +173,45 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }:
 
       {/* Page body */}
       <div ref={containerRef} className="flex-1 overflow-y-auto">
-        {(loading || !fontReady) && !error && (
-          <div className="flex items-center justify-center py-24">
+        {loading && !error && (
+          <div className="flex flex-col items-center justify-center py-24 gap-3">
             <Loader2 className="w-5 h-5 text-muted-foreground/40 animate-spin" />
-          </div>
-        )}
-        {error && (
-          <div className="text-center py-16 px-6">
-            <p className="text-[12px] text-muted-foreground/70 font-light leading-relaxed">
-              تعذّر تحميل الصفحة — تحقق من الاتصال وحاول مجدداً
+            <p className="text-[10px] text-muted-foreground/50 font-light">
+              جارٍ التحقق من خط الصفحة…
             </p>
-            <button
-              onClick={() => setPage(p => p)}
-              className="mt-4 px-4 py-2 rounded-full bg-secondary/40 text-[11px] text-foreground active:scale-95"
-            >
-              إعادة المحاولة
-            </button>
           </div>
         )}
 
-        {!loading && !error && fontReady && data && (
+        {error && (
+          <div className="text-center py-16 px-6">
+            <AlertTriangle className="w-6 h-6 text-amber-500/70 mx-auto mb-3" strokeWidth={1.5} />
+            <p className="text-[12px] text-foreground/80 font-medium leading-relaxed mb-1">
+              تعذّر التحقق من خط المصحف
+            </p>
+            <p className="text-[11px] text-muted-foreground/65 font-light leading-relaxed mb-4">
+              لم نعرض الصفحة لتجنّب أي تشويه — تحقّق من اتصال الإنترنت وأعد المحاولة.
+            </p>
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={retry}
+                className="px-4 py-2 rounded-full bg-primary/90 text-primary-foreground text-[11px] active:scale-95"
+              >
+                إعادة المحاولة
+              </button>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 rounded-full bg-secondary/40 text-[11px] text-foreground active:scale-95"
+              >
+                إغلاق
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!loading && !error && fontsReady && data && (
           <div
             className={`mx-auto max-w-2xl px-6 py-8 ${isCentered ? 'min-h-[70vh] flex flex-col justify-center' : ''}`}
             style={{
-              fontFamily: pageFontFamily(page),
-              // Per-glyph metrics tuned for QPC v2: each glyph shapes itself.
-              // Use a comfortable size and large line-height matching the printed mushaf.
               fontSize: '26px',
               lineHeight: 2.0,
               direction: 'rtl',
@@ -181,7 +224,7 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }:
                 <div key={lineNum}>
                   {/* Surah-name banner before the first line of a new surah */}
                   {surahMeta && (
-                    <div className="my-4 text-center" style={{ fontFamily: 'inherit' }}>
+                    <div className="my-4 text-center">
                       <div className="inline-block rounded-md border border-gold/35 bg-gold/[0.06] px-6 py-2">
                         <p
                           className="text-[15px] text-foreground/85 font-medium"
@@ -198,14 +241,9 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }:
                       </div>
                     </div>
                   )}
-                  {/* Bismillah for surahs other than 1 and 9 — drawn from the page font itself */}
-                  {surahMeta && surahMeta.number !== 1 && surahMeta.number !== 9 && (
-                    <p className="text-center my-3" style={{ fontFamily: pageFontFamily(1), fontSize: 22, lineHeight: 1.8 }}>
-                      {/* Bismillah glyphs from page 1 font (always loaded for first surah) */}
-                      ﱁﱂﱃﱄ
-                    </p>
-                  )}
-                  {/* The actual line — words spaced and justified to fill the line width */}
+
+                  {/* The actual line — words spaced and justified to fill the line width.
+                      Each <span> uses the FONT for its OWN word's v2_page. */}
                   <p
                     className="quran-page-line"
                     style={{
@@ -215,8 +253,11 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }:
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {words.map((w, i) => (
-                      <span key={i}>
+                    {words.map((w: QpcWord, i: number) => (
+                      <span
+                        key={`${w.verse_key}-${w.position}-${i}`}
+                        style={{ fontFamily: `'${pageFontFamily(w.v2_page)}'` }}
+                      >
                         {w.code_v2}
                         {i < words.length - 1 ? ' ' : ''}
                       </span>
@@ -229,7 +270,7 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }:
         )}
       </div>
 
-      {/* Footer nav */}
+      {/* Footer nav — RTL: forward (next page = page+1) is on the LEFT */}
       <div className="flex-shrink-0 border-t border-border/10 bg-background/85 backdrop-blur-2xl px-4 py-2.5 flex items-center justify-between">
         <button
           onClick={goNext}
