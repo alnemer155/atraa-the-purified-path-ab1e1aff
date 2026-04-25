@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Search, BookOpen, X, Loader2, BookmarkCheck, Bookmark, List } from 'lucide-react';
+import { ChevronLeft, Search, BookOpen, X, Loader2, BookmarkCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   saveContinueReading, getContinueReading, type ContinueReading,
-  JUZ_STARTS, HIZB_STARTS, getSajdahType,
+  getSajdahType,
   slugForSurah, surahFromSlug, stripArabicDiacritics,
   toggleBookmark, isBookmarked,
 } from '@/lib/quran-meta';
@@ -42,19 +42,6 @@ const SURAH_START_PAGES: Record<number, number> = {
   85: 590, 86: 591, 87: 591, 88: 592, 89: 593, 90: 594, 91: 595, 92: 595, 93: 596, 94: 596, 95: 597, 96: 597,
   97: 598, 98: 598, 99: 599, 100: 599, 101: 600, 102: 600, 103: 601, 104: 601, 105: 601, 106: 602, 107: 602, 108: 602,
   109: 603, 110: 603, 111: 603, 112: 604, 113: 604, 114: 604,
-};
-
-// Deterministic day-of-year index — same value for every user on the same calendar day
-const dayIndex = () => {
-  const now = new Date();
-  const start = Date.UTC(now.getUTCFullYear(), 0, 0);
-  const diff = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - start;
-  return Math.floor(diff / 86400000);
-};
-
-const todayKey = () => {
-  const d = new Date();
-  return `${d.getUTCFullYear()}-${d.getUTCMonth() + 1}-${d.getUTCDate()}`;
 };
 
 // Ornate Heritage divider (illuminated arabesque)
@@ -121,7 +108,6 @@ const QuranSection = () => {
   const [ayahsError, setAyahsError] = useState(false);
   const [fontSize, setFontSize] = useState(22);
   const [continueReading, setContinueReading] = useState<ContinueReading | null>(() => getContinueReading());
-  const [showIndex, setShowIndex] = useState(false);
   const [scrollToAyah, setScrollToAyah] = useState<number | null>(null);
   const [bookmarkVersion, setBookmarkVersion] = useState(0); // forces re-render after toggle
   const ayahRefs = useRef<Record<number, HTMLSpanElement | null>>({});
