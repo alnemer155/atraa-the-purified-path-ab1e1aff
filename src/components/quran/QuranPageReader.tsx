@@ -245,8 +245,15 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
         </div>
       )}
 
-      {/* Page body */}
-      <div ref={containerRef} className="flex-1 overflow-y-auto">
+      {/* Page body — uses internal scroll in modal mode, page scroll inline */}
+      <div ref={containerRef} className={inline ? '' : 'flex-1 overflow-y-auto'}>
+        {!loading && !error && error === null && (
+          <button
+            onClick={onClose}
+            className="hidden"
+            aria-hidden
+          />
+        )}
         {loading && !error && (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <Loader2 className="w-5 h-5 text-muted-foreground/40 animate-spin" />
