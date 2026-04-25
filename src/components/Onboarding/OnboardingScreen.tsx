@@ -165,6 +165,23 @@ const OnboardingScreen = ({ onFinish }: Props) => {
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
               className="flex flex-col items-center"
             >
+              {/* Subtle gold ornament above the logo */}
+              <motion.svg
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 0.85, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                viewBox="0 0 120 12"
+                className="w-24 h-3 text-gold/60 mb-4"
+                aria-hidden
+              >
+                <g fill="none" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round">
+                  <path d="M0 6 H42" opacity="0.4" />
+                  <path d="M78 6 H120" opacity="0.4" />
+                  <circle cx="60" cy="6" r="3.4" opacity="0.7" />
+                  <circle cx="60" cy="6" r="1.2" opacity="0.95" />
+                  <path d="M48 6 q6 -5 12 0 q6 5 12 0" opacity="0.6" />
+                </g>
+              </motion.svg>
               <img
                 src={welcomeLogo}
                 alt="Atraa"
