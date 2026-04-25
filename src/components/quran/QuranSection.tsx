@@ -301,17 +301,11 @@ const QuranSection = () => {
   }, [surahs, search]);
 
   /**
-   * Open a surah in the reader. Prefers QPC V2 page-by-page renderer when
-   * the chapter→page mapping has loaded; falls back to the legacy continuous
-   * Uthmani reader otherwise.
+   * Open a surah in the verified Uthmani text reader.
+   * Always uses the canonical AlQuran.cloud Mushaf API to guarantee accuracy.
    */
   const openSurahReader = (s: Surah) => {
-    const startPage = surahPages?.get(s.number);
-    if (startPage) {
-      setOpenPage(startPage);
-    } else {
-      setOpenSurah(s);
-    }
+    setOpenSurah(s);
   };
 
   const openAyahOfDay = () => {
