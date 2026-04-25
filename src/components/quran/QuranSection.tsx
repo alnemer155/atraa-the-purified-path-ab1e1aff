@@ -590,7 +590,18 @@ const QuranSection = () => {
                       // because the API includes it inline for many surahs.
                       let text = a.text;
                       if (idx === 0 && openSurah.number !== 1 && openSurah.number !== 9) {
-                        text = text.replace(/^بِسْمِ\s*ٱللَّهِ\s*ٱلرَّحْمَـٰنِ\s*ٱلرَّحِيمِ\s*/, '');
+                        const stripped = stripArabicDiacritics(text);
+                        const m = stripped.match(/^\s*بسم\s*الله\s*الرحمـ?ن\s*الرحيم\s*/);
+                        if (m) {
+                          const isDiacritic = (c) => /[\u064B-\u065F\u0670\u06D6-\u06ED]/.test(c);
+                          let consumed = 0, i = 0;
+                          while (i < text.length && consumed < m[0].length) {
+                            if (!isDiacritic(text[i])) consumed++;
+                            i++;
+                          }
+                          while (i < text.length && isDiacritic(text[i])) i++;
+                          text = text.slice(i).replace(/^\s+/, "");
+                        }
                       }
                       const marked = isBookmarked(openSurah.number, a.numberInSurah);
                       // bookmarkVersion read forces React to recompute marked after toggle
