@@ -229,6 +229,7 @@ const SettingsPage = () => {
           {[
             { to: '/privacy', label: t('settings.privacy') },
             { to: '/terms', label: t('settings.terms') },
+            { to: '/refund', label: t('settings.refund') },
             { to: '/disclaimer', label: t('settings.disclaimer') },
             { to: '/data', label: t('settings.data') },
             { to: '/about', label: t('settings.about') },
