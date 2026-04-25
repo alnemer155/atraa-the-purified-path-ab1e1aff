@@ -2,8 +2,8 @@
  * QPC V2 (Madinah Mushaf) glyph-based renderer — VERIFIED-LOAD edition.
  *
  * CRITICAL CORRECTNESS GUARANTEES (the Qur'an MUST never display corrupted):
- *  1. Fonts are loaded from the OFFICIAL mustafa0x/qpc-fonts repository at a
- *     pinned IMMUTABLE commit (`f93bf5f3`) — bytes can never change.
+ *  1. Fonts are bundled locally in /public/qpc-v2 from the OFFICIAL
+ *     mustafa0x/qpc-fonts repository at pinned commit (`f93bf5f3`).
  *     This repo is the canonical source used by quran.com itself.
  *  2. `font-display: block` ensures the browser shows NOTHING until the font
  *     is actually decoded — never the wrong glyphs from a fallback font.
@@ -17,12 +17,13 @@
  *     the layout matches the printed Madinah Mushaf exactly.
  */
 
-// Pinned to the immutable commit hash used by quran.com — DO NOT change.
-const FONT_BASE =
-  'https://raw.githubusercontent.com/mustafa0x/qpc-fonts/f93bf5f3/mushaf-woff2';
+// Bundled local copies from pinned qpc-fonts commit f93bf5f3 — DO NOT change.
+const FONT_BASE = '/qpc-v2';
 
 const API_BASE = 'https://api.quran.com/api/v4';
-const LS_PAGE_PREFIX = 'atraa_qpc2_page_v2_';
+// Versioned cache key; v4 invalidates earlier data that included full boundary
+// verses from neighbouring pages instead of only glyphs whose `v2_page` matches.
+const LS_PAGE_PREFIX = 'atraa_qpc2_page_v4_';
 
 const loadedFonts = new Set<number>();
 const loadingFonts = new Map<number, Promise<boolean>>();
@@ -158,10 +159,12 @@ export async function fetchPageData(page: number): Promise<QpcPageData> {
   const words: QpcWord[] = [];
   const surahSet = new Set<number>();
   for (const v of verses) {
-    const [surahStr] = v.verse_key.split(':');
-    const surahN = parseInt(surahStr, 10);
-    surahSet.add(surahN);
     for (const w of v.words) {
+      // The API returns complete verses for a page. If a verse crosses a page
+      // boundary, some words belong to the previous/next QPC font page. Those
+      // MUST NOT be drawn here or the Mushaf page becomes visibly corrupted.
+      if (w.v2_page !== page) continue;
+
       // V2 line number — fall back to line_number only if line_v2 absent.
       const ln = w.line_v2 ?? w.line_number ?? 1;
       // Each word MUST have a v2_page. If missing, the API response is
@@ -178,11 +181,17 @@ export async function fetchPageData(page: number): Promise<QpcPageData> {
         verse_key: v.verse_key,
         verse_number: v.verse_number,
       });
+
+      const [surahStr] = v.verse_key.split(':');
+      const surahN = parseInt(surahStr, 10);
+      if (Number.isFinite(surahN)) surahSet.add(surahN);
     }
   }
 
-  // Sort by line then position for safety
-  words.sort((a, b) => a.line_number - b.line_number || a.position - b.position);
+  // CRITICAL: Do NOT sort by `position`. It resets at every verse, and several
+  // verses can share the same Mushaf line. Sorting by position would interleave
+  // words from different ayahs and corrupt the Qur'an. Preserve the canonical
+  // API reading order; grouping by line keeps this order inside every line.
 
   const result: QpcPageData = {
     page_number: page,
