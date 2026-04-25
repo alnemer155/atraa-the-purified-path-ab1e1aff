@@ -21,7 +21,9 @@
 const FONT_BASE = '/qpc-v2';
 
 const API_BASE = 'https://api.quran.com/api/v4';
-const LS_PAGE_PREFIX = 'atraa_qpc2_page_v2_';
+// Versioned cache key; v3 invalidates earlier data that may have been sorted
+// incorrectly by word position across multiple ayahs on the same line.
+const LS_PAGE_PREFIX = 'atraa_qpc2_page_v3_';
 
 const loadedFonts = new Set<number>();
 const loadingFonts = new Map<number, Promise<boolean>>();
