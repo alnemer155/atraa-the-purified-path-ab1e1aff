@@ -312,10 +312,24 @@ const QuranSection = () => {
     );
   }, [surahs, search]);
 
+  /**
+   * Open a surah in the reader. Prefers QPC V2 page-by-page renderer when
+   * the chapter→page mapping has loaded; falls back to the legacy continuous
+   * Uthmani reader otherwise.
+   */
+  const openSurahReader = (s: Surah) => {
+    const startPage = surahPages?.get(s.number);
+    if (startPage) {
+      setOpenPage(startPage);
+    } else {
+      setOpenSurah(s);
+    }
+  };
+
   const openAyahOfDay = () => {
     if (!ayahOfDay) return;
     const found = surahs?.find(s => s.number === ayahOfDay.surahNumber);
-    if (found) setOpenSurah(found);
+    if (found) openSurahReader(found);
   };
 
   return (
