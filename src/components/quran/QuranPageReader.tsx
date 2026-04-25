@@ -147,34 +147,103 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
     setPage(p => p);
   };
 
+  const handleJump = () => {
+    const n = parseInt(jumpValue, 10);
+    if (Number.isFinite(n) && n >= 1 && n <= 604) {
+      setPage(n);
+      setShowJump(false);
+      setJumpValue('');
+    }
+  };
+
+  const wrapperClass = inline
+    ? 'flex flex-col bg-background'
+    : 'fixed inset-0 z-50 bg-background flex flex-col overflow-hidden';
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.18 }}
-      className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden"
+      className={wrapperClass}
       dir="rtl"
     >
-      {/* Header bar */}
-      <div className="flex-shrink-0 px-4 py-3 flex items-center justify-between border-b border-border/10 bg-background/85 backdrop-blur-2xl">
+      {/* Header bar — sticky in inline mode so it stays visible while scrolling */}
+      <div className={`${inline ? 'sticky top-[41px] z-30' : 'flex-shrink-0'} px-4 py-2.5 flex items-center justify-between border-b border-border/10 bg-background/85 backdrop-blur-2xl`}>
+        {onClose ? (
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95"
+            aria-label="إغلاق"
+          >
+            <X className="w-4 h-4 text-foreground/70" />
+          </button>
+        ) : (
+          <button
+            onClick={() => setShowJump(true)}
+            className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95"
+            aria-label="انتقال إلى صفحة"
+          >
+            <Hash className="w-4 h-4 text-foreground/70" />
+          </button>
+        )}
         <button
-          onClick={onClose}
-          className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95"
-          aria-label="إغلاق"
+          onClick={() => setShowJump(true)}
+          className="text-center active:scale-95 transition-transform"
+          aria-label="انتقال إلى صفحة"
         >
-          <X className="w-4 h-4 text-foreground/70" />
-        </button>
-        <div className="text-center">
           <p className="text-[12px] text-foreground/85 font-medium tabular-nums">
             صفحة {page}
           </p>
           <p className="text-[9px] text-muted-foreground/55 font-light">
             مصحف المدينة · رواية حفص
           </p>
-        </div>
+        </button>
         <div className="w-9 h-9" />
       </div>
+
+      {/* Jump-to-page overlay */}
+      {showJump && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-center justify-center px-6"
+          onClick={() => setShowJump(false)}
+        >
+          <div
+            className="w-full max-w-xs bg-card rounded-3xl p-5 border border-border/20 shadow-xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <p className="text-center text-[13px] text-foreground font-medium mb-1">انتقال إلى صفحة</p>
+            <p className="text-center text-[10px] text-muted-foreground/60 font-light mb-4">من ١ إلى ٦٠٤</p>
+            <input
+              type="number"
+              min={1}
+              max={604}
+              autoFocus
+              value={jumpValue}
+              onChange={e => setJumpValue(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleJump()}
+              placeholder={String(page)}
+              className="w-full h-11 rounded-2xl bg-secondary/40 border border-border/20 text-center text-[15px] text-foreground tabular-nums outline-none focus:border-primary/40"
+            />
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => setShowJump(false)}
+                className="flex-1 h-10 rounded-2xl bg-secondary/40 text-[12px] text-foreground active:scale-95"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={handleJump}
+                disabled={!jumpValue}
+                className="flex-1 h-10 rounded-2xl bg-primary text-primary-foreground text-[12px] active:scale-95 disabled:opacity-40"
+              >
+                انتقال
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Page body */}
       <div ref={containerRef} className="flex-1 overflow-y-auto">
