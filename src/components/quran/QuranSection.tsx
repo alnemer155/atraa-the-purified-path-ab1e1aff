@@ -10,6 +10,7 @@ import {
   toggleBookmark, isBookmarked,
 } from '@/lib/quran-meta';
 import { ayahMark } from '@/lib/islamic-symbols';
+import QuranPageReader from './QuranPageReader';
 
 interface Surah {
   number: number;
