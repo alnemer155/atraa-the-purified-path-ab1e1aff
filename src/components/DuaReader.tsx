@@ -101,8 +101,8 @@ const DuaReader = ({ item, filtered, fontSize, setFontSize, onClose, onSelect }:
 
       {/* Floating prev/next switcher — pinned just above BottomNav */}
       <div
-        className="fixed left-1/2 -translate-x-1/2 w-full max-w-lg md:max-w-2xl px-4 z-40 pointer-events-none"
-        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 76px)' }}
+        className="absolute left-1/2 -translate-x-1/2 w-full max-w-lg md:max-w-2xl px-4 z-40 pointer-events-none"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
       >
         <div className="pointer-events-auto mx-2 flex items-center justify-between gap-2 px-3 py-2 rounded-full bg-card/85 backdrop-blur-2xl border border-border/30 shadow-elevated">
           <button
