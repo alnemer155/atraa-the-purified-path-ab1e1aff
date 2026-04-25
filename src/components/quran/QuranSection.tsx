@@ -29,33 +29,6 @@ interface Ayah {
   page?: number;
 }
 
-interface AyahOfDay {
-  text: string;
-  surahName: string;
-  surahNumber: number;
-  numberInSurah: number;
-}
-
-// Verified, manually selected verses (Uthmani script) — used as a deterministic
-// fallback when the network is unavailable. Each entry is a real, well-known
-// ayah whose location is confirmed in the Mushaf.
-const VERIFIED_DAILY_AYAHS: AyahOfDay[] = [
-  { text: 'إِنَّ مَعَ ٱلْعُسْرِ يُسْرًۭا', surahName: 'الشرح', surahNumber: 94, numberInSurah: 6 },
-  { text: 'وَمَن يَتَّقِ ٱللَّهَ يَجْعَل لَّهُۥ مَخْرَجًۭا', surahName: 'الطلاق', surahNumber: 65, numberInSurah: 2 },
-  { text: 'فَٱذْكُرُونِىٓ أَذْكُرْكُمْ وَٱشْكُرُوا۟ لِى وَلَا تَكْفُرُونِ', surahName: 'البقرة', surahNumber: 2, numberInSurah: 152 },
-  { text: 'وَقُل رَّبِّ زِدْنِى عِلْمًۭا', surahName: 'طه', surahNumber: 20, numberInSurah: 114 },
-  { text: 'وَٱصْبِرُوا۟ ۚ إِنَّ ٱللَّهَ مَعَ ٱلصَّـٰبِرِينَ', surahName: 'الأنفال', surahNumber: 8, numberInSurah: 46 },
-  { text: 'حَسْبُنَا ٱللَّهُ وَنِعْمَ ٱلْوَكِيلُ', surahName: 'آل عمران', surahNumber: 3, numberInSurah: 173 },
-  { text: 'وَتَوَكَّلْ عَلَى ٱلْحَىِّ ٱلَّذِى لَا يَمُوتُ وَسَبِّحْ بِحَمْدِهِۦ', surahName: 'الفرقان', surahNumber: 25, numberInSurah: 58 },
-  { text: 'رَبِّ ٱشْرَحْ لِى صَدْرِى وَيَسِّرْ لِىٓ أَمْرِى', surahName: 'طه', surahNumber: 20, numberInSurah: 25 },
-  { text: 'إِنَّ ٱللَّهَ يُحِبُّ ٱلْمُتَوَكِّلِينَ', surahName: 'آل عمران', surahNumber: 3, numberInSurah: 159 },
-  { text: 'وَبَشِّرِ ٱلصَّـٰبِرِينَ', surahName: 'البقرة', surahNumber: 2, numberInSurah: 155 },
-  { text: 'إِنَّ ٱللَّهَ لَا يُغَيِّرُ مَا بِقَوْمٍ حَتَّىٰ يُغَيِّرُوا۟ مَا بِأَنفُسِهِمْ', surahName: 'الرعد', surahNumber: 13, numberInSurah: 11 },
-  { text: 'وَمَن يَتَوَكَّلْ عَلَى ٱللَّهِ فَهُوَ حَسْبُهُۥٓ', surahName: 'الطلاق', surahNumber: 65, numberInSurah: 3 },
-];
-
-const TOTAL_QURAN_AYAHS = 6236;
-
 // Official Madinah Mushaf start page for every surah. Keeping this local avoids
 // opening the fallback reader while a network-only chapter map is still loading.
 const SURAH_START_PAGES: Record<number, number> = {
