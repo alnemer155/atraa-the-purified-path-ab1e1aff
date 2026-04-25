@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, Check, Heart, ThumbsDown, X } from 'lucide-react';
+import { Download, Check, Heart, ThumbsDown, X, Grid3x3, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import wallpaper1 from '@/assets/wallpapers/wallpaper-1.png';
@@ -44,12 +44,15 @@ const wallpapers = [
 
 type Reaction = 'like' | 'dislike' | null;
 
+const PREVIEW_COUNT = 6;
+
 const WallpapersSection = () => {
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   const [downloading, setDownloading] = useState<number | null>(null);
   const [downloaded, setDownloaded] = useState<Set<number>>(new Set());
   const [selectedWallpaper, setSelectedWallpaper] = useState<number | null>(null);
+  const [showAll, setShowAll] = useState(false);
   const [reactions, setReactions] = useState<Record<string, Reaction>>(() => {
     try {
       return JSON.parse(localStorage.getItem('atraa_wallpaper_reactions') || '{}');
