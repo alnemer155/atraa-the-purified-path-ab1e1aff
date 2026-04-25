@@ -165,6 +165,23 @@ const OnboardingScreen = ({ onFinish }: Props) => {
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
               className="flex flex-col items-center"
             >
+              {/* Subtle gold ornament above the logo */}
+              <motion.svg
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 0.85, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                viewBox="0 0 120 12"
+                className="w-24 h-3 text-gold/60 mb-4"
+                aria-hidden
+              >
+                <g fill="none" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round">
+                  <path d="M0 6 H42" opacity="0.4" />
+                  <path d="M78 6 H120" opacity="0.4" />
+                  <circle cx="60" cy="6" r="3.4" opacity="0.7" />
+                  <circle cx="60" cy="6" r="1.2" opacity="0.95" />
+                  <path d="M48 6 q6 -5 12 0 q6 5 12 0" opacity="0.6" />
+                </g>
+              </motion.svg>
               <img
                 src={welcomeLogo}
                 alt="Atraa"
@@ -474,23 +491,40 @@ const OnboardingScreen = ({ onFinish }: Props) => {
               transition={{ duration: 0.4 }}
               className="flex flex-col items-center justify-center min-h-[60vh]"
             >
-              {/* Animated rings */}
-              <div className="relative w-24 h-24 mb-8">
+              {/* Animated illuminated ring */}
+              <div className="relative w-28 h-28 mb-8">
+                {/* Soft glowing aura */}
+                <div className="absolute inset-[-20px] rounded-full bg-[radial-gradient(circle,_hsl(var(--gold)/0.18)_0%,_transparent_65%)] blur-md" />
+                {/* Outer pulsating ring */}
                 <motion.div
                   className="absolute inset-0 rounded-full border border-primary/20"
-                  animate={{ scale: [1, 1.3, 1], opacity: [0.6, 0, 0.6] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                  animate={{ scale: [1, 1.25, 1], opacity: [0.55, 0, 0.55] }}
+                  transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
                 />
-                <motion.div
-                  className="absolute inset-2 rounded-full border border-primary/30"
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0, 0.4] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
-                />
+                {/* Rotating gold arc */}
+                <motion.svg
+                  className="absolute inset-0 w-full h-full"
+                  viewBox="0 0 100 100"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                >
+                  <circle
+                    cx="50" cy="50" r="40"
+                    fill="none"
+                    stroke="hsl(var(--gold) / 0.7)"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeDasharray="40 220"
+                  />
+                </motion.svg>
+                {/* Inner ring */}
+                <div className="absolute inset-3 rounded-full border border-border/30" />
+                {/* Center pulsing dot */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <motion.div
-                    className="w-3 h-3 rounded-full bg-primary"
-                    animate={{ scale: [1, 1.4, 1] }}
-                    transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+                    className="w-2.5 h-2.5 rounded-full bg-gold"
+                    animate={{ scale: [1, 1.5, 1], opacity: [0.85, 1, 0.85] }}
+                    transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
                   />
                 </div>
               </div>
@@ -513,6 +547,14 @@ const OnboardingScreen = ({ onFinish }: Props) => {
 
               <p className="text-[10px] text-muted-foreground/50 font-light mt-2">
                 {isAr ? 'لحظات قليلة…' : 'Just a moment…'}
+              </p>
+
+              {/* Subtle Bismillah footer */}
+              <p
+                className="quran-uthmani text-foreground/40 mt-10"
+                style={{ fontSize: 13 }}
+              >
+                بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
               </p>
             </motion.div>
           )}
