@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import SplashScreen from "@/components/SplashScreen";
+import OnboardingScreen, { isOnboardingDone } from "@/components/Onboarding/OnboardingScreen";
 import { UIProvider } from "@/contexts/UIContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -46,6 +47,8 @@ const App = () => {
     }
   });
 
+  const [showOnboarding, setShowOnboarding] = useState(() => !isOnboardingDone());
+
   const handleSplashFinish = () => {
     try {
       sessionStorage.setItem(SPLASH_KEY, "1");
@@ -55,6 +58,8 @@ const App = () => {
     setShowSplash(false);
   };
 
+  const handleOnboardingFinish = () => setShowOnboarding(false);
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -62,6 +67,7 @@ const App = () => {
           <Toaster />
           <Sonner />
           {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
+          {!showSplash && showOnboarding && <OnboardingScreen onFinish={handleOnboardingFinish} />}
           <BrowserRouter>
             <UIProvider>
               <Suspense fallback={<PageLoader />}>
