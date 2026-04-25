@@ -222,21 +222,29 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange }:
               const surahMeta = surahHeader ? surahsByNumber.get(surahHeader) : undefined;
               return (
                 <div key={lineNum}>
-                  {/* Surah-name banner before the first line of a new surah */}
+                  {/* Surah header — Madinah Mushaf style illuminated band */}
                   {surahMeta && (
-                    <div className="my-4 text-center">
-                      <div className="inline-block rounded-md border border-gold/35 bg-gold/[0.06] px-6 py-2">
-                        <p
-                          className="text-[15px] text-foreground/85 font-medium"
-                          style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui' }}
+                    <div className="my-5 text-center select-none">
+                      <div className="relative mx-auto max-w-[420px] h-[64px] flex items-center justify-center">
+                        {/* Illuminated frame mimicking the printed mushaf header */}
+                        <svg
+                          viewBox="0 0 420 64"
+                          className="absolute inset-0 w-full h-full text-gold/70"
+                          preserveAspectRatio="none"
+                          aria-hidden
                         >
-                          سورة {surahMeta.name.replace(/^سُورَةُ\s*/, '').replace(/[\u064B-\u065F\u0670]/g, '')}
-                        </p>
+                          <rect x="2" y="2" width="416" height="60" fill="none" stroke="currentColor" strokeWidth="0.8" />
+                          <rect x="6" y="6" width="408" height="52" fill="none" stroke="currentColor" strokeWidth="0.4" opacity="0.6" />
+                          <path d="M2 32 H40 M380 32 H418" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
+                          <circle cx="22" cy="32" r="3" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                          <circle cx="398" cy="32" r="3" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                          <path d="M14 8 q-6 4 0 8 M14 56 q-6 -4 0 -8 M406 8 q6 4 0 8 M406 56 q6 -4 0 -8" stroke="currentColor" strokeWidth="0.5" fill="none" opacity="0.7" />
+                        </svg>
                         <p
-                          className="text-[9px] text-muted-foreground/60 font-light mt-0.5"
-                          style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui' }}
+                          className="relative text-[17px] text-foreground tracking-wide quran-uthmani"
+                          style={{ lineHeight: 1 }}
                         >
-                          {surahMeta.numberOfAyahs} آية · {surahMeta.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}
+                          سُورَةُ {surahMeta.name.replace(/^سُورَةُ\s*/, '')}
                         </p>
                       </div>
                     </div>
