@@ -1,18 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Cloud, Sun, CloudRain } from 'lucide-react';
+import { Navigation } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface WeatherData {
   temp: number;
   description: string;
   code: number;
+  windKph: number;
+  windDir: number; // degrees, meteorological (0 = wind from N)
 }
-
-const getWeatherIcon = (code: number) => {
-  if (code >= 300) return CloudRain;
-  if (code >= 200) return Cloud;
-  return Sun;
-};
 
 const WeatherWidget = () => {
   const { t, i18n } = useTranslation();

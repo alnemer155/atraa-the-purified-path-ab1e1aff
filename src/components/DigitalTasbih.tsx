@@ -1,92 +1,193 @@
 import { useState, useCallback } from 'react';
-import { RotateCcw } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { RotateCcw, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const tasbihat = [
-  { text: 'الله اكبر', target: 34 },
+  { text: 'الله أكبر', target: 34 },
   { text: 'الحمد لله', target: 33 },
   { text: 'سبحان الله', target: 33 },
 ];
 
+const TOTAL = tasbihat.reduce((s, t) => s + t.target, 0);
+const SIZE = 168; // SVG size
+const STROKE = 3;
+const RADIUS = (SIZE - STROKE * 2) / 2;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
 const DigitalTasbih = () => {
   const [step, setStep] = useState(0);
   const [count, setCount] = useState(0);
+  const [pulse, setPulse] = useState(0); // increments per tap to retrigger animations
 
   const current = tasbihat[step];
+  const isComplete = step === tasbihat.length - 1 && count >= current.target;
+
+  const stepProgress = count / current.target;
   const totalDone = tasbihat.slice(0, step).reduce((s, t) => s + t.target, 0) + count;
-  const totalAll = tasbihat.reduce((s, t) => s + t.target, 0);
 
   const handleTap = useCallback(() => {
-    if (navigator.vibrate) navigator.vibrate(15);
+    if (isComplete) return;
+    if (navigator.vibrate) navigator.vibrate(10);
+    setPulse((p) => p + 1);
+
     if (count + 1 >= current.target) {
       if (step + 1 < tasbihat.length) {
         setStep(step + 1);
         setCount(0);
       } else {
-        // Complete!
         setCount(current.target);
       }
     } else {
-      setCount(c => c + 1);
+      setCount((c) => c + 1);
     }
-  }, [count, step, current]);
+  }, [count, step, current, isComplete]);
 
   const handleReset = () => {
     setStep(0);
     setCount(0);
+    setPulse(0);
   };
 
-  const isComplete = step === tasbihat.length - 1 && count >= current.target;
-
   return (
-    <div className="rounded-2xl bg-card p-4 shadow-card">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-base font-semibold text-foreground">تسبيح الزهراء ❁</h2>
-        <button onClick={handleReset} className="p-2 rounded-xl text-muted-foreground hover:bg-secondary transition-colors">
-          <RotateCcw className="w-4 h-4" />
+    <div className="rounded-3xl bg-card border border-border/30 p-5 shadow-card">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h2 className="text-[14px] text-foreground font-medium">تسبيح الزهراء عليها السلام</h2>
+          <p className="text-[10px] text-muted-foreground/60 font-light mt-0.5 tabular-nums">
+            {totalDone} / {TOTAL}
+          </p>
+        </div>
+        <button
+          onClick={handleReset}
+          className="w-9 h-9 rounded-full bg-secondary/40 text-muted-foreground hover:text-foreground hover:bg-secondary/60 flex items-center justify-center transition-colors active:scale-90"
+          aria-label="reset"
+        >
+          <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.5} />
         </button>
       </div>
 
-      {/* Progress */}
-      <div className="flex gap-1 mb-4">
-        {tasbihat.map((t, i) => (
-          <div key={i} className="flex-1">
-            <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
+      {/* Step indicators — three minimalist dots with active label */}
+      <div className="flex items-center justify-center gap-2 mb-5">
+        {tasbihat.map((t, i) => {
+          const isActive = i === step;
+          const isDone = i < step || (i === step && isComplete);
+          return (
+            <div key={i} className="flex items-center gap-2">
               <motion.div
-                className="h-full rounded-full islamic-gradient"
-                initial={{ width: 0 }}
                 animate={{
-                  width: i < step ? '100%' : i === step ? `${(count / t.target) * 100}%` : '0%'
+                  scale: isActive ? 1 : 0.85,
+                  opacity: isDone ? 1 : isActive ? 1 : 0.35,
                 }}
-                transition={{ duration: 0.2 }}
-              />
+                transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${
+                  isActive
+                    ? 'bg-primary/10 text-primary'
+                    : isDone
+                    ? 'text-foreground/70'
+                    : 'text-muted-foreground/50'
+                }`}
+              >
+                {isDone && (
+                  <Check className="w-2.5 h-2.5 text-primary" strokeWidth={2.5} />
+                )}
+                <span className="text-[10px] font-light whitespace-nowrap">{t.text}</span>
+              </motion.div>
+              {i < tasbihat.length - 1 && (
+                <div className="w-2 h-px bg-border/60" />
+              )}
             </div>
-            <p className="text-[10px] text-muted-foreground text-center mt-1">{t.text}</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Counter */}
-      <div className="text-center">
-        <p className="text-sm text-muted-foreground mb-1">{current.text}</p>
-        <p className="text-3xl font-bold text-primary mb-1">{count}</p>
-        <p className="text-xs text-muted-foreground mb-4">من {current.target}</p>
+      {/* Counter ring */}
+      <div className="relative flex items-center justify-center mb-1" style={{ height: SIZE }}>
+        <svg width={SIZE} height={SIZE} className="-rotate-90">
+          {/* Track */}
+          <circle
+            cx={SIZE / 2}
+            cy={SIZE / 2}
+            r={RADIUS}
+            fill="none"
+            stroke="hsl(var(--border))"
+            strokeWidth={STROKE}
+            opacity={0.4}
+          />
+          {/* Progress */}
+          <motion.circle
+            cx={SIZE / 2}
+            cy={SIZE / 2}
+            r={RADIUS}
+            fill="none"
+            stroke="hsl(var(--primary))"
+            strokeWidth={STROKE}
+            strokeLinecap="round"
+            strokeDasharray={CIRCUMFERENCE}
+            initial={false}
+            animate={{ strokeDashoffset: CIRCUMFERENCE * (1 - stepProgress) }}
+            transition={{ type: 'spring', stiffness: 220, damping: 28 }}
+          />
+        </svg>
 
-        {isComplete ? (
-          <div className="py-4 text-center">
-            <p className="text-base font-semibold text-gold">تم بحمد الله ✓</p>
-            <p className="text-xs text-muted-foreground mt-1">{totalAll} تسبيحة</p>
-          </div>
-        ) : (
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handleTap}
-            className="w-24 h-24 rounded-full islamic-gradient text-primary-foreground text-lg font-semibold shadow-elevated mx-auto flex items-center justify-center active:opacity-90 transition-opacity select-none"
-          >
-            سبّح
-          </motion.button>
-        )}
+        {/* Center button */}
+        <button
+          onClick={handleTap}
+          disabled={isComplete}
+          className="absolute inset-0 m-auto rounded-full flex flex-col items-center justify-center select-none active:scale-95 transition-transform disabled:cursor-default"
+          style={{ width: SIZE - 32, height: SIZE - 32 }}
+          aria-label="tap"
+        >
+          <AnimatePresence mode="wait">
+            {isComplete ? (
+              <motion.div
+                key="done"
+                initial={{ scale: 0.6, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.6, opacity: 0 }}
+                className="flex flex-col items-center"
+              >
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-1.5">
+                  <Check className="w-5 h-5 text-primary" strokeWidth={2} />
+                </div>
+                <p className="text-[12px] text-foreground font-medium">تم بحمد الله</p>
+              </motion.div>
+            ) : (
+              <motion.div
+                key={`${step}-${count}`}
+                initial={{ scale: 0.92, opacity: 0.6 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.15 }}
+                className="flex flex-col items-center"
+              >
+                <p className="text-[10px] text-muted-foreground/60 font-light mb-1">{current.text}</p>
+                <p className="text-[44px] text-foreground tabular-nums leading-none font-light">
+                  {count}
+                </p>
+                <p className="text-[10px] text-muted-foreground/50 font-light mt-1 tabular-nums">
+                  / {current.target}
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Subtle pulse ring on tap */}
+          {!isComplete && (
+            <motion.div
+              key={`pulse-${pulse}`}
+              initial={{ scale: 1, opacity: 0.35 }}
+              animate={{ scale: 1.1, opacity: 0 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              className="absolute inset-0 rounded-full border border-primary pointer-events-none"
+            />
+          )}
+        </button>
       </div>
+
+      {/* Hint */}
+      <p className="text-[9px] text-muted-foreground/40 font-light text-center mt-3">
+        المس الدائرة للتسبيح
+      </p>
     </div>
   );
 };
