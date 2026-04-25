@@ -176,6 +176,25 @@
     display: inline-block;
   }
 
+  /* Madinah-style ayah number medallion — gold circle with Arabic numeral */
+  .ayah-number-medallion {
+    width: 1.6em;
+    height: 1.6em;
+    min-width: 1.6em;
+    border-radius: 9999px;
+    border: 1.5px solid hsl(var(--gold) / 0.7);
+    background: radial-gradient(circle at 50% 45%, hsl(var(--gold) / 0.18), hsl(var(--gold) / 0.04));
+    color: hsl(var(--gold));
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 0.5em;
+    font-weight: 500;
+    line-height: 1;
+    box-shadow: inset 0 0 0 2px hsl(var(--background));
+    vertical-align: middle;
+    position: relative;
+    top: -0.05em;
+  }
+
   /* iOS 26 Liquid Glass — used for cards and surfaces */
   .glass-card {
     @apply bg-card/70 backdrop-blur-xl border border-white/40 rounded-2xl;
