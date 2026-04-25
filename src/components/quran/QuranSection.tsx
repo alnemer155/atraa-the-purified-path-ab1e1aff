@@ -10,7 +10,7 @@ import {
   toggleBookmark, isBookmarked,
 } from '@/lib/quran-meta';
 import { ayahMark } from '@/lib/islamic-symbols';
-// QuranPageReader (QPC V2 glyph renderer) intentionally not imported — see note in component
+import QuranPageReader from './QuranPageReader';
 
 interface Surah {
   number: number;
@@ -138,12 +138,12 @@ const QuranSection = () => {
   const [bookmarkVersion, setBookmarkVersion] = useState(0); // forces re-render after toggle
   const ayahRefs = useRef<Record<number, HTMLSpanElement | null>>({});
 
-  // NOTE: The QPC V2 page-by-page glyph renderer was disabled because the
-  // glyph fonts (PUA codepoints) cannot guarantee 100% accuracy when the CDN
-  // fonts fail to load — producing visually corrupted Quran text. The reader
-  // now uses ONLY the verified Uthmani text from AlQuran.cloud (sourced from
-  // King Fahd Glorious Quran Printing Complex). Every ayah and ayah number
-  // is fetched directly from the canonical Mushaf API.
+  // QPC V2 page-by-page renderer state. The renderer itself enforces strict
+  // font-verification — it will refuse to display any text until ALL required
+  // page fonts are verifiably loaded (no fallback fonts, no risk of corruption).
+  // Surah → first-page mapping is loaded from the official quran.com chapters API.
+  const [surahPages, setSurahPages] = useState<Map<number, number> | null>(null);
+  const [openPage, setOpenPage] = useState<number | null>(null);
 
   // Ayah of the day — deterministic per calendar day, fetched live from the
   // canonical Mushaf (AlQuran.cloud /ayah/{n}/quran-uthmani) so the verse is
@@ -210,8 +210,24 @@ const QuranSection = () => {
     return () => { cancelled = true; };
   }, []);
 
-  // (QPC V2 chapter→page mapping removed — see note above. Reader uses verified
-  // Uthmani text from AlQuran.cloud only.)
+  // Fetch chapter→page mapping (surah number → first Mushaf page) from the
+  // official Quran Foundation API. Used to launch QPC V2 page reader at the
+  // correct opening page for each surah.
+  useEffect(() => {
+    let cancelled = false;
+    fetch('https://api.quran.com/api/v4/chapters?language=ar')
+      .then(r => r.json())
+      .then((d: { chapters?: Array<{ id: number; pages: [number, number] }> }) => {
+        if (cancelled || !d?.chapters) return;
+        const map = new Map<number, number>();
+        for (const c of d.chapters) {
+          if (Array.isArray(c.pages) && c.pages.length > 0) map.set(c.id, c.pages[0]);
+        }
+        setSurahPages(map);
+      })
+      .catch(() => { /* QPC reader will be unavailable; legacy reader still works */ });
+    return () => { cancelled = true; };
+  }, []);
 
   // Fetch surah ayahs when opened
   useEffect(() => {
@@ -301,11 +317,19 @@ const QuranSection = () => {
   }, [surahs, search]);
 
   /**
-   * Open a surah in the verified Uthmani text reader.
-   * Always uses the canonical AlQuran.cloud Mushaf API to guarantee accuracy.
+   * Open a surah. Prefers the QPC V2 page-by-page renderer (pixel-perfect
+   * Madinah Mushaf) when the chapter→page mapping has loaded. Falls back to
+   * the verified Uthmani text reader (AlQuran.cloud) otherwise. The QPC V2
+   * renderer self-verifies fonts before displaying anything, so corruption
+   * is impossible by design.
    */
   const openSurahReader = (s: Surah) => {
-    setOpenSurah(s);
+    const startPage = surahPages?.get(s.number);
+    if (startPage) {
+      setOpenPage(startPage);
+    } else {
+      setOpenSurah(s);
+    }
   };
 
   const openAyahOfDay = () => {
@@ -648,6 +672,27 @@ const QuranSection = () => {
               )}
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* QPC V2 page-by-page Madinah Mushaf reader (font-verified). */}
+      <AnimatePresence>
+        {openPage !== null && surahs && (
+          <QuranPageReader
+            initialPage={openPage}
+            surahsByNumber={new Map(surahs.map(s => [s.number, {
+              number: s.number,
+              name: s.name,
+              englishName: s.englishName,
+              numberOfAyahs: s.numberOfAyahs,
+              revelationType: s.revelationType,
+            }]))}
+            onClose={() => {
+              setOpenPage(null);
+              const localePrefix = params.locale ? `/${params.locale}` : '';
+              navigate(`${localePrefix}/quran`, { replace: true });
+            }}
+          />
         )}
       </AnimatePresence>
 

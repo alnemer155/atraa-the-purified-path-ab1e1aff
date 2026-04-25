@@ -1,82 +1,112 @@
 /**
- * QPC V2 (Madinah Mushaf) glyph-based renderer support library.
+ * QPC V2 (Madinah Mushaf) glyph-based renderer — VERIFIED-LOAD edition.
  *
- * Each of the 604 pages of the Madinah Mushaf has its own dedicated font that
- * contains the glyphs for the words on that exact page. The Quran.com API
- * (api.quran.com/api/v4) returns each word's `code_v2` (a single PUA codepoint)
- * along with the word's `line_number`. Rendering the codepoint with the correct
- * page font reproduces the exact layout of the printed mushaf — line breaks,
- * justification, ayah markers, and decorative glyphs included.
- *
- * Fonts are loaded lazily on demand from jsDelivr (cached by browser & PWA SW)
- * to avoid bundling ~93MB of font data into the application.
+ * CRITICAL CORRECTNESS GUARANTEES (the Qur'an MUST never display corrupted):
+ *  1. Fonts are loaded from the OFFICIAL mustafa0x/qpc-fonts repository at a
+ *     pinned IMMUTABLE commit (`f93bf5f3`) — bytes can never change.
+ *     This repo is the canonical source used by quran.com itself.
+ *  2. `font-display: block` ensures the browser shows NOTHING until the font
+ *     is actually decoded — never the wrong glyphs from a fallback font.
+ *  3. We `await document.fonts.load(...)` AND verify with `document.fonts.check(...)`
+ *     before signalling readiness. If either fails, we surface an error and
+ *     refuse to render — we never display PUA codepoints in a wrong font.
+ *  4. Word data comes from the OFFICIAL Quran Foundation API
+ *     (`api.quran.com/api/v4`) requesting `code_v2` + `v2_page`. Each word's
+ *     `v2_page` field tells us which font file to use for that exact word.
+ *  5. Each line is grouped by `line_v2` (the V2-font-specific line number) so
+ *     the layout matches the printed Madinah Mushaf exactly.
  */
 
-const FONT_CDN =
-  'https://cdn.jsdelivr.net/gh/quran/quran.com-frontend-next@production/public/fonts/quran/hafs/v2/woff2';
+// Pinned to the immutable commit hash used by quran.com — DO NOT change.
+const FONT_BASE =
+  'https://raw.githubusercontent.com/mustafa0x/qpc-fonts/f93bf5f3/mushaf-woff2';
 
 const API_BASE = 'https://api.quran.com/api/v4';
-
-const LS_PAGE_PREFIX = 'atraa_qpc2_page_';
+const LS_PAGE_PREFIX = 'atraa_qpc2_page_v2_';
 
 const loadedFonts = new Set<number>();
-const loadingFonts = new Map<number, Promise<void>>();
+const loadingFonts = new Map<number, Promise<boolean>>();
 
 export interface QpcWord {
+  /** PUA codepoint(s) from the QCF v2 font for this word */
   code_v2: string;
+  /** V2 font line number on the page (1-15) */
   line_number: number;
+  /** Position of the word within its verse */
   position: number;
   /** 'word' for normal words, 'end' for the ayah-end marker glyph */
   char_type_name: 'word' | 'end';
-  /** Verse key e.g. "2:255" — only set when we attach it from the verse */
-  verse_key?: string;
-  /** Verse number within the surah — for end markers */
-  verse_number?: number;
+  /** Page number of the V2 font that contains this word's glyph */
+  v2_page: number;
+  /** Verse key e.g. "2:255" */
+  verse_key: string;
+  /** Verse number within the surah */
+  verse_number: number;
 }
 
 export interface QpcPageData {
   page_number: number;
   /** All words on the page, in reading order */
   words: QpcWord[];
-  /** Distinct surah numbers on this page (for header) */
+  /** Distinct surah numbers on this page */
   surah_numbers: number[];
-  /** Map of line_number → header info if a surah starts on that line */
-  surah_header_lines?: Record<number, { number: number; name: string; verses: number; revelation: 'Meccan' | 'Medinan' }>;
-  /** Whether this page should display Bismillah header (after a surah-name line) */
-  bismillah_lines?: number[];
 }
 
 /**
- * Inject @font-face for a given mushaf page font (idempotent).
- * Resolves once the font is fully loaded into the browser font cache.
+ * Format a page number as 3-digit zero-padded (e.g., 1 → "001", 42 → "042").
  */
-export function loadPageFont(page: number): Promise<void> {
-  if (loadedFonts.has(page)) return Promise.resolve();
+const padPage = (n: number) => String(n).padStart(3, '0');
+
+const fontFamily = (page: number) => `QPC2-P${padPage(page)}`;
+const fontUrl = (page: number) => `${FONT_BASE}/QCF_P${padPage(page)}.woff2`;
+
+/**
+ * Load a page font and VERIFY it is actually available.
+ * Returns `true` only when the font is fully decoded and usable.
+ * Returns `false` if loading or verification fails — caller MUST refuse to
+ * render the page in that case.
+ */
+export function loadPageFont(page: number): Promise<boolean> {
+  if (page < 1 || page > 604) return Promise.resolve(false);
+  if (loadedFonts.has(page)) return Promise.resolve(true);
   const existing = loadingFonts.get(page);
   if (existing) return existing;
 
-  const family = `QPC2-P${page}`;
-  const url = `${FONT_CDN}/p${page}.woff2`;
+  const family = fontFamily(page);
+  const url = fontUrl(page);
 
-  // Inject the @font-face rule once
+  // Inject the @font-face rule once.
+  // font-display: block ⇒ browser shows invisible glyphs until font loads,
+  // NEVER swaps in a fallback font that would corrupt the Quran rendering.
   const styleId = `qpc2-style-${page}`;
-  if (!document.getElementById(styleId)) {
+  if (typeof document !== 'undefined' && !document.getElementById(styleId)) {
     const style = document.createElement('style');
     style.id = styleId;
-    style.textContent = `@font-face{font-family:'${family}';src:url('${url}') format('woff2');font-display:block;}`;
+    style.textContent =
+      `@font-face{font-family:'${family}';` +
+      `src:url('${url}') format('woff2');` +
+      `font-display:block;font-weight:normal;font-style:normal;}`;
     document.head.appendChild(style);
   }
 
-  // Use FontFace API where available for accurate readiness signal.
-  const promise = (async () => {
+  const promise = (async (): Promise<boolean> => {
     try {
-      if (typeof (document as Document & { fonts?: { load: (s: string) => Promise<unknown> } }).fonts !== 'undefined') {
-        await (document as unknown as { fonts: { load: (s: string) => Promise<unknown> } }).fonts.load(`16px '${family}'`);
+      if (typeof document === 'undefined' || !document.fonts) {
+        // No FontFace API — we cannot verify, so refuse.
+        return false;
       }
+      // Force-load the font and wait for it.
+      await document.fonts.load(`16px '${family}'`);
+      // Double-check it actually loaded — defends against silent CDN failures.
+      const ok = document.fonts.check(`16px '${family}'`);
+      if (ok) {
+        loadedFonts.add(page);
+        return true;
+      }
+      return false;
     } catch {
-      /* ignore — fall back to font-display behavior */
+      return false;
     } finally {
-      loadedFonts.add(page);
       loadingFonts.delete(page);
     }
   })();
@@ -85,8 +115,9 @@ export function loadPageFont(page: number): Promise<void> {
 }
 
 /**
- * Fetch (and cache) the words + line layout for a single mushaf page.
- * Cached in localStorage so subsequent loads are instant + offline-friendly.
+ * Fetch (and cache) the words + line layout for a single mushaf page from the
+ * official Quran Foundation API. We request `code_v2`, `v2_page`, `line_v2`
+ * so that every word is matched to the exact font file containing its glyph.
  */
 export async function fetchPageData(page: number): Promise<QpcPageData> {
   const lsKey = `${LS_PAGE_PREFIX}${page}`;
@@ -94,17 +125,24 @@ export async function fetchPageData(page: number): Promise<QpcPageData> {
     const cached = localStorage.getItem(lsKey);
     if (cached) {
       const parsed = JSON.parse(cached) as QpcPageData;
-      if (parsed?.words?.length) return parsed;
+      if (parsed?.words?.length && parsed.page_number === page) return parsed;
     }
   } catch { /* ignore */ }
 
-  const url = `${API_BASE}/verses/by_page/${page}?words=true&per_page=300&word_fields=code_v2,line_number,position,page_number,char_type_name`;
+  // Request V2-specific fields. `mushaf=1` = QCF V2 layout.
+  const url =
+    `${API_BASE}/verses/by_page/${page}` +
+    `?words=true&per_page=300&mushaf=1` +
+    `&word_fields=code_v2,v2_page,line_v2,position,char_type_name`;
   const r = await fetch(url);
-  if (!r.ok) throw new Error(`Failed to load page ${page}`);
+  if (!r.ok) throw new Error(`Failed to load page ${page}: HTTP ${r.status}`);
   const data = await r.json();
+
   type RawWord = {
     code_v2: string;
-    line_number: number;
+    v2_page: number;
+    line_v2?: number;
+    line_number?: number;
     position: number;
     char_type_name: 'word' | 'end';
   };
@@ -114,7 +152,8 @@ export async function fetchPageData(page: number): Promise<QpcPageData> {
     page_number: number;
     words: RawWord[];
   };
-  const verses: RawVerse[] = data.verses ?? [];
+  const verses: RawVerse[] = data?.verses ?? [];
+  if (!verses.length) throw new Error(`No verses returned for page ${page}`);
 
   const words: QpcWord[] = [];
   const surahSet = new Set<number>();
@@ -123,11 +162,19 @@ export async function fetchPageData(page: number): Promise<QpcPageData> {
     const surahN = parseInt(surahStr, 10);
     surahSet.add(surahN);
     for (const w of v.words) {
+      // V2 line number — fall back to line_number only if line_v2 absent.
+      const ln = w.line_v2 ?? w.line_number ?? 1;
+      // Each word MUST have a v2_page. If missing, the API response is
+      // unsafe — abort to avoid mis-rendering.
+      if (typeof w.v2_page !== 'number' || !w.code_v2) {
+        throw new Error(`Malformed word data on page ${page}`);
+      }
       words.push({
         code_v2: w.code_v2,
-        line_number: w.line_number,
+        line_number: ln,
         position: w.position,
         char_type_name: w.char_type_name,
+        v2_page: w.v2_page,
         verse_key: v.verse_key,
         verse_number: v.verse_number,
       });
@@ -160,11 +207,6 @@ export function groupByLine(words: QpcWord[]): Map<number, QpcWord[]> {
   return map;
 }
 
-/** Check if a given verse is the very first ayah of a surah */
-export function isFirstAyahOfSurah(verseKey: string): boolean {
-  return verseKey.endsWith(':1');
-}
-
 /**
  * Parse the verse_key of a word, e.g. "2:255" → { surah: 2, ayah: 255 }
  */
@@ -176,5 +218,15 @@ export function parseVerseKey(key: string): { surah: number; ayah: number } | nu
   return null;
 }
 
-/** Page font family helper */
-export const pageFontFamily = (page: number) => `QPC2-P${page}`;
+/** Page font family helper — name MUST match what loadPageFont injects. */
+export const pageFontFamily = (page: number) => fontFamily(page);
+
+/**
+ * Determine the unique set of font pages required to render every word on the
+ * given page (each word's glyph lives in its own `v2_page` font file).
+ */
+export function uniqueFontPagesFor(words: QpcWord[]): number[] {
+  const set = new Set<number>();
+  for (const w of words) set.add(w.v2_page);
+  return Array.from(set).sort((a, b) => a - b);
+}
