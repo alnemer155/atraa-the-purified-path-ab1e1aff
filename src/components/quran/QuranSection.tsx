@@ -208,6 +208,23 @@ const QuranSection = () => {
     return () => { cancelled = true; };
   }, []);
 
+  // Fetch chapter→page mapping from quran.com (for QPC V2 page renderer)
+  useEffect(() => {
+    let cancelled = false;
+    fetch('https://api.quran.com/api/v4/chapters?language=ar')
+      .then(r => r.json())
+      .then((d: { chapters?: Array<{ id: number; pages: [number, number] }> }) => {
+        if (cancelled || !d?.chapters) return;
+        const map = new Map<number, number>();
+        for (const c of d.chapters) {
+          if (Array.isArray(c.pages) && c.pages.length > 0) map.set(c.id, c.pages[0]);
+        }
+        setSurahPages(map);
+      })
+      .catch(() => { /* fall back to legacy reader */ });
+    return () => { cancelled = true; };
+  }, []);
+
   // Fetch surah ayahs when opened
   useEffect(() => {
     if (!openSurah) return;
