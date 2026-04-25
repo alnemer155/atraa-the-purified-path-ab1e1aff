@@ -105,10 +105,14 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
-  // Scroll to top on page change
+  // Scroll to top on page change (page-level in inline, container in modal)
   useEffect(() => {
-    containerRef.current?.scrollTo({ top: 0 });
-  }, [page]);
+    if (inline) {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    } else {
+      containerRef.current?.scrollTo({ top: 0 });
+    }
+  }, [page, inline]);
 
   const lines = useMemo(() => {
     if (!data) return [];
