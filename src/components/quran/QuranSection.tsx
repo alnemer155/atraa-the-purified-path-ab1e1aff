@@ -138,12 +138,12 @@ const QuranSection = () => {
   const [bookmarkVersion, setBookmarkVersion] = useState(0); // forces re-render after toggle
   const ayahRefs = useRef<Record<number, HTMLSpanElement | null>>({});
 
-  // NOTE: The QPC V2 page-by-page glyph renderer was disabled because the
-  // glyph fonts (PUA codepoints) cannot guarantee 100% accuracy when the CDN
-  // fonts fail to load — producing visually corrupted Quran text. The reader
-  // now uses ONLY the verified Uthmani text from AlQuran.cloud (sourced from
-  // King Fahd Glorious Quran Printing Complex). Every ayah and ayah number
-  // is fetched directly from the canonical Mushaf API.
+  // QPC V2 page-by-page renderer state. The renderer itself enforces strict
+  // font-verification — it will refuse to display any text until ALL required
+  // page fonts are verifiably loaded (no fallback fonts, no risk of corruption).
+  // Surah → first-page mapping is loaded from the official quran.com chapters API.
+  const [surahPages, setSurahPages] = useState<Map<number, number> | null>(null);
+  const [openPage, setOpenPage] = useState<number | null>(null);
 
   // Ayah of the day — deterministic per calendar day, fetched live from the
   // canonical Mushaf (AlQuran.cloud /ayah/{n}/quran-uthmani) so the verse is
