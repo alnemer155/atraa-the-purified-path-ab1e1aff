@@ -5,6 +5,9 @@ import { ChevronLeft, ChevronRight, Check, Lock, Calendar, MapPin, LocateFixed, 
 import { setHijriAdjustment } from '@/lib/user';
 import { getAccurateLocation } from '@/lib/geo';
 import { toast } from 'sonner';
+import { getSeasonalLogo } from '@/lib/seasonal-logo';
+
+const welcomeLogo = getSeasonalLogo();
 
 const ONBOARDING_KEY = 'atraa_onboarding_done_v1';
 
@@ -46,6 +49,14 @@ const OnboardingScreen = ({ onFinish }: Props) => {
   const ForwardChevron = isAr ? ChevronLeft : ChevronRight;
 
   const [step, setStep] = useState<Step>(0);
+  const [showWelcome, setShowWelcome] = useState(true);
+
+  // Welcome screen — 2 seconds, then transition to first step
+  useEffect(() => {
+    if (!showWelcome) return;
+    const t = setTimeout(() => setShowWelcome(false), 2000);
+    return () => clearTimeout(t);
+  }, [showWelcome]);
 
   // Step 1: Madhhab (only Shia selectable)
   const [madhhab, setMadhhab] = useState<'shia' | null>(null);
@@ -137,6 +148,43 @@ const OnboardingScreen = ({ onFinish }: Props) => {
 
   return (
     <div className="fixed inset-0 z-[60] bg-background flex flex-col" dir={isAr ? 'rtl' : 'ltr'}>
+      {/* Welcome overlay — 2s */}
+      <AnimatePresence>
+        {showWelcome && (
+          <motion.div
+            key="welcome"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background"
+          >
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,_hsl(var(--primary)/0.06)_0%,_transparent_60%)]" />
+            <motion.div
+              initial={{ scale: 0.85, opacity: 0, y: 6 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="flex flex-col items-center"
+            >
+              <img
+                src={welcomeLogo}
+                alt="Atraa"
+                className="h-12 w-auto object-contain mb-5"
+                style={{ maxHeight: 48 }}
+              />
+              <motion.p
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.5 }}
+                className="text-[15px] text-foreground tracking-wide"
+                style={{ fontWeight: 300 }}
+              >
+                {isAr ? 'أهلاً بك في عِتَرَةً' : 'Welcome to Atraa'}
+              </motion.p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Top bar with progress */}
       <div className="px-5 pt-6 pb-4">
         <div className="flex items-center justify-between mb-3">
