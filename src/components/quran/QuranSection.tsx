@@ -10,7 +10,7 @@ import {
   toggleBookmark, isBookmarked,
 } from '@/lib/quran-meta';
 import { ayahMark } from '@/lib/islamic-symbols';
-import QuranPageReader from './QuranPageReader';
+// QuranPageReader (QPC V2 glyph renderer) intentionally not imported — see note in component
 
 interface Surah {
   number: number;
@@ -138,10 +138,12 @@ const QuranSection = () => {
   const [bookmarkVersion, setBookmarkVersion] = useState(0); // forces re-render after toggle
   const ayahRefs = useRef<Record<number, HTMLSpanElement | null>>({});
 
-  // Page mapping: surah number → first page in mushaf (from quran.com chapters API).
-  // When available, opening a surah launches the QPC V2 page-by-page renderer.
-  const [surahPages, setSurahPages] = useState<Map<number, number> | null>(null);
-  const [openPage, setOpenPage] = useState<number | null>(null);
+  // NOTE: The QPC V2 page-by-page glyph renderer was disabled because the
+  // glyph fonts (PUA codepoints) cannot guarantee 100% accuracy when the CDN
+  // fonts fail to load — producing visually corrupted Quran text. The reader
+  // now uses ONLY the verified Uthmani text from AlQuran.cloud (sourced from
+  // King Fahd Glorious Quran Printing Complex). Every ayah and ayah number
+  // is fetched directly from the canonical Mushaf API.
 
   // Ayah of the day — deterministic per calendar day, fetched live from the
   // canonical Mushaf (AlQuran.cloud /ayah/{n}/quran-uthmani) so the verse is
@@ -208,22 +210,8 @@ const QuranSection = () => {
     return () => { cancelled = true; };
   }, []);
 
-  // Fetch chapter→page mapping from quran.com (for QPC V2 page renderer)
-  useEffect(() => {
-    let cancelled = false;
-    fetch('https://api.quran.com/api/v4/chapters?language=ar')
-      .then(r => r.json())
-      .then((d: { chapters?: Array<{ id: number; pages: [number, number] }> }) => {
-        if (cancelled || !d?.chapters) return;
-        const map = new Map<number, number>();
-        for (const c of d.chapters) {
-          if (Array.isArray(c.pages) && c.pages.length > 0) map.set(c.id, c.pages[0]);
-        }
-        setSurahPages(map);
-      })
-      .catch(() => { /* fall back to legacy reader */ });
-    return () => { cancelled = true; };
-  }, []);
+  // (QPC V2 chapter→page mapping removed — see note above. Reader uses verified
+  // Uthmani text from AlQuran.cloud only.)
 
   // Fetch surah ayahs when opened
   useEffect(() => {
@@ -313,17 +301,11 @@ const QuranSection = () => {
   }, [surahs, search]);
 
   /**
-   * Open a surah in the reader. Prefers QPC V2 page-by-page renderer when
-   * the chapter→page mapping has loaded; falls back to the legacy continuous
-   * Uthmani reader otherwise.
+   * Open a surah in the verified Uthmani text reader.
+   * Always uses the canonical AlQuran.cloud Mushaf API to guarantee accuracy.
    */
   const openSurahReader = (s: Surah) => {
-    const startPage = surahPages?.get(s.number);
-    if (startPage) {
-      setOpenPage(startPage);
-    } else {
-      setOpenSurah(s);
-    }
+    setOpenSurah(s);
   };
 
   const openAyahOfDay = () => {
@@ -608,7 +590,18 @@ const QuranSection = () => {
                       // because the API includes it inline for many surahs.
                       let text = a.text;
                       if (idx === 0 && openSurah.number !== 1 && openSurah.number !== 9) {
-                        text = text.replace(/^بِسْمِ\s*ٱللَّهِ\s*ٱلرَّحْمَـٰنِ\s*ٱلرَّحِيمِ\s*/, '');
+                        const stripped = stripArabicDiacritics(text);
+                        const m = stripped.match(/^\s*بسم\s*الله\s*الرحمـ?ن\s*الرحيم\s*/);
+                        if (m) {
+                          const isDiacritic = (c: string) => /[\u064B-\u065F\u0670\u06D6-\u06ED]/.test(c);
+                          let consumed = 0, i = 0;
+                          while (i < text.length && consumed < m[0].length) {
+                            if (!isDiacritic(text[i])) consumed++;
+                            i++;
+                          }
+                          while (i < text.length && isDiacritic(text[i])) i++;
+                          text = text.slice(i).replace(/^\s+/, "");
+                        }
                       }
                       const marked = isBookmarked(openSurah.number, a.numberInSurah);
                       // bookmarkVersion read forces React to recompute marked after toggle
@@ -658,26 +651,6 @@ const QuranSection = () => {
         )}
       </AnimatePresence>
 
-      {/* QPC V2 page-by-page Madinah Mushaf reader */}
-      <AnimatePresence>
-        {openPage !== null && surahs && (
-          <QuranPageReader
-            initialPage={openPage}
-            surahsByNumber={new Map(surahs.map(s => [s.number, {
-              number: s.number,
-              name: s.name,
-              englishName: s.englishName,
-              numberOfAyahs: s.numberOfAyahs,
-              revelationType: s.revelationType,
-            }]))}
-            onClose={() => {
-              setOpenPage(null);
-              const localePrefix = params.locale ? `/${params.locale}` : '';
-              navigate(`${localePrefix}/quran`, { replace: true });
-            }}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 };
