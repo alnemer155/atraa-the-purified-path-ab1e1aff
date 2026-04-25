@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Shield, Loader2, Sparkles } from 'lucide-react';
+import { Heart, Shield, Loader2, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { initializePaddle, getPaddlePriceId } from '@/lib/paddle';
 import { PaymentTestModeBanner } from '@/components/PaymentTestModeBanner';
@@ -10,16 +10,15 @@ import { toast } from 'sonner';
 type Tier = {
   priceId: string;
   sar: number;
-  label?: 'popular' | 'generous';
 };
 
 const TIERS: Tier[] = [
   { priceId: 'support_sar_10', sar: 10 },
   { priceId: 'support_sar_25', sar: 25 },
-  { priceId: 'support_sar_50', sar: 50, label: 'popular' },
+  { priceId: 'support_sar_50', sar: 50 },
   { priceId: 'support_sar_100', sar: 100 },
   { priceId: 'support_sar_250', sar: 250 },
-  { priceId: 'support_sar_500', sar: 500, label: 'generous' },
+  { priceId: 'support_sar_500', sar: 500 },
 ];
 
 type Stage = 'compliance' | 'choose';
@@ -30,27 +29,30 @@ const SupportPage = () => {
   const isAr = i18n.language === 'ar';
 
   const [stage, setStage] = useState<Stage>('compliance');
-  const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
+  const [selectedSar, setSelectedSar] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSupport = async (tier: Tier) => {
-    if (loadingPriceId) return;
-    setLoadingPriceId(tier.priceId);
+  const selectedTier = TIERS.find((t) => t.sar === selectedSar) || null;
+
+  const handleConfirm = async () => {
+    if (!selectedTier || loading) return;
+    setLoading(true);
 
     try {
       await initializePaddle();
-      const paddlePriceId = await getPaddlePriceId(tier.priceId);
+      const paddlePriceId = await getPaddlePriceId(selectedTier.priceId);
 
       window.Paddle.Checkout.open({
         items: [{ priceId: paddlePriceId, quantity: 1 }],
         customData: {
           source: 'atraa_support_page',
-          tier_sar: String(tier.sar),
+          tier_sar: String(selectedTier.sar),
         },
         settings: {
           displayMode: 'overlay',
           theme: 'dark',
           locale: isAr ? 'ar' : 'en',
-          successUrl: `${window.location.origin}/support/thanks?tier=${tier.sar}`,
+          successUrl: `${window.location.origin}/support/thanks?tier=${selectedTier.sar}`,
           allowLogout: false,
           variant: 'one-page',
         },
@@ -59,7 +61,7 @@ const SupportPage = () => {
       console.error('Checkout error:', e);
       toast.error(isAr ? 'تعذّر فتح صفحة الدفع' : 'Could not open checkout');
     } finally {
-      setLoadingPriceId(null);
+      setLoading(false);
     }
   };
 
@@ -156,7 +158,7 @@ const SupportPage = () => {
             </motion.div>
           )}
 
-          {/* Stage 2: choose tier */}
+          {/* Stage 2: choose tier — 3x2 grid + bottom confirm */}
           {stage === 'choose' && (
             <motion.div
               key="choose"
@@ -168,45 +170,30 @@ const SupportPage = () => {
               <div className="bg-card border border-border/30 rounded-2xl p-5 shadow-card">
                 <p className="text-[11px] text-muted-foreground/70 mb-4 font-light">
                   {isAr
-                    ? 'اختر مبلغ المساهمة (ريال سعودي) — يتم الدفع بأمان عبر Paddle'
-                    : 'Select your contribution (SAR) — secure payment via Paddle'}
+                    ? 'اختر مبلغ المساهمة (ريال سعودي)'
+                    : 'Select your contribution (SAR)'}
                 </p>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   {TIERS.map((tier) => {
-                    const isLoading = loadingPriceId === tier.priceId;
+                    const isSel = selectedSar === tier.sar;
                     return (
                       <button
                         key={tier.priceId}
-                        onClick={() => handleSupport(tier)}
-                        disabled={!!loadingPriceId}
-                        className={`relative py-4 rounded-xl text-foreground border transition-all active:scale-[0.97] disabled:opacity-50 ${
-                          tier.label === 'popular'
-                            ? 'bg-primary/8 border-primary/30'
-                            : tier.label === 'generous'
-                            ? 'bg-accent/8 border-accent/30'
-                            : 'bg-secondary/30 border-border/20'
+                        onClick={() => setSelectedSar(tier.sar)}
+                        className={`relative py-5 rounded-xl border transition-all active:scale-[0.97] ${
+                          isSel
+                            ? 'bg-primary/10 border-primary text-foreground'
+                            : 'bg-secondary/30 border-border/30 text-foreground hover:border-border/60'
                         }`}
                       >
-                        {tier.label === 'popular' && (
-                          <span className="absolute -top-1.5 start-2 text-[8px] px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground font-light">
-                            {isAr ? 'الأكثر' : 'Popular'}
-                          </span>
+                        {isSel && (
+                          <div className="absolute top-1.5 end-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                            <Check className="w-2.5 h-2.5 text-primary-foreground" strokeWidth={3} />
+                          </div>
                         )}
-                        {tier.label === 'generous' && (
-                          <span className="absolute -top-1.5 start-2 text-[8px] px-1.5 py-0.5 rounded-full bg-accent text-accent-foreground font-light flex items-center gap-0.5">
-                            <Sparkles className="w-2 h-2" strokeWidth={2} />
-                            {isAr ? 'كريم' : 'Generous'}
-                          </span>
-                        )}
-                        {isLoading ? (
-                          <Loader2 className="w-4 h-4 mx-auto animate-spin text-muted-foreground" />
-                        ) : (
-                          <>
-                            <div className="text-[18px] tabular-nums leading-none">{tier.sar}</div>
-                            <div className="text-[9px] text-muted-foreground/60 font-light mt-1">SAR</div>
-                          </>
-                        )}
+                        <div className="text-[18px] tabular-nums leading-none font-light">{tier.sar}</div>
+                        <div className="text-[9px] text-muted-foreground/70 font-light mt-1.5">SAR</div>
                       </button>
                     );
                   })}
@@ -214,17 +201,38 @@ const SupportPage = () => {
 
                 <p className="text-[10px] text-muted-foreground/50 text-center font-light mt-4 leading-relaxed">
                   {isAr
-                    ? 'الفاتورة تُرسل تلقائيًا بعد إتمام الدفع، ويمكنك تنزيلها بصيغة PDF.'
-                    : 'Invoice is generated automatically after payment, downloadable as PDF.'}
+                    ? 'يتم الدفع بأمان عبر Paddle. الفاتورة تُولَّد تلقائيًا.'
+                    : 'Secure payment via Paddle. Invoice is generated automatically.'}
                 </p>
               </div>
 
-              <button
-                onClick={() => setStage('compliance')}
-                className="w-full py-2.5 rounded-xl bg-secondary/40 text-foreground text-[12px] active:scale-95 transition-transform"
-              >
-                {isAr ? 'رجوع' : 'Back'}
-              </button>
+              {/* Bottom: back + confirm */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setSelectedSar(null); setStage('compliance'); }}
+                  className="px-5 py-3.5 rounded-2xl bg-secondary/40 text-foreground text-[13px] active:scale-95 transition-transform"
+                >
+                  {isAr ? 'رجوع' : 'Back'}
+                </button>
+                <button
+                  onClick={handleConfirm}
+                  disabled={!selectedTier || loading}
+                  className="flex-1 py-3.5 rounded-2xl bg-primary text-primary-foreground text-[13px] font-medium active:scale-[0.98] transition-transform disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      {isAr ? 'تأكيد' : 'Confirm'}
+                      {selectedSar && (
+                        <span className="text-[11px] opacity-80 tabular-nums">
+                          · {selectedSar} SAR
+                        </span>
+                      )}
+                    </>
+                  )}
+                </button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
