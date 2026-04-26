@@ -18,8 +18,9 @@
  * per-origin Cache Storage quota). Per-surah download is the safe maximum.
  */
 
-const RECITER_PATH = 'Abdul_Basit_Murattal_192kbps';
-const CDN_BASE = `https://everyayah.com/data/${RECITER_PATH}`;
+import { getReciter, getStoredReciterId } from './quran-reciters';
+
+const CDN_HOST = 'https://everyayah.com/data';
 const CACHE_NAME = 'atraa-quran-audio-v1';
 /** Soft cap: ~120 MB. Far below the iOS quota; LRU-evicted when exceeded. */
 const MAX_CACHE_BYTES = 120 * 1024 * 1024;
