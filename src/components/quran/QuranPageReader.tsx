@@ -609,7 +609,13 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
         )}
 
         {!loading && !error && data && orientation === 'vertical' && (
-          <PageContent data={data} isCentered={isCentered} />
+          <PageContent
+            data={data}
+            isCentered={isCentered}
+            colorMap={colorMap}
+            onAyahTap={(s, ay) => setPickerAyah({ surah: s, ayah: ay })}
+            playingAyah={playingAyah}
+          />
         )}
 
         {!loading && !error && data && orientation === 'horizontal' && (
@@ -633,7 +639,13 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
                       <p className="text-[11px] text-muted-foreground/50 font-light">— نهاية المصحف —</p>
                     </div>
                   ) : pageData ? (
-                    <PageContent data={pageData} isCentered={p <= 2} />
+                    <PageContent
+                      data={pageData}
+                      isCentered={p <= 2}
+                      colorMap={colorMap}
+                      onAyahTap={(s, ay) => setPickerAyah({ surah: s, ayah: ay })}
+                      playingAyah={playingAyah}
+                    />
                   ) : (
                     <div className="flex items-center justify-center py-24">
                       <Loader2 className="w-4 h-4 text-muted-foreground/40 animate-spin" />
@@ -704,6 +716,33 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
           />
         </div>
       </div>
+
+      {/* Ayah color picker bottom-sheet */}
+      {pickerAyah && (
+        <AyahColorPicker
+          open
+          surah={pickerAyah.surah}
+          ayah={pickerAyah.ayah}
+          surahName={(() => {
+            const m = surahsByNumber.get(pickerAyah.surah);
+            return m ? m.name.replace(/^سُورَةُ\s*/, '').replace(/^سورة\s*/, '') : '';
+          })()}
+          currentColor={getAyahColor(pickerAyah.surah, pickerAyah.ayah)}
+          onPick={(c) => {
+            setAyahColor(pickerAyah.surah, pickerAyah.ayah, c);
+            setPickerAyah(null);
+          }}
+          onClear={() => {
+            clearAyahColor(pickerAyah.surah, pickerAyah.ayah);
+            setPickerAyah(null);
+          }}
+          onPlay={() => {
+            onPlayAyah?.(pickerAyah.surah, pickerAyah.ayah);
+            setPickerAyah(null);
+          }}
+          onClose={() => setPickerAyah(null)}
+        />
+      )}
     </motion.div>
   );
 };
