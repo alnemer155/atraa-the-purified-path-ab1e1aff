@@ -231,7 +231,7 @@ const PageContent = ({
  * Madinah Mushaf page-by-page reader using the official KFGQPC Uthmanic
  * Script font and Tanzil-verified Uthmani text (alquran.cloud).
  */
-const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, inline = false }: Props) => {
+const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, inline = false, onPlayAyah, playingAyah }: Props) => {
   const [page, setPage] = useState(initialPage);
   const [data, setData] = useState<PageData | null>(null);
   const [neighbourData, setNeighbourData] = useState<Map<number, PageData>>(new Map());
@@ -241,7 +241,20 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
   const [orientation, setOrientation] = useState<Orientation>(getStoredOrientation);
   const [jumpValue, setJumpValue] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [colorMap, setColorMap] = useState<Record<string, AyahColor>>(() => getAllAyahColors());
+  const [pickerAyah, setPickerAyah] = useState<{ surah: number; ayah: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Subscribe to in-tab color-mark changes (custom event from quran-bookmarks).
+  useEffect(() => {
+    const refresh = () => setColorMap(getAllAyahColors());
+    window.addEventListener('atraa:ayah-marks-changed', refresh);
+    window.addEventListener('storage', refresh);
+    return () => {
+      window.removeEventListener('atraa:ayah-marks-changed', refresh);
+      window.removeEventListener('storage', refresh);
+    };
+  }, []);
 
   useEffect(() => {
     try { localStorage.setItem(ORIENTATION_KEY, orientation); } catch { /* ignore */ }
