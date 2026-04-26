@@ -167,6 +167,15 @@
     font-feature-settings: 'liga' 1, 'calt' 1;
   }
 
+  /* Dedicated calligraphic typeface for surah names (cartouche header).
+     Aref Ruqaa gives an authentic mushaf feel, distinct from the body Uthmani. */
+  .surah-name-display {
+    font-family: 'Aref Ruqaa', 'Amiri Quran', 'KFGQPC Uthmanic Script', serif;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    font-feature-settings: 'liga' 1, 'calt' 1;
+  }
+
   /* End-of-ayah marker (۝) styling — slightly emphasized */
   .ayah-mark {
     color: hsl(var(--accent));
