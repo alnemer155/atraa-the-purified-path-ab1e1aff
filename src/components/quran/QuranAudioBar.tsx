@@ -215,7 +215,7 @@ const QuranAudioBar = ({
       a.removeEventListener('ended', advance);
       a.removeEventListener('error', onErr);
     };
-  }, [current, surahsByNumber, onAyahChange, onStop, range, settings.gapMs, settings.autoAdvance, settings.repeatCount]);
+  }, [current, surahsByNumber, onAyahChange, onStop, range, settings.gapMs, settings.autoAdvance, settings.repeatCount, settings.speed]);
 
   // Volume sync
   useEffect(() => {
@@ -229,6 +229,7 @@ const QuranAudioBar = ({
       const a = audioRef.current;
       if (a) { a.pause(); a.src = ''; }
       if (blobUrlRef.current) revokeAyahBlobUrl(blobUrlRef.current);
+      if (basmalahUrlRef.current) revokeAyahBlobUrl(basmalahUrlRef.current);
     };
   }, []);
 
