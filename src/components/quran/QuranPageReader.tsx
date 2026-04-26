@@ -318,6 +318,21 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
   }, [data]);
   const currentSurahMeta = currentSurahNumber ? surahsByNumber.get(currentSurahNumber) : undefined;
 
+  // Surahs that appear on the current page — passed up so PlaybackPanel can
+  // default the recitation range to the first surah on this page.
+  useEffect(() => {
+    if (!data || !onPageSurahsChange) return;
+    const seen = new Set<number>();
+    const list: SurahMeta[] = [];
+    for (const a of data.ayahs) {
+      if (seen.has(a.surah.number)) continue;
+      seen.add(a.surah.number);
+      const meta = surahsByNumber.get(a.surah.number);
+      if (meta) list.push(meta);
+    }
+    onPageSurahsChange(list);
+  }, [data, surahsByNumber, onPageSurahsChange]);
+
   // Juz / Hizb of the FIRST ayah on the current page
   const juzHizb = useMemo(() => {
     if (!data || !data.ayahs.length) return null;
