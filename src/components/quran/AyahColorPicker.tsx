@@ -22,7 +22,6 @@ interface Props {
  */
 const AyahColorPicker = ({
   open,
-  surah,
   ayah,
   surahName,
   currentColor,

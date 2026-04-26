@@ -125,7 +125,7 @@ export function getBestAccuracyLocation({
         },
         { enableHighAccuracy: true, timeout: fallbackTimeoutMs, maximumAge: 0 }
       );
-    } catch (e) {
+    } catch {
       // Browser blocked watchPosition — fall back to one-shot.
       navigator.geolocation.getCurrentPosition(
         (pos) => finish(pos),
