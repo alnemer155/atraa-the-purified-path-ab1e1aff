@@ -74,54 +74,98 @@ const getStoredOrientation = (): Orientation => {
 const FIXED_FONT_SIZE = 26;
 
 /**
- * Refined Madinah Mushaf surah header — minimal, calligraphic cartouche.
- * Smaller and more elegant than the previous oversized variant. Uses
- * the dedicated `surah-name-display` typeface for the surah name.
+ * Refined Madinah Mushaf surah header — an illuminated calligraphic
+ * cartouche inspired by the gilded surah-headings of the King Fahd Mushaf.
+ * The surah name itself is set in the official KFGQPC Uthmanic Script
+ * (the same typeface used for the Quranic body), surrounded by a layered
+ * ornamental frame with arabesque flourishes and twin rosettes.
  */
 const MadinahSurahHeader = ({ meta }: { meta: SurahMeta }) => {
   const cleanName = meta.name
     .replace(/^سُورَةُ\s*/, '')
     .replace(/^سورة\s*/, '');
   return (
-    <div className="my-5 text-center select-none">
-      <div className="relative mx-auto max-w-[360px] h-[64px] flex items-center justify-center">
+    <div className="my-6 text-center select-none" aria-label={`سورة ${cleanName}`}>
+      <div className="relative mx-auto max-w-[380px] h-[88px] flex items-center justify-center">
         <svg
-          viewBox="0 0 360 64"
+          viewBox="0 0 380 88"
           className="absolute inset-0 w-full h-full text-gold"
           preserveAspectRatio="none"
           aria-hidden
         >
-          {/* Single elegant outer frame */}
-          <rect x="2" y="2" width="356" height="60" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.55" />
-          <rect x="6" y="6" width="348" height="52" fill="none" stroke="currentColor" strokeWidth="0.4" opacity="0.32" />
-          {/* Soft corner flourishes */}
-          <g stroke="currentColor" strokeWidth="0.5" fill="none" opacity="0.55">
-            <path d="M10 18 q0 -8 8 -8" />
-            <path d="M350 10 q8 0 8 8" />
-            <path d="M10 46 q0 8 8 8" />
-            <path d="M350 54 q8 0 8 -8" />
+          <defs>
+            <linearGradient id="cartoucheFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="currentColor" stopOpacity="0.06" />
+              <stop offset="50%" stopColor="currentColor" stopOpacity="0.12" />
+              <stop offset="100%" stopColor="currentColor" stopOpacity="0.06" />
+            </linearGradient>
+          </defs>
+
+          {/* Soft gilded background panel with arched ends */}
+          <path
+            d="M30 8 H350 Q372 8 372 30 V58 Q372 80 350 80 H30 Q8 80 8 58 V30 Q8 8 30 8 Z"
+            fill="url(#cartoucheFill)"
+            stroke="currentColor"
+            strokeWidth="0.9"
+            strokeOpacity="0.7"
+          />
+          {/* Inner double-line frame */}
+          <path
+            d="M36 14 H344 Q366 14 366 30 V58 Q366 74 344 74 H36 Q14 74 14 58 V30 Q14 14 36 14 Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="0.5"
+            strokeOpacity="0.5"
+          />
+          <path
+            d="M40 18 H340 Q362 18 362 30 V58 Q362 70 340 70 H40 Q18 70 18 58 V30 Q18 18 40 18 Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="0.3"
+            strokeOpacity="0.35"
+          />
+
+          {/* Twin rosettes (left & right side medallions) */}
+          {[28, 352].map((cx) => (
+            <g key={cx} stroke="currentColor" fill="none" strokeWidth="0.5" opacity="0.75">
+              <circle cx={cx} cy={44} r={6} />
+              <circle cx={cx} cy={44} r={3.5} strokeOpacity="0.6" />
+              {/* 8-pointed star inside */}
+              <g opacity="0.85">
+                {Array.from({ length: 8 }).map((_, i) => {
+                  const angle = (i * Math.PI) / 4;
+                  const x2 = cx + Math.cos(angle) * 5.5;
+                  const y2 = 44 + Math.sin(angle) * 5.5;
+                  return (
+                    <line key={i} x1={cx} y1={44} x2={x2} y2={y2} strokeWidth="0.3" />
+                  );
+                })}
+              </g>
+              <circle cx={cx} cy={44} r={1} fill="currentColor" opacity="0.7" />
+            </g>
+          ))}
+
+          {/* Arabesque flourishes flanking the title */}
+          <g stroke="currentColor" fill="none" strokeWidth="0.45" opacity="0.6">
+            <path d="M40 44 q12 -8 24 0 q12 8 24 0" />
+            <path d="M340 44 q-12 -8 -24 0 q-12 8 -24 0" />
           </g>
-          {/* Side rosettes */}
-          <g stroke="currentColor" strokeWidth="0.5" fill="none" opacity="0.6">
-            <circle cx="24" cy="32" r="3.2" />
-            <circle cx="336" cy="32" r="3.2" />
-          </g>
-          <g fill="currentColor" opacity="0.5">
-            <circle cx="24" cy="32" r="0.7" />
-            <circle cx="336" cy="32" r="0.7" />
-          </g>
-          {/* Connecting hairlines */}
-          <g stroke="currentColor" strokeWidth="0.35" opacity="0.4">
-            <path d="M30 32 H58" />
-            <path d="M302 32 H330" />
+
+          {/* Top & bottom centre crowns */}
+          <g stroke="currentColor" fill="none" strokeWidth="0.4" opacity="0.55">
+            <path d="M178 8 q12 -6 24 0" />
+            <path d="M178 80 q12 6 24 0" />
+            <circle cx="190" cy="6" r="0.9" fill="currentColor" opacity="0.7" />
+            <circle cx="190" cy="82" r="0.9" fill="currentColor" opacity="0.7" />
           </g>
         </svg>
 
         <div className="relative flex flex-col items-center" style={{ lineHeight: 1.05 }}>
-          <p className="surah-name-display text-[18px] text-foreground tracking-wide">
+          {/* Surah name in the Quran script itself */}
+          <p className="quran-uthmani text-[26px] text-foreground leading-none">
             {cleanName}
           </p>
-          <p className="text-[7.5px] text-gold/80 font-light mt-1.5 tracking-[0.3em]">
+          <p className="text-[7.5px] text-gold/80 font-light mt-2 tracking-[0.32em]">
             {meta.revelationType === 'Medinan' ? 'مَدَنِيَّة' : 'مَكِّيَّة'} · {toArabicNumerals(meta.numberOfAyahs)} آية
           </p>
         </div>

@@ -45,6 +45,32 @@ export const ayahAudioUrl = (
   return `${CDN_HOST}/${reciter.folder}/${pad3(surah)}${pad3(ayah)}.mp3`;
 };
 
+/**
+ * Standalone basmalah file that EveryAyah serves as `SSS000.mp3` for every
+ * surah (except Al-Fatihah=1 and At-Tawbah=9) for most reciters. We play
+ * this as a short pre-roll before ayah 1 so the listener hears the bismillah
+ * as expected when starting a surah from the beginning.
+ *
+ * A few reciters (e.g. Husary, Ajamy) don't expose a separate `000` file —
+ * for those, a 404 is gracefully ignored by the audio bar and playback
+ * continues straight to ayah 1.
+ */
+export const basmalahAudioUrl = (
+  surah: number,
+  reciterId: string = getStoredReciterId(),
+): string => {
+  const reciter = getReciter(reciterId);
+  return `${CDN_HOST}/${reciter.folder}/${pad3(surah)}000.mp3`;
+};
+
+/**
+ * Returns true when a basmalah pre-roll should be played before ayah 1 of
+ * the given surah. Al-Fatihah's basmalah IS ayah 1, and At-Tawbah has no
+ * basmalah at all.
+ */
+export const shouldPlayBasmalahBefore = (surah: number, ayah: number): boolean =>
+  ayah === 1 && surah !== 1 && surah !== 9;
+
 /* ============ LRU bookkeeping (size estimate per URL) ============ */
 
 interface LruEntry { url: string; bytes: number; ts: number; }
@@ -127,6 +153,46 @@ export async function getAyahAudioBlobUrl(
 export function revokeAyahBlobUrl(blobUrl: string): void {
   if (blobUrl.startsWith('blob:')) {
     try { URL.revokeObjectURL(blobUrl); } catch { /* ignore */ }
+  }
+}
+
+/**
+ * Fetches the standalone basmalah pre-roll for a surah. Returns `null`
+ * when the current reciter does not provide a separate basmalah file
+ * (e.g. Husary, Ajamy — they recite the basmalah inside ayah 1).
+ */
+export async function getBasmalahBlobUrl(
+  surah: number,
+  reciterId: string = getStoredReciterId(),
+): Promise<string | null> {
+  const url = basmalahAudioUrl(surah, reciterId);
+
+  if (typeof caches === 'undefined') {
+    try {
+      const r = await fetch(url, { method: 'HEAD', mode: 'cors' });
+      return r.ok ? url : null;
+    } catch { return null; }
+  }
+
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    const hit = await cache.match(url);
+    if (hit) {
+      const blob = await hit.clone().blob();
+      touchLru(url, blob.size);
+      return URL.createObjectURL(blob);
+    }
+    const resp = await fetch(url, { mode: 'cors' });
+    if (!resp.ok) return null;
+    const cloned = resp.clone();
+    const blob = await resp.blob();
+    cache.put(url, cloned).then(() => {
+      touchLru(url, blob.size);
+      enforceQuota();
+    }).catch(() => { /* ignore */ });
+    return URL.createObjectURL(blob);
+  } catch {
+    return null;
   }
 }
 
