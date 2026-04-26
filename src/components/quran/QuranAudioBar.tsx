@@ -115,26 +115,13 @@ const QuranAudioBar = ({
     const advance = () => {
       if (!current) return;
 
-      // 0) If we just finished a basmalah pre-roll, swap to the actual
-      //    ayah audio without advancing or consuming a repeat. The ayah
-      //    blob URL was prefetched in the load effect.
-      if (playingBasmalahRef.current) {
-        playingBasmalahRef.current = false;
-        const ayahUrl = blobUrlRef.current;
-        if (ayahUrl) {
-          a.src = ayahUrl;
-          a.playbackRate = settings.speed;
-          try { a.play(); } catch { /* ignore */ }
-        }
-        return;
-      }
-
       // 1) Repeat current ayah?
       if (repeatLeftRef.current > 0) {
         repeatLeftRef.current -= 1;
         try { a.currentTime = 0; a.play(); } catch { /* ignore */ }
         return;
       }
+
 
       // 2) Move to next ayah within surah (or first ayah of next surah)
       const meta = surahsByNumber.get(current.surah);
