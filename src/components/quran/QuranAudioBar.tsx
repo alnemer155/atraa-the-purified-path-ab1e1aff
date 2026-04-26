@@ -46,6 +46,9 @@ const QuranAudioBar = ({
 }: Props) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const blobUrlRef = useRef<string | null>(null);
+  const basmalahUrlRef = useRef<string | null>(null);
+  /** When true, the currently-loaded source is a basmalah pre-roll, not the ayah itself. */
+  const playingBasmalahRef = useRef<boolean>(false);
   const repeatLeftRef = useRef<number>(0); // remaining repeats for current ayah
   const cycleRef = useRef<number>(0); // completed full-range cycles
   const [playing, setPlaying] = useState(false);
@@ -63,35 +66,67 @@ const QuranAudioBar = ({
     repeatLeftRef.current = Math.max(0, (settings.repeatCount || 1) - 1);
   }, [current?.surah, current?.ayah, settings.repeatCount]);
 
-  // Load + play whenever `current` changes
+  // Load + play whenever `current` changes. When starting at ayah 1 of a
+  // non-Fatihah / non-Tawbah surah we play the standalone basmalah file
+  // first, then the actual ayah. This matches mushaf reading convention
+  // (every surah opens with the bismillah).
   useEffect(() => {
     if (!current) return;
     let cancelled = false;
     setError(false);
     setLoading(true);
+    playingBasmalahRef.current = false;
+
+    const playSource = async (src: string) => {
+      if (!audioRef.current) audioRef.current = new Audio();
+      const a = audioRef.current;
+      a.src = src;
+      a.volume = volume;
+      a.playbackRate = settings.speed;
+      a.preload = 'auto';
+      try {
+        await a.play();
+        if (!cancelled) { setPlaying(true); setLoading(false); }
+      } catch {
+        if (!cancelled) { setPlaying(false); setLoading(false); }
+      }
+    };
 
     (async () => {
       try {
-        const url = await getAyahAudioBlobUrl(current.surah, current.ayah, settings.reciterId);
-        if (cancelled) {
-          revokeAyahBlobUrl(url);
-          return;
-        }
-        if (blobUrlRef.current) revokeAyahBlobUrl(blobUrlRef.current);
-        blobUrlRef.current = url;
+        // Pre-fetch the ayah audio in parallel with basmalah so the
+        // gap between them feels instant.
+        const ayahPromise = getAyahAudioBlobUrl(current.surah, current.ayah, settings.reciterId);
 
-        if (!audioRef.current) audioRef.current = new Audio();
-        const a = audioRef.current;
-        a.src = url;
-        a.volume = volume;
-        a.playbackRate = settings.speed;
-        a.preload = 'auto';
-        try {
-          await a.play();
-          if (!cancelled) { setPlaying(true); setLoading(false); }
-        } catch {
-          if (!cancelled) { setPlaying(false); setLoading(false); }
+        if (shouldPlayBasmalahBefore(current.surah, current.ayah)) {
+          const bUrl = await getBasmalahBlobUrl(current.surah, settings.reciterId);
+          if (cancelled) {
+            if (bUrl) revokeAyahBlobUrl(bUrl);
+            const ayahUrl = await ayahPromise;
+            revokeAyahBlobUrl(ayahUrl);
+            return;
+          }
+          if (bUrl) {
+            if (basmalahUrlRef.current) revokeAyahBlobUrl(basmalahUrlRef.current);
+            basmalahUrlRef.current = bUrl;
+            playingBasmalahRef.current = true;
+            await playSource(bUrl);
+            // The 'ended' handler (advance) will swap to the ayah audio.
+            // Stash the resolved ayah URL for instant swap.
+            const ayahUrl = await ayahPromise;
+            if (cancelled) { revokeAyahBlobUrl(ayahUrl); return; }
+            if (blobUrlRef.current) revokeAyahBlobUrl(blobUrlRef.current);
+            blobUrlRef.current = ayahUrl;
+            return;
+          }
+          // No separate basmalah for this reciter — fall through to ayah.
         }
+
+        const ayahUrl = await ayahPromise;
+        if (cancelled) { revokeAyahBlobUrl(ayahUrl); return; }
+        if (blobUrlRef.current) revokeAyahBlobUrl(blobUrlRef.current);
+        blobUrlRef.current = ayahUrl;
+        await playSource(ayahUrl);
       } catch {
         if (!cancelled) { setError(true); setLoading(false); setPlaying(false); }
       }
