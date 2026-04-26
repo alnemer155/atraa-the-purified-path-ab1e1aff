@@ -22,8 +22,6 @@ const TermsPage = lazy(() => import("./pages/legal/TermsPage"));
 const DisclaimerPage = lazy(() => import("./pages/legal/DisclaimerPage"));
 const DataPage = lazy(() => import("./pages/legal/DataPage"));
 const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
-const RefundPage = lazy(() => import("./pages/legal/RefundPage"));
-const AcceptableUsePage = lazy(() => import("./pages/legal/AcceptableUsePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -85,8 +83,6 @@ const App = () => {
                     <Route path="/disclaimer" element={<DisclaimerPage />} />
                     <Route path="/data" element={<DataPage />} />
                     <Route path="/about" element={<AboutPage />} />
-                    <Route path="/refund" element={<RefundPage />} />
-                    <Route path="/acceptable-use" element={<AcceptableUsePage />} />
                   </Route>
 
                   <Route element={<AppLayout />}>

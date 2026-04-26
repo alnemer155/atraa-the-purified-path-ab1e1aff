@@ -188,26 +188,12 @@ const TermsPage = () => {
           </section>
 
           <section>
-            <h2 className="text-[15px] font-semibold mb-2">6. Payment & Subscription (Voluntary Contributions)</h2>
-            <p className="mb-2">When you make a contribution via the "Support Atraa" page:</p>
-            <ul className="list-disc ps-5 space-y-1 text-foreground/85">
-              <li>Payment is processed by <span className="font-semibold">Paddle.com Market Limited</span> as <span className="font-semibold">Merchant of Record</span> for all our orders.</li>
-              <li>Paddle provides all customer service related to payments and handles refunds.</li>
-              <li>Payment, billing, tax, cancellation, and refund mechanics are governed by <span className="font-semibold">Paddle’s Buyer Terms</span>: <a className="text-primary underline" href="https://www.paddle.com/legal/checkout-buyer-terms" target="_blank" rel="noopener noreferrer">paddle.com/legal/checkout-buyer-terms</a>.</li>
-              <li>Contributions are <span className="font-semibold">voluntary, not a fee for service</span>; they do not unlock additional or exclusive features.</li>
-            </ul>
-            <p className="mt-2 text-[12px] bg-muted/40 rounded-lg p-3 leading-relaxed">
-              <span className="font-semibold">Merchant of Record disclosure:</span> Our order process is conducted by our online reseller Paddle.com. <span className="font-semibold">Paddle.com is the Merchant of Record for all our orders.</span> Paddle provides all customer service inquiries and handles returns.
-            </p>
+            <h2 className="text-[15px] font-semibold mb-2">6. Voluntary Contributions</h2>
+            <p className="mb-2">Atraa is offered free of charge. Users may, at their sole discretion, send voluntary contributions to support development and maintenance of the app. Contributions are <span className="font-semibold">voluntary donations, not a fee for service</span>; they do not unlock additional, premium, or exclusive features. The full app remains available to all users regardless of contribution status.</p>
           </section>
 
           <section>
-            <h2 className="text-[15px] font-semibold mb-2">7. Refund Policy</h2>
-            <p>See our <span className="font-semibold">Refund Policy</span> on a separate page. In short: we offer a <span className="font-semibold">30-day refund window</span> on all contributions, processed through Paddle.</p>
-          </section>
-
-          <section>
-            <h2 className="text-[15px] font-semibold mb-2">8. Limitation of Liability</h2>
+            <h2 className="text-[15px] font-semibold mb-2">7. Limitation of Liability</h2>
             <p className="mb-2">The user alone is responsible for:</p>
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li>The accuracy of religious information they rely on — consult qualified jurisprudential references.</li>

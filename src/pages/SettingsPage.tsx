@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Heart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Heart, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -20,7 +20,7 @@ const SettingsPage = () => {
   const [adhanNotif, setAdhanNotif] = useState(() =>
     localStorage.getItem('atraa_notif_adhan') === 'true' && getNotificationPermission() === 'granted'
   );
-  const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('atraa_city') || 'Qatif');
+  const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('atraa_city') || 'Dammam');
   const [hijriAdj, setHijriAdj] = useState(() => getHijriAdjustment());
   const [shareCopied, setShareCopied] = useState(false);
 
@@ -106,7 +106,35 @@ const SettingsPage = () => {
         </div>
       </motion.div>
 
-      {/* Notifications */}
+      {/* Madhhab (school) — Shia active, Sunni coming soon */}
+      <motion.div variants={fadeUp} custom={2}>
+        <p className="text-[11px] text-muted-foreground/70 px-1 mb-1.5 font-medium">
+          {isAr ? 'المذهب' : 'School of thought'}
+        </p>
+        <div className="bg-card rounded-2xl border border-border/40 overflow-hidden shadow-card">
+          <div className="grid grid-cols-2 gap-2 p-2">
+            <button
+              className="py-2.5 rounded-xl text-[13px] bg-primary text-primary-foreground transition-all"
+              aria-pressed="true"
+            >
+              {isAr ? 'مسلم شيعي' : 'Shia Muslim'}
+            </button>
+            <button
+              disabled
+              className="py-2.5 rounded-xl text-[13px] bg-secondary/40 text-muted-foreground/70 flex items-center justify-center gap-1.5 cursor-not-allowed opacity-70"
+              aria-disabled="true"
+            >
+              <Lock className="w-3 h-3" strokeWidth={1.8} />
+              <span>{isAr ? 'مسلم سُنّي · قريباً' : 'Sunni · Soon'}</span>
+            </button>
+          </div>
+          <p className="px-3 pb-3 text-[10px] text-muted-foreground/60 font-light leading-relaxed">
+            {isAr
+              ? 'محتوى المذهب السنّي قيد الإعداد، وسيُتاح قريباً بإذن الله.'
+              : 'Sunni content is in preparation and will be available soon, in shāʾ Allah.'}
+          </p>
+        </div>
+      </motion.div>
       <motion.div variants={fadeUp} custom={2}>
         <p className="text-[11px] text-muted-foreground/70 px-1 mb-1.5 font-medium">{t('settings.notifications')}</p>
         <div className="bg-card rounded-2xl border border-border/40 overflow-hidden shadow-card">
@@ -229,7 +257,6 @@ const SettingsPage = () => {
           {[
             { to: '/privacy', label: t('settings.privacy') },
             { to: '/terms', label: t('settings.terms') },
-            { to: '/refund', label: t('settings.refund') },
             { to: '/disclaimer', label: t('settings.disclaimer') },
             { to: '/data', label: t('settings.data') },
             { to: '/about', label: t('settings.about') },

@@ -237,9 +237,9 @@ const QiblaPage = () => {
           setQiblaDirection(calculateQibla(latitude, longitude));
         },
         () => {
-          setCoords({ lat: 26.4207, lng: 50.0888 });
-          setQiblaDirection(calculateQibla(26.4207, 50.0888));
-          setError(isAr ? 'تم استخدام الموقع الافتراضي (القطيف)' : 'Using default location (Qatif)');
+          setCoords({ lat: 26.3927, lng: 49.9777 });
+          setQiblaDirection(calculateQibla(26.3927, 49.9777));
+          setError(isAr ? 'تم استخدام الموقع الافتراضي (الدمام)' : 'Using default location (Dammam)');
         },
         { enableHighAccuracy: true, timeout: 10000 }
       );
