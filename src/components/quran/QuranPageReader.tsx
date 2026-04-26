@@ -6,10 +6,7 @@ import {
   ChevronRight,
   X,
   AlertTriangle,
-  Settings2,
-  RectangleHorizontal,
-  RectangleVertical,
-  Search,
+  LayoutGrid,
   Mic,
 } from 'lucide-react';
 import {
@@ -22,7 +19,6 @@ import {
 import {
   getJuzForAyah,
   getHizbForAyah,
-  stripArabicDiacritics,
 } from '@/lib/quran-meta';
 import { SURAH_START_PAGES } from './QuranSection';
 import {
@@ -33,7 +29,9 @@ import {
   AYAH_COLOR_TOKENS,
   type AyahColor,
 } from '@/lib/quran-bookmarks';
+import { useQuranTheme } from '@/lib/quran-theme';
 import AyahColorPicker from './AyahColorPicker';
+import QuranQuickPanel from './QuranQuickPanel';
 
 interface SurahMeta {
   number: number;
@@ -61,25 +59,22 @@ interface Props {
 
 type Orientation = 'vertical' | 'horizontal';
 
-const ORIENTATION_KEY = 'atraa_quran_orientation_v1';
+const ORIENTATION_KEY = 'atraa_quran_orientation_v2';
 
 const getStoredOrientation = (): Orientation => {
   try {
     const v = localStorage.getItem(ORIENTATION_KEY);
-    return v === 'horizontal' ? 'horizontal' : 'vertical';
-  } catch { return 'vertical'; }
+    // New default: horizontal (paper-mushaf feel) per user preference.
+    return v === 'vertical' ? 'vertical' : 'horizontal';
+  } catch { return 'horizontal'; }
 };
 
 /** Fixed Quran body font size (locked — no user resize per design). */
 const FIXED_FONT_SIZE = 26;
 
-/**
- * Refined Madinah Mushaf surah header — an illuminated calligraphic
- * cartouche inspired by the gilded surah-headings of the King Fahd Mushaf.
- * The surah name itself is set in the official KFGQPC Uthmanic Script
- * (the same typeface used for the Quranic body), surrounded by a layered
- * ornamental frame with arabesque flourishes and twin rosettes.
- */
+/* ============================================================
+ * Surah header — illuminated cartouche with KFGQPC-set surah name
+ * ============================================================ */
 const MadinahSurahHeader = ({ meta }: { meta: SurahMeta }) => {
   const cleanName = meta.name
     .replace(/^سُورَةُ\s*/, '')
@@ -100,8 +95,6 @@ const MadinahSurahHeader = ({ meta }: { meta: SurahMeta }) => {
               <stop offset="100%" stopColor="currentColor" stopOpacity="0.06" />
             </linearGradient>
           </defs>
-
-          {/* Soft gilded background panel with arched ends */}
           <path
             d="M30 8 H350 Q372 8 372 30 V58 Q372 80 350 80 H30 Q8 80 8 58 V30 Q8 8 30 8 Z"
             fill="url(#cartoucheFill)"
@@ -109,7 +102,6 @@ const MadinahSurahHeader = ({ meta }: { meta: SurahMeta }) => {
             strokeWidth="0.9"
             strokeOpacity="0.7"
           />
-          {/* Inner double-line frame */}
           <path
             d="M36 14 H344 Q366 14 366 30 V58 Q366 74 344 74 H36 Q14 74 14 58 V30 Q14 14 36 14 Z"
             fill="none"
@@ -124,34 +116,25 @@ const MadinahSurahHeader = ({ meta }: { meta: SurahMeta }) => {
             strokeWidth="0.3"
             strokeOpacity="0.35"
           />
-
-          {/* Twin rosettes (left & right side medallions) */}
           {[28, 352].map((cx) => (
             <g key={cx} stroke="currentColor" fill="none" strokeWidth="0.5" opacity="0.75">
               <circle cx={cx} cy={44} r={6} />
               <circle cx={cx} cy={44} r={3.5} strokeOpacity="0.6" />
-              {/* 8-pointed star inside */}
               <g opacity="0.85">
                 {Array.from({ length: 8 }).map((_, i) => {
                   const angle = (i * Math.PI) / 4;
                   const x2 = cx + Math.cos(angle) * 5.5;
                   const y2 = 44 + Math.sin(angle) * 5.5;
-                  return (
-                    <line key={i} x1={cx} y1={44} x2={x2} y2={y2} strokeWidth="0.3" />
-                  );
+                  return <line key={i} x1={cx} y1={44} x2={x2} y2={y2} strokeWidth="0.3" />;
                 })}
               </g>
               <circle cx={cx} cy={44} r={1} fill="currentColor" opacity="0.7" />
             </g>
           ))}
-
-          {/* Arabesque flourishes flanking the title */}
           <g stroke="currentColor" fill="none" strokeWidth="0.45" opacity="0.6">
             <path d="M40 44 q12 -8 24 0 q12 8 24 0" />
             <path d="M340 44 q-12 -8 -24 0 q-12 8 -24 0" />
           </g>
-
-          {/* Top & bottom centre crowns */}
           <g stroke="currentColor" fill="none" strokeWidth="0.4" opacity="0.55">
             <path d="M178 8 q12 -6 24 0" />
             <path d="M178 80 q12 6 24 0" />
@@ -161,10 +144,7 @@ const MadinahSurahHeader = ({ meta }: { meta: SurahMeta }) => {
         </svg>
 
         <div className="relative flex flex-col items-center" style={{ lineHeight: 1.05 }}>
-          {/* Surah name in the Quran script itself */}
-          <p className="quran-uthmani text-[26px] text-foreground leading-none">
-            {cleanName}
-          </p>
+          <p className="quran-uthmani text-[26px] text-foreground leading-none">{cleanName}</p>
           <p className="text-[7.5px] text-gold/80 font-light mt-2 tracking-[0.32em]">
             {meta.revelationType === 'Medinan' ? 'مَدَنِيَّة' : 'مَكِّيَّة'} · {toArabicNumerals(meta.numberOfAyahs)} آية
           </p>
@@ -174,18 +154,16 @@ const MadinahSurahHeader = ({ meta }: { meta: SurahMeta }) => {
   );
 };
 
-/** Basmalah glyph (Unicode ligature ﷽) drawn under each surah header (except At-Tawbah / Al-Fatihah). */
+/** Basmalah glyph (Unicode ligature ﷽). */
 const BasmalahLine = () => (
   <p className="quran-uthmani text-center text-[34px] leading-none text-foreground/90 mb-3 mt-1">
     ﷽
   </p>
 );
 
-
-/**
- * Renders the page text — flowing justified paragraph with KFGQPC font,
- * with end-of-ayah Arabic numeral medallions between verses.
- */
+/* ============================================================
+ * Page content — flowing justified mushaf paragraph
+ * ============================================================ */
 const PageContent = ({
   data,
   isCentered,
@@ -199,7 +177,6 @@ const PageContent = ({
   onAyahTap: (surah: number, ayah: number) => void;
   playingAyah?: { surah: number; ayah: number } | null;
 }) => {
-  // Group ayahs by surah so we can render a header before each surah's first ayah on the page.
   const blocks = useMemo(() => {
     const result: { surah: PageAyah['surah']; ayahs: PageAyah[]; isStart: boolean }[] = [];
     for (const a of data.ayahs) {
@@ -216,7 +193,7 @@ const PageContent = ({
 
   return (
     <div
-      className={`mx-auto max-w-2xl px-5 py-7 ${isCentered ? 'min-h-[60vh] flex flex-col justify-center' : ''}`}
+      className={`mx-auto max-w-2xl px-5 py-6 ${isCentered ? 'min-h-[60vh] flex flex-col justify-center' : ''}`}
       dir="rtl"
     >
       {blocks.map((block, bi) => (
@@ -277,20 +254,28 @@ const PageContent = ({
   );
 };
 
-/**
- * Madinah Mushaf page-by-page reader using the official KFGQPC Uthmanic
- * Script font and Tanzil-verified Uthmani text (alquran.cloud).
- */
-const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, inline = false, onPlayAyah, playingAyah, onOpenRecitation, onPageSurahsChange }: Props) => {
+/* ============================================================
+ * Reader root
+ * ============================================================ */
+const QuranPageReader = ({
+  initialPage,
+  surahsByNumber,
+  onClose,
+  onPageChange,
+  inline = false,
+  onPlayAyah,
+  playingAyah,
+  onOpenRecitation,
+  onPageSurahsChange,
+}: Props) => {
   const [page, setPage] = useState(initialPage);
   const [data, setData] = useState<PageData | null>(null);
   const [neighbourData, setNeighbourData] = useState<Map<number, PageData>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
+  const [showPanel, setShowPanel] = useState(false);
   const [orientation, setOrientation] = useState<Orientation>(getStoredOrientation);
-  const [jumpValue, setJumpValue] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [theme, setTheme] = useQuranTheme();
   const [colorMap, setColorMap] = useState<Record<string, AyahColor>>(() => getAllAyahColors());
   const [pickerAyah, setPickerAyah] = useState<{ surah: number; ayah: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -400,41 +385,12 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
     setPage(p => p);
   };
 
-  const handleJump = () => {
-    const n = parseInt(jumpValue, 10);
-    if (Number.isFinite(n) && n >= 1 && n <= 604) {
-      setPage(n);
-      setShowSettings(false);
-      setJumpValue('');
-    }
-  };
-
-  // Surah search results (diacritic-insensitive Arabic + English)
-  const searchResults = useMemo(() => {
-    const q = searchQuery.trim();
-    if (!q) return [] as SurahMeta[];
-    const normQ = stripArabicDiacritics(q).toLowerCase();
-    const arr: SurahMeta[] = [];
-    surahsByNumber.forEach(s => {
-      const ar = stripArabicDiacritics(s.name).toLowerCase();
-      const en = s.englishName.toLowerCase();
-      if (ar.includes(normQ) || en.includes(normQ) || String(s.number) === q) {
-        arr.push(s);
-      }
-    });
-    return arr.slice(0, 8);
-  }, [searchQuery, surahsByNumber]);
-
   const jumpToSurah = (surahNum: number) => {
     const p = SURAH_START_PAGES[surahNum];
-    if (p) {
-      setPage(p);
-      setShowSettings(false);
-      setSearchQuery('');
-    }
+    if (p) setPage(p);
   };
 
-  // Horizontal rail
+  // Horizontal swipe rail — three-page window (prev/current/next), recentred on each page change.
   const horizontalRailRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (orientation !== 'horizontal' || !horizontalRailRef.current) return;
@@ -452,8 +408,12 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
   };
 
   const wrapperClass = inline
-    ? 'flex flex-col bg-background'
-    : 'fixed inset-0 z-50 bg-background flex flex-col overflow-hidden';
+    ? 'flex flex-col bg-background text-foreground'
+    : 'fixed inset-0 z-50 bg-background text-foreground flex flex-col overflow-hidden';
+
+  const cleanCurrentName = currentSurahMeta
+    ? currentSurahMeta.name.replace(/^سُورَةُ\s*/, '').replace(/^سورة\s*/, '')
+    : '—';
 
   return (
     <motion.div
@@ -463,185 +423,82 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
       transition={{ duration: 0.18 }}
       className={wrapperClass}
       dir="rtl"
+      data-quran-theme={theme === 'default' ? undefined : theme}
     >
-      {/* Top bar — orientation · juz/hizb · settings */}
-      <div className={`${inline ? 'sticky top-[41px] z-30' : 'flex-shrink-0'} px-4 py-2.5 flex items-center justify-between border-b border-border/10 bg-background/85 backdrop-blur-2xl`}>
+      {/* ============ Top bar ============
+        * One-line context: Surah name · Page · Juz/Hizb. The single action
+        * (LayoutGrid) opens the unified quick-access panel. */}
+      <div
+        className={`${inline ? 'sticky top-[41px] z-30' : 'flex-shrink-0'} px-3 py-2 flex items-center gap-2 border-b border-border/10 bg-background/85 backdrop-blur-2xl`}
+      >
         <button
-          onClick={() => setOrientation(o => (o === 'vertical' ? 'horizontal' : 'vertical'))}
-          className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95 transition-transform"
-          aria-label={orientation === 'vertical' ? 'عرض أفقي' : 'عرض عمودي'}
+          onClick={() => setShowPanel(true)}
+          className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95 transition-transform shrink-0"
+          aria-label="فهرس وأدوات"
         >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.span
-              key={orientation}
-              initial={{ rotate: -90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: 90, opacity: 0 }}
-              transition={{ duration: 0.18 }}
-              className="flex"
-            >
-              {orientation === 'vertical' ? (
-                <RectangleHorizontal className="w-4 h-4 text-foreground/70" strokeWidth={1.6} />
-              ) : (
-                <RectangleVertical className="w-4 h-4 text-foreground/70" strokeWidth={1.6} />
-              )}
-            </motion.span>
-          </AnimatePresence>
+          <LayoutGrid className="w-4 h-4 text-foreground/70" strokeWidth={1.6} />
         </button>
 
-        <div className="text-center pointer-events-none">
-          <p className="text-[11px] text-foreground/85 font-medium tracking-wide">
-            مُصْحَفُ المَدِينَةِ النَبَوِيَّة
-          </p>
-          {juzHizb ? (
-            <p className="text-[8.5px] text-muted-foreground/70 font-light mt-0.5 tracking-wider tabular-nums">
-              الجُزْء {toArabicNumerals(juzHizb.juz)} · الحِزْب {toArabicNumerals(juzHizb.hizb)}
-            </p>
-          ) : (
-            <p className="text-[8px] text-muted-foreground/55 font-light mt-0.5 tracking-[0.15em]">
-              بِرِوَايَةِ حَفْصٍ عَنْ عَاصِم
-            </p>
-          )}
-        </div>
+        <button
+          onClick={() => setShowPanel(true)}
+          className="flex-1 h-9 px-3 rounded-xl bg-secondary/30 active:bg-secondary/50 active:scale-[0.99] transition-all overflow-hidden"
+          aria-label="معلومات الصفحة"
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={page}
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -10, opacity: 0 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="flex items-center justify-center gap-2.5 leading-none"
+            >
+              <span className="surah-name-display text-[13px] text-foreground truncate max-w-[40%]">
+                {cleanCurrentName}
+              </span>
+              <span className="w-px h-3.5 bg-border/50" />
+              <span className="text-[10.5px] text-muted-foreground/75 font-light tabular-nums whitespace-nowrap">
+                صفحة {toArabicNumerals(page)}
+              </span>
+              {juzHizb && (
+                <>
+                  <span className="w-px h-3.5 bg-border/50" />
+                  <span className="text-[10px] text-muted-foreground/65 font-light tabular-nums whitespace-nowrap">
+                    جـ{toArabicNumerals(juzHizb.juz)} · حـ{toArabicNumerals(juzHizb.hizb)}
+                  </span>
+                </>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </button>
 
         {onClose ? (
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95"
+            className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95 shrink-0"
             aria-label="إغلاق"
           >
             <X className="w-4 h-4 text-foreground/70" />
           </button>
         ) : (
-          <button
-            onClick={() => setShowSettings(true)}
-            className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95"
-            aria-label="إعدادات القراءة"
-          >
-            <Settings2 className="w-4 h-4 text-foreground/70" strokeWidth={1.6} />
-          </button>
+          onOpenRecitation && (
+            <button
+              onClick={onOpenRecitation}
+              className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold/25 to-primary/15 border border-gold/30 flex items-center justify-center active:scale-95 shrink-0"
+              aria-label="التلاوة"
+            >
+              <Mic className="w-4 h-4 text-gold" strokeWidth={1.7} />
+            </button>
+          )
         )}
       </div>
 
-      {/* Settings overlay */}
-      <AnimatePresence>
-        {showSettings && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center px-4 pb-4 sm:pb-0"
-            onClick={() => { setShowSettings(false); setSearchQuery(''); }}
-          >
-            <motion.div
-              initial={{ y: 40, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 40, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 320, damping: 32 }}
-              className="w-full max-w-sm bg-card rounded-3xl p-5 border border-border/20 shadow-xl"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-[13px] text-foreground font-medium">إعدادات القراءة</p>
-                <button
-                  onClick={() => { setShowSettings(false); setSearchQuery(''); }}
-                  className="w-7 h-7 rounded-full bg-secondary/40 flex items-center justify-center active:scale-95"
-                  aria-label="إغلاق"
-                >
-                  <X className="w-3.5 h-3.5 text-foreground/60" />
-                </button>
-              </div>
-
-              {/* Search by surah name */}
-              <div className="mb-4">
-                <p className="text-[11px] text-muted-foreground/70 font-light mb-2">بحث عن سورة</p>
-                <div className="relative">
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/50" strokeWidth={1.6} />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    placeholder="اكتب اسم السورة…"
-                    className="w-full h-10 pr-9 pl-3 rounded-2xl bg-secondary/40 border border-border/20 text-[12px] text-foreground outline-none focus:border-primary/40"
-                  />
-                </div>
-                {searchResults.length > 0 && (
-                  <div className="mt-2 max-h-44 overflow-y-auto rounded-2xl bg-secondary/30 border border-border/15 hide-scrollbar">
-                    {searchResults.map(s => (
-                      <button
-                        key={s.number}
-                        onClick={() => jumpToSurah(s.number)}
-                        className="w-full px-3 py-2 flex items-center justify-between gap-2 active:bg-secondary/60 transition-colors border-b border-border/10 last:border-0"
-                      >
-                        <span className="text-[10px] text-muted-foreground/60 tabular-nums">
-                          {toArabicNumerals(s.number)}
-                        </span>
-                        <span className="surah-name-display text-[13px] text-foreground flex-1 text-right">
-                          {s.name.replace(/^سُورَةُ\s*/, '').replace(/^سورة\s*/, '')}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Jump to page */}
-              <div className="mb-4">
-                <p className="text-[11px] text-muted-foreground/70 font-light mb-2">انتقال إلى صفحة (١ – ٦٠٤)</p>
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    min={1}
-                    max={604}
-                    value={jumpValue}
-                    onChange={e => setJumpValue(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleJump()}
-                    placeholder={String(page)}
-                    className="flex-1 h-10 rounded-2xl bg-secondary/40 border border-border/20 text-center text-[14px] text-foreground tabular-nums outline-none focus:border-primary/40"
-                  />
-                  <button
-                    onClick={handleJump}
-                    disabled={!jumpValue}
-                    className="px-4 h-10 rounded-2xl bg-primary text-primary-foreground text-[12px] active:scale-95 disabled:opacity-40"
-                  >
-                    انتقال
-                  </button>
-                </div>
-              </div>
-
-              {/* Orientation */}
-              <div>
-                <p className="text-[11px] text-muted-foreground/70 font-light mb-2">اتجاه العرض</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setOrientation('vertical')}
-                    className={`h-10 rounded-2xl text-[12px] flex items-center justify-center gap-2 active:scale-95 transition-colors ${orientation === 'vertical' ? 'bg-primary text-primary-foreground' : 'bg-secondary/40 text-foreground/70'}`}
-                  >
-                    <RectangleVertical className="w-3.5 h-3.5" strokeWidth={1.6} />
-                    <span>عمودي</span>
-                  </button>
-                  <button
-                    onClick={() => setOrientation('horizontal')}
-                    className={`h-10 rounded-2xl text-[12px] flex items-center justify-center gap-2 active:scale-95 transition-colors ${orientation === 'horizontal' ? 'bg-primary text-primary-foreground' : 'bg-secondary/40 text-foreground/70'}`}
-                  >
-                    <RectangleHorizontal className="w-3.5 h-3.5" strokeWidth={1.6} />
-                    <span>أفقي</span>
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Body */}
+      {/* ============ Body ============ */}
       <div ref={containerRef} className={inline ? '' : 'flex-1 overflow-y-auto'}>
         {loading && !error && (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <Loader2 className="w-5 h-5 text-muted-foreground/40 animate-spin" />
-            <p className="text-[10px] text-muted-foreground/50 font-light">
-              جارٍ تحميل الصفحة…
-            </p>
+            <p className="text-[10px] text-muted-foreground/50 font-light">جارٍ تحميل الصفحة…</p>
           </div>
         )}
 
@@ -723,9 +580,13 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
         )}
       </div>
 
-      {/* Animated footer */}
-      <div className={`${inline ? 'sticky bottom-14 z-30' : 'flex-shrink-0'} border-t border-border/10 bg-background/85 backdrop-blur-2xl px-3 py-2`}>
-        <div className="flex items-center justify-between gap-2">
+      {/* ============ Footer ============
+        * Minimal navigation: prev / progress (tap to open quick-panel) / next.
+        * Progress fill doubles as the visual position indicator. */}
+      <div
+        className={`${inline ? 'sticky bottom-14 z-30' : 'flex-shrink-0'} border-t border-border/10 bg-background/85 backdrop-blur-2xl px-3 py-2`}
+      >
+        <div className="flex items-center gap-2">
           <button
             onClick={goNext}
             disabled={page >= 604}
@@ -735,41 +596,24 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
             <ChevronLeft className="w-4 h-4 text-foreground/70" strokeWidth={1.8} />
           </button>
 
-          {onOpenRecitation && (
-            <button
-              onClick={onOpenRecitation}
-              className="w-10 h-10 rounded-2xl bg-gradient-to-br from-gold/25 to-primary/15 border border-gold/30 flex items-center justify-center active:scale-90 transition-transform"
-              aria-label="التلاوة"
-            >
-              <Mic className="w-4 h-4 text-gold" strokeWidth={1.7} />
-            </button>
-          )}
-
           <button
-            onClick={() => setShowSettings(true)}
-            className="flex-1 h-10 rounded-2xl bg-secondary/30 hover:bg-secondary/50 active:scale-[0.98] transition-all overflow-hidden relative"
-            aria-label="إعدادات القراءة"
+            onClick={() => setShowPanel(true)}
+            className="flex-1 h-10 rounded-2xl bg-secondary/30 active:bg-secondary/50 active:scale-[0.99] transition-all overflow-hidden relative"
+            aria-label="فهرس وأدوات"
           >
-            <AnimatePresence mode="wait">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-[11px] text-muted-foreground/75 font-light tabular-nums">
+                {toArabicNumerals(page)} / {toArabicNumerals(604)}
+              </span>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-border/30">
               <motion.div
-                key={page}
-                initial={{ y: 14, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -14, opacity: 0 }}
-                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute inset-0 flex items-center justify-center gap-3 px-3"
-              >
-                <span className="surah-name-display text-[13px] text-foreground/85 truncate max-w-[55%]">
-                  {currentSurahMeta
-                    ? currentSurahMeta.name.replace(/^سُورَةُ\s*/, '').replace(/^سورة\s*/, '')
-                    : '—'}
-                </span>
-                <span className="w-px h-4 bg-border/50" />
-                <span className="text-[11px] text-muted-foreground/70 font-light tabular-nums whitespace-nowrap">
-                  ص {toArabicNumerals(page)} / {toArabicNumerals(604)}
-                </span>
-              </motion.div>
-            </AnimatePresence>
+                className="h-full bg-gradient-to-r from-gold/70 to-primary/80"
+                initial={false}
+                animate={{ width: `${(page / 604) * 100}%` }}
+                transition={{ type: 'spring', stiffness: 220, damping: 28 }}
+              />
+            </div>
           </button>
 
           <button
@@ -781,18 +625,24 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
             <ChevronRight className="w-4 h-4 text-foreground/70" strokeWidth={1.8} />
           </button>
         </div>
-
-        <div className="mt-1.5 h-[2px] bg-secondary/40 rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-gradient-to-r from-gold/70 to-primary/80 rounded-full"
-            initial={false}
-            animate={{ width: `${(page / 604) * 100}%` }}
-            transition={{ type: 'spring', stiffness: 220, damping: 28 }}
-          />
-        </div>
       </div>
 
-      {/* Ayah color picker bottom-sheet */}
+      {/* ============ Quick-access panel (Surahs · Jump · Marks · Display) ============ */}
+      <QuranQuickPanel
+        open={showPanel}
+        onClose={() => setShowPanel(false)}
+        surahsByNumber={surahsByNumber}
+        surahStartPages={SURAH_START_PAGES}
+        currentPage={page}
+        onJumpToPage={(p) => setPage(p)}
+        onJumpToSurah={jumpToSurah}
+        orientation={orientation}
+        onOrientationChange={setOrientation}
+        theme={theme}
+        onThemeChange={setTheme}
+      />
+
+      {/* ============ Ayah color picker bottom-sheet ============ */}
       {pickerAyah && (
         <AyahColorPicker
           open
