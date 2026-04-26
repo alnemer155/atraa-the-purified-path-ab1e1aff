@@ -174,12 +174,13 @@ const MadinahSurahHeader = ({ meta }: { meta: SurahMeta }) => {
   );
 };
 
-/** Basmalah line drawn under each surah header (except At-Tawbah / Al-Fatihah). */
+/** Basmalah glyph (Unicode ligature ﷽) drawn under each surah header (except At-Tawbah / Al-Fatihah). */
 const BasmalahLine = () => (
-  <p className="quran-uthmani text-center text-[20px] text-foreground/85 mb-3 mt-1">
-    بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+  <p className="quran-uthmani text-center text-[34px] leading-none text-foreground/90 mb-3 mt-1">
+    ﷽
   </p>
 );
+
 
 /**
  * Renders the page text — flowing justified paragraph with KFGQPC font,
