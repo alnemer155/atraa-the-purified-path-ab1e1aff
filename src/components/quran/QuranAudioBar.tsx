@@ -3,9 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Loader2, Settings2, Repeat } from 'lucide-react';
 import {
   getAyahAudioBlobUrl,
-  getBasmalahBlobUrl,
   revokeAyahBlobUrl,
-  shouldPlayBasmalahBefore,
   getStoredVolume,
   setStoredVolume,
 } from '@/lib/quran-audio';
@@ -46,9 +44,6 @@ const QuranAudioBar = ({
 }: Props) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const blobUrlRef = useRef<string | null>(null);
-  const basmalahUrlRef = useRef<string | null>(null);
-  /** When true, the currently-loaded source is a basmalah pre-roll, not the ayah itself. */
-  const playingBasmalahRef = useRef<boolean>(false);
   const repeatLeftRef = useRef<number>(0); // remaining repeats for current ayah
   const cycleRef = useRef<number>(0); // completed full-range cycles
   const [playing, setPlaying] = useState(false);
@@ -66,67 +61,37 @@ const QuranAudioBar = ({
     repeatLeftRef.current = Math.max(0, (settings.repeatCount || 1) - 1);
   }, [current?.surah, current?.ayah, settings.repeatCount]);
 
-  // Load + play whenever `current` changes. When starting at ayah 1 of a
-  // non-Fatihah / non-Tawbah surah we play the standalone basmalah file
-  // first, then the actual ayah. This matches mushaf reading convention
-  // (every surah opens with the bismillah).
+  // Load + play whenever `current` changes.
+  // NOTE: We do NOT play a separate basmalah pre-roll. The EveryAyah text
+  // for ayah 1 of every surah (except At-Tawbah) already includes the
+  // basmalah recited by the qari — adding a `SSS000.mp3` pre-roll would
+  // cause the basmalah to be heard twice. Al-Fatihah's basmalah is ayah 1
+  // itself, so it plays naturally.
   useEffect(() => {
     if (!current) return;
     let cancelled = false;
     setError(false);
     setLoading(true);
-    playingBasmalahRef.current = false;
-
-    const playSource = async (src: string) => {
-      if (!audioRef.current) audioRef.current = new Audio();
-      const a = audioRef.current;
-      a.src = src;
-      a.volume = volume;
-      a.playbackRate = settings.speed;
-      a.preload = 'auto';
-      try {
-        await a.play();
-        if (!cancelled) { setPlaying(true); setLoading(false); }
-      } catch {
-        if (!cancelled) { setPlaying(false); setLoading(false); }
-      }
-    };
 
     (async () => {
       try {
-        // Pre-fetch the ayah audio in parallel with basmalah so the
-        // gap between them feels instant.
-        const ayahPromise = getAyahAudioBlobUrl(current.surah, current.ayah, settings.reciterId);
-
-        if (shouldPlayBasmalahBefore(current.surah, current.ayah)) {
-          const bUrl = await getBasmalahBlobUrl(current.surah, settings.reciterId);
-          if (cancelled) {
-            if (bUrl) revokeAyahBlobUrl(bUrl);
-            const ayahUrl = await ayahPromise;
-            revokeAyahBlobUrl(ayahUrl);
-            return;
-          }
-          if (bUrl) {
-            if (basmalahUrlRef.current) revokeAyahBlobUrl(basmalahUrlRef.current);
-            basmalahUrlRef.current = bUrl;
-            playingBasmalahRef.current = true;
-            await playSource(bUrl);
-            // The 'ended' handler (advance) will swap to the ayah audio.
-            // Stash the resolved ayah URL for instant swap.
-            const ayahUrl = await ayahPromise;
-            if (cancelled) { revokeAyahBlobUrl(ayahUrl); return; }
-            if (blobUrlRef.current) revokeAyahBlobUrl(blobUrlRef.current);
-            blobUrlRef.current = ayahUrl;
-            return;
-          }
-          // No separate basmalah for this reciter — fall through to ayah.
-        }
-
-        const ayahUrl = await ayahPromise;
+        const ayahUrl = await getAyahAudioBlobUrl(current.surah, current.ayah, settings.reciterId);
         if (cancelled) { revokeAyahBlobUrl(ayahUrl); return; }
         if (blobUrlRef.current) revokeAyahBlobUrl(blobUrlRef.current);
         blobUrlRef.current = ayahUrl;
-        await playSource(ayahUrl);
+
+        if (!audioRef.current) audioRef.current = new Audio();
+        const a = audioRef.current;
+        a.src = ayahUrl;
+        a.volume = volume;
+        a.playbackRate = settings.speed;
+        a.preload = 'auto';
+        try {
+          await a.play();
+          if (!cancelled) { setPlaying(true); setLoading(false); }
+        } catch {
+          if (!cancelled) { setPlaying(false); setLoading(false); }
+        }
       } catch {
         if (!cancelled) { setError(true); setLoading(false); setPlaying(false); }
       }
@@ -135,6 +100,7 @@ const QuranAudioBar = ({
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current?.surah, current?.ayah, settings.reciterId]);
+
 
   // Sync speed without reloading
   useEffect(() => {
@@ -149,26 +115,13 @@ const QuranAudioBar = ({
     const advance = () => {
       if (!current) return;
 
-      // 0) If we just finished a basmalah pre-roll, swap to the actual
-      //    ayah audio without advancing or consuming a repeat. The ayah
-      //    blob URL was prefetched in the load effect.
-      if (playingBasmalahRef.current) {
-        playingBasmalahRef.current = false;
-        const ayahUrl = blobUrlRef.current;
-        if (ayahUrl) {
-          a.src = ayahUrl;
-          a.playbackRate = settings.speed;
-          try { a.play(); } catch { /* ignore */ }
-        }
-        return;
-      }
-
       // 1) Repeat current ayah?
       if (repeatLeftRef.current > 0) {
         repeatLeftRef.current -= 1;
         try { a.currentTime = 0; a.play(); } catch { /* ignore */ }
         return;
       }
+
 
       // 2) Move to next ayah within surah (or first ayah of next surah)
       const meta = surahsByNumber.get(current.surah);
@@ -229,7 +182,7 @@ const QuranAudioBar = ({
       const a = audioRef.current;
       if (a) { a.pause(); a.src = ''; }
       if (blobUrlRef.current) revokeAyahBlobUrl(blobUrlRef.current);
-      if (basmalahUrlRef.current) revokeAyahBlobUrl(basmalahUrlRef.current);
+      
     };
   }, []);
 
