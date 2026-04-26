@@ -24,6 +24,15 @@ import {
   stripArabicDiacritics,
 } from '@/lib/quran-meta';
 import { SURAH_START_PAGES } from './QuranSection';
+import {
+  getAyahColor,
+  setAyahColor,
+  clearAyahColor,
+  getAllAyahColors,
+  AYAH_COLOR_TOKENS,
+  type AyahColor,
+} from '@/lib/quran-bookmarks';
+import AyahColorPicker from './AyahColorPicker';
 
 interface SurahMeta {
   number: number;
@@ -39,6 +48,10 @@ interface Props {
   onClose?: () => void;
   onPageChange?: (page: number) => void;
   inline?: boolean;
+  /** Called when user taps the "تلاوة" button on an ayah — starts the audio bar. */
+  onPlayAyah?: (surah: number, ayah: number) => void;
+  /** Currently-playing ayah, used to highlight it visually. */
+  playingAyah?: { surah: number; ayah: number } | null;
 }
 
 type Orientation = 'vertical' | 'horizontal';
@@ -126,9 +139,15 @@ const BasmalahLine = () => (
 const PageContent = ({
   data,
   isCentered,
+  colorMap,
+  onAyahTap,
+  playingAyah,
 }: {
   data: PageData;
   isCentered: boolean;
+  colorMap: Record<string, AyahColor>;
+  onAyahTap: (surah: number, ayah: number) => void;
+  playingAyah?: { surah: number; ayah: number } | null;
 }) => {
   // Group ayahs by surah so we can render a header before each surah's first ayah on the page.
   const blocks = useMemo(() => {
@@ -170,12 +189,33 @@ const PageContent = ({
                 a.numberInSurah === 1 && a.surah.number !== 1 && a.surah.number !== 9
                   ? stripBasmalah(a.text)
                   : a.text;
+              const colorKey = `${a.surah.number}:${a.numberInSurah}`;
+              const color = colorMap[colorKey];
+              const isPlaying =
+                playingAyah?.surah === a.surah.number && playingAyah?.ayah === a.numberInSurah;
+              const tokens = color ? AYAH_COLOR_TOKENS[color] : null;
+              const medallionStyle: React.CSSProperties = tokens
+                ? {
+                    background: `hsl(${tokens.bg})`,
+                    color: `hsl(${tokens.text})`,
+                    borderColor: `hsl(${tokens.ring})`,
+                    boxShadow: `inset 0 0 0 2px hsl(var(--background)), 0 0 0 1px hsl(${tokens.ring} / 0.6)`,
+                  }
+                : {};
               return (
                 <span key={a.number}>
                   {text}
-                  <span className="ayah-number-medallion mx-1 inline-flex items-center justify-center align-middle">
+                  <button
+                    type="button"
+                    onClick={() => onAyahTap(a.surah.number, a.numberInSurah)}
+                    className={`ayah-number-medallion mx-1 inline-flex items-center justify-center align-middle cursor-pointer transition-transform active:scale-90 ${
+                      isPlaying ? 'ring-2 ring-primary/70 ring-offset-1 ring-offset-background' : ''
+                    }`}
+                    style={medallionStyle}
+                    aria-label={`الآية ${a.numberInSurah}`}
+                  >
                     {toArabicNumerals(a.numberInSurah)}
-                  </span>
+                  </button>
                   {i < block.ayahs.length - 1 ? ' ' : ''}
                 </span>
               );
@@ -191,7 +231,7 @@ const PageContent = ({
  * Madinah Mushaf page-by-page reader using the official KFGQPC Uthmanic
  * Script font and Tanzil-verified Uthmani text (alquran.cloud).
  */
-const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, inline = false }: Props) => {
+const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, inline = false, onPlayAyah, playingAyah }: Props) => {
   const [page, setPage] = useState(initialPage);
   const [data, setData] = useState<PageData | null>(null);
   const [neighbourData, setNeighbourData] = useState<Map<number, PageData>>(new Map());
@@ -201,7 +241,20 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
   const [orientation, setOrientation] = useState<Orientation>(getStoredOrientation);
   const [jumpValue, setJumpValue] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [colorMap, setColorMap] = useState<Record<string, AyahColor>>(() => getAllAyahColors());
+  const [pickerAyah, setPickerAyah] = useState<{ surah: number; ayah: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Subscribe to in-tab color-mark changes (custom event from quran-bookmarks).
+  useEffect(() => {
+    const refresh = () => setColorMap(getAllAyahColors());
+    window.addEventListener('atraa:ayah-marks-changed', refresh);
+    window.addEventListener('storage', refresh);
+    return () => {
+      window.removeEventListener('atraa:ayah-marks-changed', refresh);
+      window.removeEventListener('storage', refresh);
+    };
+  }, []);
 
   useEffect(() => {
     try { localStorage.setItem(ORIENTATION_KEY, orientation); } catch { /* ignore */ }
@@ -556,7 +609,13 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
         )}
 
         {!loading && !error && data && orientation === 'vertical' && (
-          <PageContent data={data} isCentered={isCentered} />
+          <PageContent
+            data={data}
+            isCentered={isCentered}
+            colorMap={colorMap}
+            onAyahTap={(s, ay) => setPickerAyah({ surah: s, ayah: ay })}
+            playingAyah={playingAyah}
+          />
         )}
 
         {!loading && !error && data && orientation === 'horizontal' && (
@@ -580,7 +639,13 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
                       <p className="text-[11px] text-muted-foreground/50 font-light">— نهاية المصحف —</p>
                     </div>
                   ) : pageData ? (
-                    <PageContent data={pageData} isCentered={p <= 2} />
+                    <PageContent
+                      data={pageData}
+                      isCentered={p <= 2}
+                      colorMap={colorMap}
+                      onAyahTap={(s, ay) => setPickerAyah({ surah: s, ayah: ay })}
+                      playingAyah={playingAyah}
+                    />
                   ) : (
                     <div className="flex items-center justify-center py-24">
                       <Loader2 className="w-4 h-4 text-muted-foreground/40 animate-spin" />
@@ -651,6 +716,33 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
           />
         </div>
       </div>
+
+      {/* Ayah color picker bottom-sheet */}
+      {pickerAyah && (
+        <AyahColorPicker
+          open
+          surah={pickerAyah.surah}
+          ayah={pickerAyah.ayah}
+          surahName={(() => {
+            const m = surahsByNumber.get(pickerAyah.surah);
+            return m ? m.name.replace(/^سُورَةُ\s*/, '').replace(/^سورة\s*/, '') : '';
+          })()}
+          currentColor={getAyahColor(pickerAyah.surah, pickerAyah.ayah)}
+          onPick={(c) => {
+            setAyahColor(pickerAyah.surah, pickerAyah.ayah, c);
+            setPickerAyah(null);
+          }}
+          onClear={() => {
+            clearAyahColor(pickerAyah.surah, pickerAyah.ayah);
+            setPickerAyah(null);
+          }}
+          onPlay={() => {
+            onPlayAyah?.(pickerAyah.surah, pickerAyah.ayah);
+            setPickerAyah(null);
+          }}
+          onClose={() => setPickerAyah(null)}
+        />
+      )}
     </motion.div>
   );
 };

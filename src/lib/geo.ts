@@ -74,3 +74,71 @@ export function getAccurateLocation(timeoutMs = 12000): Promise<GeolocationPosit
     );
   });
 }
+
+/**
+ * Best-accuracy GPS — collects samples for up to `windowMs` and returns the
+ * single most accurate fix (lowest `accuracy` in metres). Falls back to a
+ * one-shot reading if `watchPosition` is unavailable. This dramatically
+ * improves first-fix quality on devices that warm-start their GNSS chip.
+ *
+ * `acceptAccuracyM` lets callers short-circuit early once accuracy is good
+ * enough (e.g. ≤ 30 m), avoiding the full window when the fix is solid.
+ */
+export function getBestAccuracyLocation({
+  windowMs = 6000,
+  acceptAccuracyM = 25,
+  fallbackTimeoutMs = 12000,
+}: { windowMs?: number; acceptAccuracyM?: number; fallbackTimeoutMs?: number } = {}): Promise<GeolocationPosition> {
+  return new Promise((resolve, reject) => {
+    if (!('geolocation' in navigator)) {
+      reject(new Error('GPS unsupported'));
+      return;
+    }
+
+    let best: GeolocationPosition | null = null;
+    let watchId: number | null = null;
+    let settled = false;
+
+    const finish = (pos: GeolocationPosition | null, err?: Error) => {
+      if (settled) return;
+      settled = true;
+      if (watchId !== null) {
+        try { navigator.geolocation.clearWatch(watchId); } catch { /* ignore */ }
+      }
+      if (pos) resolve(pos);
+      else reject(err || new Error('GPS unavailable'));
+    };
+
+    try {
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          if (!best || pos.coords.accuracy < best.coords.accuracy) {
+            best = pos;
+          }
+          if (best && best.coords.accuracy <= acceptAccuracyM) {
+            finish(best);
+          }
+        },
+        (err) => {
+          // Only fail if we never got a sample.
+          if (!best) finish(null, new Error(err.message));
+        },
+        { enableHighAccuracy: true, timeout: fallbackTimeoutMs, maximumAge: 0 }
+      );
+    } catch {
+      // Browser blocked watchPosition — fall back to one-shot.
+      navigator.geolocation.getCurrentPosition(
+        (pos) => finish(pos),
+        (err) => finish(null, new Error(err.message)),
+        { enableHighAccuracy: true, timeout: fallbackTimeoutMs, maximumAge: 0 }
+      );
+      return;
+    }
+
+    // Window deadline — accept the best sample we collected.
+    setTimeout(() => {
+      if (best) finish(best);
+      else finish(null, new Error('GPS window timed out'));
+    }, windowMs);
+  });
+}

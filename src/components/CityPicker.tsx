@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { MapPin, LocateFixed, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { haversineKm, reverseGeocode, getAccurateLocation } from '@/lib/geo';
+import { haversineKm, reverseGeocode, getBestAccuracyLocation } from '@/lib/geo';
 
 interface CityRecord {
   value: string;
@@ -287,7 +287,7 @@ const CityPicker = ({ selectedCity, onCityChange }: CityPickerProps) => {
     setDetecting(true);
     setGpsError(null);
     try {
-      const pos = await getAccurateLocation(15000);
+      const pos = await getBestAccuracyLocation({ windowMs: 7000, acceptAccuracyM: 25, fallbackTimeoutMs: 15000 });
       const { latitude, longitude } = pos.coords;
 
       // 1) True great-circle nearest-city match (fixes the "Washington vs Dammam" bug

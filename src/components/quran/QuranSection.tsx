@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { surahFromSlug } from '@/lib/quran-meta';
 import QuranPageReader from './QuranPageReader';
+import QuranAudioBar from './QuranAudioBar';
 
 interface Surah {
   number: number;
@@ -55,6 +56,7 @@ const QuranSection = () => {
   const [surahs, setSurahs] = useState<Surah[] | null>(null);
   const [loadingList, setLoadingList] = useState(true);
   const [listError, setListError] = useState(false);
+  const [playingAyah, setPlayingAyah] = useState<{ surah: number; ayah: number } | null>(null);
 
   // Resolve initial page: URL slug > stored last page > page 1
   const [initialPage] = useState(() => {
@@ -120,12 +122,22 @@ const QuranSection = () => {
   }
 
   return (
-    <QuranPageReader
-      inline
-      initialPage={initialPage}
-      surahsByNumber={surahsByNumber}
-      onPageChange={handlePageChange}
-    />
+    <>
+      <QuranPageReader
+        inline
+        initialPage={initialPage}
+        surahsByNumber={surahsByNumber}
+        onPageChange={handlePageChange}
+        onPlayAyah={(surah, ayah) => setPlayingAyah({ surah, ayah })}
+        playingAyah={playingAyah}
+      />
+      <QuranAudioBar
+        current={playingAyah}
+        surahsByNumber={surahsByNumber}
+        onAyahChange={(surah, ayah) => setPlayingAyah({ surah, ayah })}
+        onStop={() => setPlayingAyah(null)}
+      />
+    </>
   );
 };
 

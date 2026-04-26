@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight, Check, Lock, Calendar, MapPin, LocateFixed, Loader2 } from 'lucide-react';
 import { setHijriAdjustment } from '@/lib/user';
-import { getAccurateLocation } from '@/lib/geo';
+import { getBestAccuracyLocation } from '@/lib/geo';
 import { toast } from 'sonner';
 import { getSeasonalLogo } from '@/lib/seasonal-logo';
 
@@ -81,7 +81,7 @@ const OnboardingScreen = ({ onFinish }: Props) => {
     if (gpsLoading) return;
     setGpsLoading(true);
     try {
-      const pos = await getAccurateLocation(10000);
+      const pos = await getBestAccuracyLocation({ windowMs: 6000, acceptAccuracyM: 30, fallbackTimeoutMs: 10000 });
       const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
       // Use generic "GPS" placeholder; the app's existing PrayerTimes will use coords directly.
       setCityChoice({ name: 'GPS', ...coords });
