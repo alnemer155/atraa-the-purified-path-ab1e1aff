@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { surahFromSlug } from '@/lib/quran-meta';
 import QuranPageReader from './QuranPageReader';
+import QuranAudioBar from './QuranAudioBar';
 
 interface Surah {
   number: number;
