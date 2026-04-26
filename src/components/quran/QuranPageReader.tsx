@@ -24,6 +24,15 @@ import {
   stripArabicDiacritics,
 } from '@/lib/quran-meta';
 import { SURAH_START_PAGES } from './QuranSection';
+import {
+  getAyahColor,
+  setAyahColor,
+  clearAyahColor,
+  getAllAyahColors,
+  AYAH_COLOR_TOKENS,
+  type AyahColor,
+} from '@/lib/quran-bookmarks';
+import AyahColorPicker from './AyahColorPicker';
 
 interface SurahMeta {
   number: number;
@@ -39,6 +48,10 @@ interface Props {
   onClose?: () => void;
   onPageChange?: (page: number) => void;
   inline?: boolean;
+  /** Called when user taps the "تلاوة" button on an ayah — starts the audio bar. */
+  onPlayAyah?: (surah: number, ayah: number) => void;
+  /** Currently-playing ayah, used to highlight it visually. */
+  playingAyah?: { surah: number; ayah: number } | null;
 }
 
 type Orientation = 'vertical' | 'horizontal';
