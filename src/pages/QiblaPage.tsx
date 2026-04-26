@@ -230,21 +230,22 @@ const QiblaPage = () => {
   const hasVibrated = useRef(false);
 
   useEffect(() => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude, longitude } = pos.coords;
-          setCoords({ lat: latitude, lng: longitude });
-          setQiblaDirection(calculateQibla(latitude, longitude));
-        },
-        () => {
-          setCoords({ lat: 26.3927, lng: 49.9777 });
-          setQiblaDirection(calculateQibla(26.3927, 49.9777));
-          setError(isAr ? 'تم استخدام الموقع الافتراضي (الدمام)' : 'Using default location (Dammam)');
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
-    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const pos = await getBestAccuracyLocation({ windowMs: 6000, acceptAccuracyM: 25 });
+        if (cancelled) return;
+        const { latitude, longitude } = pos.coords;
+        setCoords({ lat: latitude, lng: longitude });
+        setQiblaDirection(calculateQibla(latitude, longitude));
+      } catch {
+        if (cancelled) return;
+        setCoords({ lat: 26.3927, lng: 49.9777 });
+        setQiblaDirection(calculateQibla(26.3927, 49.9777));
+        setError(isAr ? 'تم استخدام الموقع الافتراضي (الدمام)' : 'Using default location (Dammam)');
+      }
+    })();
+    return () => { cancelled = true; };
   }, [isAr]);
 
   // Smoothing buffer + low-pass filter for stable, accurate compass motion.
