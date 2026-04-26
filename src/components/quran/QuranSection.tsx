@@ -122,12 +122,22 @@ const QuranSection = () => {
   }
 
   return (
-    <QuranPageReader
-      inline
-      initialPage={initialPage}
-      surahsByNumber={surahsByNumber}
-      onPageChange={handlePageChange}
-    />
+    <>
+      <QuranPageReader
+        inline
+        initialPage={initialPage}
+        surahsByNumber={surahsByNumber}
+        onPageChange={handlePageChange}
+        onPlayAyah={(surah, ayah) => setPlayingAyah({ surah, ayah })}
+        playingAyah={playingAyah}
+      />
+      <QuranAudioBar
+        current={playingAyah}
+        surahsByNumber={surahsByNumber}
+        onAyahChange={(surah, ayah) => setPlayingAyah({ surah, ayah })}
+        onStop={() => setPlayingAyah(null)}
+      />
+    </>
   );
 };
 
