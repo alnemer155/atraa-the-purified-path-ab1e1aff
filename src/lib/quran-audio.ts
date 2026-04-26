@@ -30,8 +30,20 @@ const VOLUME_KEY = 'atraa_quran_audio_volume_v1';
 
 const pad3 = (n: number) => String(n).padStart(3, '0');
 
-export const ayahAudioUrl = (surah: number, ayah: number): string =>
-  `${CDN_BASE}/${pad3(surah)}${pad3(ayah)}.mp3`;
+/**
+ * Builds the CDN URL for an ayah using the currently selected reciter
+ * (or an explicit override). Defaults to the user's stored choice so any
+ * existing call sites (e.g. download manager, cache eviction) continue
+ * working without changes.
+ */
+export const ayahAudioUrl = (
+  surah: number,
+  ayah: number,
+  reciterId: string = getStoredReciterId(),
+): string => {
+  const reciter = getReciter(reciterId);
+  return `${CDN_HOST}/${reciter.folder}/${pad3(surah)}${pad3(ayah)}.mp3`;
+};
 
 /* ============ LRU bookkeeping (size estimate per URL) ============ */
 
