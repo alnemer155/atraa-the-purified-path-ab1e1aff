@@ -236,7 +236,7 @@ const PageContent = ({
  * Madinah Mushaf page-by-page reader using the official KFGQPC Uthmanic
  * Script font and Tanzil-verified Uthmani text (alquran.cloud).
  */
-const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, inline = false, onPlayAyah, playingAyah }: Props) => {
+const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, inline = false, onPlayAyah, playingAyah, onOpenRecitation, onPageSurahsChange }: Props) => {
   const [page, setPage] = useState(initialPage);
   const [data, setData] = useState<PageData | null>(null);
   const [neighbourData, setNeighbourData] = useState<Map<number, PageData>>(new Map());
