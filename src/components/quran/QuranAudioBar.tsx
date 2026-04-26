@@ -182,7 +182,7 @@ const QuranAudioBar = ({
       const a = audioRef.current;
       if (a) { a.pause(); a.src = ''; }
       if (blobUrlRef.current) revokeAyahBlobUrl(blobUrlRef.current);
-      if (basmalahUrlRef.current) revokeAyahBlobUrl(basmalahUrlRef.current);
+      
     };
   }, []);
 
