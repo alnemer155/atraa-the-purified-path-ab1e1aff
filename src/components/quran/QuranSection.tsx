@@ -14,7 +14,7 @@ interface Surah {
 
 // Official Madinah Mushaf start page for every surah. Used to map a surah slug
 // in the URL (/quran/Al-Baqarah) to the correct opening Mushaf page.
-const SURAH_START_PAGES: Record<number, number> = {
+export const SURAH_START_PAGES: Record<number, number> = {
   1: 1, 2: 2, 3: 50, 4: 77, 5: 106, 6: 128, 7: 151, 8: 177, 9: 187, 10: 208, 11: 221, 12: 235,
   13: 249, 14: 255, 15: 262, 16: 267, 17: 282, 18: 293, 19: 305, 20: 312, 21: 322, 22: 332, 23: 342, 24: 350,
   25: 359, 26: 367, 27: 377, 28: 385, 29: 396, 30: 404, 31: 411, 32: 415, 33: 418, 34: 428, 35: 434, 36: 440,

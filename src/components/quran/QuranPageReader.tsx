@@ -9,6 +9,7 @@ import {
   Settings2,
   RectangleHorizontal,
   RectangleVertical,
+  Search,
 } from 'lucide-react';
 import {
   fetchPageText,
@@ -17,6 +18,12 @@ import {
   type PageData,
   type PageAyah,
 } from '@/lib/quran-page';
+import {
+  getJuzForAyah,
+  getHizbForAyah,
+  stripArabicDiacritics,
+} from '@/lib/quran-meta';
+import { SURAH_START_PAGES } from './QuranSection';
 
 interface SurahMeta {
   number: number;
@@ -37,7 +44,6 @@ interface Props {
 type Orientation = 'vertical' | 'horizontal';
 
 const ORIENTATION_KEY = 'atraa_quran_orientation_v1';
-const FONT_SIZE_KEY = 'atraa_quran_font_size_v1';
 
 const getStoredOrientation = (): Orientation => {
   try {
@@ -46,80 +52,69 @@ const getStoredOrientation = (): Orientation => {
   } catch { return 'vertical'; }
 };
 
-const getStoredFontSize = (): number => {
-  try {
-    const n = parseInt(localStorage.getItem(FONT_SIZE_KEY) || '26', 10);
-    return Number.isFinite(n) && n >= 18 && n <= 38 ? n : 26;
-  } catch { return 26; }
-};
+/** Fixed Quran body font size (locked — no user resize per design). */
+const FIXED_FONT_SIZE = 26;
 
 /**
- * Authentic Madinah Mushaf surah header — illuminated cartouche.
+ * Refined Madinah Mushaf surah header — minimal, calligraphic cartouche.
+ * Smaller and more elegant than the previous oversized variant. Uses
+ * the dedicated `surah-name-display` typeface for the surah name.
  */
-const MadinahSurahHeader = ({ meta }: { meta: SurahMeta }) => (
-  <div className="my-6 text-center select-none">
-    <div className="relative mx-auto max-w-[460px] h-[88px] flex items-center justify-center">
-      <svg
-        viewBox="0 0 460 88"
-        className="absolute inset-0 w-full h-full text-gold"
-        preserveAspectRatio="none"
-        aria-hidden
-      >
-        <rect x="2" y="2" width="456" height="84" fill="none" stroke="currentColor" strokeWidth="1.1" opacity="0.9" />
-        <rect x="6" y="6" width="448" height="76" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.55" />
-        <rect x="12" y="12" width="436" height="64" fill="none" stroke="currentColor" strokeWidth="0.35" opacity="0.4" />
-        <g stroke="currentColor" strokeWidth="0.7" fill="none" opacity="0.75">
-          <path d="M12 26 q0 -14 14 -14" />
-          <path d="M448 12 q14 0 14 14" />
-          <path d="M12 62 q0 14 14 14" />
-          <path d="M448 76 q14 0 14 -14" />
-        </g>
-        <g fill="currentColor" opacity="0.7">
-          <circle cx="20" cy="20" r="0.9" />
-          <circle cx="440" cy="20" r="0.9" />
-          <circle cx="20" cy="68" r="0.9" />
-          <circle cx="440" cy="68" r="0.9" />
-        </g>
-        <g stroke="currentColor" strokeWidth="0.6" fill="none" opacity="0.75">
-          <circle cx="34" cy="44" r="5" />
-          <circle cx="34" cy="44" r="2.4" />
-          <circle cx="426" cy="44" r="5" />
-          <circle cx="426" cy="44" r="2.4" />
-        </g>
-        <g fill="currentColor" opacity="0.55">
-          <circle cx="34" cy="44" r="0.9" />
-          <circle cx="426" cy="44" r="0.9" />
-        </g>
-        <g stroke="currentColor" strokeWidth="0.5" opacity="0.55">
-          <path d="M40 44 H82" />
-          <path d="M378 44 H420" />
-        </g>
-        <g stroke="currentColor" strokeWidth="0.5" fill="none" opacity="0.6">
-          <path d="M222 12 q8 -4 16 0" />
-          <path d="M218 12 q12 -8 24 0" />
-          <circle cx="230" cy="9" r="0.9" fill="currentColor" />
-        </g>
-        <g stroke="currentColor" strokeWidth="0.5" fill="none" opacity="0.6">
-          <path d="M222 76 q8 4 16 0" />
-          <circle cx="230" cy="79" r="0.9" fill="currentColor" />
-        </g>
-      </svg>
+const MadinahSurahHeader = ({ meta }: { meta: SurahMeta }) => {
+  const cleanName = meta.name
+    .replace(/^سُورَةُ\s*/, '')
+    .replace(/^سورة\s*/, '');
+  return (
+    <div className="my-5 text-center select-none">
+      <div className="relative mx-auto max-w-[360px] h-[64px] flex items-center justify-center">
+        <svg
+          viewBox="0 0 360 64"
+          className="absolute inset-0 w-full h-full text-gold"
+          preserveAspectRatio="none"
+          aria-hidden
+        >
+          {/* Single elegant outer frame */}
+          <rect x="2" y="2" width="356" height="60" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.55" />
+          <rect x="6" y="6" width="348" height="52" fill="none" stroke="currentColor" strokeWidth="0.4" opacity="0.32" />
+          {/* Soft corner flourishes */}
+          <g stroke="currentColor" strokeWidth="0.5" fill="none" opacity="0.55">
+            <path d="M10 18 q0 -8 8 -8" />
+            <path d="M350 10 q8 0 8 8" />
+            <path d="M10 46 q0 8 8 8" />
+            <path d="M350 54 q8 0 8 -8" />
+          </g>
+          {/* Side rosettes */}
+          <g stroke="currentColor" strokeWidth="0.5" fill="none" opacity="0.6">
+            <circle cx="24" cy="32" r="3.2" />
+            <circle cx="336" cy="32" r="3.2" />
+          </g>
+          <g fill="currentColor" opacity="0.5">
+            <circle cx="24" cy="32" r="0.7" />
+            <circle cx="336" cy="32" r="0.7" />
+          </g>
+          {/* Connecting hairlines */}
+          <g stroke="currentColor" strokeWidth="0.35" opacity="0.4">
+            <path d="M30 32 H58" />
+            <path d="M302 32 H330" />
+          </g>
+        </svg>
 
-      <div className="relative flex flex-col items-center" style={{ lineHeight: 1 }}>
-        <p className="quran-uthmani text-[22px] text-foreground tracking-wide">
-          {meta.name.startsWith('سُورَة') ? meta.name : `سُورَةُ ${meta.name}`}
-        </p>
-        <p className="text-[8px] text-gold/80 font-light mt-2 tracking-[0.25em]">
-          {meta.revelationType === 'Medinan' ? 'مَدَنِيَّة' : 'مَكِّيَّة'} · {toArabicNumerals(meta.numberOfAyahs)} آية
-        </p>
+        <div className="relative flex flex-col items-center" style={{ lineHeight: 1.05 }}>
+          <p className="surah-name-display text-[18px] text-foreground tracking-wide">
+            {cleanName}
+          </p>
+          <p className="text-[7.5px] text-gold/80 font-light mt-1.5 tracking-[0.3em]">
+            {meta.revelationType === 'Medinan' ? 'مَدَنِيَّة' : 'مَكِّيَّة'} · {toArabicNumerals(meta.numberOfAyahs)} آية
+          </p>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 /** Basmalah line drawn under each surah header (except At-Tawbah / Al-Fatihah). */
 const BasmalahLine = () => (
-  <p className="quran-uthmani text-center text-[22px] text-foreground/90 mb-3 mt-1">
+  <p className="quran-uthmani text-center text-[20px] text-foreground/85 mb-3 mt-1">
     بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
   </p>
 );
@@ -130,11 +125,9 @@ const BasmalahLine = () => (
  */
 const PageContent = ({
   data,
-  fontSize,
   isCentered,
 }: {
   data: PageData;
-  fontSize: number;
   isCentered: boolean;
 }) => {
   // Group ayahs by surah so we can render a header before each surah's first ayah on the page.
@@ -154,19 +147,18 @@ const PageContent = ({
 
   return (
     <div
-      className={`mx-auto max-w-2xl px-6 py-8 ${isCentered ? 'min-h-[60vh] flex flex-col justify-center' : ''}`}
+      className={`mx-auto max-w-2xl px-5 py-7 ${isCentered ? 'min-h-[60vh] flex flex-col justify-center' : ''}`}
       dir="rtl"
     >
       {blocks.map((block, bi) => (
         <div key={`${block.surah.number}-${bi}`}>
           {block.isStart && <MadinahSurahHeader meta={block.surah} />}
-          {/* Basmalah for surah starts — except At-Tawbah (9) and Al-Fatihah (1, basmalah is its first ayah) */}
           {block.isStart && block.surah.number !== 9 && block.surah.number !== 1 && <BasmalahLine />}
 
           <p
             className="quran-uthmani text-foreground"
             style={{
-              fontSize: `${fontSize}px`,
+              fontSize: `${FIXED_FONT_SIZE}px`,
               textAlign: 'justify',
               textAlignLast: 'center',
               lineHeight: 2.4,
@@ -174,9 +166,6 @@ const PageContent = ({
             }}
           >
             {block.ayahs.map((a, i) => {
-              // Strip the inline basmalah from the first ayah of any surah other
-              // than Al-Fatihah (where it IS the first ayah) — we render it
-              // separately above.
               const text =
                 a.numberInSurah === 1 && a.surah.number !== 1 && a.surah.number !== 9
                   ? stripBasmalah(a.text)
@@ -210,16 +199,13 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
   const [error, setError] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [orientation, setOrientation] = useState<Orientation>(getStoredOrientation);
-  const [fontSize, setFontSize] = useState<number>(getStoredFontSize);
   const [jumpValue, setJumpValue] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     try { localStorage.setItem(ORIENTATION_KEY, orientation); } catch { /* ignore */ }
   }, [orientation]);
-  useEffect(() => {
-    try { localStorage.setItem(FONT_SIZE_KEY, String(fontSize)); } catch { /* ignore */ }
-  }, [fontSize]);
 
   // Preload neighbour pages
   useEffect(() => {
@@ -274,6 +260,16 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
   }, [data]);
   const currentSurahMeta = currentSurahNumber ? surahsByNumber.get(currentSurahNumber) : undefined;
 
+  // Juz / Hizb of the FIRST ayah on the current page
+  const juzHizb = useMemo(() => {
+    if (!data || !data.ayahs.length) return null;
+    const first = data.ayahs[0];
+    return {
+      juz: getJuzForAyah(first.surah.number, first.numberInSurah),
+      hizb: getHizbForAyah(first.surah.number, first.numberInSurah),
+    };
+  }, [data]);
+
   const isCentered = page <= 2;
 
   const goPrev = () => page > 1 && setPage(p => p - 1);
@@ -292,6 +288,31 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
       setPage(n);
       setShowSettings(false);
       setJumpValue('');
+    }
+  };
+
+  // Surah search results (diacritic-insensitive Arabic + English)
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim();
+    if (!q) return [] as SurahMeta[];
+    const normQ = stripArabicDiacritics(q).toLowerCase();
+    const arr: SurahMeta[] = [];
+    surahsByNumber.forEach(s => {
+      const ar = stripArabicDiacritics(s.name).toLowerCase();
+      const en = s.englishName.toLowerCase();
+      if (ar.includes(normQ) || en.includes(normQ) || String(s.number) === q) {
+        arr.push(s);
+      }
+    });
+    return arr.slice(0, 8);
+  }, [searchQuery, surahsByNumber]);
+
+  const jumpToSurah = (surahNum: number) => {
+    const p = SURAH_START_PAGES[surahNum];
+    if (p) {
+      setPage(p);
+      setShowSettings(false);
+      setSearchQuery('');
     }
   };
 
@@ -325,7 +346,7 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
       className={wrapperClass}
       dir="rtl"
     >
-      {/* Top bar */}
+      {/* Top bar — orientation · juz/hizb · settings */}
       <div className={`${inline ? 'sticky top-[41px] z-30' : 'flex-shrink-0'} px-4 py-2.5 flex items-center justify-between border-b border-border/10 bg-background/85 backdrop-blur-2xl`}>
         <button
           onClick={() => setOrientation(o => (o === 'vertical' ? 'horizontal' : 'vertical'))}
@@ -354,9 +375,15 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
           <p className="text-[11px] text-foreground/85 font-medium tracking-wide">
             مُصْحَفُ المَدِينَةِ النَبَوِيَّة
           </p>
-          <p className="text-[8px] text-muted-foreground/55 font-light mt-0.5 tracking-[0.15em]">
-            بِرِوَايَةِ حَفْصٍ عَنْ عَاصِم
-          </p>
+          {juzHizb ? (
+            <p className="text-[8.5px] text-muted-foreground/70 font-light mt-0.5 tracking-wider tabular-nums">
+              الجُزْء {toArabicNumerals(juzHizb.juz)} · الحِزْب {toArabicNumerals(juzHizb.hizb)}
+            </p>
+          ) : (
+            <p className="text-[8px] text-muted-foreground/55 font-light mt-0.5 tracking-[0.15em]">
+              بِرِوَايَةِ حَفْصٍ عَنْ عَاصِم
+            </p>
+          )}
         </div>
 
         {onClose ? (
@@ -386,7 +413,7 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center px-4 pb-4 sm:pb-0"
-            onClick={() => setShowSettings(false)}
+            onClick={() => { setShowSettings(false); setSearchQuery(''); }}
           >
             <motion.div
               initial={{ y: 40, opacity: 0 }}
@@ -399,7 +426,7 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
               <div className="flex items-center justify-between mb-4">
                 <p className="text-[13px] text-foreground font-medium">إعدادات القراءة</p>
                 <button
-                  onClick={() => setShowSettings(false)}
+                  onClick={() => { setShowSettings(false); setSearchQuery(''); }}
                   className="w-7 h-7 rounded-full bg-secondary/40 flex items-center justify-center active:scale-95"
                   aria-label="إغلاق"
                 >
@@ -407,6 +434,40 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
                 </button>
               </div>
 
+              {/* Search by surah name */}
+              <div className="mb-4">
+                <p className="text-[11px] text-muted-foreground/70 font-light mb-2">بحث عن سورة</p>
+                <div className="relative">
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/50" strokeWidth={1.6} />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="اكتب اسم السورة…"
+                    className="w-full h-10 pr-9 pl-3 rounded-2xl bg-secondary/40 border border-border/20 text-[12px] text-foreground outline-none focus:border-primary/40"
+                  />
+                </div>
+                {searchResults.length > 0 && (
+                  <div className="mt-2 max-h-44 overflow-y-auto rounded-2xl bg-secondary/30 border border-border/15 hide-scrollbar">
+                    {searchResults.map(s => (
+                      <button
+                        key={s.number}
+                        onClick={() => jumpToSurah(s.number)}
+                        className="w-full px-3 py-2 flex items-center justify-between gap-2 active:bg-secondary/60 transition-colors border-b border-border/10 last:border-0"
+                      >
+                        <span className="text-[10px] text-muted-foreground/60 tabular-nums">
+                          {toArabicNumerals(s.number)}
+                        </span>
+                        <span className="surah-name-display text-[13px] text-foreground flex-1 text-right">
+                          {s.name.replace(/^سُورَةُ\s*/, '').replace(/^سورة\s*/, '')}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Jump to page */}
               <div className="mb-4">
                 <p className="text-[11px] text-muted-foreground/70 font-light mb-2">انتقال إلى صفحة (١ – ٦٠٤)</p>
                 <div className="flex gap-2">
@@ -414,7 +475,6 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
                     type="number"
                     min={1}
                     max={604}
-                    autoFocus
                     value={jumpValue}
                     onChange={e => setJumpValue(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleJump()}
@@ -431,7 +491,8 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
                 </div>
               </div>
 
-              <div className="mb-4">
+              {/* Orientation */}
+              <div>
                 <p className="text-[11px] text-muted-foreground/70 font-light mb-2">اتجاه العرض</p>
                 <div className="grid grid-cols-2 gap-2">
                   <button
@@ -449,22 +510,6 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
                     <span>أفقي</span>
                   </button>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-[11px] text-muted-foreground/70 font-light">حجم الخط</p>
-                  <p className="text-[11px] text-foreground/70 tabular-nums">{fontSize}px</p>
-                </div>
-                <input
-                  type="range"
-                  min={18}
-                  max={38}
-                  step={1}
-                  value={fontSize}
-                  onChange={e => setFontSize(parseInt(e.target.value, 10))}
-                  className="w-full accent-primary"
-                />
               </div>
             </motion.div>
           </motion.div>
@@ -511,7 +556,7 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
         )}
 
         {!loading && !error && data && orientation === 'vertical' && (
-          <PageContent data={data} fontSize={fontSize} isCentered={isCentered} />
+          <PageContent data={data} isCentered={isCentered} />
         )}
 
         {!loading && !error && data && orientation === 'horizontal' && (
@@ -535,7 +580,7 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
                       <p className="text-[11px] text-muted-foreground/50 font-light">— نهاية المصحف —</p>
                     </div>
                   ) : pageData ? (
-                    <PageContent data={pageData} fontSize={fontSize} isCentered={p <= 2} />
+                    <PageContent data={pageData} isCentered={p <= 2} />
                   ) : (
                     <div className="flex items-center justify-center py-24">
                       <Loader2 className="w-4 h-4 text-muted-foreground/40 animate-spin" />
@@ -574,11 +619,9 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
                 transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                 className="absolute inset-0 flex items-center justify-center gap-3 px-3"
               >
-                <span className="quran-uthmani text-[14px] text-foreground/85 truncate max-w-[60%]">
+                <span className="surah-name-display text-[13px] text-foreground/85 truncate max-w-[55%]">
                   {currentSurahMeta
-                    ? (currentSurahMeta.name.startsWith('سُورَة')
-                      ? currentSurahMeta.name
-                      : `سُورَةُ ${currentSurahMeta.name}`)
+                    ? currentSurahMeta.name.replace(/^سُورَةُ\s*/, '').replace(/^سورة\s*/, '')
                     : '—'}
                 </span>
                 <span className="w-px h-4 bg-border/50" />

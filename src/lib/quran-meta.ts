@@ -235,3 +235,31 @@ export const HIZB_STARTS: { hizb: number; juz: number; surah: number; ayah: numb
   { hizb: 59, juz: 30, surah: 78, ayah: 1 },
   { hizb: 60, juz: 30, surah: 87, ayah: 1 },
 ];
+
+/* ============ Juz / Hizb lookup by (surah, ayah) ============ */
+
+/** Returns the Juz' number that the given (surah, ayah) belongs to. */
+export function getJuzForAyah(surah: number, ayah: number): number {
+  let current = 1;
+  for (const j of JUZ_STARTS) {
+    if (surah > j.surah || (surah === j.surah && ayah >= j.ayah)) {
+      current = j.juz;
+    } else {
+      break;
+    }
+  }
+  return current;
+}
+
+/** Returns the Hizb number that the given (surah, ayah) belongs to. */
+export function getHizbForAyah(surah: number, ayah: number): number {
+  let current = 1;
+  for (const h of HIZB_STARTS) {
+    if (surah > h.surah || (surah === h.surah && ayah >= h.ayah)) {
+      current = h.hizb;
+    } else {
+      break;
+    }
+  }
+  return current;
+}
