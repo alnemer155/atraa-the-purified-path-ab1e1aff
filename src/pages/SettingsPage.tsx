@@ -20,7 +20,7 @@ const SettingsPage = () => {
   const [adhanNotif, setAdhanNotif] = useState(() =>
     localStorage.getItem('atraa_notif_adhan') === 'true' && getNotificationPermission() === 'granted'
   );
-  const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('atraa_city') || 'Qatif');
+  const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('atraa_city') || 'Dammam');
   const [hijriAdj, setHijriAdj] = useState(() => getHijriAdjustment());
   const [shareCopied, setShareCopied] = useState(false);
 

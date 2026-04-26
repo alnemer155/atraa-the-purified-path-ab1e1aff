@@ -40,7 +40,7 @@ const PREP_MESSAGES_EN = [
   'Final touches…',
 ];
 
-const SAUDI_FALLBACK = { city: 'Qatif', coords: { lat: 26.5196, lng: 50.0115 } };
+const SAUDI_FALLBACK = { city: 'Dammam', coords: { lat: 26.3927, lng: 49.9777 } };
 
 const OnboardingScreen = ({ onFinish }: Props) => {
   const { i18n } = useTranslation();
@@ -117,7 +117,7 @@ const OnboardingScreen = ({ onFinish }: Props) => {
     if (step !== 3) return;
     finishedRef.current = false;
 
-    // If user hasn't picked a city, default to Qatif
+    // If user hasn't picked a city, default to Dammam
     if (!cityChoice) {
       localStorage.setItem('atraa_city', SAUDI_FALLBACK.city);
       localStorage.setItem('atraa_city_coords', JSON.stringify(SAUDI_FALLBACK.coords));
@@ -138,12 +138,17 @@ const OnboardingScreen = ({ onFinish }: Props) => {
   const progress = ((step + 1) / 4) * 100;
 
   const popularCities: Array<{ value: string; labelAr: string; labelEn: string; lat: number; lng: number }> = [
-    { value: 'Qatif', labelAr: 'القطيف', labelEn: 'Qatif', lat: 26.5196, lng: 50.0115 },
+    // Saudi Arabia (default region)
+    { value: 'Dammam', labelAr: 'الدمام', labelEn: 'Dammam', lat: 26.3927, lng: 49.9777 },
     { value: 'Riyadh', labelAr: 'الرياض', labelEn: 'Riyadh', lat: 24.7136, lng: 46.6753 },
     { value: 'Mecca', labelAr: 'مكة المكرمة', labelEn: 'Mecca', lat: 21.3891, lng: 39.8579 },
     { value: 'Medina', labelAr: 'المدينة المنورة', labelEn: 'Medina', lat: 24.5247, lng: 39.5692 },
-    { value: 'Karbala', labelAr: 'كربلاء', labelEn: 'Karbala', lat: 32.6160, lng: 44.0247 },
-    { value: 'Najaf', labelAr: 'النجف', labelEn: 'Najaf', lat: 32.0000, lng: 44.3333 },
+    // Gulf capitals (GCC)
+    { value: 'Kuwait', labelAr: 'الكويت', labelEn: 'Kuwait City', lat: 29.3759, lng: 47.9774 },
+    { value: 'Manama', labelAr: 'المنامة', labelEn: 'Manama', lat: 26.2285, lng: 50.5860 },
+    { value: 'Doha', labelAr: 'الدوحة', labelEn: 'Doha', lat: 25.2854, lng: 51.5310 },
+    { value: 'Abu Dhabi', labelAr: 'أبوظبي', labelEn: 'Abu Dhabi', lat: 24.4539, lng: 54.3773 },
+    { value: 'Muscat', labelAr: 'مسقط', labelEn: 'Muscat', lat: 23.5859, lng: 58.4059 },
   ];
 
   return (
