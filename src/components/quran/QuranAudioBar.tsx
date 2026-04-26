@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Loader2, Settings2, Repeat } from 'lucide-react';
 import {
   getAyahAudioBlobUrl,
+  getBasmalahBlobUrl,
   revokeAyahBlobUrl,
+  shouldPlayBasmalahBefore,
   getStoredVolume,
   setStoredVolume,
 } from '@/lib/quran-audio';
