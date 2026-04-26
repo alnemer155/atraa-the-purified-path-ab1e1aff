@@ -139,9 +139,15 @@ const BasmalahLine = () => (
 const PageContent = ({
   data,
   isCentered,
+  colorMap,
+  onAyahTap,
+  playingAyah,
 }: {
   data: PageData;
   isCentered: boolean;
+  colorMap: Record<string, AyahColor>;
+  onAyahTap: (surah: number, ayah: number) => void;
+  playingAyah?: { surah: number; ayah: number } | null;
 }) => {
   // Group ayahs by surah so we can render a header before each surah's first ayah on the page.
   const blocks = useMemo(() => {
@@ -183,12 +189,33 @@ const PageContent = ({
                 a.numberInSurah === 1 && a.surah.number !== 1 && a.surah.number !== 9
                   ? stripBasmalah(a.text)
                   : a.text;
+              const colorKey = `${a.surah.number}:${a.numberInSurah}`;
+              const color = colorMap[colorKey];
+              const isPlaying =
+                playingAyah?.surah === a.surah.number && playingAyah?.ayah === a.numberInSurah;
+              const tokens = color ? AYAH_COLOR_TOKENS[color] : null;
+              const medallionStyle: React.CSSProperties = tokens
+                ? {
+                    background: `hsl(${tokens.bg})`,
+                    color: `hsl(${tokens.text})`,
+                    borderColor: `hsl(${tokens.ring})`,
+                    boxShadow: `inset 0 0 0 2px hsl(var(--background)), 0 0 0 1px hsl(${tokens.ring} / 0.6)`,
+                  }
+                : {};
               return (
                 <span key={a.number}>
                   {text}
-                  <span className="ayah-number-medallion mx-1 inline-flex items-center justify-center align-middle">
+                  <button
+                    type="button"
+                    onClick={() => onAyahTap(a.surah.number, a.numberInSurah)}
+                    className={`ayah-number-medallion mx-1 inline-flex items-center justify-center align-middle cursor-pointer transition-transform active:scale-90 ${
+                      isPlaying ? 'ring-2 ring-primary/70 ring-offset-1 ring-offset-background' : ''
+                    }`}
+                    style={medallionStyle}
+                    aria-label={`الآية ${a.numberInSurah}`}
+                  >
                     {toArabicNumerals(a.numberInSurah)}
-                  </span>
+                  </button>
                   {i < block.ayahs.length - 1 ? ' ' : ''}
                 </span>
               );
