@@ -56,6 +56,7 @@ const QuranSection = () => {
   const [surahs, setSurahs] = useState<Surah[] | null>(null);
   const [loadingList, setLoadingList] = useState(true);
   const [listError, setListError] = useState(false);
+  const [playingAyah, setPlayingAyah] = useState<{ surah: number; ayah: number } | null>(null);
 
   // Resolve initial page: URL slug > stored last page > page 1
   const [initialPage] = useState(() => {
