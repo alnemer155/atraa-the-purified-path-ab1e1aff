@@ -89,8 +89,12 @@ async function enforceQuota(): Promise<void> {
  * Returns a playable Blob URL for an ayah, preferring the on-device cache.
  * Streams from CDN on cache miss and stores the response in the background.
  */
-export async function getAyahAudioBlobUrl(surah: number, ayah: number): Promise<string> {
-  const url = ayahAudioUrl(surah, ayah);
+export async function getAyahAudioBlobUrl(
+  surah: number,
+  ayah: number,
+  reciterId: string = getStoredReciterId(),
+): Promise<string> {
+  const url = ayahAudioUrl(surah, ayah, reciterId);
 
   // No Cache Storage (private mode / very old browsers): direct stream.
   if (typeof caches === 'undefined') return url;
