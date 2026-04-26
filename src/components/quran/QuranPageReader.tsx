@@ -10,6 +10,7 @@ import {
   RectangleHorizontal,
   RectangleVertical,
   Search,
+  Mic,
 } from 'lucide-react';
 import {
   fetchPageText,
