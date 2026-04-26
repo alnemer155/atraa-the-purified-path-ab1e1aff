@@ -53,6 +53,10 @@ interface Props {
   onPlayAyah?: (surah: number, ayah: number) => void;
   /** Currently-playing ayah, used to highlight it visually. */
   playingAyah?: { surah: number; ayah: number } | null;
+  /** Opens the advanced recitation panel (reciter / range / repeat / speed). */
+  onOpenRecitation?: () => void;
+  /** Reports the surahs present on the currently-loaded page (used as range default). */
+  onPageSurahsChange?: (surahs: SurahMeta[]) => void;
 }
 
 type Orientation = 'vertical' | 'horizontal';
