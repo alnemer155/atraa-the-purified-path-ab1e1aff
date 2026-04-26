@@ -156,6 +156,46 @@ export function revokeAyahBlobUrl(blobUrl: string): void {
   }
 }
 
+/**
+ * Fetches the standalone basmalah pre-roll for a surah. Returns `null`
+ * when the current reciter does not provide a separate basmalah file
+ * (e.g. Husary, Ajamy — they recite the basmalah inside ayah 1).
+ */
+export async function getBasmalahBlobUrl(
+  surah: number,
+  reciterId: string = getStoredReciterId(),
+): Promise<string | null> {
+  const url = basmalahAudioUrl(surah, reciterId);
+
+  if (typeof caches === 'undefined') {
+    try {
+      const r = await fetch(url, { method: 'HEAD', mode: 'cors' });
+      return r.ok ? url : null;
+    } catch { return null; }
+  }
+
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    const hit = await cache.match(url);
+    if (hit) {
+      const blob = await hit.clone().blob();
+      touchLru(url, blob.size);
+      return URL.createObjectURL(blob);
+    }
+    const resp = await fetch(url, { mode: 'cors' });
+    if (!resp.ok) return null;
+    const cloned = resp.clone();
+    const blob = await resp.blob();
+    cache.put(url, cloned).then(() => {
+      touchLru(url, blob.size);
+      enforceQuota();
+    }).catch(() => { /* ignore */ });
+    return URL.createObjectURL(blob);
+  } catch {
+    return null;
+  }
+}
+
 /* ============ Per-surah bulk download (opt-in) ============ */
 
 export interface SurahDownloadProgress {
