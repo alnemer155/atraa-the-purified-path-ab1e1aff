@@ -27,6 +27,12 @@ export const RECITERS: Reciter[] = [
     folder: 'Abdul_Basit_Murattal_192kbps',
   },
   {
+    id: 'abdulbasit_mujawwad',
+    name: 'الشيخ عبدالباسط عبدالصمد',
+    hint: 'مجوّد · مصر',
+    folder: 'Abdul_Basit_Mujawwad_128kbps',
+  },
+  {
     id: 'minshawi_murattal',
     name: 'الشيخ محمد صدّيق المنشاوي',
     hint: 'مرتّل · مصر',
