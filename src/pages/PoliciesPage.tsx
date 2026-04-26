@@ -1,4 +1,4 @@
-import { Shield, FileText, Scale, Database, Info, Mail, Heart, Receipt, AlertTriangle } from 'lucide-react';
+import { Shield, FileText, Scale, Database, Info, Mail, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -11,8 +11,6 @@ const PoliciesPage = () => {
   const policies = [
     { icon: Shield, key: 'privacy', label: isAr ? 'سياسة الخصوصية' : 'Privacy Policy', path: '/privacy', desc: isAr ? 'كيف نحمي بياناتك' : 'How we protect your data' },
     { icon: FileText, key: 'terms', label: isAr ? 'شروط الاستخدام' : 'Terms of Service', path: '/terms', desc: isAr ? 'شروط استخدام التطبيق' : 'Rules of use' },
-    { icon: Receipt, key: 'refund', label: isAr ? 'سياسة الاسترداد' : 'Refund Policy', path: '/refund', desc: isAr ? '٣٠ يوماً لاسترداد المساهمات' : '30-day refund window' },
-    { icon: AlertTriangle, key: 'acceptable', label: isAr ? 'الاستخدام المقبول' : 'Acceptable Use', path: '/acceptable-use', desc: isAr ? 'ما يُسمح وما يُحظر' : 'Allowed & prohibited uses' },
     { icon: Scale, key: 'disclaimer', label: t('settings.disclaimer'), path: '/disclaimer', desc: isAr ? 'إخلاء المسؤولية الديني والتقني' : 'Religious & technical disclaimer' },
     { icon: Database, key: 'data', label: t('settings.data'), path: '/data', desc: isAr ? 'ما الذي نجمعه (محلياً فقط)' : 'What we collect (local only)' },
     { icon: Info, key: 'about', label: t('settings.about'), path: '/about', desc: isAr ? 'من نحن وفلسفتنا' : 'About us & philosophy' },
