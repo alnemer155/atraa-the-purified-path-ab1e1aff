@@ -690,6 +690,16 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
             <ChevronLeft className="w-4 h-4 text-foreground/70" strokeWidth={1.8} />
           </button>
 
+          {onOpenRecitation && (
+            <button
+              onClick={onOpenRecitation}
+              className="w-10 h-10 rounded-2xl bg-gradient-to-br from-gold/25 to-primary/15 border border-gold/30 flex items-center justify-center active:scale-90 transition-transform"
+              aria-label="التلاوة"
+            >
+              <Mic className="w-4 h-4 text-gold" strokeWidth={1.7} />
+            </button>
+          )}
+
           <button
             onClick={() => setShowSettings(true)}
             className="flex-1 h-10 rounded-2xl bg-secondary/30 hover:bg-secondary/50 active:scale-[0.98] transition-all overflow-hidden relative"
