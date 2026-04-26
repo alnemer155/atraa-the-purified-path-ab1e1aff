@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { LocateFixed, Info, Check, Compass } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { getBestAccuracyLocation } from '@/lib/geo';
 
 const KAABA_LAT = 21.422487;
 const KAABA_LNG = 39.826206;
