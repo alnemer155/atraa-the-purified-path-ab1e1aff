@@ -18,8 +18,9 @@
  * per-origin Cache Storage quota). Per-surah download is the safe maximum.
  */
 
-const RECITER_PATH = 'Abdul_Basit_Murattal_192kbps';
-const CDN_BASE = `https://everyayah.com/data/${RECITER_PATH}`;
+import { getReciter, getStoredReciterId } from './quran-reciters';
+
+const CDN_HOST = 'https://everyayah.com/data';
 const CACHE_NAME = 'atraa-quran-audio-v1';
 /** Soft cap: ~120 MB. Far below the iOS quota; LRU-evicted when exceeded. */
 const MAX_CACHE_BYTES = 120 * 1024 * 1024;
@@ -29,8 +30,20 @@ const VOLUME_KEY = 'atraa_quran_audio_volume_v1';
 
 const pad3 = (n: number) => String(n).padStart(3, '0');
 
-export const ayahAudioUrl = (surah: number, ayah: number): string =>
-  `${CDN_BASE}/${pad3(surah)}${pad3(ayah)}.mp3`;
+/**
+ * Builds the CDN URL for an ayah using the currently selected reciter
+ * (or an explicit override). Defaults to the user's stored choice so any
+ * existing call sites (e.g. download manager, cache eviction) continue
+ * working without changes.
+ */
+export const ayahAudioUrl = (
+  surah: number,
+  ayah: number,
+  reciterId: string = getStoredReciterId(),
+): string => {
+  const reciter = getReciter(reciterId);
+  return `${CDN_HOST}/${reciter.folder}/${pad3(surah)}${pad3(ayah)}.mp3`;
+};
 
 /* ============ LRU bookkeeping (size estimate per URL) ============ */
 
@@ -76,8 +89,12 @@ async function enforceQuota(): Promise<void> {
  * Returns a playable Blob URL for an ayah, preferring the on-device cache.
  * Streams from CDN on cache miss and stores the response in the background.
  */
-export async function getAyahAudioBlobUrl(surah: number, ayah: number): Promise<string> {
-  const url = ayahAudioUrl(surah, ayah);
+export async function getAyahAudioBlobUrl(
+  surah: number,
+  ayah: number,
+  reciterId: string = getStoredReciterId(),
+): Promise<string> {
+  const url = ayahAudioUrl(surah, ayah, reciterId);
 
   // No Cache Storage (private mode / very old browsers): direct stream.
   if (typeof caches === 'undefined') return url;

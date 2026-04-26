@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Loader2 } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Loader2, Settings2, Repeat } from 'lucide-react';
 import {
   getAyahAudioBlobUrl,
   revokeAyahBlobUrl,
@@ -8,6 +8,8 @@ import {
   setStoredVolume,
 } from '@/lib/quran-audio';
 import { toArabicNumerals } from '@/lib/quran-page';
+import { getReciter } from '@/lib/quran-reciters';
+import type { PlaybackRange, PlaybackSettings } from '@/lib/quran-playback';
 
 interface SurahMeta {
   number: number;
@@ -16,24 +18,34 @@ interface SurahMeta {
 }
 
 interface Props {
-  /** Current surah/ayah being recited. `null` hides the bar entirely. */
   current: { surah: number; ayah: number } | null;
   surahsByNumber: Map<number, SurahMeta>;
-  /** Called whenever playback advances (so the page reader can scroll/highlight). */
   onAyahChange?: (surah: number, ayah: number) => void;
-  /** Called when user taps the close button. */
   onStop: () => void;
+  onOpenPanel?: () => void;
+  /** Active playback configuration (range, repeat, speed, gap, reciter). */
+  settings: PlaybackSettings;
+  /** Inclusive ayah range. `null` = free-flow (no end). */
+  range: PlaybackRange | null;
 }
 
-/**
- * Sticky bottom recitation player — Abdulbasit Abdulsamad (Murattal 192 kbps).
- * Streams instantly + caches transparently. Auto-advances to the next ayah
- * (and the next surah) until the listener stops it. Survives page swipes
- * because it's mounted ABOVE the reader, not inside the swipeable rail.
- */
-const QuranAudioBar = ({ current, surahsByNumber, onAyahChange, onStop }: Props) => {
+/** Compare two surah:ayah pairs — returns -1/0/1. */
+const cmp = (aS: number, aA: number, bS: number, bA: number): number =>
+  aS !== bS ? (aS < bS ? -1 : 1) : aA === bA ? 0 : aA < bA ? -1 : 1;
+
+const QuranAudioBar = ({
+  current,
+  surahsByNumber,
+  onAyahChange,
+  onStop,
+  onOpenPanel,
+  settings,
+  range,
+}: Props) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const blobUrlRef = useRef<string | null>(null);
+  const repeatLeftRef = useRef<number>(0); // remaining repeats for current ayah
+  const cycleRef = useRef<number>(0); // completed full-range cycles
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [volume, setVolume] = useState<number>(getStoredVolume);
@@ -41,6 +53,13 @@ const QuranAudioBar = ({ current, surahsByNumber, onAyahChange, onStop }: Props)
   const [error, setError] = useState(false);
 
   const surahMeta = current ? surahsByNumber.get(current.surah) : undefined;
+  const reciter = getReciter(settings.reciterId);
+
+  // (Re)initialise per-ayah repeats whenever the ayah changes.
+  useEffect(() => {
+    if (!current) return;
+    repeatLeftRef.current = Math.max(0, (settings.repeatCount || 1) - 1);
+  }, [current?.surah, current?.ayah, settings.repeatCount]);
 
   // Load + play whenever `current` changes
   useEffect(() => {
@@ -51,12 +70,11 @@ const QuranAudioBar = ({ current, surahsByNumber, onAyahChange, onStop }: Props)
 
     (async () => {
       try {
-        const url = await getAyahAudioBlobUrl(current.surah, current.ayah);
+        const url = await getAyahAudioBlobUrl(current.surah, current.ayah, settings.reciterId);
         if (cancelled) {
           revokeAyahBlobUrl(url);
           return;
         }
-        // Free previous blob
         if (blobUrlRef.current) revokeAyahBlobUrl(blobUrlRef.current);
         blobUrlRef.current = url;
 
@@ -64,6 +82,7 @@ const QuranAudioBar = ({ current, surahsByNumber, onAyahChange, onStop }: Props)
         const a = audioRef.current;
         a.src = url;
         a.volume = volume;
+        a.playbackRate = settings.speed;
         a.preload = 'auto';
         try {
           await a.play();
@@ -78,32 +97,74 @@ const QuranAudioBar = ({ current, surahsByNumber, onAyahChange, onStop }: Props)
 
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [current?.surah, current?.ayah]);
+  }, [current?.surah, current?.ayah, settings.reciterId]);
 
-  // Wire ended → next ayah, error → mark error
+  // Sync speed without reloading
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.playbackRate = settings.speed;
+  }, [settings.speed]);
+
+  // Wire ended → next ayah handling (with repeat / range / gap logic)
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
-    const onEnded = () => {
+
+    const advance = () => {
       if (!current) return;
-      const meta = surahsByNumber.get(current.surah);
-      if (!meta) { onStop(); return; }
-      if (current.ayah < meta.numberOfAyahs) {
-        onAyahChange?.(current.surah, current.ayah + 1);
-      } else if (current.surah < 114) {
-        onAyahChange?.(current.surah + 1, 1);
-      } else {
-        onStop();
+
+      // 1) Repeat current ayah?
+      if (repeatLeftRef.current > 0) {
+        repeatLeftRef.current -= 1;
+        try { a.currentTime = 0; a.play(); } catch { /* ignore */ }
+        return;
       }
+
+      // 2) Move to next ayah within surah (or first ayah of next surah)
+      const meta = surahsByNumber.get(current.surah);
+      let nextS = current.surah;
+      let nextA = current.ayah + 1;
+      if (!meta || current.ayah >= meta.numberOfAyahs) {
+        if (current.surah >= 114) { onStop(); return; }
+        nextS = current.surah + 1;
+        nextA = 1;
+      }
+
+      // 3) Range boundary?
+      if (range) {
+        const past = cmp(nextS, nextA, range.endSurah, range.endAyah) > 0;
+        if (past) {
+          cycleRef.current += 1;
+          // Infinite (0) or still cycles to go?
+          // Note: range repeat is independent from per-ayah repeat — we
+          // re-play the whole range exactly when autoAdvance is OFF and
+          // the user requested ∞ repeats.
+          if (settings.repeatCount === 0 && !settings.autoAdvance) {
+            nextS = range.startSurah;
+            nextA = range.startAyah;
+          } else {
+            onStop();
+            return;
+          }
+        }
+      } else if (!settings.autoAdvance) {
+        // No range, no autoAdvance → stop after this ayah's repeats
+        onStop();
+        return;
+      }
+
+      const fire = () => onAyahChange?.(nextS, nextA);
+      if (settings.gapMs > 0) setTimeout(fire, settings.gapMs);
+      else fire();
     };
+
     const onErr = () => setError(true);
-    a.addEventListener('ended', onEnded);
+    a.addEventListener('ended', advance);
     a.addEventListener('error', onErr);
     return () => {
-      a.removeEventListener('ended', onEnded);
+      a.removeEventListener('ended', advance);
       a.removeEventListener('error', onErr);
     };
-  }, [current, surahsByNumber, onAyahChange, onStop]);
+  }, [current, surahsByNumber, onAyahChange, onStop, range, settings.gapMs, settings.autoAdvance, settings.repeatCount]);
 
   // Volume sync
   useEffect(() => {
@@ -151,6 +212,14 @@ const QuranAudioBar = ({ current, surahsByNumber, onAyahChange, onStop }: Props)
     }
   };
 
+  const cleanSurahName = surahMeta.name.replace(/^سُورَةُ\s*/, '').replace(/^سورة\s*/, '');
+  const repeatBadge =
+    settings.repeatCount === 0
+      ? '∞'
+      : settings.repeatCount > 1
+        ? `${toArabicNumerals(Math.max(1, settings.repeatCount - repeatLeftRef.current))}/${toArabicNumerals(settings.repeatCount)}`
+        : null;
+
   return (
     <motion.div
       initial={{ y: 80, opacity: 0 }}
@@ -175,13 +244,31 @@ const QuranAudioBar = ({ current, surahsByNumber, onAyahChange, onStop }: Props)
             {/* Reciter + ayah info */}
             <div className="flex-1 min-w-0 px-1">
               <p className="text-[11px] text-foreground/85 font-medium truncate">
-                الشيخ عبدالباسط عبدالصمد
+                {reciter.name}
               </p>
               <p className="text-[9.5px] text-muted-foreground/70 font-light truncate tabular-nums">
-                {surahMeta.name.replace(/^سُورَةُ\s*/, '').replace(/^سورة\s*/, '')} · آية {toArabicNumerals(current.ayah)}
+                {cleanSurahName} · آية {toArabicNumerals(current.ayah)}
+                {settings.speed !== 1 && <span className="mr-1.5 text-foreground/55">×{settings.speed}</span>}
+                {repeatBadge && (
+                  <span className="mr-1.5 inline-flex items-center gap-0.5 text-foreground/65">
+                    <Repeat className="w-2.5 h-2.5 inline" strokeWidth={1.8} />
+                    {repeatBadge}
+                  </span>
+                )}
                 {error && <span className="text-destructive/80 mr-1.5">— تعذّر التحميل</span>}
               </p>
             </div>
+
+            {/* Settings (opens PlaybackPanel) */}
+            {onOpenPanel && (
+              <button
+                onClick={onOpenPanel}
+                className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95"
+                aria-label="إعدادات التلاوة"
+              >
+                <Settings2 className="w-3.5 h-3.5 text-foreground/65" strokeWidth={1.6} />
+              </button>
+            )}
 
             {/* Volume */}
             <div className="relative">
@@ -221,7 +308,7 @@ const QuranAudioBar = ({ current, surahsByNumber, onAyahChange, onStop }: Props)
               </AnimatePresence>
             </div>
 
-            {/* Prev (RTL: chevron points right visually) */}
+            {/* Prev (RTL) */}
             <button
               onClick={skipPrev}
               className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95"

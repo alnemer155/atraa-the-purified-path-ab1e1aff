@@ -10,6 +10,7 @@ import {
   RectangleHorizontal,
   RectangleVertical,
   Search,
+  Mic,
 } from 'lucide-react';
 import {
   fetchPageText,
@@ -52,6 +53,10 @@ interface Props {
   onPlayAyah?: (surah: number, ayah: number) => void;
   /** Currently-playing ayah, used to highlight it visually. */
   playingAyah?: { surah: number; ayah: number } | null;
+  /** Opens the advanced recitation panel (reciter / range / repeat / speed). */
+  onOpenRecitation?: () => void;
+  /** Reports the surahs present on the currently-loaded page (used as range default). */
+  onPageSurahsChange?: (surahs: SurahMeta[]) => void;
 }
 
 type Orientation = 'vertical' | 'horizontal';
@@ -231,7 +236,7 @@ const PageContent = ({
  * Madinah Mushaf page-by-page reader using the official KFGQPC Uthmanic
  * Script font and Tanzil-verified Uthmani text (alquran.cloud).
  */
-const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, inline = false, onPlayAyah, playingAyah }: Props) => {
+const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, inline = false, onPlayAyah, playingAyah, onOpenRecitation, onPageSurahsChange }: Props) => {
   const [page, setPage] = useState(initialPage);
   const [data, setData] = useState<PageData | null>(null);
   const [neighbourData, setNeighbourData] = useState<Map<number, PageData>>(new Map());
@@ -312,6 +317,21 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
     return data.ayahs[0].surah.number;
   }, [data]);
   const currentSurahMeta = currentSurahNumber ? surahsByNumber.get(currentSurahNumber) : undefined;
+
+  // Surahs that appear on the current page — passed up so PlaybackPanel can
+  // default the recitation range to the first surah on this page.
+  useEffect(() => {
+    if (!data || !onPageSurahsChange) return;
+    const seen = new Set<number>();
+    const list: SurahMeta[] = [];
+    for (const a of data.ayahs) {
+      if (seen.has(a.surah.number)) continue;
+      seen.add(a.surah.number);
+      const meta = surahsByNumber.get(a.surah.number);
+      if (meta) list.push(meta);
+    }
+    onPageSurahsChange(list);
+  }, [data, surahsByNumber, onPageSurahsChange]);
 
   // Juz / Hizb of the FIRST ayah on the current page
   const juzHizb = useMemo(() => {
@@ -669,6 +689,16 @@ const QuranPageReader = ({ initialPage, surahsByNumber, onClose, onPageChange, i
           >
             <ChevronLeft className="w-4 h-4 text-foreground/70" strokeWidth={1.8} />
           </button>
+
+          {onOpenRecitation && (
+            <button
+              onClick={onOpenRecitation}
+              className="w-10 h-10 rounded-2xl bg-gradient-to-br from-gold/25 to-primary/15 border border-gold/30 flex items-center justify-center active:scale-90 transition-transform"
+              aria-label="التلاوة"
+            >
+              <Mic className="w-4 h-4 text-gold" strokeWidth={1.7} />
+            </button>
+          )}
 
           <button
             onClick={() => setShowSettings(true)}

@@ -4,6 +4,12 @@ import { Loader2 } from 'lucide-react';
 import { surahFromSlug } from '@/lib/quran-meta';
 import QuranPageReader from './QuranPageReader';
 import QuranAudioBar from './QuranAudioBar';
+import PlaybackPanel from './PlaybackPanel';
+import {
+  getPlaybackSettings,
+  type PlaybackSettings,
+  type PlaybackRange,
+} from '@/lib/quran-playback';
 
 interface Surah {
   number: number;
@@ -13,8 +19,7 @@ interface Surah {
   revelationType: 'Meccan' | 'Medinan';
 }
 
-// Official Madinah Mushaf start page for every surah. Used to map a surah slug
-// in the URL (/quran/Al-Baqarah) to the correct opening Mushaf page.
+// Official Madinah Mushaf start page for every surah.
 export const SURAH_START_PAGES: Record<number, number> = {
   1: 1, 2: 2, 3: 50, 4: 77, 5: 106, 6: 128, 7: 151, 8: 177, 9: 187, 10: 208, 11: 221, 12: 235,
   13: 249, 14: 255, 15: 262, 16: 267, 17: 282, 18: 293, 19: 305, 20: 312, 21: 322, 22: 332, 23: 342, 24: 350,
@@ -44,12 +49,6 @@ const setLastPage = (p: number) => {
   try { localStorage.setItem(LAST_PAGE_KEY, String(p)); } catch { /* ignore */ }
 };
 
-/**
- * Quran section — opens the QPC V2 page-by-page Madinah Mushaf reader directly,
- * inline (no surah picker). The reader self-verifies fonts and never displays
- * uncertain glyphs. Persists the last viewed page locally so users resume where
- * they left off.
- */
 const QuranSection = () => {
   const navigate = useNavigate();
   const params = useParams();
@@ -57,8 +56,13 @@ const QuranSection = () => {
   const [loadingList, setLoadingList] = useState(true);
   const [listError, setListError] = useState(false);
   const [playingAyah, setPlayingAyah] = useState<{ surah: number; ayah: number } | null>(null);
+  const [currentPageSurahs, setCurrentPageSurahs] = useState<Surah[]>([]);
 
-  // Resolve initial page: URL slug > stored last page > page 1
+  // Playback configuration (reciter / repeat / speed / gap / autoAdvance)
+  const [settings, setSettings] = useState<PlaybackSettings>(() => getPlaybackSettings());
+  const [range, setRange] = useState<PlaybackRange | null>(null);
+  const [showPanel, setShowPanel] = useState(false);
+
   const [initialPage] = useState(() => {
     if (params.slug) {
       const num = surahFromSlug(params.slug);
@@ -67,7 +71,6 @@ const QuranSection = () => {
     return getLastPage();
   });
 
-  // Fetch surah metadata once (needed for the inline surah-name banner)
   useEffect(() => {
     let cancelled = false;
     setLoadingList(true);
@@ -93,11 +96,16 @@ const QuranSection = () => {
 
   const handlePageChange = (page: number) => {
     setLastPage(page);
-    // Keep URL clean — don't push a new entry per page swipe
     if (params.slug) {
       const localePrefix = params.locale ? `/${params.locale}` : '';
       navigate(`${localePrefix}/quran`, { replace: true });
     }
+  };
+
+  // Start a recitation session — used both by per-ayah taps and PlaybackPanel
+  const startRange = (r: PlaybackRange) => {
+    setRange(r);
+    setPlayingAyah({ surah: r.startSurah, ayah: r.startAyah });
   };
 
   if (loadingList) {
@@ -128,14 +136,32 @@ const QuranSection = () => {
         initialPage={initialPage}
         surahsByNumber={surahsByNumber}
         onPageChange={handlePageChange}
-        onPlayAyah={(surah, ayah) => setPlayingAyah({ surah, ayah })}
+        onPlayAyah={(surah, ayah) => {
+          // Per-ayah tap = play single ayah, no range
+          setRange(null);
+          setPlayingAyah({ surah, ayah });
+        }}
         playingAyah={playingAyah}
+        onOpenRecitation={() => setShowPanel(true)}
+        onPageSurahsChange={setCurrentPageSurahs}
       />
       <QuranAudioBar
         current={playingAyah}
         surahsByNumber={surahsByNumber}
         onAyahChange={(surah, ayah) => setPlayingAyah({ surah, ayah })}
-        onStop={() => setPlayingAyah(null)}
+        onStop={() => { setPlayingAyah(null); setRange(null); }}
+        onOpenPanel={() => setShowPanel(true)}
+        settings={settings}
+        range={range}
+      />
+      <PlaybackPanel
+        open={showPanel}
+        onClose={() => setShowPanel(false)}
+        settings={settings}
+        onSettingsChange={setSettings}
+        pageSurahs={currentPageSurahs}
+        surahsByNumber={surahsByNumber}
+        onStart={startRange}
       />
     </>
   );
