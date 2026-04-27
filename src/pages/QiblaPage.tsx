@@ -427,6 +427,11 @@ const QiblaPage = () => {
       {error && (
         <p className="text-[9px] text-muted-foreground/50 text-center mt-2 font-light">{error}</p>
       )}
+      {gpsAccuracy !== null && !error && (
+        <p className="text-[9px] text-muted-foreground/40 text-center mt-2 font-light tabular-nums">
+          {isAr ? `دقة الموقع: ±${Math.round(gpsAccuracy)} م` : `GPS accuracy: ±${Math.round(gpsAccuracy)} m`}
+        </p>
+      )}
 
       {!compassActive && (
         <motion.button
