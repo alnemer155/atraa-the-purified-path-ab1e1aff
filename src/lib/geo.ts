@@ -142,3 +142,63 @@ export function getBestAccuracyLocation({
     }, windowMs);
   });
 }
+
+/* ---------------------------------------------------------------------------
+ * GPS cache (v2.7.38) — keep last good fix in localStorage so the app can
+ * show a sensible immediate value while a fresh, more accurate fix arrives.
+ * Cache TTL: 30 minutes; only fixes with accuracy ≤ 100 m are persisted.
+ * ------------------------------------------------------------------------- */
+const GPS_CACHE_KEY = 'atraa_gps_cache_v1';
+const GPS_CACHE_TTL_MS = 30 * 60 * 1000;
+
+export interface CachedFix {
+  lat: number;
+  lng: number;
+  accuracy: number;
+  ts: number;
+}
+
+export function readCachedFix(): CachedFix | null {
+  try {
+    const raw = localStorage.getItem(GPS_CACHE_KEY);
+    if (!raw) return null;
+    const v = JSON.parse(raw) as CachedFix;
+    if (!v || typeof v.lat !== 'number' || typeof v.lng !== 'number') return null;
+    if (Date.now() - v.ts > GPS_CACHE_TTL_MS) return null;
+    return v;
+  } catch { return null; }
+}
+
+export function writeCachedFix(pos: GeolocationPosition): void {
+  try {
+    if (pos.coords.accuracy > 100) return;
+    const v: CachedFix = {
+      lat: pos.coords.latitude,
+      lng: pos.coords.longitude,
+      accuracy: pos.coords.accuracy,
+      ts: Date.now(),
+    };
+    localStorage.setItem(GPS_CACHE_KEY, JSON.stringify(v));
+  } catch { /* ignore */ }
+}
+
+/**
+ * Convenience wrapper: tries cache first (instant), then refines with a
+ * fresh high-accuracy fix in the background. Caller receives both via
+ * callbacks. Useful for screens that want to render immediately.
+ */
+export async function getLocationFastThenAccurate(
+  onFast: (lat: number, lng: number, fromCache: boolean) => void,
+  onAccurate?: (pos: GeolocationPosition) => void,
+): Promise<void> {
+  const cached = readCachedFix();
+  if (cached) onFast(cached.lat, cached.lng, true);
+  try {
+    const pos = await getBestAccuracyLocation({ windowMs: 6000, acceptAccuracyM: 20 });
+    writeCachedFix(pos);
+    if (!cached) onFast(pos.coords.latitude, pos.coords.longitude, false);
+    onAccurate?.(pos);
+  } catch {
+    /* keep cached value if available */
+  }
+}
