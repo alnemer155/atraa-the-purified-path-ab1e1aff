@@ -11,7 +11,7 @@
  * scholars and to refer to authoritative printed editions for full context.
  */
 
-import type { DuaItem } from './duas-parser';
+import type { DuaItem } from '@/lib/duas-parser';
 
 export const SUNNI_CONTENT: DuaItem[] = [
   // ============= ADHKAR (morning / evening / general) =============
