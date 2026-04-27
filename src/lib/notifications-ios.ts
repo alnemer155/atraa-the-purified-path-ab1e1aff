@@ -78,8 +78,8 @@ export const isIosNative = (): boolean => {
 export async function requestIosNotificationPermission(): Promise<boolean> {
   if (!isNative()) return false;
   try {
-    const mod = await import(/* @vite-ignore */ '@capacitor/local-notifications');
-    const { LocalNotifications } = mod as typeof import('@capacitor/local-notifications');
+    const LocalNotifications = await loadLocalNotifications();
+    if (!LocalNotifications) return 0;
     const res = await LocalNotifications.requestPermissions();
     return res.display === 'granted';
   } catch {
@@ -94,8 +94,8 @@ export async function requestIosNotificationPermission(): Promise<boolean> {
 export async function clearIosAdhanNotifications(): Promise<void> {
   if (!isNative()) return;
   try {
-    const mod = await import(/* @vite-ignore */ '@capacitor/local-notifications');
-    const { LocalNotifications } = mod as typeof import('@capacitor/local-notifications');
+    const LocalNotifications = await loadLocalNotifications();
+    if (!LocalNotifications) return 0;
     await LocalNotifications.cancel({
       notifications: Object.values(PRAYER_IDS).map((id) => ({ id })),
     });
@@ -122,8 +122,8 @@ export async function scheduleIosAdhanNotifications(
 
   try {
     await clearIosAdhanNotifications();
-    const mod = await import(/* @vite-ignore */ '@capacitor/local-notifications');
-    const { LocalNotifications } = mod as typeof import('@capacitor/local-notifications');
+    const LocalNotifications = await loadLocalNotifications();
+    if (!LocalNotifications) return 0;
 
     const now = Date.now();
     const items = Object.keys(labels)
