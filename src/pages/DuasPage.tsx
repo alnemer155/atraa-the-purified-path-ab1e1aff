@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { parseDuasContent, type DuaItem } from '@/lib/duas-parser';
 import duasRaw from '@/data/duas-content.txt?raw';
-import { ChevronLeft, Search, X } from 'lucide-react';
+import { SUNNI_CONTENT } from '@/data/sunni-content';
+import { useMadhhab } from '@/lib/madhhab';
+import { ChevronLeft, Search, X, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { saveLastReading } from '@/lib/user';
 import DuaReader from '@/components/DuaReader';
