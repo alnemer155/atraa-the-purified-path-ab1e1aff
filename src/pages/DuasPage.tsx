@@ -70,6 +70,20 @@ const DuasPage = ({ initialItemId }: DuasPageProps = {}) => {
 
   return (
     <div className="px-4 py-5 animate-fade-in">
+      {madhhab === 'sunni' && (
+        <div className="mb-4 p-3 rounded-2xl bg-secondary/30 border border-border/20 flex items-start gap-2.5">
+          <Info className="w-3.5 h-3.5 text-muted-foreground/70 mt-0.5 flex-shrink-0" strokeWidth={1.6} />
+          <div className="flex-1">
+            <p className="text-[11px] text-foreground/85 leading-relaxed" style={{ fontWeight: 400 }}>
+              مجموعة مختصرة من المصادر السنية المعتمدة
+            </p>
+            <p className="text-[10px] text-muted-foreground/65 font-light leading-relaxed mt-1">
+              مأخوذة من صحيح البخاري ومسلم وحصن المسلم. للقراءة والتذكير فقط، والمرجع الأصلي هو أهل العلم في بلدك. مزيد من المحتوى يُضاف تباعاً.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-1.5 mb-4">
         {categories.map(cat => {
           const isActive = activeCategory === cat.key;
