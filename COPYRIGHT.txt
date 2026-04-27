@@ -1,0 +1,31 @@
+© 2024–2026 Atraa (عِتَرَةً) — جميع الحقوق محفوظة
+================================================
+
+المطوّر: abj-dev.xyz
+الاتصال: support@atraa.xyz
+
+This software, its source code, design system, content libraries
+(supplications, ziyarat, adhkar, prayer-time computations, Quran display
+pipeline), brand assets, and all related materials are the proprietary
+property of Atraa.
+
+Unauthorized copying, redistribution, reverse engineering, decompilation,
+modification, sublicensing, public display, or commercial use — in whole or
+in part — is STRICTLY PROHIBITED without prior written permission.
+
+Religious texts displayed in the application are sourced from public
+authoritative editions (King Fahd Glorious Quran Printing Complex,
+Sahih al-Bukhari, Sahih Muslim, Hisn al-Muslim, Mafatih al-Jinan, etc.) and
+remain the heritage of the Muslim community. The aggregation, curation,
+metadata, theming, audio pipeline, RAG persona system (Atraa AI), quiz
+engine (Atraa Quiz), and all software code wrapping that content are
+proprietary to Atraa.
+
+Trademarks: "عِتَرَةً", "Atraa", and the Atraa logo are trademarks of the
+project owners. Any unauthorized use of these marks is forbidden.
+
+تنبيه قانوني (عربي):
+يحظر نسخ هذا التطبيق أو محتواه أو إعادة هندسته أو إعادة توزيعه أو إعادة
+استخدامه تجارياً بأي شكل من الأشكال دون إذن خطي مسبق من المطوّر. كل محاولة
+عبث أو تعديل غير مصرّح به تُعدّ انتهاكاً لحقوق الملكية الفكرية وتعرّض
+صاحبها للمساءلة القانونية.
