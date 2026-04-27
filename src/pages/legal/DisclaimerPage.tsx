@@ -76,7 +76,22 @@ const DisclaimerPage = () => {
           </section>
 
           <section>
-            <h2 className="text-[15px] font-semibold mb-2">8. التواصل والإبلاغ</h2>
+            <h2 className="text-[15px] font-semibold mb-2">8. المحتوى السني (للمستخدمين السنّة)</h2>
+            <p className="mb-2">عند اختيار المذهب <span className="font-semibold">السني</span>، يعرض التطبيق مجموعة مختصرة من الأذكار والأدعية المأخوذة من المصادر التالية المعتمدة لدى أهل السنة:</p>
+            <ul className="list-disc ps-5 space-y-1 mb-2 text-foreground/85">
+              <li>صحيح البخاري — الإمام محمد بن إسماعيل البخاري.</li>
+              <li>صحيح مسلم — الإمام مسلم بن الحجاج النيسابوري.</li>
+              <li>حصن المسلم من أذكار الكتاب والسنة — الشيخ سعيد بن علي بن وهف القحطاني.</li>
+              <li>رياض الصالحين — الإمام يحيى بن شرف النووي.</li>
+              <li>الأذكار النووية — الإمام النووي.</li>
+              <li>سنن الترمذي وسنن أبي داود.</li>
+            </ul>
+            <p className="mb-2">المحتوى المعروض هو <span className="font-semibold">مجموعة مبدئية مختصرة</span> ويجري توسيعها تباعاً بعد التحقق والمراجعة. هو للقراءة والتذكير الشخصي فقط، ولا يُعدّ بديلاً عن الرجوع إلى أهل العلم المعتمدين في بلدك للأحكام والمسائل التكليفية.</p>
+            <p>لتبديل المذهب لاحقاً يُطلب من المستخدم اجتياز ٣ أسئلة معرفة عامة بسيطة لتأكيد الاختيار، وهي أسئلة <span className="font-semibold">غير طائفية</span> ولا تتضمّن أي تفضيل مذهبي.</p>
+          </section>
+
+          <section>
+            <h2 className="text-[15px] font-semibold mb-2">9. التواصل والإبلاغ</h2>
             <p>للاستفسارات أو الإبلاغ عن أخطاء: <span className="font-semibold">support@atraa.xyz</span></p>
           </section>
         </>
@@ -146,7 +161,22 @@ const DisclaimerPage = () => {
           </section>
 
           <section>
-            <h2 className="text-[15px] font-semibold mb-2">8. Contact & Reporting</h2>
+            <h2 className="text-[15px] font-semibold mb-2">8. Sunni Content (for Sunni users)</h2>
+            <p className="mb-2">When the <span className="font-semibold">Sunni</span> school is selected, the app shows a curated starter set of supplications and adhkar drawn from the following mainstream Sunni sources:</p>
+            <ul className="list-disc ps-5 space-y-1 mb-2 text-foreground/85">
+              <li>Sahih al-Bukhari — Imam Muhammad ibn Isma'il al-Bukhari.</li>
+              <li>Sahih Muslim — Imam Muslim ibn al-Hajjaj al-Naysaburi.</li>
+              <li>Hisn al-Muslim — Sheikh Sa'id ibn 'Ali ibn Wahf al-Qahtani.</li>
+              <li>Riyad as-Salihin — Imam Yahya ibn Sharaf al-Nawawi.</li>
+              <li>Al-Adhkar al-Nawawiyyah — Imam al-Nawawi.</li>
+              <li>Sunan al-Tirmidhi and Sunan Abi Dawud.</li>
+            </ul>
+            <p className="mb-2">This is a <span className="font-semibold">small starter library</span> that will be expanded over time after review. It is provided for personal reading and reminder only, and is not a substitute for consulting recognised scholars in your country on rulings and obligations.</p>
+            <p>To switch schools later the user must pass 3 easy <span className="font-semibold">non-sectarian</span> general-knowledge questions to confirm the change. The questions never favour any school.</p>
+          </section>
+
+          <section>
+            <h2 className="text-[15px] font-semibold mb-2">9. Contact & Reporting</h2>
             <p>Inquiries or error reports: <span className="font-semibold">support@atraa.xyz</span></p>
           </section>
         </>
