@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight, Check, Lock, Calendar, MapPin, LocateFixed, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Calendar, MapPin, LocateFixed, Loader2 } from 'lucide-react';
 import { setHijriAdjustment } from '@/lib/user';
 import { getBestAccuracyLocation } from '@/lib/geo';
 import { toast } from 'sonner';
