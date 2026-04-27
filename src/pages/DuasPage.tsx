@@ -20,6 +20,7 @@ interface DuasPageProps {
 }
 
 const DuasPage = ({ initialItemId }: DuasPageProps = {}) => {
+  const madhhab = useMadhhab();
   const [items, setItems] = useState<DuaItem[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('dua');
   const [selectedItem, setSelectedItem] = useState<DuaItem | null>(null);
@@ -27,7 +28,9 @@ const DuasPage = ({ initialItemId }: DuasPageProps = {}) => {
   const [fontSize, setFontSize] = useState(18);
 
   useEffect(() => {
-    const parsed = parseDuasContent(duasRaw);
+    // Shia → use the full curated Shia library shipped with the app.
+    // Sunni → use the curated Sunni starter set from trusted sources.
+    const parsed = madhhab === 'sunni' ? SUNNI_CONTENT : parseDuasContent(duasRaw);
     setItems(parsed);
     if (initialItemId) {
       const found = parsed.find(p => p.id === initialItemId);
@@ -36,7 +39,7 @@ const DuasPage = ({ initialItemId }: DuasPageProps = {}) => {
         setSelectedItem(found);
       }
     }
-  }, [initialItemId]);
+  }, [initialItemId, madhhab]);
 
   const filtered = useMemo(() => {
     let result = items.filter(i => i.category === activeCategory);
