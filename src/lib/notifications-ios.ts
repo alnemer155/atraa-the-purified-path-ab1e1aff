@@ -72,6 +72,24 @@ export const isIosNative = (): boolean => {
 };
 
 /**
+ * Runtime-only loader for the Capacitor LocalNotifications plugin.
+ * The package is installed as a NATIVE dependency only (added during the
+ * Capacitor build pipeline) so we use a string-variable dynamic import to
+ * keep the web bundle from trying to resolve it at compile time.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function loadLocalNotifications(): Promise<any | null> {
+  try {
+    const pkg = '@capacitor/local-notifications';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mod: any = await import(/* @vite-ignore */ pkg);
+    return mod?.LocalNotifications ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Request the iOS notification permission via Capacitor.
  * No-op (returns false) on web/non-native.
  */
