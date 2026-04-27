@@ -95,7 +95,7 @@ export async function clearIosAdhanNotifications(): Promise<void> {
   if (!isNative()) return;
   try {
     const LocalNotifications = await loadLocalNotifications();
-    if (!LocalNotifications) return 0;
+    if (!LocalNotifications) return;
     await LocalNotifications.cancel({
       notifications: Object.values(PRAYER_IDS).map((id) => ({ id })),
     });
