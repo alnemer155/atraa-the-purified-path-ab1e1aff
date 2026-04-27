@@ -146,7 +146,7 @@ const SettingsPage = () => {
           </div>
           <p className="px-3 pb-3 text-[10px] text-muted-foreground/65 font-light leading-relaxed">
             {isAr
-              ? 'لتغيير المذهب بعد الاختيار الأوّل، يُطلب منك الإجابة على ٣ أسئلة معرفة عامة بسيطة (غير طائفية) للتأكد من جدية الاختيار.'
+              ? 'لتغيير المذهب بعد الاختيار الأوّل، يُطلب منك الإجابة على ٣ أسئلة معرفة عامة بسيطة للتأكد من جدية الاختيار.'
               : 'Changing your school after the initial choice requires answering 3 simple, non-sectarian general-knowledge questions to confirm intent.'}
           </p>
 
