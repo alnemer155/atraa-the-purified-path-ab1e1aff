@@ -225,21 +225,31 @@ const QiblaPage = () => {
   const [error, setError] = useState('');
   const [compassActive, setCompassActive] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
   const [showInfo, setShowInfo] = useState(false);
   const headingRef = useRef(0);
   const hasVibrated = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
+    // Instant render from cache (if any) for a snappy first paint.
+    const cached = readCachedFix();
+    if (cached) {
+      setCoords({ lat: cached.lat, lng: cached.lng });
+      setQiblaDirection(calculateQibla(cached.lat, cached.lng));
+      setGpsAccuracy(cached.accuracy);
+    }
     (async () => {
       try {
-        const pos = await getBestAccuracyLocation({ windowMs: 6000, acceptAccuracyM: 25 });
+        const pos = await getBestAccuracyLocation({ windowMs: 6000, acceptAccuracyM: 20 });
         if (cancelled) return;
-        const { latitude, longitude } = pos.coords;
+        const { latitude, longitude, accuracy } = pos.coords;
+        writeCachedFix(pos);
         setCoords({ lat: latitude, lng: longitude });
         setQiblaDirection(calculateQibla(latitude, longitude));
+        setGpsAccuracy(accuracy);
       } catch {
-        if (cancelled) return;
+        if (cancelled || cached) return;
         setCoords({ lat: 26.3927, lng: 49.9777 });
         setQiblaDirection(calculateQibla(26.3927, 49.9777));
         setError(isAr ? 'تم استخدام الموقع الافتراضي (الدمام)' : 'Using default location (Dammam)');
