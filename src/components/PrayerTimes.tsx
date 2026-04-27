@@ -89,6 +89,12 @@ const PrayerTimes = () => {
           setTimings(tt);
           setIndicators(getCurrentAndNext(tt, ALL_PRAYER_KEYS));
           setLoading(false);
+          // Schedule native iOS/Android adhan reminders (no-op on web).
+          if (localStorage.getItem('atraa_notif_adhan') === 'true') {
+            import('@/lib/notifications-ios').then(({ scheduleIosAdhanNotifications }) => {
+              scheduleIosAdhanNotifications(tt, { lang: i18n.language === 'en' ? 'en' : 'ar' }).catch(() => {});
+            }).catch(() => {});
+          }
         })
         .catch(() => setLoading(false));
     };
