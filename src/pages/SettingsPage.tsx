@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Heart, Lock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Heart, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
 import { requestNotificationPermission, getNotificationPermission } from '@/lib/notifications';
+import { useMadhhab, type Madhhab } from '@/lib/madhhab';
+import MadhhabSwitchModal from '@/components/MadhhabSwitchModal';
 import CityPicker from '@/components/CityPicker';
+import { toast } from 'sonner';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 10 },
