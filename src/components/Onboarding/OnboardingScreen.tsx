@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight, Check, Lock, Calendar, MapPin, LocateFixed, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Calendar, MapPin, LocateFixed, Loader2 } from 'lucide-react';
 import { setHijriAdjustment } from '@/lib/user';
 import { getBestAccuracyLocation } from '@/lib/geo';
 import { toast } from 'sonner';
@@ -58,8 +58,8 @@ const OnboardingScreen = ({ onFinish }: Props) => {
     return () => clearTimeout(t);
   }, [showWelcome]);
 
-  // Step 1: Madhhab (only Shia selectable)
-  const [madhhab, setMadhhab] = useState<'shia' | null>(null);
+  // Step 1: Madhhab — both Shia and Sunni are now selectable
+  const [madhhab, setMadhhab] = useState<'shia' | 'sunni' | null>(null);
 
   // Step 2: Hijri adjustment
   const [hijriAdj, setHijriAdj] = useState(0);
@@ -283,24 +283,29 @@ const OnboardingScreen = ({ onFinish }: Props) => {
                   </div>
                 </button>
 
-                {/* Sunni — disabled */}
+                {/* Sunni */}
                 <button
-                  disabled
-                  className="w-full p-5 rounded-2xl border border-border/30 bg-secondary/20 text-start opacity-60 cursor-not-allowed"
+                  onClick={() => setMadhhab('sunni')}
+                  className={`w-full p-5 rounded-2xl border transition-all text-start active:scale-[0.99] ${
+                    madhhab === 'sunni'
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border/40 bg-card hover:border-border/70'
+                  }`}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-[15px] text-muted-foreground font-medium">
-                        {isAr ? 'مسلم سنّي' : 'Sunni Muslim'}
+                      <p className="text-[15px] text-foreground font-medium">
+                        {isAr ? 'مسلم سُنّي' : 'Sunni Muslim'}
                       </p>
-                      <p className="text-[11px] text-muted-foreground/50 font-light mt-0.5">
-                        {isAr ? 'محتوى مخصّص قيد الإعداد' : 'Tailored content in development'}
+                      <p className="text-[11px] text-muted-foreground/70 font-light mt-0.5">
+                        {isAr ? 'أهل السنة والجماعة' : 'Ahl al-Sunnah wa al-Jamaʿah'}
                       </p>
                     </div>
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted text-muted-foreground/70 flex-shrink-0">
-                      <Lock className="w-2.5 h-2.5" strokeWidth={1.8} />
-                      <span className="text-[9px] font-light">{isAr ? 'قريباً' : 'Soon'}</span>
-                    </div>
+                    {madhhab === 'sunni' && (
+                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                        <Check className="w-3.5 h-3.5 text-primary-foreground" strokeWidth={2.5} />
+                      </div>
+                    )}
                   </div>
                 </button>
               </div>

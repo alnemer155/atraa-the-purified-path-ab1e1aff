@@ -154,10 +154,18 @@ const MadinahSurahHeader = ({ meta }: { meta: SurahMeta }) => {
   );
 };
 
-/** Basmalah glyph (Unicode ligature ﷽). */
+/**
+ * Standalone Basmalah line shown above each surah (except Al-Fatiha and At-Tawbah).
+ * Renders the full Uthmani text — NOT the ligature glyph (﷽) — so it matches
+ * the printed Madinah Mushaf exactly. The basmalah is also stripped from the
+ * first ayah of these surahs by `stripBasmalah` to avoid duplication.
+ */
 const BasmalahLine = () => (
-  <p className="quran-uthmani text-center text-[34px] leading-none text-foreground/90 mb-3 mt-1">
-    ﷽
+  <p
+    className="quran-uthmani text-center text-foreground/90 mb-4 mt-1 leading-loose"
+    style={{ fontSize: '22px', wordSpacing: '0.05em' }}
+  >
+    بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
   </p>
 );
 

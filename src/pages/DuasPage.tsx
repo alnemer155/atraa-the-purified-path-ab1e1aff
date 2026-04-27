@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { parseDuasContent, type DuaItem } from '@/lib/duas-parser';
 import duasRaw from '@/data/duas-content.txt?raw';
-import { ChevronLeft, Search, X } from 'lucide-react';
+import { SUNNI_CONTENT } from '@/data/sunni-content';
+import { useMadhhab } from '@/lib/madhhab';
+import { ChevronLeft, Search, X, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { saveLastReading } from '@/lib/user';
 import DuaReader from '@/components/DuaReader';
@@ -18,6 +20,7 @@ interface DuasPageProps {
 }
 
 const DuasPage = ({ initialItemId }: DuasPageProps = {}) => {
+  const madhhab = useMadhhab();
   const [items, setItems] = useState<DuaItem[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('dua');
   const [selectedItem, setSelectedItem] = useState<DuaItem | null>(null);
@@ -25,7 +28,9 @@ const DuasPage = ({ initialItemId }: DuasPageProps = {}) => {
   const [fontSize, setFontSize] = useState(18);
 
   useEffect(() => {
-    const parsed = parseDuasContent(duasRaw);
+    // Shia → use the full curated Shia library shipped with the app.
+    // Sunni → use the curated Sunni starter set from trusted sources.
+    const parsed = madhhab === 'sunni' ? SUNNI_CONTENT : parseDuasContent(duasRaw);
     setItems(parsed);
     if (initialItemId) {
       const found = parsed.find(p => p.id === initialItemId);
@@ -34,7 +39,7 @@ const DuasPage = ({ initialItemId }: DuasPageProps = {}) => {
         setSelectedItem(found);
       }
     }
-  }, [initialItemId]);
+  }, [initialItemId, madhhab]);
 
   const filtered = useMemo(() => {
     let result = items.filter(i => i.category === activeCategory);
@@ -65,6 +70,20 @@ const DuasPage = ({ initialItemId }: DuasPageProps = {}) => {
 
   return (
     <div className="px-4 py-5 animate-fade-in">
+      {madhhab === 'sunni' && (
+        <div className="mb-4 p-3 rounded-2xl bg-secondary/30 border border-border/20 flex items-start gap-2.5">
+          <Info className="w-3.5 h-3.5 text-muted-foreground/70 mt-0.5 flex-shrink-0" strokeWidth={1.6} />
+          <div className="flex-1">
+            <p className="text-[11px] text-foreground/85 leading-relaxed" style={{ fontWeight: 400 }}>
+              مجموعة مختصرة من المصادر السنية المعتمدة
+            </p>
+            <p className="text-[10px] text-muted-foreground/65 font-light leading-relaxed mt-1">
+              مأخوذة من صحيح البخاري ومسلم وحصن المسلم. للقراءة والتذكير فقط، والمرجع الأصلي هو أهل العلم في بلدك. مزيد من المحتوى يُضاف تباعاً.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-1.5 mb-4">
         {categories.map(cat => {
           const isActive = activeCategory === cat.key;

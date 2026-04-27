@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Heart, Lock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
 import { requestNotificationPermission, getNotificationPermission } from '@/lib/notifications';
+import { useMadhhab, type Madhhab } from '@/lib/madhhab';
+import MadhhabSwitchModal from '@/components/MadhhabSwitchModal';
 import CityPicker from '@/components/CityPicker';
+import { toast } from 'sonner';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 10 },
@@ -23,6 +26,16 @@ const SettingsPage = () => {
   const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('atraa_city') || 'Dammam');
   const [hijriAdj, setHijriAdj] = useState(() => getHijriAdjustment());
   const [shareCopied, setShareCopied] = useState(false);
+
+  // Madhhab state — reactive to changes from anywhere in the app
+  const madhhab = useMadhhab();
+  const [pendingMadhhab, setPendingMadhhab] = useState<Madhhab | null>(null);
+
+  const requestMadhhabChange = (target: Madhhab) => {
+    if (target === madhhab) return;
+    setPendingMadhhab(target);
+  };
+
 
   const toggleAdhan = async () => {
     if (adhanNotif) {
@@ -106,35 +119,61 @@ const SettingsPage = () => {
         </div>
       </motion.div>
 
-      {/* Madhhab (school) — Shia active, Sunni coming soon */}
+      {/* Madhhab (school) — both Shia and Sunni now supported */}
       <motion.div variants={fadeUp} custom={2}>
         <p className="text-[11px] text-muted-foreground/70 px-1 mb-1.5 font-medium">
           {isAr ? 'المذهب' : 'School of thought'}
         </p>
         <div className="bg-card rounded-2xl border border-border/40 overflow-hidden shadow-card">
           <div className="grid grid-cols-2 gap-2 p-2">
-            <button
-              className="py-2.5 rounded-xl text-[13px] bg-primary text-primary-foreground transition-all"
-              aria-pressed="true"
-            >
-              {isAr ? 'مسلم شيعي' : 'Shia Muslim'}
-            </button>
-            <button
-              disabled
-              className="py-2.5 rounded-xl text-[13px] bg-secondary/40 text-muted-foreground/70 flex items-center justify-center gap-1.5 cursor-not-allowed opacity-70"
-              aria-disabled="true"
-            >
-              <Lock className="w-3 h-3" strokeWidth={1.8} />
-              <span>{isAr ? 'مسلم سُنّي · قريباً' : 'Sunni · Soon'}</span>
-            </button>
+            {(['shia', 'sunni'] as const).map((m) => {
+              const active = madhhab === m;
+              const labelAr = m === 'shia' ? 'مسلم شيعي' : 'مسلم سُنّي';
+              const labelEn = m === 'shia' ? 'Shia Muslim' : 'Sunni Muslim';
+              return (
+                <button
+                  key={m}
+                  onClick={() => requestMadhhabChange(m)}
+                  className={`py-2.5 rounded-xl text-[13px] transition-all active:scale-[0.98] ${
+                    active ? 'bg-primary text-primary-foreground' : 'bg-secondary/40 text-foreground'
+                  }`}
+                  aria-pressed={active}
+                >
+                  {isAr ? labelAr : labelEn}
+                </button>
+              );
+            })}
           </div>
-          <p className="px-3 pb-3 text-[10px] text-muted-foreground/60 font-light leading-relaxed">
+          <p className="px-3 pb-3 text-[10px] text-muted-foreground/65 font-light leading-relaxed">
             {isAr
-              ? 'محتوى المذهب السنّي قيد الإعداد، وسيُتاح قريباً بإذن الله.'
-              : 'Sunni content is in preparation and will be available soon, in shāʾ Allah.'}
+              ? 'لتغيير المذهب بعد الاختيار الأوّل، يُطلب منك الإجابة على ٣ أسئلة معرفة عامة بسيطة (غير طائفية) للتأكد من جدية الاختيار.'
+              : 'Changing your school after the initial choice requires answering 3 simple, non-sectarian general-knowledge questions to confirm intent.'}
           </p>
+
+          {/* Developer disclaimer */}
+          <div className="mx-3 mb-3 p-3 rounded-xl bg-secondary/30 border border-border/20">
+            <p className="text-[10px] text-muted-foreground/75 font-light leading-relaxed">
+              {isAr
+                ? 'إخلاء مسؤولية: المحتوى يُقدَّم لأغراض القراءة والتذكير فقط، ومجموع من مصادر معروفة ومنشورة لكل مذهب. يبقى الرجوع إلى المراجع المعتمدة وأهل العلم في بلدك هو الأصل، ولا يُعدّ المحتوى فتوى. أي ملاحظة: support@atraa.xyz'
+                : 'Disclaimer: This content is provided for reading and remembrance only, compiled from well-known published sources for each school. Always refer back to authoritative references and trusted scholars in your region — the content does not constitute a fatwa. Feedback: support@atraa.xyz'}
+            </p>
+          </div>
         </div>
       </motion.div>
+
+      <MadhhabSwitchModal
+        open={!!pendingMadhhab}
+        targetMadhhab={pendingMadhhab ?? 'shia'}
+        onClose={() => setPendingMadhhab(null)}
+        onSuccess={() => {
+          const target = pendingMadhhab;
+          setPendingMadhhab(null);
+          if (target) {
+            toast.success(isAr ? `تم التبديل إلى ${target === 'sunni' ? 'مسلم سُنّي' : 'مسلم شيعي'}` : 'Switched successfully');
+          }
+        }}
+      />
+
       <motion.div variants={fadeUp} custom={2}>
         <p className="text-[11px] text-muted-foreground/70 px-1 mb-1.5 font-medium">{t('settings.notifications')}</p>
         <div className="bg-card rounded-2xl border border-border/40 overflow-hidden shadow-card">

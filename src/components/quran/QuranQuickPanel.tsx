@@ -208,7 +208,7 @@ const QuranQuickPanel = ({
                           <span className="w-8 h-8 rounded-full border border-gold/40 flex items-center justify-center text-[10px] text-gold tabular-nums shrink-0">
                             {toArabicNumerals(s.number)}
                           </span>
-                          <span className="surah-name-display text-[15px] text-foreground flex-1 text-right">
+                          <span className="text-[14px] text-foreground flex-1 text-right" style={{ fontWeight: 400 }}>
                             {cleanName}
                           </span>
                           <span className="text-[9.5px] text-muted-foreground/65 font-light tabular-nums whitespace-nowrap">
