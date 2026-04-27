@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Heart, Info } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -26,6 +26,16 @@ const SettingsPage = () => {
   const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('atraa_city') || 'Dammam');
   const [hijriAdj, setHijriAdj] = useState(() => getHijriAdjustment());
   const [shareCopied, setShareCopied] = useState(false);
+
+  // Madhhab state — reactive to changes from anywhere in the app
+  const madhhab = useMadhhab();
+  const [pendingMadhhab, setPendingMadhhab] = useState<Madhhab | null>(null);
+
+  const requestMadhhabChange = (target: Madhhab) => {
+    if (target === madhhab) return;
+    setPendingMadhhab(target);
+  };
+
 
   const toggleAdhan = async () => {
     if (adhanNotif) {
