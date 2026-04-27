@@ -79,7 +79,7 @@ export async function requestIosNotificationPermission(): Promise<boolean> {
   if (!isNative()) return false;
   try {
     const LocalNotifications = await loadLocalNotifications();
-    if (!LocalNotifications) return 0;
+    if (!LocalNotifications) return false;
     const res = await LocalNotifications.requestPermissions();
     return res.display === 'granted';
   } catch {
