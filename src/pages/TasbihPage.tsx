@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { RotateCcw, Vibrate, Volume2, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { saveTasbihState } from '@/lib/user';
+import { useMadhhab } from '@/lib/madhhab';
 
 const tasbihatZahra = [
   { text: 'الله اكبر', target: 34 },
