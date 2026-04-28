@@ -29,7 +29,11 @@ function playTasbihSound() {
 }
 
 const TasbihPage = () => {
-  const [mode, setMode] = useState<TasbihMode>('zahra');
+  const madhhab = useMadhhab();
+  // Sunni users only get the open counter (renamed "عداد الأذكار").
+  // The "Tasbih al-Zahra (a.s.)" mode is Shia-specific.
+  const [mode, setMode] = useState<TasbihMode>(madhhab === 'sunni' ? 'open' : 'zahra');
+  useEffect(() => { if (madhhab === 'sunni' && mode !== 'open') setMode('open'); }, [madhhab, mode]);
   const [step, setStep] = useState(0);
   const [count, setCount] = useState(0);
   const [openCount, setOpenCount] = useState(() => {
