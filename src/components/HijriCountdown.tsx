@@ -267,11 +267,10 @@ const HijriCountdown = () => {
   const progress = hijri ? (hijri.day / hijri.daysInMonth) * 100 : 0;
 
   // Compute upcoming occasions in the current and next month — featured come first
-  const upcomingOccasions = hijri ? [
+  const upcomingOccasions = (hijri && showOccasions) ? [
     ...OCCASIONS.filter(o => o.month === hijri.monthNumber && o.day >= hijri.day),
     ...OCCASIONS.filter(o => o.month === ((hijri.monthNumber % 12) + 1)),
   ].sort((a, b) => {
-    // Featured first within same month
     if (a.month === b.month) {
       if (!!a.featured !== !!b.featured) return a.featured ? -1 : 1;
       return a.day - b.day;
@@ -279,7 +278,7 @@ const HijriCountdown = () => {
     return 0;
   }) : [];
 
-  const todaysOccasion = hijri
+  const todaysOccasion = (hijri && showOccasions)
     ? OCCASIONS.find(o => o.month === hijri.monthNumber && o.day === hijri.day)
     : undefined;
 
