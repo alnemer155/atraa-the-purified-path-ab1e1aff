@@ -9,7 +9,7 @@ import { saveLastReading } from '@/lib/user';
 import DuaReader from '@/components/DuaReader';
 import SmartText from '@/components/SmartText';
 
-const categories = [
+const ALL_CATEGORIES = [
   { key: 'dua', label: 'الأدعية' },
   { key: 'ziyara', label: 'الزيارات' },
   { key: 'dhikr', label: 'الأذكار' },
@@ -21,11 +21,20 @@ interface DuasPageProps {
 
 const DuasPage = ({ initialItemId }: DuasPageProps = {}) => {
   const madhhab = useMadhhab();
+  // Sunni users do not have a ziyara category — hide that tab entirely.
+  const categories = madhhab === 'sunni'
+    ? ALL_CATEGORIES.filter(c => c.key !== 'ziyara')
+    : ALL_CATEGORIES;
   const [items, setItems] = useState<DuaItem[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('dua');
   const [selectedItem, setSelectedItem] = useState<DuaItem | null>(null);
   const [search, setSearch] = useState('');
   const [fontSize, setFontSize] = useState(18);
+
+  // Reset to a valid category if the active one is no longer available.
+  useEffect(() => {
+    if (!categories.some(c => c.key === activeCategory)) setActiveCategory('dua');
+  }, [categories, activeCategory]);
 
   useEffect(() => {
     // Shia → use the full curated Shia library shipped with the app.

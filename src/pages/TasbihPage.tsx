@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { RotateCcw, Vibrate, Volume2, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { saveTasbihState } from '@/lib/user';
+import { useMadhhab } from '@/lib/madhhab';
 
 const tasbihatZahra = [
   { text: 'الله اكبر', target: 34 },
@@ -28,7 +29,11 @@ function playTasbihSound() {
 }
 
 const TasbihPage = () => {
-  const [mode, setMode] = useState<TasbihMode>('zahra');
+  const madhhab = useMadhhab();
+  // Sunni users only get the open counter (renamed "عداد الأذكار").
+  // The "Tasbih al-Zahra (a.s.)" mode is Shia-specific.
+  const [mode, setMode] = useState<TasbihMode>(madhhab === 'sunni' ? 'open' : 'zahra');
+  useEffect(() => { if (madhhab === 'sunni' && mode !== 'open') setMode('open'); }, [madhhab, mode]);
   const [step, setStep] = useState(0);
   const [count, setCount] = useState(0);
   const [openCount, setOpenCount] = useState(() => {
@@ -95,26 +100,31 @@ const TasbihPage = () => {
       className="px-4 py-5 animate-fade-in min-h-[calc(100vh-130px)] flex flex-col select-none"
       onClick={mode === 'open' ? handleScreenTap : undefined}
     >
-      {/* Mode selector */}
-      <div className="flex gap-1.5 mb-5" data-control>
-        {[
-          { key: 'zahra' as const, label: 'تسبيح الزهراء (ع)', desc: '١٠٠ تسبيحة' },
-          { key: 'open' as const, label: 'تسبيح حر', desc: 'بلا حدود' },
-        ].map(m => (
-          <button
-            key={m.key}
-            onClick={() => { setMode(m.key); setStep(0); setCount(0); }}
-            className={`flex-1 py-3 px-3 rounded-2xl text-center transition-all active:scale-[0.97] ${
-              mode === m.key
-                ? 'bg-foreground text-background'
-                : 'bg-card border border-border/20 text-foreground'
-            }`}
-          >
-            <span className="text-[12px] block">{m.label}</span>
-            <span className={`text-[8px] font-light block mt-0.5 ${mode === m.key ? 'text-background/50' : 'text-muted-foreground/40'}`}>{m.desc}</span>
-          </button>
-        ))}
-      </div>
+      {/* Mode selector — Shia only (Sunni gets the open counter, renamed). */}
+      {madhhab === 'shia' ? (
+        <div className="flex gap-1.5 mb-5" data-control>
+          {[
+            { key: 'zahra' as const, label: 'تسبيح الزهراء (ع)', desc: '١٠٠ تسبيحة' },
+            { key: 'open' as const, label: 'تسبيح حر', desc: 'بلا حدود' },
+          ].map(m => (
+            <button
+              key={m.key}
+              onClick={() => { setMode(m.key); setStep(0); setCount(0); }}
+              className={`flex-1 py-3 px-3 rounded-2xl text-center transition-all active:scale-[0.97] ${
+                mode === m.key ? 'bg-foreground text-background' : 'bg-card border border-border/20 text-foreground'
+              }`}
+            >
+              <span className="text-[12px] block">{m.label}</span>
+              <span className={`text-[8px] font-light block mt-0.5 ${mode === m.key ? 'text-background/50' : 'text-muted-foreground/40'}`}>{m.desc}</span>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="mb-5 text-center" data-control>
+          <p className="text-[14px] text-foreground">عدّاد الأذكار</p>
+          <p className="text-[10px] text-muted-foreground/45 font-light mt-0.5">اضغط في أي مكان لإحصاء الأذكار</p>
+        </div>
+      )}
 
       {/* Controls */}
       <div className="flex items-center justify-between mb-3 px-1" data-control>

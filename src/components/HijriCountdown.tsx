@@ -216,6 +216,10 @@ const MONTH_NAMES_EN = [
 const HijriCountdown = () => {
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
+  // Ahlul Bayt (a.s.) occasions are Shia-specific. For Sunni users, show only
+  // the Hijri calendar (date, month, progress) without the occasions list.
+  const madhhab = (typeof window !== 'undefined' && localStorage.getItem('atraa_madhhab') === 'sunni') ? 'sunni' : 'shia';
+  const showOccasions = madhhab === 'shia';
   const [hijri, setHijri] = useState<HijriData | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [openOccasion, setOpenOccasion] = useState<Occasion | null>(null);
@@ -263,11 +267,10 @@ const HijriCountdown = () => {
   const progress = hijri ? (hijri.day / hijri.daysInMonth) * 100 : 0;
 
   // Compute upcoming occasions in the current and next month — featured come first
-  const upcomingOccasions = hijri ? [
+  const upcomingOccasions = (hijri && showOccasions) ? [
     ...OCCASIONS.filter(o => o.month === hijri.monthNumber && o.day >= hijri.day),
     ...OCCASIONS.filter(o => o.month === ((hijri.monthNumber % 12) + 1)),
   ].sort((a, b) => {
-    // Featured first within same month
     if (a.month === b.month) {
       if (!!a.featured !== !!b.featured) return a.featured ? -1 : 1;
       return a.day - b.day;
@@ -275,7 +278,7 @@ const HijriCountdown = () => {
     return 0;
   }) : [];
 
-  const todaysOccasion = hijri
+  const todaysOccasion = (hijri && showOccasions)
     ? OCCASIONS.find(o => o.month === hijri.monthNumber && o.day === hijri.day)
     : undefined;
 
