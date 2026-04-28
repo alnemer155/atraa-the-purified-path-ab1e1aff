@@ -8,7 +8,7 @@ const DisclaimerPage = () => {
   return (
     <LegalLayout
       title={isAr ? 'إخلاء المسؤولية' : 'Disclaimer'}
-      updated={isAr ? 'آخر تحديث: 2026-04-21' : 'Last updated: 2026-04-21'}
+      updated={isAr ? 'آخر تحديث: 2026-04-28' : 'Last updated: 2026-04-28'}
     >
       {isAr ? (
         <>
