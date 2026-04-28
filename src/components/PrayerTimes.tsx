@@ -291,6 +291,79 @@ const PrayerTimes = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Calculation method picker (Sunni only) */}
+      <AnimatePresence>
+        {methodSheet && madhhab === 'sunni' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[75] bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
+            onClick={() => setMethodSheet(false)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', stiffness: 280, damping: 30 }}
+              className="w-full max-w-lg bg-background rounded-t-3xl sm:rounded-3xl shadow-elevated max-h-[85vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+              dir={isAr ? 'rtl' : 'ltr'}
+            >
+              <div className="sticky top-0 bg-background/90 backdrop-blur-xl px-5 pt-4 pb-3 flex items-center justify-between border-b border-border/15">
+                <div>
+                  <h3 className="text-[15px] font-semibold text-foreground">
+                    {isAr ? 'طريقة حساب الأوقات' : 'Calculation method'}
+                  </h3>
+                  <p className="text-[10px] text-muted-foreground/55 font-light mt-0.5">
+                    {isAr ? 'اختر الطريقة الأنسب لبلدك' : 'Pick the method used in your country'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setMethodSheet(false)}
+                  className="w-8 h-8 rounded-xl bg-secondary/50 flex items-center justify-center active:scale-95"
+                  aria-label="close"
+                >
+                  <X className="w-4 h-4 text-foreground/70" />
+                </button>
+              </div>
+
+              <div className="px-3 py-3 space-y-1">
+                {SUNNI_METHODS.map((m) => {
+                  const active = storedMethod === m.id;
+                  return (
+                    <button
+                      key={String(m.id)}
+                      onClick={() => handlePickMethod(m.id)}
+                      className={`w-full flex items-center justify-between gap-3 px-3.5 py-3 rounded-2xl text-start active:scale-[0.98] transition-all ${
+                        active ? 'bg-primary/8 border border-primary/25' : 'bg-card border border-border/15'
+                      }`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-[12.5px] ${active ? 'text-primary' : 'text-foreground'} leading-snug`}>
+                          {isAr ? m.labelAr : m.labelEn}
+                        </p>
+                        {(isAr ? m.hintAr : m.hintEn) && (
+                          <p className="text-[10px] text-muted-foreground/55 font-light mt-0.5">
+                            {isAr ? m.hintAr : m.hintEn}
+                          </p>
+                        )}
+                      </div>
+                      {active && <Check className="w-4 h-4 text-primary flex-shrink-0" />}
+                    </button>
+                  );
+                })}
+                <p className="text-[9px] text-muted-foreground/40 text-center font-light pt-3 pb-2 leading-relaxed">
+                  {isAr
+                    ? 'الاختيار التلقائي يستند إلى دولتك المحفوظة في الإعدادات.'
+                    : 'Automatic uses the country saved in your settings.'}
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
