@@ -81,17 +81,21 @@ function getStoredCoords(): CityCoords {
 const PrayerTimes = () => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
+  const madhhab = useMadhhab();
   const [timings, setTimings] = useState<TimingsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [indicators, setIndicators] = useState<{ current: string | null; next: string | null }>({ current: null, next: null });
   const [coords, setCoords] = useState<CityCoords>(getStoredCoords);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [methodSheet, setMethodSheet] = useState(false);
+  const [storedMethod, setStoredMethodState] = useState<StoredMethod>(getStoredMethod);
 
   useEffect(() => {
     const fetchTimings = (c: CityCoords) => {
-      // method=7 → Institute of Geophysics, University of Tehran (Shia Ja'fari calculation).
-      // Includes shia=true to enforce Ja'fari Maghrib (sunset + 4°) and Asr conventions.
-      const url = `https://api.aladhan.com/v1/timings?latitude=${c.lat}&longitude=${c.lng}&method=7&school=0`;
+      // Pick calculation method based on madhhab + user preference.
+      // Shia → always 7 (Ja'fari, University of Tehran). Sunni → user choice / 'auto'.
+      const method = resolveMethod(madhhab);
+      const url = `https://api.aladhan.com/v1/timings?latitude=${c.lat}&longitude=${c.lng}&method=${method}&school=0`;
       fetch(url)
         .then(res => res.json())
         .then(data => {
@@ -121,10 +125,21 @@ const PrayerTimes = () => {
         } catch { /* ignore */ }
       }
     };
+    const handleMethodChange = () => {
+      setStoredMethodState(getStoredMethod());
+      setLoading(true);
+      fetchTimings(coords);
+    };
     window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+    window.addEventListener(CALC_METHOD_EVENT, handleMethodChange);
+    window.addEventListener('atraa:madhhab-changed', handleMethodChange);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener(CALC_METHOD_EVENT, handleMethodChange);
+      window.removeEventListener('atraa:madhhab-changed', handleMethodChange);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [madhhab]);
 
   useEffect(() => {
     if (!timings) return;
@@ -133,6 +148,18 @@ const PrayerTimes = () => {
     }, 60000);
     return () => clearInterval(interval);
   }, [timings]);
+
+  const handlePickMethod = (id: StoredMethod) => {
+    setStoredMethod(id);
+    setStoredMethodState(id);
+    setMethodSheet(false);
+  };
+
+  const activeMethodLabel = (() => {
+    if (madhhab === 'shia') return isAr ? SHIA_METHOD.labelAr : SHIA_METHOD.labelEn;
+    const m = SUNNI_METHODS.find(x => x.id === storedMethod) ?? SUNNI_METHODS[0];
+    return isAr ? m.labelAr : m.labelEn;
+  })();
 
   // Lock body scroll while the sheet is open
   useEffect(() => {
