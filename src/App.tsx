@@ -93,6 +93,13 @@ const App = () => {
                     <Route path="/:locale/quran/:slug" element={<QuranPage />} />
                     <Route path="/:locale/settings" element={<SettingsPage />} />
                     <Route path="/:locale/about" element={<AboutPage />} />
+                    {/* Locale + sect aliases: /SA-ar/Shia, /US-en/Sunni, etc. */}
+                    <Route path="/:locale/:sect" element={<HomePage />} />
+                    <Route path="/:locale/:sect/library" element={<LibraryPage />} />
+                    <Route path="/:locale/:sect/quran" element={<QuranPage />} />
+                    <Route path="/:locale/:sect/quran/:slug" element={<QuranPage />} />
+                    <Route path="/:locale/:sect/settings" element={<SettingsPage />} />
+                    <Route path="/:locale/:sect/about" element={<AboutPage />} />
                   </Route>
                   <Route path="*" element={<NotFound />} />
                 </Routes>

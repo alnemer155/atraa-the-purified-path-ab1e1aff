@@ -216,6 +216,10 @@ const MONTH_NAMES_EN = [
 const HijriCountdown = () => {
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
+  // Ahlul Bayt (a.s.) occasions are Shia-specific. For Sunni users, show only
+  // the Hijri calendar (date, month, progress) without the occasions list.
+  const madhhab = (typeof window !== 'undefined' && localStorage.getItem('atraa_madhhab') === 'sunni') ? 'sunni' : 'shia';
+  const showOccasions = madhhab === 'shia';
   const [hijri, setHijri] = useState<HijriData | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [openOccasion, setOpenOccasion] = useState<Occasion | null>(null);
