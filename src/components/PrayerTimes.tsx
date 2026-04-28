@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react';
-import { ChevronDown, X } from 'lucide-react';
+import { ChevronDown, X, SlidersHorizontal, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useMadhhab } from '@/lib/madhhab';
+import {
+  SUNNI_METHODS,
+  SHIA_METHOD,
+  getStoredMethod,
+  setStoredMethod,
+  resolveMethod,
+  CALC_METHOD_EVENT,
+  type StoredMethod,
+} from '@/lib/calculation-method';
 
 interface TimingsData {
   Fajr: string;
