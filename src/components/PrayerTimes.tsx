@@ -174,14 +174,26 @@ const PrayerTimes = () => {
       <div className="rounded-2xl bg-card border border-border/40 p-4 shadow-card">
         <div className="flex items-center justify-between mb-3.5">
           <h2 className="text-[13px] font-semibold text-foreground">{t('home.prayerTimes')}</h2>
-          <button
-            onClick={() => setSheetOpen(true)}
-            className="flex items-center gap-1 p-1.5 rounded-lg text-muted-foreground/50 hover:text-foreground transition-colors"
-            aria-label={isAr ? 'عرض كل المواقيت' : 'Show all times'}
-          >
-            <span className="text-[10px] font-light">{isAr ? 'الكل' : 'All'}</span>
-            <ChevronDown className="w-3.5 h-3.5" />
-          </button>
+          <div className="flex items-center gap-1">
+            {madhhab === 'sunni' && (
+              <button
+                onClick={() => setMethodSheet(true)}
+                className="flex items-center gap-1 p-1.5 rounded-lg text-muted-foreground/55 hover:text-foreground transition-colors"
+                aria-label={isAr ? 'طريقة الحساب' : 'Calculation method'}
+                title={activeMethodLabel}
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <button
+              onClick={() => setSheetOpen(true)}
+              className="flex items-center gap-1 p-1.5 rounded-lg text-muted-foreground/50 hover:text-foreground transition-colors"
+              aria-label={isAr ? 'عرض كل المواقيت' : 'Show all times'}
+            >
+              <span className="text-[10px] font-light">{isAr ? 'الكل' : 'All'}</span>
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
         {loading ? (
           <div className="grid grid-cols-3 gap-1.5">
