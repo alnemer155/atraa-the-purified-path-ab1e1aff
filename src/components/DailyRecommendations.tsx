@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { parseDuasContent } from '@/lib/duas-parser';
 import duasRaw from '@/data/duas-content.txt?raw';
+import { SUNNI_CONTENT } from '@/data/sunni-content';
+import { useMadhhab } from '@/lib/madhhab';
 import { ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -10,9 +12,10 @@ const DailyRecommendations = () => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
+  const madhhab = useMadhhab();
 
   const recommendations = useMemo(() => {
-    const items = parseDuasContent(duasRaw);
+    const items = madhhab === 'sunni' ? SUNNI_CONTENT : parseDuasContent(duasRaw);
     const today = new Date();
     const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
 
@@ -20,12 +23,19 @@ const DailyRecommendations = () => {
     const ziyarat = items.filter(i => i.category === 'ziyara');
     const adhkar = items.filter(i => i.category === 'dhikr');
 
-    return [
-      { label: isAr ? 'دعاء اليوم' : 'Dua of the day', tab: 'duas', item: duas[dayOfYear % Math.max(duas.length, 1)] },
-      { label: isAr ? 'زيارة اليوم' : 'Ziyara of the day', tab: 'duas', item: ziyarat[dayOfYear % Math.max(ziyarat.length, 1)] },
-      { label: isAr ? 'ذكر اليوم' : 'Dhikr of the day', tab: 'duas', item: adhkar[dayOfYear % Math.max(adhkar.length, 1)] },
-    ].filter(r => r.item);
-  }, [isAr]);
+    // Sunni → no ziyarat row; show dua + dhikr only.
+    const rows = madhhab === 'sunni'
+      ? [
+          { label: isAr ? 'دعاء اليوم' : 'Dua of the day', tab: 'duas', item: duas[dayOfYear % Math.max(duas.length, 1)] },
+          { label: isAr ? 'ذكر اليوم' : 'Dhikr of the day', tab: 'duas', item: adhkar[dayOfYear % Math.max(adhkar.length, 1)] },
+        ]
+      : [
+          { label: isAr ? 'دعاء اليوم' : 'Dua of the day', tab: 'duas', item: duas[dayOfYear % Math.max(duas.length, 1)] },
+          { label: isAr ? 'زيارة اليوم' : 'Ziyara of the day', tab: 'duas', item: ziyarat[dayOfYear % Math.max(ziyarat.length, 1)] },
+          { label: isAr ? 'ذكر اليوم' : 'Dhikr of the day', tab: 'duas', item: adhkar[dayOfYear % Math.max(adhkar.length, 1)] },
+        ];
+    return rows.filter(r => r.item);
+  }, [isAr, madhhab]);
 
   if (recommendations.length === 0) return null;
 
