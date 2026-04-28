@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { LocateFixed, Info, Check, Compass } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { getBestAccuracyLocation, readCachedFix, writeCachedFix } from '@/lib/geo';
+import { getBestAccuracyLocation, getAccurateLocation, readCachedFix, writeCachedFix } from '@/lib/geo';
 
 const KAABA_LAT = 21.422487;
 const KAABA_LNG = 39.826206;
@@ -30,259 +30,179 @@ const SIZE = 320;
 const CENTER = SIZE / 2;
 const RING_R = CENTER - 10;
 const TICK_OUT = RING_R - 2;
-const TICK_LONG = 14;
-const TICK_SHORT = 5;
 
-/**
- * KaabaGlyph — minimal stylized Kaaba (rectangle with kiswah band).
- */
-const KaabaGlyph = ({ size = 36, glow = 0 }: { size?: number; glow?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 40 40">
-    <defs>
-      <linearGradient id="kaaba-grad" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0" stopColor="hsl(var(--foreground))" />
-        <stop offset="1" stopColor="hsl(var(--foreground))" stopOpacity="0.85" />
-      </linearGradient>
-    </defs>
-    <rect x="9" y="11" width="22" height="22" rx="1.5" fill="url(#kaaba-grad)" />
-    <rect x="9" y="17" width="22" height="3.6" fill="hsl(var(--gold))" opacity={0.7 + glow * 0.3} />
-    <rect x="9" y="17" width="22" height="0.6" fill="hsl(var(--gold))" />
-    <rect x="9" y="20.6" width="22" height="0.6" fill="hsl(var(--gold))" />
-    <rect x="17" y="22" width="6" height="11" rx="0.6" fill="hsl(var(--gold))" opacity={0.55 + glow * 0.4} />
-  </svg>
-);
-
-interface CompassProps {
-  rotation: number;
-  alignmentScore: number;
-  isPointingQibla: boolean;
-  active: boolean;
-}
-
-const CompassDial = ({ rotation, alignmentScore, isPointingQibla, active }: CompassProps) => {
+/** Static dial (ticks + cardinals). Memoised — never re-renders. */
+const StaticDial = (() => {
+  const ticks: JSX.Element[] = [];
+  for (let i = 0; i < 72; i++) {
+    const deg = i * 5;
+    const angle = (deg * Math.PI) / 180 - Math.PI / 2;
+    const isMajor = deg % 90 === 0;
+    const isMid = deg % 30 === 0;
+    const len = isMajor ? 14 : isMid ? 9 : 5;
+    const x1 = CENTER + TICK_OUT * Math.cos(angle);
+    const y1 = CENTER + TICK_OUT * Math.sin(angle);
+    const x2 = CENTER + (TICK_OUT - len) * Math.cos(angle);
+    const y2 = CENTER + (TICK_OUT - len) * Math.sin(angle);
+    ticks.push(
+      <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
+        stroke="hsl(var(--foreground))"
+        strokeWidth={isMajor ? 1.5 : isMid ? 0.9 : 0.5}
+        strokeLinecap="round"
+        opacity={isMajor ? 0.55 : isMid ? 0.25 : 0.12} />
+    );
+  }
   const cardinals = [
     { label: 'N', angle: 0 },
     { label: 'E', angle: 90 },
     { label: 'S', angle: 180 },
     { label: 'W', angle: 270 },
   ];
-
+  const labels = cardinals.map(({ label, angle }) => {
+    const rad = (angle * Math.PI) / 180 - Math.PI / 2;
+    const dist = RING_R - 32;
+    const x = CENTER + dist * Math.cos(rad);
+    const y = CENTER + dist * Math.sin(rad);
+    return (
+      <text key={label} x={x} y={y} textAnchor="middle" dominantBaseline="central"
+        className="fill-foreground" fontSize="11"
+        opacity={label === 'N' ? 0.9 : 0.35}>
+        {label}
+      </text>
+    );
+  });
   return (
-    <div className="relative" style={{ width: SIZE, height: SIZE }}>
-      {/* Soft outer aura — golden when aligned */}
-      <motion.div
-        className="absolute inset-[-40px] rounded-full pointer-events-none"
-        animate={{
-          opacity: active ? 0.18 + alignmentScore * 0.6 : 0,
-          scale: isPointingQibla ? [1, 1.04, 1] : 1,
-        }}
-        transition={{
-          opacity: { duration: 0.4 },
-          scale: isPointingQibla ? { duration: 2.6, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.3 },
-        }}
-        style={{
-          background: `radial-gradient(circle, hsl(var(--gold) / ${0.35 + alignmentScore * 0.45}) 0%, hsl(var(--primary) / ${0.12 + alignmentScore * 0.25}) 40%, transparent 70%)`,
-          filter: `blur(${22 + alignmentScore * 22}px)`,
-        }}
-      />
-
-      {/* Outer ring */}
-      <div className="absolute inset-0 rounded-full bg-card border border-border/30" />
-
-      {/* Inner ring */}
-      <div className="absolute inset-[18px] rounded-full border border-border/20" />
-
-      <motion.svg
-        className="absolute inset-0"
-        viewBox={`0 0 ${SIZE} ${SIZE}`}
-        animate={{ rotate: rotation }}
-        transition={{ type: 'spring', stiffness: 90, damping: 20, mass: 0.8 }}
-      >
-        {/* 72 ticks every 5° */}
-        {Array.from({ length: 72 }).map((_, i) => {
-          const deg = i * 5;
-          const angle = (deg * Math.PI) / 180 - Math.PI / 2;
-          const isMajor = deg % 90 === 0;
-          const isMid = deg % 30 === 0;
-          const len = isMajor ? TICK_LONG : isMid ? 9 : TICK_SHORT;
-          const x1 = CENTER + TICK_OUT * Math.cos(angle);
-          const y1 = CENTER + TICK_OUT * Math.sin(angle);
-          const x2 = CENTER + (TICK_OUT - len) * Math.cos(angle);
-          const y2 = CENTER + (TICK_OUT - len) * Math.sin(angle);
-          return (
-            <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
-              stroke={isMajor ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))'}
-              strokeWidth={isMajor ? 1.5 : isMid ? 0.9 : 0.5}
-              strokeLinecap="round"
-              opacity={isMajor ? 0.55 : isMid ? 0.25 : 0.12} />
-          );
-        })}
-
-        {/* Cardinal letters */}
-        {cardinals.map(({ label, angle }) => {
-          const rad = (angle * Math.PI) / 180 - Math.PI / 2;
-          const dist = RING_R - 32;
-          const x = CENTER + dist * Math.cos(rad);
-          const y = CENTER + dist * Math.sin(rad);
-          return (
-            <text
-              key={label}
-              x={x}
-              y={y}
-              textAnchor="middle"
-              dominantBaseline="central"
-              className="fill-foreground"
-              fontSize="11"
-              opacity={label === 'N' ? 0.9 : 0.35}
-              transform={`rotate(${-rotation} ${x} ${y})`}
-            >
-              {label}
-            </text>
-          );
-        })}
-
-        {/* Qibla pointer — fixed to dial (rotates with it) */}
-        <g>
-          {/* Gold needle */}
-          <line
-            x1={CENTER}
-            y1={CENTER}
-            x2={CENTER}
-            y2={28}
-            stroke={`hsl(var(--gold) / ${0.4 + alignmentScore * 0.55})`}
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-          {/* Tail */}
-          <line
-            x1={CENTER}
-            y1={CENTER}
-            x2={CENTER}
-            y2={SIZE - 60}
-            stroke="hsl(var(--foreground))"
-            strokeWidth="1"
-            strokeLinecap="round"
-            opacity="0.12"
-          />
-        </g>
-      </motion.svg>
-
-      {/* Kaaba glyph at top, also rotating with the dial */}
-      <motion.div
-        className="absolute inset-0 pointer-events-none flex items-start justify-center"
-        animate={{ rotate: rotation }}
-        transition={{ type: 'spring', stiffness: 90, damping: 20, mass: 0.8 }}
-      >
-        <motion.div
-          className="mt-2 rounded-2xl bg-background border border-border/40 p-1.5 flex items-center justify-center"
-          animate={isPointingQibla ? { scale: [1, 1.06, 1] } : { scale: 1 }}
-          transition={isPointingQibla ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : {}}
-          style={{
-            boxShadow: alignmentScore > 0.3 ? `0 0 ${alignmentScore * 22}px hsl(var(--gold) / ${alignmentScore * 0.7})` : undefined,
-          }}
-        >
-          <KaabaGlyph size={32} glow={alignmentScore} />
-        </motion.div>
-      </motion.div>
-
-      {/* Static fixed top indicator (current direction marker) */}
-      <div className="absolute inset-x-0 top-0 flex justify-center pointer-events-none">
-        <div className="w-[2px] h-3 rounded-full bg-foreground/70 mt-1" />
-      </div>
-
-      {/* Center hub */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <motion.div
-          className="w-3 h-3 rounded-full bg-foreground"
-          animate={{
-            boxShadow: `0 0 ${6 + alignmentScore * 22}px hsl(var(--gold) / ${0.2 + alignmentScore * 0.6})`,
-          }}
-        />
-      </div>
-
-      {/* Aligned ripple */}
-      <AnimatePresence>
-        {isPointingQibla && (
-          <motion.div
-            initial={{ scale: 0.85, opacity: 0.5 }}
-            animate={{ scale: 1.25, opacity: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="absolute inset-0 rounded-full border-2 pointer-events-none"
-            style={{ borderColor: 'hsl(var(--gold) / 0.4)' }}
-          />
-        )}
-      </AnimatePresence>
-    </div>
+    <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox={`0 0 ${SIZE} ${SIZE}`}>
+      {ticks}
+      {labels}
+      {/* Qibla needle (gold up, foreground tail) */}
+      <line x1={CENTER} y1={CENTER} x2={CENTER} y2={28}
+        stroke="hsl(var(--gold))" strokeWidth="2" strokeLinecap="round" opacity="0.85" />
+      <line x1={CENTER} y1={CENTER} x2={CENTER} y2={SIZE - 60}
+        stroke="hsl(var(--foreground))" strokeWidth="1" strokeLinecap="round" opacity="0.12" />
+    </svg>
   );
-};
+})();
+
+const KaabaGlyph = ({ size = 32 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 40 40">
+    <rect x="9" y="11" width="22" height="22" rx="1.5" fill="hsl(var(--foreground))" />
+    <rect x="9" y="17" width="22" height="3.6" fill="hsl(var(--gold))" opacity={0.8} />
+    <rect x="17" y="22" width="6" height="11" rx="0.6" fill="hsl(var(--gold))" opacity={0.7} />
+  </svg>
+);
 
 const QiblaPage = () => {
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   const [qiblaDirection, setQiblaDirection] = useState<number | null>(null);
-  const [heading, setHeading] = useState<number>(0);
   const [error, setError] = useState('');
   const [compassActive, setCompassActive] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
   const [showInfo, setShowInfo] = useState(false);
-  const headingRef = useRef(0);
-  const hasVibrated = useRef(false);
+  const [isAligned, setIsAligned] = useState(false);
 
+  const headingRef = useRef(0);
+  const dialRef = useRef<HTMLDivElement | null>(null);
+  const kaabaRef = useRef<HTMLDivElement | null>(null);
+  const auraRef = useRef<HTMLDivElement | null>(null);
+  const hubRef = useRef<HTMLDivElement | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const samplesRef = useRef<number[]>([]);
+  const hasVibrated = useRef(false);
+  const lastAlignedRef = useRef(false);
+
+  /* ---------- GPS: cache → fast → accurate ------------------------------ */
   useEffect(() => {
     let cancelled = false;
-    // Instant render from cache (if any) for a snappy first paint.
     const cached = readCachedFix();
     if (cached) {
       setCoords({ lat: cached.lat, lng: cached.lng });
       setQiblaDirection(calculateQibla(cached.lat, cached.lng));
       setGpsAccuracy(cached.accuracy);
     }
-    (async () => {
-      try {
-        const pos = await getBestAccuracyLocation({ windowMs: 6000, acceptAccuracyM: 20 });
+
+    // First: fast one-shot (uses cached system fix, ~instant)
+    getAccurateLocation(4000).then((pos) => {
+      if (cancelled) return;
+      const { latitude, longitude, accuracy } = pos.coords;
+      writeCachedFix(pos);
+      setCoords({ lat: latitude, lng: longitude });
+      setQiblaDirection(calculateQibla(latitude, longitude));
+      setGpsAccuracy(accuracy);
+    }).catch(() => { /* fall through */ });
+
+    // Then: refine in background for best accuracy
+    getBestAccuracyLocation({ windowMs: 5000, acceptAccuracyM: 15, fallbackTimeoutMs: 10000 })
+      .then((pos) => {
         if (cancelled) return;
         const { latitude, longitude, accuracy } = pos.coords;
         writeCachedFix(pos);
         setCoords({ lat: latitude, lng: longitude });
         setQiblaDirection(calculateQibla(latitude, longitude));
         setGpsAccuracy(accuracy);
-      } catch {
+      })
+      .catch(() => {
         if (cancelled || cached) return;
         setCoords({ lat: 26.3927, lng: 49.9777 });
         setQiblaDirection(calculateQibla(26.3927, 49.9777));
         setError(isAr ? 'تم استخدام الموقع الافتراضي (الدمام)' : 'Using default location (Dammam)');
-      }
-    })();
+      });
+
     return () => { cancelled = true; };
   }, [isAr]);
 
-  // Smoothing buffer + low-pass filter for stable, accurate compass motion.
-  // Kalman-lite: combine angular EMA with circular-mean of recent samples.
-  const samplesRef = useRef<number[]>([]);
-  const SAMPLE_SIZE = 8;
-  const SMOOTHING = 0.18; // higher = snappier, lower = smoother
+  /* ---------- Compass: rAF-batched, direct DOM transform ---------------- */
+  const SAMPLE_SIZE = 6;
+  const SMOOTHING = 0.22;
+
+  const apply = useCallback(() => {
+    rafRef.current = null;
+    if (qiblaDirection === null) return;
+    const heading = headingRef.current;
+    let rotation = qiblaDirection - heading;
+    rotation = ((rotation % 360) + 360) % 360;
+    const dev = rotation > 180 ? 360 - rotation : rotation;
+    const aligned = dev < 4;
+    const score = Math.max(0, 1 - dev / 45);
+
+    if (dialRef.current) {
+      dialRef.current.style.transform = `rotate(${rotation}deg)`;
+    }
+    if (kaabaRef.current) {
+      // Counter-rotate the cardinal "N" letter group? Not used; keep glyph upright on top of dial.
+      kaabaRef.current.style.transform = `rotate(${rotation}deg)`;
+    }
+    if (auraRef.current) {
+      auraRef.current.style.opacity = String(0.15 + score * 0.55);
+    }
+    if (hubRef.current) {
+      hubRef.current.style.boxShadow = `0 0 ${6 + score * 22}px hsl(var(--gold) / ${0.2 + score * 0.6})`;
+    }
+
+    if (aligned !== lastAlignedRef.current) {
+      lastAlignedRef.current = aligned;
+      setIsAligned(aligned);
+    }
+  }, [qiblaDirection]);
 
   const handleOrientation = useCallback((e: DeviceOrientationEvent) => {
     let alpha = e.alpha;
     if (alpha === null) return;
-    // @ts-ignore — webkitCompassHeading is true magnetic north on iOS
+    // @ts-ignore
     if (e.webkitCompassHeading !== undefined) {
       // @ts-ignore
       alpha = e.webkitCompassHeading;
     } else {
-      // Android/desktop: invert and apply screen orientation correction
       const screenAngle = (typeof window !== 'undefined' && window.screen?.orientation?.angle) || 0;
       alpha = (360 - alpha + screenAngle) % 360;
     }
 
-    // Push into circular sample buffer
     const arr = samplesRef.current;
     arr.push(alpha);
     if (arr.length > SAMPLE_SIZE) arr.shift();
 
-    // Compute circular mean of buffer (handles 359↔0 wrap-around correctly)
     let sumSin = 0, sumCos = 0;
     for (const a of arr) {
       const rad = (a * Math.PI) / 180;
@@ -293,24 +213,29 @@ const QiblaPage = () => {
     let meanDeg = (meanRad * 180) / Math.PI;
     if (meanDeg < 0) meanDeg += 360;
 
-    // Low-pass towards circular mean (shortest angular delta)
     let diff = meanDeg - headingRef.current;
     if (diff > 180) diff -= 360;
     if (diff < -180) diff += 360;
     headingRef.current = (headingRef.current + diff * SMOOTHING + 360) % 360;
-    setHeading(headingRef.current);
-    setCompassActive(true);
-  }, []);
+
+    if (!compassActive) setCompassActive(true);
+
+    if (rafRef.current === null) {
+      rafRef.current = requestAnimationFrame(apply);
+    }
+  }, [apply, compassActive]);
 
   useEffect(() => {
     // @ts-ignore
-    if (typeof DeviceOrientationEvent.requestPermission !== 'function') {
-      // Use the more accurate `deviceorientationabsolute` when available
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission !== 'function') {
       const evt = 'ondeviceorientationabsolute' in window ? 'deviceorientationabsolute' : 'deviceorientation';
       window.addEventListener(evt, handleOrientation as EventListener, true);
       return () => window.removeEventListener(evt, handleOrientation as EventListener, true);
     }
   }, [handleOrientation]);
+
+  // Re-apply transforms once qibla becomes known
+  useEffect(() => { apply(); }, [apply]);
 
   const requestPermission = async () => {
     try {
@@ -320,6 +245,7 @@ const QiblaPage = () => {
         const perm = await DeviceOrientationEvent.requestPermission();
         if (perm === 'granted') {
           window.addEventListener('deviceorientation', handleOrientation, true);
+          setCompassActive(true);
         }
       } else {
         setCompassActive(true);
@@ -327,25 +253,22 @@ const QiblaPage = () => {
     } catch { /* ignore */ }
   };
 
-  const rotation = qiblaDirection !== null ? qiblaDirection - heading : 0;
-  const distanceToKaaba = coords ? Math.round(getDistance(coords.lat, coords.lng, KAABA_LAT, KAABA_LNG)) : null;
-  const normalizedRotation = ((rotation % 360) + 360) % 360;
-  const deviationDeg = normalizedRotation > 180 ? 360 - normalizedRotation : normalizedRotation;
-  const alignmentScore = compassActive ? Math.max(0, 1 - deviationDeg / 45) : 0;
-  const isPointingQibla = compassActive && deviationDeg < 4;
-
   useEffect(() => {
-    if (isPointingQibla && !hasVibrated.current) {
+    if (isAligned && !hasVibrated.current) {
       hasVibrated.current = true;
       if ('vibrate' in navigator) navigator.vibrate([25, 40, 25]);
-    } else if (!isPointingQibla) {
+    } else if (!isAligned) {
       hasVibrated.current = false;
     }
-  }, [isPointingQibla]);
+  }, [isAligned]);
+
+  const distanceToKaaba = useMemo(
+    () => coords ? Math.round(getDistance(coords.lat, coords.lng, KAABA_LAT, KAABA_LNG)) : null,
+    [coords]
+  );
 
   return (
     <div className="px-4 py-5 animate-fade-in min-h-[calc(100vh-130px)] flex flex-col">
-      {/* Heritage header */}
       <div className="flex items-center justify-between mb-5">
         <div className={`flex-1 ${isAr ? 'text-right' : 'text-left'}`}>
           <h1 className="text-lg text-foreground tracking-tight">{isAr ? 'اتجاه القبلة' : 'Qibla Direction'}</h1>
@@ -376,17 +299,56 @@ const QiblaPage = () => {
         )}
       </AnimatePresence>
 
-      {/* Compass */}
       <div className="flex-1 flex flex-col items-center justify-center">
-        <CompassDial
-          rotation={rotation}
-          alignmentScore={alignmentScore}
-          isPointingQibla={isPointingQibla}
-          active={compassActive}
-        />
+        <div className="relative" style={{ width: SIZE, height: SIZE }}>
+          {/* Aura (direct DOM, no framer) */}
+          <div
+            ref={auraRef}
+            className="absolute inset-[-40px] rounded-full pointer-events-none"
+            style={{
+              opacity: 0,
+              background: 'radial-gradient(circle, hsl(var(--gold) / 0.4) 0%, hsl(var(--primary) / 0.18) 40%, transparent 70%)',
+              filter: 'blur(28px)',
+              transition: 'opacity 200ms linear',
+            }}
+          />
+
+          <div className="absolute inset-0 rounded-full bg-card border border-border/30" />
+          <div className="absolute inset-[18px] rounded-full border border-border/20" />
+
+          {/* Rotating dial — pure CSS transform */}
+          <div
+            ref={dialRef}
+            className="absolute inset-0"
+            style={{ transformOrigin: '50% 50%', willChange: 'transform', transition: 'transform 120ms linear' }}
+          >
+            {StaticDial}
+          </div>
+
+          {/* Kaaba glyph rotates with the dial (sits at top) */}
+          <div
+            ref={kaabaRef}
+            className="absolute inset-0 pointer-events-none flex items-start justify-center"
+            style={{ transformOrigin: '50% 50%', willChange: 'transform', transition: 'transform 120ms linear' }}
+          >
+            <div className="mt-2 rounded-2xl bg-background border border-border/40 p-1.5 flex items-center justify-center">
+              <KaabaGlyph size={32} />
+            </div>
+          </div>
+
+          {/* Static fixed top indicator */}
+          <div className="absolute inset-x-0 top-0 flex justify-center pointer-events-none">
+            <div className="w-[2px] h-3 rounded-full bg-foreground/70 mt-1" />
+          </div>
+
+          {/* Center hub */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div ref={hubRef} className="w-3 h-3 rounded-full bg-foreground" style={{ transition: 'box-shadow 200ms linear' }} />
+          </div>
+        </div>
 
         <AnimatePresence>
-          {isPointingQibla && (
+          {isAligned && (
             <motion.div
               initial={{ opacity: 0, y: 6, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -400,7 +362,6 @@ const QiblaPage = () => {
         </AnimatePresence>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 gap-2 mt-6 mb-2">
         <div className="bg-card border border-border/20 rounded-2xl p-3.5">
           <div className="flex items-center gap-1.5 mb-1">
