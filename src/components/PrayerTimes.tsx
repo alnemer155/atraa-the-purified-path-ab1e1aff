@@ -284,7 +284,7 @@ const PrayerTimes = () => {
                 </Section>
 
                 <p className="text-[9px] text-muted-foreground/40 text-center font-light pb-2">
-                  {isAr ? 'المصدر: AlAdhan API · حساب جعفري (طهران)' : 'Source: AlAdhan API · Ja\'fari (Tehran) method'}
+                  {isAr ? `المصدر: AlAdhan API · ${activeMethodLabel}` : `Source: AlAdhan API · ${activeMethodLabel}`}
                 </p>
               </div>
             </motion.div>
