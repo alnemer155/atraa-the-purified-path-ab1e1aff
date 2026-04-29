@@ -19,8 +19,11 @@ import wpNew6 from '@/assets/wallpapers/wp-new-6.jpeg';
 import wpNew7 from '@/assets/wallpapers/wp-new-7.jpeg';
 import wpNew8 from '@/assets/wallpapers/wp-new-8.jpeg';
 import wpNew9 from '@/assets/wallpapers/wp-new-9.jpeg';
+import wpHussainShrine from '@/assets/wallpapers/hussain-shrine.jpg';
 
 const wallpapers = [
+  // Newest addition — appears first
+  { id: 'h1', src: wpHussainShrine, name: 'حرم الإمام الحسين (ع) — إنّي لا أرى الموت إلا سعادة' },
   // New verified wallpapers (Round 2)
   { id: 'n1', src: wpNew1, name: 'الصلاة على النبي (ص) — الأحزاب 56' },
   { id: 'n2', src: wpNew2, name: 'من ساعى الأيام عاثرته — الإمام علي (ع)' },

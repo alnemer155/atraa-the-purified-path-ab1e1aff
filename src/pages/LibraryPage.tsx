@@ -28,41 +28,42 @@ const LibraryPage = () => {
 
   return (
     <div className="animate-fade-in">
-      <div className="sticky top-[41px] z-30 bg-background/80 backdrop-blur-3xl backdrop-saturate-200">
-        <div className="px-4 pt-4 pb-3">
-          <div className={`mb-4 ${isAr ? 'text-right' : 'text-left'}`}>
-            <h1 className="text-lg text-foreground leading-tight tracking-tight">
+      <div className="sticky top-[41px] z-30 bg-background/85 backdrop-blur-3xl backdrop-saturate-200">
+        <div className="px-5 pt-5 pb-3">
+          {/* Title row — single line, refined hairline */}
+          <div className={`flex items-baseline justify-between mb-4 ${isAr ? 'flex-row' : 'flex-row-reverse'}`}>
+            <span className="text-[9px] text-muted-foreground/40 font-light tracking-[0.18em] uppercase tabular-nums">
+              {isAr ? '٠٣ أقسام' : '03 sections'}
+            </span>
+            <h1 className="text-[22px] text-foreground leading-none tracking-tight font-light">
               {t('library.title')}
             </h1>
-            <p className="text-[10px] text-muted-foreground/50 font-light mt-0.5">
-              {isAr ? 'أدعية · تسبيح · قبلة' : 'Duas · Tasbih · Qibla'}
-            </p>
           </div>
 
-          <div className="flex gap-1 p-1 bg-secondary/25 rounded-2xl">
+          {/* Underlined segmented tabs */}
+          <div className="relative flex items-center justify-between border-b border-border/15">
             {tabs.map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className="relative flex-1 py-2.5 rounded-xl text-[12px] transition-all"
+                className="relative flex-1 py-3 text-[12px] transition-colors"
               >
-                {activeTab === tab.key && (
-                  <motion.div
-                    layoutId="library-tab"
-                    className="absolute inset-0 rounded-xl bg-card border border-border/20"
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <span className={`relative ${
-                  activeTab === tab.key ? 'text-foreground' : 'text-muted-foreground/50'
+                <span className={`relative z-10 ${
+                  activeTab === tab.key ? 'text-foreground' : 'text-muted-foreground/45'
                 }`}>
                   {tab.label}
                 </span>
+                {activeTab === tab.key && (
+                  <motion.div
+                    layoutId="library-tab-underline"
+                    className="absolute -bottom-px left-1/2 -translate-x-1/2 h-[2px] w-8 bg-foreground rounded-full"
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                  />
+                )}
               </button>
             ))}
           </div>
         </div>
-        <div className="h-px bg-border/15" />
       </div>
 
       <motion.div
