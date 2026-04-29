@@ -298,42 +298,56 @@ const HijriCountdown = () => {
       <button
         onClick={() => hijri && setShowDetails(true)}
         disabled={!hijri}
-        className={`rounded-2xl bg-card border border-border/20 p-3.5 min-h-[100px] flex flex-col justify-between text-${isAr ? 'right' : 'left'} active:scale-[0.98] transition-transform relative overflow-hidden`}
+        className={`group rounded-2xl bg-card border border-border/25 p-3.5 min-h-[100px] flex flex-col justify-between text-${isAr ? 'right' : 'left'} active:scale-[0.98] transition-transform relative overflow-hidden`}
       >
+        {/* Today indicator hairline */}
+        {todaysOccasion && (
+          <span className="absolute inset-y-0 start-0 w-[2px] bg-gold/70" />
+        )}
+
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[8px] text-muted-foreground/40 tracking-widest font-light uppercase">
-            {isAr ? 'التقويم' : 'Calendar'}
+          <span className="text-[8px] text-muted-foreground/45 tracking-[0.22em] font-light uppercase">
+            {isAr ? 'هجري' : 'Hijri'}
           </span>
           {hijri && (
             <ChevronLeft
-              className={`w-3 h-3 text-muted-foreground/30 ${isAr ? '' : 'rotate-180'}`}
+              className={`w-3 h-3 text-muted-foreground/35 ${isAr ? '' : 'rotate-180'}`}
             />
           )}
         </div>
+
         {hijri ? (
           <div className="w-full">
-            <p className="text-[15px] text-foreground leading-snug">
-              {hijri.day} {isAr ? hijri.month : MONTH_NAMES_EN[hijri.monthNumber - 1]}
-            </p>
-            <p className="text-[9px] text-muted-foreground/40 mt-0.5 font-light">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-[22px] text-foreground leading-none font-light tabular-nums">
+                {hijri.day}
+              </span>
+              <span className="text-[12px] text-foreground/80 leading-none">
+                {isAr ? hijri.month : MONTH_NAMES_EN[hijri.monthNumber - 1]}
+              </span>
+            </div>
+            <p className="text-[9px] text-muted-foreground/50 mt-1 font-light tabular-nums">
               {hijri.year} {isAr ? 'هـ' : 'AH'}
             </p>
 
-            <div className="mt-2.5">
-              <div className="h-[2px] rounded-full bg-secondary/30 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-foreground/15 transition-all duration-700 ease-out"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-              <p className="text-[7px] text-muted-foreground/30 mt-1 font-light">
-                {daysRemaining > 0
-                  ? (isAr ? `${daysRemaining} يوم متبقي` : `${daysRemaining} day${daysRemaining > 1 ? 's' : ''} left`)
-                  : (isAr ? 'آخر يوم' : 'Last day')}
+            {todaysOccasion ? (
+              <p className="text-[9px] text-gold/85 mt-2 font-light leading-tight line-clamp-2">
+                {renderHonored(isAr ? todaysOccasion.ar : todaysOccasion.en, 10)}
               </p>
-            </div>
-            {todaysOccasion && (
-              <span className="absolute top-2 left-2 w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+            ) : (
+              <div className="mt-2.5">
+                <div className="h-[2px] rounded-full bg-secondary/30 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-foreground/20 transition-all duration-700 ease-out"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <p className="text-[7px] text-muted-foreground/40 mt-1 font-light tabular-nums">
+                  {daysRemaining > 0
+                    ? (isAr ? `${daysRemaining} يوم متبقي` : `${daysRemaining} day${daysRemaining > 1 ? 's' : ''} left`)
+                    : (isAr ? 'آخر يوم' : 'Last day')}
+                </p>
+              </div>
             )}
           </div>
         ) : (
