@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, Play } from 'lucide-react';
+import { X, Trash2, Play, BookOpen } from 'lucide-react';
 import { AYAH_COLOR_ORDER, AYAH_COLOR_TOKENS, type AyahColor } from '@/lib/quran-bookmarks';
 import { toArabicNumerals } from '@/lib/quran-page';
 
@@ -12,6 +12,7 @@ interface Props {
   onPick: (color: AyahColor) => void;
   onClear: () => void;
   onPlay: () => void;
+  onTafsir: () => void;
   onClose: () => void;
 }
 
@@ -28,6 +29,7 @@ const AyahColorPicker = ({
   onPick,
   onClear,
   onPlay,
+  onTafsir,
   onClose,
 }: Props) => {
   return (
@@ -98,21 +100,28 @@ const AyahColorPicker = ({
               })}
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 onClick={onPlay}
-                className="h-11 rounded-2xl bg-primary text-primary-foreground text-[12px] flex items-center justify-center gap-2 active:scale-95 transition-transform"
+                className="h-11 rounded-2xl bg-primary text-primary-foreground text-[11px] flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
               >
                 <Play className="w-3.5 h-3.5" strokeWidth={2} fill="currentColor" />
-                <span>تلاوة الآية</span>
+                <span>تلاوة</span>
+              </button>
+              <button
+                onClick={onTafsir}
+                className="h-11 rounded-2xl bg-secondary/60 text-foreground/85 text-[11px] flex items-center justify-center gap-1.5 active:scale-95"
+              >
+                <BookOpen className="w-3.5 h-3.5" strokeWidth={1.7} />
+                <span>تفسير</span>
               </button>
               <button
                 onClick={onClear}
                 disabled={!currentColor}
-                className="h-11 rounded-2xl bg-secondary/40 text-foreground/75 text-[12px] flex items-center justify-center gap-2 active:scale-95 disabled:opacity-40"
+                className="h-11 rounded-2xl bg-secondary/40 text-foreground/75 text-[11px] flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-40"
               >
                 <Trash2 className="w-3.5 h-3.5" strokeWidth={1.6} />
-                <span>إزالة الفاصلة</span>
+                <span>إزالة</span>
               </button>
             </div>
           </motion.div>
