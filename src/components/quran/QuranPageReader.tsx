@@ -435,46 +435,51 @@ const QuranPageReader = ({
       dir="rtl"
       data-quran-theme={theme === 'default' ? undefined : theme}
     >
-      {/* ============ Top bar ============
-        * One-line context: Surah name · Page · Juz/Hizb. The single action
-        * (LayoutGrid) opens the unified quick-access panel. */}
+      {/* ============ Top bar — refined "mushaf rail" ============
+        * Single line: index button · centered surah cartouche pill (surah · page · juz) · recitation/close. */}
       <div
-        className={`${inline ? 'sticky top-[41px] z-30' : 'flex-shrink-0'} px-3 py-2 flex items-center gap-2 border-b border-border/10 bg-background/85 backdrop-blur-2xl`}
+        className={`${inline ? 'sticky top-[41px] z-30' : 'flex-shrink-0'} px-3 pt-2.5 pb-2 flex items-center gap-2 bg-background/90 backdrop-blur-2xl`}
       >
+        {/* subtle gold underline instead of a hard border */}
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-l from-transparent via-gold/25 to-transparent pointer-events-none" />
+
         <button
           onClick={() => setShowPanel(true)}
-          className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95 transition-transform shrink-0"
+          className="w-9 h-9 rounded-full bg-secondary/30 border border-border/15 flex items-center justify-center active:scale-90 transition-transform shrink-0"
           aria-label="فهرس وأدوات"
         >
-          <LayoutGrid className="w-4 h-4 text-foreground/70" strokeWidth={1.6} />
+          <LayoutGrid className="w-[15px] h-[15px] text-foreground/70" strokeWidth={1.5} />
         </button>
 
         <button
           onClick={() => setShowPanel(true)}
-          className="flex-1 h-9 px-3 rounded-xl bg-secondary/30 active:bg-secondary/50 active:scale-[0.99] transition-all overflow-hidden"
+          className="flex-1 relative h-9 px-3 rounded-full bg-gradient-to-b from-secondary/25 to-secondary/10 border border-border/15 active:scale-[0.99] transition-all overflow-hidden"
           aria-label="معلومات الصفحة"
         >
+          {/* tiny gold corner ornaments */}
+          <span aria-hidden className="absolute right-2 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-gold/55" />
+          <span aria-hidden className="absolute left-2 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-gold/55" />
           <AnimatePresence mode="wait">
             <motion.div
               key={page}
-              initial={{ y: 10, opacity: 0 }}
+              initial={{ y: 8, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -10, opacity: 0 }}
+              exit={{ y: -8, opacity: 0 }}
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
               className="flex items-center justify-center gap-2.5 leading-none"
             >
-              <span className="surah-name-display text-[13px] text-foreground truncate max-w-[40%]">
+              <span className="surah-name-display text-[13px] text-foreground truncate max-w-[42%]">
                 {cleanCurrentName}
               </span>
-              <span className="w-px h-3.5 bg-border/50" />
-              <span className="text-[10.5px] text-muted-foreground/75 font-light tabular-nums whitespace-nowrap">
-                صفحة {toArabicNumerals(page)}
+              <span className="w-px h-3 bg-gold/30" />
+              <span className="text-[10.5px] text-muted-foreground/80 font-light tabular-nums whitespace-nowrap">
+                ﴿{toArabicNumerals(page)}﴾
               </span>
               {juzHizb && (
                 <>
-                  <span className="w-px h-3.5 bg-border/50" />
+                  <span className="w-px h-3 bg-gold/30" />
                   <span className="text-[10px] text-muted-foreground/65 font-light tabular-nums whitespace-nowrap">
-                    جـ{toArabicNumerals(juzHizb.juz)} · حـ{toArabicNumerals(juzHizb.hizb)}
+                    جـ{toArabicNumerals(juzHizb.juz)}
                   </span>
                 </>
               )}
@@ -485,19 +490,20 @@ const QuranPageReader = ({
         {onClose ? (
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center active:scale-95 shrink-0"
+            className="w-9 h-9 rounded-full bg-secondary/30 border border-border/15 flex items-center justify-center active:scale-90 shrink-0"
             aria-label="إغلاق"
           >
-            <X className="w-4 h-4 text-foreground/70" />
+            <X className="w-[15px] h-[15px] text-foreground/70" />
           </button>
         ) : (
           onOpenRecitation && (
             <button
               onClick={onOpenRecitation}
-              className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold/25 to-primary/15 border border-gold/30 flex items-center justify-center active:scale-95 shrink-0"
+              className="relative w-9 h-9 rounded-full bg-gradient-to-br from-gold/30 via-gold/15 to-primary/10 border border-gold/40 flex items-center justify-center active:scale-90 shrink-0"
               aria-label="التلاوة"
             >
-              <Mic className="w-4 h-4 text-gold" strokeWidth={1.7} />
+              <span aria-hidden className="absolute inset-0 rounded-full ring-1 ring-gold/20 animate-pulse" />
+              <Mic className="relative w-[15px] h-[15px] text-gold" strokeWidth={1.7} />
             </button>
           )
         )}
