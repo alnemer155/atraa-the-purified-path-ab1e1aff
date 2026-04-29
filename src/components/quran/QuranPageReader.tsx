@@ -32,6 +32,7 @@ import {
 import { useQuranTheme } from '@/lib/quran-theme';
 import AyahColorPicker from './AyahColorPicker';
 import QuranQuickPanel from './QuranQuickPanel';
+import TafsirSheet from './TafsirSheet';
 
 interface SurahMeta {
   number: number;
@@ -286,6 +287,7 @@ const QuranPageReader = ({
   const [theme, setTheme] = useQuranTheme();
   const [colorMap, setColorMap] = useState<Record<string, AyahColor>>(() => getAllAyahColors());
   const [pickerAyah, setPickerAyah] = useState<{ surah: number; ayah: number } | null>(null);
+  const [tafsirAyah, setTafsirAyah] = useState<{ surah: number; ayah: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Subscribe to in-tab color-mark changes (custom event from quran-bookmarks).
@@ -673,7 +675,26 @@ const QuranPageReader = ({
             onPlayAyah?.(pickerAyah.surah, pickerAyah.ayah);
             setPickerAyah(null);
           }}
+          onTafsir={() => {
+            const a = pickerAyah;
+            setPickerAyah(null);
+            setTafsirAyah(a);
+          }}
           onClose={() => setPickerAyah(null)}
+        />
+      )}
+
+      {/* ============ Tafsir bottom-sheet ============ */}
+      {tafsirAyah && (
+        <TafsirSheet
+          open
+          surah={tafsirAyah.surah}
+          ayah={tafsirAyah.ayah}
+          surahName={(() => {
+            const m = surahsByNumber.get(tafsirAyah.surah);
+            return m ? m.name.replace(/^سُورَةُ\s*/, '').replace(/^سورة\s*/, '') : '';
+          })()}
+          onClose={() => setTafsirAyah(null)}
         />
       )}
     </motion.div>
