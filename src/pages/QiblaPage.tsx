@@ -286,39 +286,38 @@ const QiblaPage = () => {
   );
 
   return (
-    <div className="px-4 py-5 animate-fade-in min-h-[calc(100vh-130px)] flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <div className={`flex-1 ${isAr ? 'text-right' : 'text-left'}`}>
-          <h1 className="text-lg text-foreground tracking-tight">{isAr ? 'اتجاه القبلة' : 'Qibla Direction'}</h1>
-          <p className="text-[9px] text-muted-foreground/45 font-light mt-0.5 tracking-wide">
-            {isAr ? 'الكعبة المشرّفة · مكة المكرمة' : 'The Holy Kaaba · Makkah'}
-          </p>
-        </div>
+    <div className="px-5 py-4 animate-fade-in min-h-[calc(100vh-130px)] flex flex-col">
+      {/* Header — minimal hairline */}
+      <div className={`flex items-baseline justify-between mb-1 ${isAr ? '' : 'flex-row-reverse'}`}>
         <button
           onClick={() => setShowInfo(!showInfo)}
-          className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-colors ${showInfo ? 'bg-foreground text-background' : 'bg-card border border-border/30 text-muted-foreground/50'}`}
-          aria-label="info"
+          className={`text-[10px] font-light tracking-[0.18em] uppercase transition-colors ${showInfo ? 'text-foreground' : 'text-muted-foreground/45'}`}
         >
-          <Info className="w-4 h-4" />
+          {isAr ? 'إرشاد' : 'Info'}
         </button>
+        <h1 className="text-[20px] text-foreground tracking-tight font-light leading-none">
+          {isAr ? 'القبلة' : 'Qibla'}
+        </h1>
       </div>
+      <p className={`text-[9px] text-muted-foreground/40 font-light tracking-[0.15em] mb-5 ${isAr ? 'text-right' : 'text-left'}`}>
+        {isAr ? 'الكعبة المشرّفة · مكة المكرمة' : 'The Holy Kaaba · Makkah'}
+      </p>
 
       <AnimatePresence>
         {showInfo && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-4">
-            <div className="bg-card border border-border/20 rounded-2xl p-4">
-              <p className="text-[11px] text-muted-foreground/70 leading-relaxed font-light">
+            <div className="border-s-2 border-gold/60 ps-3 py-1">
+              <p className="text-[11px] text-muted-foreground/75 leading-relaxed font-light">
                 {isAr
-                  ? 'ضع الهاتف بشكل مسطّح وأدر جسمك حتى تصل علامة الكعبة إلى المؤشّر العلوي. عند المحاذاة يهتزّ الهاتف ويتوهّج المركز بلون ذهبي.'
-                  : 'Hold the phone flat and rotate your body until the Kaaba marker reaches the top indicator. On alignment the phone will vibrate and the centre will glow gold.'}
+                  ? 'ضع الهاتف بشكل مسطّح وأدر جسمك حتى تصل علامة الكعبة إلى المؤشّر العلوي. عند المحاذاة يهتزّ الهاتف ويتوهّج المركز.'
+                  : 'Hold the phone flat and rotate until the Kaaba marker reaches the top indicator. On alignment the phone vibrates and the centre glows.'}
               </p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Compass */}
+      {/* Compass — UNCHANGED */}
       <div className="flex-1 flex flex-col items-center justify-center">
         <div className="relative" style={{ width: SIZE, height: SIZE }}>
           {/* Aura */}
@@ -338,14 +337,13 @@ const QiblaPage = () => {
           <div className="absolute inset-[10px] rounded-full border border-border/20" />
           <div className="absolute inset-[26px] rounded-full border border-dashed border-border/15" />
 
-          {/* Rotating dial wrap (ticks + cardinals + Kaaba glyph) */}
+          {/* Rotating dial wrap */}
           <div
             ref={dialWrapRef}
             className="absolute inset-0"
             style={{ transformOrigin: '50% 50%', willChange: 'transform', transition: 'transform 110ms linear' }}
           >
             {StaticDial}
-            {/* Kaaba sits at top of the dial — when aligned, it lands at the top indicator */}
             <div
               className="absolute left-1/2 top-0 -translate-x-1/2"
               style={{ marginTop: -6 }}
@@ -354,7 +352,7 @@ const QiblaPage = () => {
             </div>
           </div>
 
-          {/* Fixed top indicator (the "you are here" pointer) */}
+          {/* Fixed top indicator */}
           <div className="absolute inset-x-0 -top-3 flex justify-center pointer-events-none">
             <svg width="22" height="20" viewBox="0 0 22 20">
               <path d="M11 0 L20 18 H2 Z" fill="hsl(var(--gold))" opacity="0.95" />
@@ -371,19 +369,19 @@ const QiblaPage = () => {
           </div>
         </div>
 
-        {/* Status pill */}
-        <div className="h-9 mt-6 flex items-center justify-center">
+        {/* Status — minimal text, no pill */}
+        <div className="h-8 mt-7 flex items-center justify-center">
           <AnimatePresence mode="wait">
             {isAligned ? (
               <motion.div
                 key="aligned"
-                initial={{ opacity: 0, y: 6, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -4, scale: 0.97 }}
-                className="flex items-center gap-2 px-5 py-2 rounded-2xl bg-gold text-background"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="flex items-center gap-2 text-gold"
               >
                 <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
-                <span className="text-[12px]">{isAr ? 'أنت تواجه القبلة' : 'You are facing the Qibla'}</span>
+                <span className="text-[12px] tracking-wide">{isAr ? 'أنت تواجه القبلة' : 'Facing the Qibla'}</span>
               </motion.div>
             ) : compassActive && deviation !== null ? (
               <motion.div
@@ -391,10 +389,10 @@ const QiblaPage = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-card border border-border/30"
+                className="flex items-center gap-2 text-muted-foreground/70"
               >
-                <Navigation className="w-3 h-3 text-muted-foreground/60" />
-                <span className="text-[11px] text-muted-foreground/80 tabular-nums font-light">
+                <Navigation className="w-3 h-3 opacity-50" />
+                <span className="text-[11px] tabular-nums font-light tracking-wide">
                   {isAr ? `الانحراف ${deviation}°` : `Off by ${deviation}°`}
                 </span>
               </motion.div>
@@ -403,22 +401,22 @@ const QiblaPage = () => {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-2 mt-4 mb-2">
-        <div className="bg-card border border-border/20 rounded-2xl p-3.5">
-          <div className="flex items-center gap-1.5 mb-1">
-            <Compass className="w-3 h-3 text-muted-foreground/40" />
-            <span className="text-[9px] text-muted-foreground/45 font-light tracking-wide">{isAr ? 'الاتجاه' : 'Bearing'}</span>
-          </div>
-          <p className="text-[22px] text-foreground tracking-tight font-light tabular-nums">
+      {/* Stats — minimal hairline row, no boxes */}
+      <div className={`flex items-stretch mt-2 mb-2 border-t border-border/15 pt-4 ${isAr ? 'flex-row-reverse' : ''}`}>
+        <div className="flex-1 text-center">
+          <p className="text-[8px] text-muted-foreground/40 font-light tracking-[0.18em] uppercase mb-1.5">
+            {isAr ? 'الاتجاه' : 'Bearing'}
+          </p>
+          <p className="text-[20px] text-foreground tracking-tight font-light tabular-nums leading-none">
             {qiblaDirection !== null ? `${Math.round(qiblaDirection)}°` : '—'}
           </p>
         </div>
-        <div className="bg-card border border-border/20 rounded-2xl p-3.5">
-          <span className="text-[9px] text-muted-foreground/45 font-light tracking-wide block mb-1">
+        <div className="w-px bg-border/20 mx-2" />
+        <div className="flex-1 text-center">
+          <p className="text-[8px] text-muted-foreground/40 font-light tracking-[0.18em] uppercase mb-1.5">
             {isAr ? 'المسافة' : 'Distance'}
-          </span>
-          <p className="text-[22px] text-foreground tracking-tight font-light tabular-nums">
+          </p>
+          <p className="text-[20px] text-foreground tracking-tight font-light tabular-nums leading-none">
             {distanceToKaaba !== null ? distanceToKaaba.toLocaleString() : '—'}
             {distanceToKaaba !== null && (
               <span className="text-[10px] text-muted-foreground/40 ms-1 font-light">{isAr ? 'كم' : 'km'}</span>
@@ -431,8 +429,8 @@ const QiblaPage = () => {
         <p className="text-[9px] text-muted-foreground/50 text-center mt-2 font-light">{error}</p>
       )}
       {gpsAccuracy !== null && !error && (
-        <p className="text-[9px] text-muted-foreground/40 text-center mt-2 font-light tabular-nums">
-          {isAr ? `دقة الموقع: ±${Math.round(gpsAccuracy)} م` : `GPS accuracy: ±${Math.round(gpsAccuracy)} m`}
+        <p className="text-[9px] text-muted-foreground/35 text-center mt-1 font-light tabular-nums tracking-wide">
+          {isAr ? `دقة الموقع ±${Math.round(gpsAccuracy)} م` : `GPS ±${Math.round(gpsAccuracy)} m`}
         </p>
       )}
 
@@ -441,9 +439,9 @@ const QiblaPage = () => {
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           onClick={requestPermission}
-          className="mt-4 mx-auto flex items-center gap-2 px-6 py-3 rounded-2xl bg-foreground text-background text-[12px] active:scale-[0.97] transition-transform"
+          className="mt-4 mx-auto flex items-center gap-2 px-7 py-3 rounded-full bg-foreground text-background text-[12px] active:scale-[0.97] transition-transform tracking-wide"
         >
-          <LocateFixed className="w-4 h-4" />
+          <LocateFixed className="w-3.5 h-3.5" />
           {isAr ? 'تفعيل البوصلة' : 'Enable compass'}
         </motion.button>
       )}
