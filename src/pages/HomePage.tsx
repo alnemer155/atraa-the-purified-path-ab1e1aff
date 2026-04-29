@@ -9,6 +9,8 @@ import WeatherWidget from '@/components/WeatherWidget';
 import HijriCountdown from '@/components/HijriCountdown';
 import DailyRecommendations from '@/components/DailyRecommendations';
 import WallpapersSection from '@/components/WallpapersSection';
+import LiveChannelsSection from '@/components/LiveChannelsSection';
+import { useMadhhab } from '@/lib/madhhab';
 
 // Mixed devotional rotation under the greeting:
 // short ayat, salawat, and well-known du'a phrases.
@@ -49,6 +51,7 @@ const HomePage = () => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   const Chevron = isAr ? ChevronLeft : ChevronRight;
+  const madhhab = useMadhhab();
   const [devotionalIndex, setDevotionalIndex] = useState(() =>
     new Date().getDate() % DEVOTIONAL_ROTATION.length
   );
@@ -156,7 +159,7 @@ const HomePage = () => {
         </motion.div>
 
         <motion.div variants={fadeUp}>
-          <WallpapersSection />
+          {madhhab === 'sunni' ? <LiveChannelsSection /> : <WallpapersSection />}
         </motion.div>
 
         <motion.div variants={fadeUp}>
