@@ -1,4 +1,4 @@
-import logo from '@/assets/logo.png';
+import logo from '@/assets/logo-v11.png';
 
 const DesktopBlocker = () => {
   return (
