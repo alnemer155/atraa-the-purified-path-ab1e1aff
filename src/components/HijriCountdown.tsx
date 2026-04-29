@@ -3,16 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getHijriAdjustment } from '@/lib/user';
+import PeaceBeUponHim from '@/components/PeaceBeUponHim';
 
 /**
- * Render a title with an inline gold honorific glyph "؏" replacing "(عليه السلام)" /
- * "(عليها السلام)" / "(عجل الله فرجه)" — keeps the meaning visible but uses the
- * traditional manuscript-style honorific glyph instead of inline parentheses.
- * Stays purely textual (no Lucide / decorative icons), per design system.
+ * Replace honorific parentheticals like "(عليه السلام)" / "(صلى الله عليه وآله)" /
+ * "(عجل الله فرجه)" with the project's PBUH icon (small image), per design system.
+ * The icon is rendered inline with the surrounding text.
  */
-const renderHonored = (text: string) => {
-  // Match the most common honorific parentheticals
-  const re = /\s*\((?:عليه السلام|عليها السلام|عليهم السلام|صلى الله عليه وآله|صلى الله عليه وآله وسلم|عجل الله فرجه|عج)\)\s*/g;
+const renderHonored = (text: string, iconSize = 14) => {
+  const re = /\s*\((?:عليه السلام|عليها السلام|عليهم السلام|عليهما السلام|صلى الله عليه وآله(?:\s*وسلم)?|عجل الله(?:\s+تعالى)?\s+فرجه(?:\s+الشريف)?|عج)\)\s*/g;
   const parts: Array<string | { honor: true }> = [];
   let last = 0;
   let m: RegExpExecArray | null;
@@ -26,7 +25,7 @@ const renderHonored = (text: string) => {
   return parts.map((p, i) =>
     typeof p === 'string'
       ? <span key={i}>{p}</span>
-      : <span key={i} className="inline-flex items-center justify-center mx-1 align-middle text-gold/85" style={{ fontSize: '0.78em', lineHeight: 1 }} aria-label="عليه السلام">؏</span>
+      : <PeaceBeUponHim key={i} size={iconSize} />
   );
 };
 
