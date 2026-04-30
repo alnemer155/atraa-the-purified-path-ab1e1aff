@@ -237,40 +237,48 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
         </p>
       </div>
 
-      {/* Duration */}
+      {/* Duration — locked to 24h when private */}
       <div>
         <label className="text-[11px] text-muted-foreground block mb-2">
-          مدة الختمة <span className="text-muted-foreground/50">(اختياري)</span>
+          مدة الختمة {visibility === 'public' && <span className="text-muted-foreground/50">(اختياري)</span>}
         </label>
         <div className="grid grid-cols-4 gap-2">
           <button
             type="button"
             onClick={() => setDurationHours(null)}
-            disabled={verifying}
+            disabled={verifying || visibility === 'private'}
             className={`h-11 rounded-xl text-[11px] border transition-colors ${
               durationHours === null
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'bg-secondary/40 text-foreground border-border/30'
-            } disabled:opacity-50`}
+            } disabled:opacity-30`}
           >
             دائمة
           </button>
-          {DURATION_OPTIONS.map((opt) => (
-            <button
-              key={opt.hours}
-              type="button"
-              onClick={() => setDurationHours(opt.hours)}
-              disabled={verifying}
-              className={`h-11 rounded-xl text-[11px] border transition-colors ${
-                durationHours === opt.hours
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-secondary/40 text-foreground border-border/30'
-              } disabled:opacity-50`}
-            >
-              {opt.label}
-            </button>
-          ))}
+          {DURATION_OPTIONS.map((opt) => {
+            const lockedOut = visibility === 'private' && opt.hours !== 24;
+            return (
+              <button
+                key={opt.hours}
+                type="button"
+                onClick={() => setDurationHours(opt.hours)}
+                disabled={verifying || lockedOut}
+                className={`h-11 rounded-xl text-[11px] border transition-colors ${
+                  durationHours === opt.hours
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-secondary/40 text-foreground border-border/30'
+                } disabled:opacity-30`}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
         </div>
+        {visibility === 'private' && (
+          <p className="text-[10px] text-muted-foreground/60 mt-2 font-light leading-relaxed">
+            الختمة الخاصة مدتها ٢٤ ساعة فقط.
+          </p>
+        )}
       </div>
 
       {verifying && (
