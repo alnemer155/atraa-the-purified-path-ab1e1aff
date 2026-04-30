@@ -32,10 +32,12 @@ const KhatmaSection = () => {
   }, []);
 
   async function loadRecent() {
+    const nowIso = new Date().toISOString();
     const { data } = await supabase
       .from('khatmas')
       .select('*')
       .eq('is_published', true)
+      .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
       .order('created_at', { ascending: false })
       .limit(3);
     if (data) setRecent(data as Khatma[]);
