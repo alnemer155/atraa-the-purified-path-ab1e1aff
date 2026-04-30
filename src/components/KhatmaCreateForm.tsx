@@ -71,31 +71,26 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
       }
 
       const creatorToken = generateCreatorToken();
-      const expiresAt = durationHours
-        ? new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString()
+      const shortCode = generateShortCode();
+      // Private khatmas are always 24h. Public follows user choice.
+      const effectiveDuration = visibility === 'private' ? 24 : durationHours;
+      const expiresAt = effectiveDuration
+        ? new Date(Date.now() + effectiveDuration * 60 * 60 * 1000).toISOString()
         : null;
 
+      const baseFields = {
+        title: result.cleaned_title,
+        is_published: true,
+        verified_at: new Date().toISOString(),
+        creator_token: creatorToken,
+        short_code: shortCode,
+        visibility,
+        expires_at: expiresAt,
+      };
+
       const insertPayload = mode === 'surah'
-        ? {
-            title: result.cleaned_title,
-            mode: 'surah',
-            surah_number: surahNumber,
-            surah_name: surah?.name ?? '',
-            is_published: true,
-            verified_at: new Date().toISOString(),
-            creator_token: creatorToken,
-            expires_at: expiresAt,
-          }
-        : {
-            title: result.cleaned_title,
-            mode: 'full_quran',
-            surah_number: null,
-            surah_name: null,
-            is_published: true,
-            verified_at: new Date().toISOString(),
-            creator_token: creatorToken,
-            expires_at: expiresAt,
-          };
+        ? { ...baseFields, mode: 'surah', surah_number: surahNumber, surah_name: surah?.name ?? '' }
+        : { ...baseFields, mode: 'full_quran', surah_number: null, surah_name: null };
 
       const { data: inserted, error: insertErr } = await supabase
         .from('khatmas')
@@ -112,11 +107,12 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
       setVerifying(false);
       onCreated?.();
 
-      // Navigate to khatma — internal route, regardless of host.
+      // For private khatmas, route by short_code; public by slug.
+      const routeKey = visibility === 'private' ? inserted.short_code : inserted.slug;
       if (isOnKhatmaSubdomain()) {
-        navigate(`/${inserted.slug}`);
+        navigate(`/${routeKey}`);
       } else {
-        navigate(`/khatma/${inserted.slug}`);
+        navigate(`/khatma/${routeKey}`);
       }
     } catch (e) {
       clearInterval(tick);
