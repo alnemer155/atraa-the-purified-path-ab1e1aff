@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { X, Check, Loader2, BookMarked, BookOpen } from 'lucide-react';
+import { X, Check, Loader2, BookMarked, BookOpen, Globe, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { SURAHS } from '@/lib/surahs-list';
 import { toast } from '@/hooks/use-toast';
 import {
   generateCreatorToken,
+  generateShortCode,
   rememberCreator,
   DURATION_OPTIONS,
   khatmaShareUrl,
