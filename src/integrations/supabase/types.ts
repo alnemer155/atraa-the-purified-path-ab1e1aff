@@ -74,6 +74,45 @@ export type Database = {
         }
         Relationships: []
       }
+      khatmas: {
+        Row: {
+          created_at: string
+          id: string
+          is_published: boolean
+          recitations_count: number
+          slug: string
+          surah_name: string
+          surah_number: number
+          title: string
+          updated_at: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          recitations_count?: number
+          slug?: string
+          surah_name: string
+          surah_number: number
+          title: string
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          recitations_count?: number
+          slug?: string
+          surah_name?: string
+          surah_number?: number
+          title?: string
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
