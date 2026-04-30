@@ -23,7 +23,11 @@ const DisclaimerPage = lazy(() => import("./pages/legal/DisclaimerPage"));
 const DataPage = lazy(() => import("./pages/legal/DataPage"));
 const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
 const KhatmaPage = lazy(() => import("./pages/KhatmaPage"));
+const KhatmaLandingPage = lazy(() => import("./pages/KhatmaLandingPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+
+const isKhatmaHost = typeof window !== "undefined"
+  && window.location.hostname === "khatma.atraa.xyz";
 
 const queryClient = new QueryClient();
 
@@ -70,43 +74,52 @@ const App = () => {
           <BrowserRouter>
             <UIProvider>
               <Suspense fallback={<PageLoader />}>
-                <Routes>
-                  <Route element={<AppLayout />}>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/library" element={<LibraryPage />} />
-                    <Route path="/quran" element={<QuranPage />} />
-                    <Route path="/quran/:slug" element={<QuranPage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/policies" element={<PoliciesPage />} />
-                    <Route path="/support" element={<SupportPage />} />
-                    <Route path="/privacy" element={<PrivacyPage />} />
-                    <Route path="/terms" element={<TermsPage />} />
-                    <Route path="/disclaimer" element={<DisclaimerPage />} />
-                    <Route path="/data" element={<DataPage />} />
-                    <Route path="/about" element={<AboutPage />} />
-                  </Route>
+                {isKhatmaHost ? (
+                  <Routes>
+                    <Route path="/" element={<KhatmaLandingPage />} />
+                    <Route path="/:slug" element={<KhatmaPage />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                ) : (
+                  <Routes>
+                    <Route element={<AppLayout />}>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/library" element={<LibraryPage />} />
+                      <Route path="/quran" element={<QuranPage />} />
+                      <Route path="/quran/:slug" element={<QuranPage />} />
+                      <Route path="/settings" element={<SettingsPage />} />
+                      <Route path="/policies" element={<PoliciesPage />} />
+                      <Route path="/support" element={<SupportPage />} />
+                      <Route path="/privacy" element={<PrivacyPage />} />
+                      <Route path="/terms" element={<TermsPage />} />
+                      <Route path="/disclaimer" element={<DisclaimerPage />} />
+                      <Route path="/data" element={<DataPage />} />
+                      <Route path="/about" element={<AboutPage />} />
+                    </Route>
 
-                  {/* Khatma standalone (no app shell, accessed via shared link) */}
-                  <Route path="/khatma/:slug" element={<KhatmaPage />} />
+                    {/* Khatma standalone (no app shell, accessed via shared link) */}
+                    <Route path="/khatma" element={<KhatmaLandingPage />} />
+                    <Route path="/khatma/:slug" element={<KhatmaPage />} />
 
-                  <Route element={<AppLayout />}>
-                    {/* Locale-aware aliases: /SA-ar, /SA-en, /US-en, etc. */}
-                    <Route path="/:locale" element={<HomePage />} />
-                    <Route path="/:locale/library" element={<LibraryPage />} />
-                    <Route path="/:locale/quran" element={<QuranPage />} />
-                    <Route path="/:locale/quran/:slug" element={<QuranPage />} />
-                    <Route path="/:locale/settings" element={<SettingsPage />} />
-                    <Route path="/:locale/about" element={<AboutPage />} />
-                    {/* Locale + sect aliases: /SA-ar/Shia, /US-en/Sunni, etc. */}
-                    <Route path="/:locale/:sect" element={<HomePage />} />
-                    <Route path="/:locale/:sect/library" element={<LibraryPage />} />
-                    <Route path="/:locale/:sect/quran" element={<QuranPage />} />
-                    <Route path="/:locale/:sect/quran/:slug" element={<QuranPage />} />
-                    <Route path="/:locale/:sect/settings" element={<SettingsPage />} />
-                    <Route path="/:locale/:sect/about" element={<AboutPage />} />
-                  </Route>
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                    <Route element={<AppLayout />}>
+                      {/* Locale-aware aliases: /SA-ar, /SA-en, /US-en, etc. */}
+                      <Route path="/:locale" element={<HomePage />} />
+                      <Route path="/:locale/library" element={<LibraryPage />} />
+                      <Route path="/:locale/quran" element={<QuranPage />} />
+                      <Route path="/:locale/quran/:slug" element={<QuranPage />} />
+                      <Route path="/:locale/settings" element={<SettingsPage />} />
+                      <Route path="/:locale/about" element={<AboutPage />} />
+                      {/* Locale + sect aliases: /SA-ar/Shia, /US-en/Sunni, etc. */}
+                      <Route path="/:locale/:sect" element={<HomePage />} />
+                      <Route path="/:locale/:sect/library" element={<LibraryPage />} />
+                      <Route path="/:locale/:sect/quran" element={<QuranPage />} />
+                      <Route path="/:locale/:sect/quran/:slug" element={<QuranPage />} />
+                      <Route path="/:locale/:sect/settings" element={<SettingsPage />} />
+                      <Route path="/:locale/:sect/about" element={<AboutPage />} />
+                    </Route>
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                )}
               </Suspense>
             </UIProvider>
           </BrowserRouter>

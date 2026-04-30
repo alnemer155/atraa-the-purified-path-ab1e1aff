@@ -121,10 +121,11 @@ export type Database = {
           expires_at: string | null
           id: string
           is_published: boolean
+          mode: string
           recitations_count: number
           slug: string
-          surah_name: string
-          surah_number: number
+          surah_name: string | null
+          surah_number: number | null
           title: string
           updated_at: string
           verified_at: string | null
@@ -137,10 +138,11 @@ export type Database = {
           expires_at?: string | null
           id?: string
           is_published?: boolean
+          mode?: string
           recitations_count?: number
           slug?: string
-          surah_name: string
-          surah_number: number
+          surah_name?: string | null
+          surah_number?: number | null
           title: string
           updated_at?: string
           verified_at?: string | null
@@ -153,10 +155,11 @@ export type Database = {
           expires_at?: string | null
           id?: string
           is_published?: boolean
+          mode?: string
           recitations_count?: number
           slug?: string
-          surah_name?: string
-          surah_number?: number
+          surah_name?: string | null
+          surah_number?: number | null
           title?: string
           updated_at?: string
           verified_at?: string | null
