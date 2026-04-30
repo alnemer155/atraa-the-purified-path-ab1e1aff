@@ -260,6 +260,7 @@ const KhatmaSection = () => {
                 </div>
               </div>
 
+              {verifying && (
                 <div className="rounded-xl bg-secondary/30 border border-border/30 p-4 flex items-center gap-3">
                   <Loader2 className="w-4 h-4 text-primary animate-spin flex-shrink-0" />
                   <div className="flex-1 min-w-0">
