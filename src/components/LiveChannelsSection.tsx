@@ -28,17 +28,17 @@ type Channel = {
 const CHANNELS: Channel[] = [
   {
     id: 'haramain-makkah',
-    name: 'قناة القرآن الكريم — الحرم المكي',
+    name: 'الحرم المكي الشريف — مكة المكرمة',
     subtitle: 'البث المباشر · هيئة الإذاعة والتلفزيون السعودية',
-    embed: 'https://www.youtube.com/embed/live_stream?channel=UCxiqUTWZmpLQyhWiqK8WMcA',
-    external: 'https://www.youtube.com/@QuranTV/live',
+    embed: 'https://www.youtube.com/embed/fZvuHkHYaXk?autoplay=1',
+    external: 'https://youtu.be/fZvuHkHYaXk',
   },
   {
     id: 'haramain-madinah',
-    name: 'قناة السنة النبوية — المسجد النبوي',
+    name: 'المسجد النبوي الشريف — المدينة المنورة',
     subtitle: 'البث المباشر · هيئة الإذاعة والتلفزيون السعودية',
-    embed: 'https://www.youtube.com/embed/live_stream?channel=UC8gj40-7gxOHJhXThGT1cmA',
-    external: 'https://www.youtube.com/@SunnahTV/live',
+    embed: 'https://www.youtube.com/embed/4VII9dYngW8?autoplay=1',
+    external: 'https://www.youtube.com/live/4VII9dYngW8',
   },
 ];
 

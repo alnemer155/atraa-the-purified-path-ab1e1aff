@@ -15,6 +15,16 @@ const AboutPage = () => {
     >
       {isAr ? (
         <>
+          <section className="rounded-2xl border border-gold/30 bg-gold/5 p-4 text-center">
+            <p className="text-[8px] text-gold/80 font-light tracking-[0.3em] mb-2">قال رسول الله ﷺ</p>
+            <p className="quran-uthmani text-[17px] text-foreground leading-loose">
+              إنِّي تَارِكٌ فِيكُمُ الثَّقَلَيْنِ كِتَابَ اللهِ وَعِتْرَتِي أَهْلَ بَيْتِي
+            </p>
+            <p className="text-[10px] text-muted-foreground/70 font-light mt-3 leading-relaxed">
+              اسم التطبيق <span className="text-foreground">«عِتْرَة»</span> مستوحى مباشرة من هذا الحديث الشريف.
+            </p>
+          </section>
+
           <section>
             <h2 className="text-[15px] font-semibold mb-2">عِتَرَةً</h2>
             <p>منصة إسلامية شيعية تقدّم محتوى دينياً منظماً وحديثاً: أوقات الصلاة، أدعية، زيارات، أذكار، تسبيح، القرآن الكريم، واتجاه القبلة.</p>
@@ -29,7 +39,7 @@ const AboutPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">الإصدار</h2>
-            <p className="tabular-nums">v2.7.28 · بناء 156</p>
+            <p className="tabular-nums">v2.7.78 · بناء 195</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">قناة التطبيق على واتساب</h2>
@@ -65,6 +75,16 @@ const AboutPage = () => {
         </>
       ) : (
         <>
+          <section className="rounded-2xl border border-gold/30 bg-gold/5 p-4 text-center">
+            <p className="text-[8px] text-gold/80 font-light tracking-[0.3em] mb-2">The Prophet ﷺ said</p>
+            <p className="quran-uthmani text-[17px] text-foreground leading-loose" dir="rtl">
+              إنِّي تَارِكٌ فِيكُمُ الثَّقَلَيْنِ كِتَابَ اللهِ وَعِتْرَتِي أَهْلَ بَيْتِي
+            </p>
+            <p className="text-[10px] text-muted-foreground/70 font-light mt-3 leading-relaxed">
+              "I am leaving among you the Two Weighty Things — the Book of Allah and my <span className="text-foreground">Itrah</span> (family)." The app's name <span className="text-foreground">«Atraa / عِتْرَة»</span> is drawn directly from this noble hadith.
+            </p>
+          </section>
+
           <section>
             <h2 className="text-[15px] font-semibold mb-2">Atraa</h2>
             <p>An Islamic Shia platform offering organized, modern religious content: prayer times, duas, ziyarat, adhkar, tasbih, the Holy Quran, and Qibla direction.</p>
@@ -79,7 +99,7 @@ const AboutPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">Version</h2>
-            <p className="tabular-nums">v2.7.28 · build 156</p>
+            <p className="tabular-nums">v2.7.78 · build 195</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">WhatsApp Channel</h2>
