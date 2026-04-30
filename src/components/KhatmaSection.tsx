@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookMarked, Plus, ChevronLeft, X, Check, Loader2, Share2 } from 'lucide-react';
+import { BookMarked, Plus, ChevronLeft, X, Check, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { SURAHS } from '@/lib/surahs-list';
 import { toast } from '@/hooks/use-toast';
