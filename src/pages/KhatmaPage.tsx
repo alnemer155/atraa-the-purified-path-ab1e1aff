@@ -14,13 +14,26 @@ interface Khatma {
   surah_name: string;
   recitations_count: number;
   created_at: string;
+  expires_at: string | null;
 }
 
 const KhatmaPage = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const [khatma, setKhatma] = useState<Khatma | null>(null);
   const [loading, setLoading] = useState(true);
   const [counted, setCounted] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+  const [deleting, setDeleting] = useState(false);
+
+  const creatorToken = khatma ? getCreatorToken(khatma.id) : null;
+  const isCreator = !!creatorToken;
+  const isExpired = !!khatma?.expires_at && new Date(khatma.expires_at).getTime() <= now;
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     if (!slug) return;
