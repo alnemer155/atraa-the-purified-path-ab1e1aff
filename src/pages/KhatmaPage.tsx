@@ -82,6 +82,36 @@ const KhatmaPage = () => {
     } catch { /* ignore */ }
   }
 
+  async function handleDelete() {
+    if (!khatma || !creatorToken) return;
+    const ok = window.confirm('هل تريد حذف هذه الختمة؟ لا يمكن التراجع.');
+    if (!ok) return;
+    setDeleting(true);
+    const { error } = await supabase
+      .from('khatmas')
+      .delete()
+      .eq('id', khatma.id)
+      .eq('creator_token', creatorToken);
+    if (error) {
+      setDeleting(false);
+      toast({ title: 'تعذّر الحذف', variant: 'destructive' });
+      return;
+    }
+    forgetCreator(khatma.id);
+    toast({ title: 'تم حذف الختمة' });
+    navigate('/');
+  }
+
+  function expiryLabel(): string {
+    if (!khatma?.expires_at) return '';
+    const ms = new Date(khatma.expires_at).getTime() - now;
+    if (ms <= 0) return 'انتهت';
+    const hours = Math.floor(ms / (60 * 60 * 1000));
+    const mins = Math.floor((ms % (60 * 60 * 1000)) / (60 * 1000));
+    if (hours >= 1) return `يتبقى ${hours} ساعة${mins > 0 ? ` و ${mins} دقيقة` : ''}`;
+    return `يتبقى ${mins} دقيقة`;
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
