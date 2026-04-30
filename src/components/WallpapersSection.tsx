@@ -57,6 +57,7 @@ const WallpapersSection = () => {
   const [downloaded, setDownloaded] = useState<Set<number>>(new Set());
   const [selectedWallpaper, setSelectedWallpaper] = useState<number | null>(null);
   const [showAll, setShowAll] = useState(false);
+  const [wallpapers, setWallpapers] = useState(baseWallpapers);
   const [reactions, setReactions] = useState<Record<string, Reaction>>(() => {
     try {
       return JSON.parse(localStorage.getItem('atraa_wallpaper_reactions') || '{}');
@@ -66,6 +67,23 @@ const WallpapersSection = () => {
   useEffect(() => {
     localStorage.setItem('atraa_wallpaper_reactions', JSON.stringify(reactions));
   }, [reactions]);
+
+  // Merge in admin-uploaded wallpapers (newest first)
+  useEffect(() => {
+    void supabase
+      .from('admin_wallpapers')
+      .select('id, name, storage_path')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (!data?.length) return;
+        const adminWps = data.map((w: any) => ({
+          id: `admin-${w.id}`,
+          src: supabase.storage.from('admin-wallpapers').getPublicUrl(w.storage_path).data.publicUrl,
+          name: w.name,
+        }));
+        setWallpapers([...adminWps, ...baseWallpapers]);
+      });
+  }, []);
 
   // Lock body scroll when fullscreen viewer is open
   useEffect(() => {
