@@ -146,7 +146,10 @@ const KhatmaPage = () => {
 
   async function share() {
     if (!khatma) return;
-    const url = khatmaShareUrl(khatma.slug);
+    const key = khatma.visibility === 'private' && khatma.short_code
+      ? khatma.short_code
+      : khatma.slug;
+    const url = khatmaShareUrl(key);
     const text = khatma.mode === 'full_quran'
       ? `${khatma.title} — ختمة قرآن كاملة`
       : `${khatma.title} — قراءة سورة ${khatma.surah_name}`;
@@ -158,6 +161,29 @@ const KhatmaPage = () => {
         toast({ title: 'تم نسخ الرابط' });
       }
     } catch { /* ignore */ }
+  }
+
+  async function convertToPublic() {
+    if (!khatma || !creatorToken) return;
+    if (convertText.trim() !== 'تأكيد الختمة') {
+      toast({ title: 'الرجاء كتابة "تأكيد الختمة" بالضبط', variant: 'destructive' });
+      return;
+    }
+    setConverting(true);
+    const { error } = await supabase
+      .from('khatmas')
+      .update({ visibility: 'public' })
+      .eq('id', khatma.id)
+      .eq('creator_token', creatorToken);
+    setConverting(false);
+    if (error) {
+      toast({ title: 'تعذّر التحويل', variant: 'destructive' });
+      return;
+    }
+    setKhatma({ ...khatma, visibility: 'public' });
+    setConvertOpen(false);
+    setConvertText('');
+    toast({ title: 'أصبحت الختمة عامة' });
   }
 
   async function handleDelete() {
