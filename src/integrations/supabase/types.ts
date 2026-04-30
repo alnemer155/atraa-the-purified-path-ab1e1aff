@@ -74,10 +74,50 @@ export type Database = {
         }
         Relationships: []
       }
+      khatma_juz_claims: {
+        Row: {
+          completed_at: string
+          created_at: string
+          id: string
+          juz_number: number
+          khatma_id: string
+          reader_name: string | null
+          reader_token: string
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          juz_number: number
+          khatma_id: string
+          reader_name?: string | null
+          reader_token: string
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          juz_number?: number
+          khatma_id?: string
+          reader_name?: string | null
+          reader_token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "khatma_juz_claims_khatma_id_fkey"
+            columns: ["khatma_id"]
+            isOneToOne: false
+            referencedRelation: "khatmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       khatmas: {
         Row: {
+          completed_juz_count: number
           created_at: string
           creator_token: string | null
+          dedication: string | null
           expires_at: string | null
           id: string
           is_published: boolean
@@ -90,8 +130,10 @@ export type Database = {
           verified_at: string | null
         }
         Insert: {
+          completed_juz_count?: number
           created_at?: string
           creator_token?: string | null
+          dedication?: string | null
           expires_at?: string | null
           id?: string
           is_published?: boolean
@@ -104,8 +146,10 @@ export type Database = {
           verified_at?: string | null
         }
         Update: {
+          completed_juz_count?: number
           created_at?: string
           creator_token?: string | null
+          dedication?: string | null
           expires_at?: string | null
           id?: string
           is_published?: boolean
