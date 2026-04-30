@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Heart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Heart, Sun, Moon, Coffee } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
 import { requestNotificationPermission, getNotificationPermission } from '@/lib/notifications';
 import { useMadhhab, type Madhhab } from '@/lib/madhhab';
+import { useQuranTheme, type QuranTheme } from '@/lib/quran-theme';
 import MadhhabSwitchModal from '@/components/MadhhabSwitchModal';
 import CityPicker from '@/components/CityPicker';
 import { toast } from 'sonner';
@@ -30,6 +31,9 @@ const SettingsPage = () => {
   // Madhhab state — reactive to changes from anywhere in the app
   const madhhab = useMadhhab();
   const [pendingMadhhab, setPendingMadhhab] = useState<Madhhab | null>(null);
+
+  // Reading mode (default / sepia / night) — applied app-wide.
+  const [readingTheme, setReadingTheme] = useQuranTheme();
 
   const requestMadhhabChange = (target: Madhhab) => {
     if (target === madhhab) return;
