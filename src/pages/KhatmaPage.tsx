@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronRight, BookMarked, BookOpen, Share2, Plus, Check, Trash2, Clock, Lock } from 'lucide-react';
+import { ChevronRight, BookMarked, BookOpen, Share2, Plus, Check, Trash2, Clock, Lock, Globe } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import ReadingThemeToggle from '@/components/ReadingThemeToggle';
