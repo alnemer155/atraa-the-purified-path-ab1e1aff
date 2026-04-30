@@ -24,10 +24,13 @@ const DataPage = lazy(() => import("./pages/legal/DataPage"));
 const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
 const KhatmaPage = lazy(() => import("./pages/KhatmaPage"));
 const KhatmaLandingPage = lazy(() => import("./pages/KhatmaLandingPage"));
+const AdminPage = lazy(() => import("./pages/AdminPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-const isKhatmaHost = typeof window !== "undefined"
-  && window.location.hostname === "khatma.atraa.xyz";
+const hostname = typeof window !== "undefined" ? window.location.hostname : "";
+const isKhatmaHost = hostname === "khatma.atraa.xyz";
+const isAdminHost = hostname === "admin.atraa.xyz";
+const isStandaloneHost = isKhatmaHost || isAdminHost;
 
 const queryClient = new QueryClient();
 
@@ -69,12 +72,17 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          {!isKhatmaHost && showSplash && <SplashScreen onFinish={handleSplashFinish} />}
-          {!isKhatmaHost && !showSplash && showOnboarding && <OnboardingScreen onFinish={handleOnboardingFinish} />}
+          {!isStandaloneHost && showSplash && <SplashScreen onFinish={handleSplashFinish} />}
+          {!isStandaloneHost && !showSplash && showOnboarding && <OnboardingScreen onFinish={handleOnboardingFinish} />}
           <BrowserRouter>
             <UIProvider>
               <Suspense fallback={<PageLoader />}>
-                {isKhatmaHost ? (
+                {isAdminHost ? (
+                  <Routes>
+                    <Route path="/" element={<AdminPage />} />
+                    <Route path="*" element={<AdminPage />} />
+                  </Routes>
+                ) : isKhatmaHost ? (
                   <Routes>
                     <Route path="/" element={<KhatmaLandingPage />} />
                     <Route path="/:slug" element={<KhatmaPage />} />
@@ -100,6 +108,9 @@ const App = () => {
                     {/* Khatma standalone (no app shell, accessed via shared link) */}
                     <Route path="/khatma" element={<KhatmaLandingPage />} />
                     <Route path="/khatma/:slug" element={<KhatmaPage />} />
+
+                    {/* Admin (also accessible without subdomain via /admin) */}
+                    <Route path="/admin" element={<AdminPage />} />
 
                     <Route element={<AppLayout />}>
                       {/* Locale-aware aliases: /SA-ar, /SA-en, /US-en, etc. */}

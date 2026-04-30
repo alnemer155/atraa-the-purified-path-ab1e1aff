@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_duas: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          sect: string
+          source: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string
+          id?: string
+          sect: string
+          source?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          sect?: string
+          source?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      admin_wallpapers: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          storage_path?: string
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           amount_cents: number

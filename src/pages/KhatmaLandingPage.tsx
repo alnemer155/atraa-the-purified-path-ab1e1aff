@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { BookMarked, BookOpen, ChevronLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import KhatmaCreateForm from '@/components/KhatmaCreateForm';
+import ReadingThemeToggle from '@/components/ReadingThemeToggle';
 
 interface Khatma {
   id: string;
@@ -34,6 +35,10 @@ const KhatmaLandingPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-12" dir="rtl">
+      {/* Theme toggle (top-left) */}
+      <div className="absolute top-3 left-3 z-10">
+        <ReadingThemeToggle allowNight />
+      </div>
       {/* Header */}
       <div className="px-6 pt-10 pb-6 text-center">
         <motion.div

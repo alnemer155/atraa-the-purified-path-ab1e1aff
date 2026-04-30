@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ChevronRight, BookMarked, BookOpen, Share2, Plus, Check, Trash2, Clock, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import ReadingThemeToggle from '@/components/ReadingThemeToggle';
 import {
   getCreatorToken,
   forgetCreator,
@@ -219,13 +220,16 @@ const KhatmaPage = () => {
             <ChevronRight className="w-4 h-4 text-foreground" strokeWidth={1.5} />
           </Link>
           <p className="text-[13px] text-foreground">ختمة</p>
-          <button
-            onClick={share}
-            className="w-9 h-9 rounded-full flex items-center justify-center active:bg-secondary/40 transition-colors"
-            aria-label="مشاركة"
-          >
-            <Share2 className="w-4 h-4 text-foreground" strokeWidth={1.5} />
-          </button>
+          <div className="flex items-center gap-1">
+            <ReadingThemeToggle allowNight />
+            <button
+              onClick={share}
+              className="w-9 h-9 rounded-full flex items-center justify-center active:bg-secondary/40 transition-colors"
+              aria-label="مشاركة"
+            >
+              <Share2 className="w-4 h-4 text-foreground" strokeWidth={1.5} />
+            </button>
+          </div>
         </div>
       </div>
 
