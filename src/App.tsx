@@ -69,8 +69,8 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
-          {!showSplash && showOnboarding && <OnboardingScreen onFinish={handleOnboardingFinish} />}
+          {!isKhatmaHost && showSplash && <SplashScreen onFinish={handleSplashFinish} />}
+          {!isKhatmaHost && !showSplash && showOnboarding && <OnboardingScreen onFinish={handleOnboardingFinish} />}
           <BrowserRouter>
             <UIProvider>
               <Suspense fallback={<PageLoader />}>
