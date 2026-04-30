@@ -3,6 +3,7 @@ import { parseDuasContent, type DuaItem } from '@/lib/duas-parser';
 import duasRaw from '@/data/duas-content.txt?raw';
 import { SUNNI_CONTENT } from '@/data/sunni-content';
 import { useMadhhab } from '@/lib/madhhab';
+import { supabase } from '@/integrations/supabase/client';
 import { ChevronLeft, Search, X, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { saveLastReading } from '@/lib/user';
