@@ -2,6 +2,10 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import "./i18n";
+import { applyThemeToDocument, getStoredQuranTheme } from "./lib/quran-theme";
+
+// Boot stored reading mode (default / sepia / night) before first paint.
+applyThemeToDocument(getStoredQuranTheme());
 
 // Cleanup: unregister any previously installed service worker (PWA removed)
 if ('serviceWorker' in navigator) {
