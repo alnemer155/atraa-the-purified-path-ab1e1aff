@@ -3,7 +3,10 @@
 // and validates that the wording is respectful and appropriate for a Shia
 // Ja'fari Quran dedication. Returns a cleaned title or rejects with reason.
 
-import { corsHeaders } from "@supabase/supabase-js/cors";
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
 
 const SYSTEM_PROMPT = `أنت مدقق صياغة لعناوين ختمات قرآنية في تطبيق شيعي جعفري.
 
