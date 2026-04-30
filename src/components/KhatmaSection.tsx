@@ -224,7 +224,42 @@ const KhatmaSection = () => {
                 </p>
               </div>
 
-              {verifying && (
+              {/* Duration (optional) */}
+              <div>
+                <label className="text-[11px] text-muted-foreground block mb-2">
+                  مدة الختمة <span className="text-muted-foreground/50">(اختياري)</span>
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setDurationHours(null)}
+                    disabled={verifying}
+                    className={`h-11 rounded-xl text-[11px] border transition-colors ${
+                      durationHours === null
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-secondary/40 text-foreground border-border/30'
+                    } disabled:opacity-50`}
+                  >
+                    دائمة
+                  </button>
+                  {DURATION_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.hours}
+                      type="button"
+                      onClick={() => setDurationHours(opt.hours)}
+                      disabled={verifying}
+                      className={`h-11 rounded-xl text-[11px] border transition-colors ${
+                        durationHours === opt.hours
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-secondary/40 text-foreground border-border/30'
+                      } disabled:opacity-50`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
                 <div className="rounded-xl bg-secondary/30 border border-border/30 p-4 flex items-center gap-3">
                   <Loader2 className="w-4 h-4 text-primary animate-spin flex-shrink-0" />
                   <div className="flex-1 min-w-0">
