@@ -1,22 +1,25 @@
-// Local registry of khatmas the current device created.
-// Maps khatma id -> creator_token (random secret).
+// Local registry of khatmas the current device created,
+// and per-juz reader claims this device made.
 
 const KEY = 'atraa.khatma.creators.v1';
+const READER_KEY = 'atraa.khatma.readers.v1';
 
 type Registry = Record<string, string>;
+// readerKey: `${khatmaId}:${juz}` -> reader_token
+type ReaderRegistry = Record<string, string>;
 
-function read(): Registry {
+function read<T extends Record<string, string>>(key: string): T {
   try {
-    const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as Registry) : {};
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : ({} as T);
   } catch {
-    return {};
+    return {} as T;
   }
 }
 
-function write(reg: Registry) {
+function write(key: string, reg: Record<string, string>) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(reg));
+    localStorage.setItem(key, JSON.stringify(reg));
   } catch { /* ignore */ }
 }
 
@@ -27,13 +30,13 @@ export function generateCreatorToken(): string {
 }
 
 export function rememberCreator(khatmaId: string, token: string) {
-  const reg = read();
+  const reg = read<Registry>(KEY);
   reg[khatmaId] = token;
-  write(reg);
+  write(KEY, reg);
 }
 
 export function getCreatorToken(khatmaId: string): string | null {
-  return read()[khatmaId] ?? null;
+  return read<Registry>(KEY)[khatmaId] ?? null;
 }
 
 export function isCreator(khatmaId: string): boolean {
@@ -41,9 +44,34 @@ export function isCreator(khatmaId: string): boolean {
 }
 
 export function forgetCreator(khatmaId: string) {
-  const reg = read();
+  const reg = read<Registry>(KEY);
   delete reg[khatmaId];
-  write(reg);
+  write(KEY, reg);
+}
+
+// Reader claims (per-juz)
+function readerKey(khatmaId: string, juz: number) {
+  return `${khatmaId}:${juz}`;
+}
+
+export function rememberReader(khatmaId: string, juz: number, token: string) {
+  const reg = read<ReaderRegistry>(READER_KEY);
+  reg[readerKey(khatmaId, juz)] = token;
+  write(READER_KEY, reg);
+}
+
+export function getReaderToken(khatmaId: string, juz: number): string | null {
+  return read<ReaderRegistry>(READER_KEY)[readerKey(khatmaId, juz)] ?? null;
+}
+
+export function forgetReader(khatmaId: string, juz: number) {
+  const reg = read<ReaderRegistry>(READER_KEY);
+  delete reg[readerKey(khatmaId, juz)];
+  write(READER_KEY, reg);
+}
+
+export function generateReaderToken(): string {
+  return generateCreatorToken();
 }
 
 export const DURATION_OPTIONS = [
@@ -51,3 +79,9 @@ export const DURATION_OPTIONS = [
   { hours: 24, label: '٢٤ ساعة' },
   { hours: 36, label: 'يوم ونصف' },
 ] as const;
+
+export const KHATMA_BASE_URL = 'https://khatma.atraa.xyz';
+
+export function khatmaShareUrl(slug: string): string {
+  return `${KHATMA_BASE_URL}/${slug}`;
+}
