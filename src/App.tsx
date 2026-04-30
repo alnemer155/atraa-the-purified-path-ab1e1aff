@@ -109,6 +109,9 @@ const App = () => {
                     <Route path="/khatma" element={<KhatmaLandingPage />} />
                     <Route path="/khatma/:slug" element={<KhatmaPage />} />
 
+                    {/* Admin (also accessible without subdomain via /admin) */}
+                    <Route path="/admin" element={<AdminPage />} />
+
                     <Route element={<AppLayout />}>
                       {/* Locale-aware aliases: /SA-ar, /SA-en, /US-en, etc. */}
                       <Route path="/:locale" element={<HomePage />} />
