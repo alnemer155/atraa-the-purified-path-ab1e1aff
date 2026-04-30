@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronRight, BookMarked, Share2, Plus, Check } from 'lucide-react';
+import { ChevronRight, BookMarked, Share2, Plus, Check, Trash2, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { getCreatorToken, forgetCreator } from '@/lib/khatma-creator';
 
 interface Khatma {
   id: string;
