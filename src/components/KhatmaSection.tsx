@@ -31,6 +31,7 @@ const KhatmaSection = () => {
       .from('khatmas')
       .select('*')
       .eq('is_published', true)
+      .eq('visibility', 'public')
       .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
       .order('created_at', { ascending: false })
       .limit(3);
