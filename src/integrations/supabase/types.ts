@@ -77,6 +77,8 @@ export type Database = {
       khatmas: {
         Row: {
           created_at: string
+          creator_token: string | null
+          expires_at: string | null
           id: string
           is_published: boolean
           recitations_count: number
@@ -89,6 +91,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          creator_token?: string | null
+          expires_at?: string | null
           id?: string
           is_published?: boolean
           recitations_count?: number
@@ -101,6 +105,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          creator_token?: string | null
+          expires_at?: string | null
           id?: string
           is_published?: boolean
           recitations_count?: number
