@@ -5,6 +5,7 @@ import { BookMarked, Plus, ChevronLeft, X, Check, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { SURAHS } from '@/lib/surahs-list';
 import { toast } from '@/hooks/use-toast';
+import { generateCreatorToken, rememberCreator, DURATION_OPTIONS } from '@/lib/khatma-creator';
 
 interface Khatma {
   id: string;
@@ -22,6 +23,7 @@ const KhatmaSection = () => {
   const [showCreate, setShowCreate] = useState(false);
   const [title, setTitle] = useState('');
   const [surahNumber, setSurahNumber] = useState<number>(36); // Yasin default
+  const [durationHours, setDurationHours] = useState<number | null>(null);
   const [verifying, setVerifying] = useState(false);
   const [countdown, setCountdown] = useState(30);
 
@@ -30,10 +32,12 @@ const KhatmaSection = () => {
   }, []);
 
   async function loadRecent() {
+    const nowIso = new Date().toISOString();
     const { data } = await supabase
       .from('khatmas')
       .select('*')
       .eq('is_published', true)
+      .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
       .order('created_at', { ascending: false })
       .limit(3);
     if (data) setRecent(data as Khatma[]);
@@ -81,6 +85,11 @@ const KhatmaSection = () => {
         return;
       }
 
+      const creatorToken = generateCreatorToken();
+      const expiresAt = durationHours
+        ? new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString()
+        : null;
+
       const { data: inserted, error: insertErr } = await supabase
         .from('khatmas')
         .insert({
@@ -89,15 +98,19 @@ const KhatmaSection = () => {
           surah_name: surah?.name ?? '',
           is_published: true,
           verified_at: new Date().toISOString(),
+          creator_token: creatorToken,
+          expires_at: expiresAt,
         })
         .select()
         .single();
 
       if (insertErr) throw insertErr;
+      rememberCreator(inserted.id, creatorToken);
 
       toast({ title: 'تم نشر الختمة' });
       setShowCreate(false);
       setTitle('');
+      setDurationHours(null);
       setVerifying(false);
       void loadRecent();
       navigate(`/khatma/${inserted.slug}`);
@@ -209,6 +222,42 @@ const KhatmaSection = () => {
                 <p className="text-[10px] text-muted-foreground/60 mt-2 font-light leading-relaxed">
                   لا تستخدم الألقاب (الشيخ، الحاج، السيد، الدكتور...). اكتفِ بـ "المرحوم/المرحومة" + الاسم + اسم الأب.
                 </p>
+              </div>
+
+              {/* Duration (optional) */}
+              <div>
+                <label className="text-[11px] text-muted-foreground block mb-2">
+                  مدة الختمة <span className="text-muted-foreground/50">(اختياري)</span>
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setDurationHours(null)}
+                    disabled={verifying}
+                    className={`h-11 rounded-xl text-[11px] border transition-colors ${
+                      durationHours === null
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-secondary/40 text-foreground border-border/30'
+                    } disabled:opacity-50`}
+                  >
+                    دائمة
+                  </button>
+                  {DURATION_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.hours}
+                      type="button"
+                      onClick={() => setDurationHours(opt.hours)}
+                      disabled={verifying}
+                      className={`h-11 rounded-xl text-[11px] border transition-colors ${
+                        durationHours === opt.hours
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-secondary/40 text-foreground border-border/30'
+                      } disabled:opacity-50`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {verifying && (

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronRight, BookMarked, Share2, Plus, Check } from 'lucide-react';
+import { ChevronRight, BookMarked, Share2, Plus, Check, Trash2, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { getCreatorToken, forgetCreator } from '@/lib/khatma-creator';
 
 interface Khatma {
   id: string;
@@ -13,13 +14,26 @@ interface Khatma {
   surah_name: string;
   recitations_count: number;
   created_at: string;
+  expires_at: string | null;
 }
 
 const KhatmaPage = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const [khatma, setKhatma] = useState<Khatma | null>(null);
   const [loading, setLoading] = useState(true);
   const [counted, setCounted] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+  const [deleting, setDeleting] = useState(false);
+
+  const creatorToken = khatma ? getCreatorToken(khatma.id) : null;
+  const isCreator = !!creatorToken;
+  const isExpired = !!khatma?.expires_at && new Date(khatma.expires_at).getTime() <= now;
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     if (!slug) return;
@@ -68,6 +82,36 @@ const KhatmaPage = () => {
     } catch { /* ignore */ }
   }
 
+  async function handleDelete() {
+    if (!khatma || !creatorToken) return;
+    const ok = window.confirm('هل تريد حذف هذه الختمة؟ لا يمكن التراجع.');
+    if (!ok) return;
+    setDeleting(true);
+    const { error } = await supabase
+      .from('khatmas')
+      .delete()
+      .eq('id', khatma.id)
+      .eq('creator_token', creatorToken);
+    if (error) {
+      setDeleting(false);
+      toast({ title: 'تعذّر الحذف', variant: 'destructive' });
+      return;
+    }
+    forgetCreator(khatma.id);
+    toast({ title: 'تم حذف الختمة' });
+    navigate('/');
+  }
+
+  function expiryLabel(): string {
+    if (!khatma?.expires_at) return '';
+    const ms = new Date(khatma.expires_at).getTime() - now;
+    if (ms <= 0) return 'انتهت';
+    const hours = Math.floor(ms / (60 * 60 * 1000));
+    const mins = Math.floor((ms % (60 * 60 * 1000)) / (60 * 1000));
+    if (hours >= 1) return `يتبقى ${hours} ساعة${mins > 0 ? ` و ${mins} دقيقة` : ''}`;
+    return `يتبقى ${mins} دقيقة`;
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -76,11 +120,11 @@ const KhatmaPage = () => {
     );
   }
 
-  if (!khatma) {
+  if (!khatma || (isExpired && !isCreator)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center" dir="rtl">
-        <p className="text-[14px] text-foreground mb-2">الختمة غير موجودة</p>
-        <p className="text-[11px] text-muted-foreground mb-6">قد تكون قد حُذفت أو الرابط غير صحيح</p>
+        <p className="text-[14px] text-foreground mb-2">الختمة غير متاحة</p>
+        <p className="text-[11px] text-muted-foreground mb-6">قد تكون قد انتهت مدتها أو حُذفت أو الرابط غير صحيح</p>
         <Link to="/" className="text-[12px] text-primary underline-offset-4 underline">العودة للرئيسية</Link>
       </div>
     );
@@ -151,6 +195,33 @@ const KhatmaPage = () => {
           </p>
         </div>
       </div>
+
+      {/* Creator-only controls */}
+      {isCreator && (
+        <div className="px-5 mt-5">
+          <div className="rounded-2xl border border-border/30 bg-secondary/20 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
+              <p className="text-[11px] text-muted-foreground font-light flex-1">
+                {khatma.expires_at ? expiryLabel() : 'ختمة دائمة (بدون مدة)'}
+              </p>
+            </div>
+            {isExpired && (
+              <p className="text-[10px] text-muted-foreground/70 font-light">
+                هذه الختمة منتهية ولا تظهر للآخرين
+              </p>
+            )}
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="w-full h-11 rounded-full border border-border/40 text-[12px] text-foreground flex items-center justify-center gap-2 active:bg-secondary/40 transition-colors disabled:opacity-50"
+            >
+              <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+              {deleting ? 'جارٍ الحذف...' : 'حذف الختمة'}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="px-5 mt-6 text-center">
         <Link
