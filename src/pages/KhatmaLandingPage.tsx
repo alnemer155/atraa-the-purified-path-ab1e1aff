@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { BookMarked, BookOpen, ChevronLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import KhatmaCreateForm from '@/components/KhatmaCreateForm';
+import ReadingThemeToggle from '@/components/ReadingThemeToggle';
 
 interface Khatma {
   id: string;
