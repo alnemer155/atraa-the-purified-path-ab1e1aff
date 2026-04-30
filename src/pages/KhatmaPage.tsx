@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronRight, BookMarked, BookOpen, Share2, Plus, Check, Trash2, Clock, Lock } from 'lucide-react';
+import { ChevronRight, BookMarked, BookOpen, Share2, Plus, Check, Trash2, Clock, Lock, Globe } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import ReadingThemeToggle from '@/components/ReadingThemeToggle';
@@ -18,6 +18,8 @@ import {
 interface Khatma {
   id: string;
   slug: string;
+  short_code: string | null;
+  visibility: 'public' | 'private';
   title: string;
   mode: 'surah' | 'full_quran';
   surah_number: number | null;
@@ -45,6 +47,9 @@ const KhatmaPage = () => {
   const [now, setNow] = useState(() => Date.now());
   const [deleting, setDeleting] = useState(false);
   const [busyJuz, setBusyJuz] = useState<number | null>(null);
+  const [convertOpen, setConvertOpen] = useState(false);
+  const [convertText, setConvertText] = useState('');
+  const [converting, setConverting] = useState(false);
 
   const creatorToken = khatma ? getCreatorToken(khatma.id) : null;
   const isCreator = !!creatorToken;
@@ -58,10 +63,11 @@ const KhatmaPage = () => {
   const load = useCallback(async () => {
     if (!slug) return;
     setLoading(true);
+    // Lookup by slug OR short_code (private khatmas use short_code).
     const { data, error } = await supabase
       .from('khatmas')
       .select('*')
-      .eq('slug', slug)
+      .or(`slug.eq.${slug},short_code.eq.${slug}`)
       .eq('is_published', true)
       .maybeSingle();
     if (error) console.error(error);
@@ -140,7 +146,10 @@ const KhatmaPage = () => {
 
   async function share() {
     if (!khatma) return;
-    const url = khatmaShareUrl(khatma.slug);
+    const key = khatma.visibility === 'private' && khatma.short_code
+      ? khatma.short_code
+      : khatma.slug;
+    const url = khatmaShareUrl(key);
     const text = khatma.mode === 'full_quran'
       ? `${khatma.title} — ختمة قرآن كاملة`
       : `${khatma.title} — قراءة سورة ${khatma.surah_name}`;
@@ -152,6 +161,29 @@ const KhatmaPage = () => {
         toast({ title: 'تم نسخ الرابط' });
       }
     } catch { /* ignore */ }
+  }
+
+  async function convertToPublic() {
+    if (!khatma || !creatorToken) return;
+    if (convertText.trim() !== 'تأكيد الختمة') {
+      toast({ title: 'الرجاء كتابة "تأكيد الختمة" بالضبط', variant: 'destructive' });
+      return;
+    }
+    setConverting(true);
+    const { error } = await supabase
+      .from('khatmas')
+      .update({ visibility: 'public' })
+      .eq('id', khatma.id)
+      .eq('creator_token', creatorToken);
+    setConverting(false);
+    if (error) {
+      toast({ title: 'تعذّر التحويل', variant: 'destructive' });
+      return;
+    }
+    setKhatma({ ...khatma, visibility: 'public' });
+    setConvertOpen(false);
+    setConvertText('');
+    toast({ title: 'أصبحت الختمة عامة' });
   }
 
   async function handleDelete() {
@@ -361,11 +393,62 @@ const KhatmaPage = () => {
                 {khatma.expires_at ? expiryLabel() : 'ختمة دائمة (بدون مدة)'}
               </p>
             </div>
+            <div className="flex items-center gap-2">
+              {khatma.visibility === 'private'
+                ? <Lock className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
+                : <Globe className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />}
+              <p className="text-[11px] text-muted-foreground font-light flex-1">
+                {khatma.visibility === 'private' ? 'ختمة خاصة — لا تظهر في القوائم' : 'ختمة عامة — تظهر للجميع'}
+              </p>
+            </div>
             {isExpired && (
               <p className="text-[10px] text-muted-foreground/70 font-light">
                 هذه الختمة منتهية ولا تظهر للآخرين
               </p>
             )}
+
+            {/* Convert private → public */}
+            {khatma.visibility === 'private' && !convertOpen && (
+              <button
+                onClick={() => setConvertOpen(true)}
+                className="w-full h-11 rounded-full border border-border/40 text-[12px] text-foreground flex items-center justify-center gap-2 active:bg-secondary/40 transition-colors"
+              >
+                <Globe className="w-3.5 h-3.5" strokeWidth={1.5} />
+                تحويل إلى ختمة عامة
+              </button>
+            )}
+            {khatma.visibility === 'private' && convertOpen && (
+              <div className="space-y-2 pt-1">
+                <p className="text-[11px] text-foreground font-light leading-relaxed">
+                  للتأكيد، اكتب <span className="text-foreground">«تأكيد الختمة»</span> في الخانة أدناه. لا يمكن التراجع.
+                </p>
+                <input
+                  type="text"
+                  value={convertText}
+                  onChange={(e) => setConvertText(e.target.value)}
+                  placeholder="تأكيد الختمة"
+                  disabled={converting}
+                  className="w-full h-11 px-3 rounded-xl bg-background border border-border/40 text-[13px] text-foreground text-right placeholder:text-muted-foreground/40 disabled:opacity-50"
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => { setConvertOpen(false); setConvertText(''); }}
+                    disabled={converting}
+                    className="h-11 rounded-full border border-border/40 text-[12px] text-foreground active:bg-secondary/40 transition-colors disabled:opacity-50"
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    onClick={convertToPublic}
+                    disabled={converting || convertText.trim() !== 'تأكيد الختمة'}
+                    className="h-11 rounded-full bg-primary text-primary-foreground text-[12px] active:scale-[0.98] transition-transform disabled:opacity-40"
+                  >
+                    {converting ? 'جارٍ التحويل...' : 'تأكيد التحويل'}
+                  </button>
+                </div>
+              </div>
+            )}
+
             <button
               onClick={handleDelete}
               disabled={deleting}

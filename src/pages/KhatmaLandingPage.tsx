@@ -27,6 +27,7 @@ const KhatmaLandingPage = () => {
       .from('khatmas')
       .select('id, slug, title, mode, surah_name, recitations_count, completed_juz_count')
       .eq('is_published', true)
+      .eq('visibility', 'public')
       .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
       .order('created_at', { ascending: false })
       .limit(10);

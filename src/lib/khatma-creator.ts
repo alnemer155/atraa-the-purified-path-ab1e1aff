@@ -88,11 +88,19 @@ export const DURATION_OPTIONS = [
   { hours: 36, label: 'يوم ونصف' },
 ] as const;
 
+// 8-char short code (lowercase alphanum, no ambiguous chars).
+export function generateShortCode(): string {
+  const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => alphabet[b % alphabet.length]).join('');
+}
+
 // Public share URL — uses dedicated khatma subdomain when configured.
 const KHATMA_HOST = 'https://khatma.atraa.xyz';
 
-export function khatmaShareUrl(slug: string): string {
-  return `${KHATMA_HOST}/${slug}`;
+export function khatmaShareUrl(slugOrCode: string): string {
+  return `${KHATMA_HOST}/${slugOrCode}`;
 }
 
 export function isOnKhatmaSubdomain(): boolean {

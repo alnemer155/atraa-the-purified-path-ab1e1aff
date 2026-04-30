@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { X, Check, Loader2, BookMarked, BookOpen } from 'lucide-react';
+import { X, Check, Loader2, BookMarked, BookOpen, Globe, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { SURAHS } from '@/lib/surahs-list';
 import { toast } from '@/hooks/use-toast';
 import {
   generateCreatorToken,
+  generateShortCode,
   rememberCreator,
   DURATION_OPTIONS,
   khatmaShareUrl,
@@ -14,6 +15,7 @@ import {
 } from '@/lib/khatma-creator';
 
 type Mode = 'surah' | 'full_quran';
+type Visibility = 'public' | 'private';
 
 interface Props {
   onClose?: () => void;
@@ -24,6 +26,7 @@ interface Props {
 const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
   const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>('surah');
+  const [visibility, setVisibility] = useState<Visibility>('public');
   const [title, setTitle] = useState('');
   const [surahNumber, setSurahNumber] = useState<number>(36);
   const [durationHours, setDurationHours] = useState<number | null>(null);
@@ -68,31 +71,26 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
       }
 
       const creatorToken = generateCreatorToken();
-      const expiresAt = durationHours
-        ? new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString()
+      const shortCode = generateShortCode();
+      // Private khatmas are always 24h. Public follows user choice.
+      const effectiveDuration = visibility === 'private' ? 24 : durationHours;
+      const expiresAt = effectiveDuration
+        ? new Date(Date.now() + effectiveDuration * 60 * 60 * 1000).toISOString()
         : null;
 
+      const baseFields = {
+        title: result.cleaned_title,
+        is_published: true,
+        verified_at: new Date().toISOString(),
+        creator_token: creatorToken,
+        short_code: shortCode,
+        visibility,
+        expires_at: expiresAt,
+      };
+
       const insertPayload = mode === 'surah'
-        ? {
-            title: result.cleaned_title,
-            mode: 'surah',
-            surah_number: surahNumber,
-            surah_name: surah?.name ?? '',
-            is_published: true,
-            verified_at: new Date().toISOString(),
-            creator_token: creatorToken,
-            expires_at: expiresAt,
-          }
-        : {
-            title: result.cleaned_title,
-            mode: 'full_quran',
-            surah_number: null,
-            surah_name: null,
-            is_published: true,
-            verified_at: new Date().toISOString(),
-            creator_token: creatorToken,
-            expires_at: expiresAt,
-          };
+        ? { ...baseFields, mode: 'surah', surah_number: surahNumber, surah_name: surah?.name ?? '' }
+        : { ...baseFields, mode: 'full_quran', surah_number: null, surah_name: null };
 
       const { data: inserted, error: insertErr } = await supabase
         .from('khatmas')
@@ -109,11 +107,12 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
       setVerifying(false);
       onCreated?.();
 
-      // Navigate to khatma — internal route, regardless of host.
+      // For private khatmas, route by short_code; public by slug.
+      const routeKey = visibility === 'private' ? inserted.short_code : inserted.slug;
       if (isOnKhatmaSubdomain()) {
-        navigate(`/${inserted.slug}`);
+        navigate(`/${routeKey}`);
       } else {
-        navigate(`/khatma/${inserted.slug}`);
+        navigate(`/khatma/${routeKey}`);
       }
     } catch (e) {
       clearInterval(tick);
@@ -158,7 +157,43 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
         </div>
       </div>
 
-      {/* Surah picker — only for surah mode */}
+      {/* Visibility picker */}
+      <div>
+        <label className="text-[11px] text-muted-foreground block mb-2">الخصوصية</label>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setVisibility('public')}
+            disabled={verifying}
+            className={`h-16 rounded-xl border flex flex-col items-center justify-center gap-1 transition-colors ${
+              visibility === 'public'
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-secondary/40 text-foreground border-border/30'
+            } disabled:opacity-50`}
+          >
+            <Globe className="w-4 h-4" strokeWidth={1.5} />
+            <span className="text-[11px]">عامة</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => { setVisibility('private'); setDurationHours(24); }}
+            disabled={verifying}
+            className={`h-16 rounded-xl border flex flex-col items-center justify-center gap-1 transition-colors ${
+              visibility === 'private'
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-secondary/40 text-foreground border-border/30'
+            } disabled:opacity-50`}
+          >
+            <Lock className="w-4 h-4" strokeWidth={1.5} />
+            <span className="text-[11px]">خاصة</span>
+          </button>
+        </div>
+        <p className="text-[10px] text-muted-foreground/60 mt-2 font-light leading-relaxed">
+          {visibility === 'public'
+            ? 'تظهر في قائمة الختمات المنشورة ويراها الجميع.'
+            : 'لا تظهر في القوائم. الرابط مختصر بـ ٨ خانات يُشارك مع من تختار. المدة ٢٤ ساعة.'}
+        </p>
+      </div>
       {mode === 'surah' && (
         <div>
           <label className="text-[11px] text-muted-foreground block mb-2">السورة</label>
@@ -202,40 +237,48 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
         </p>
       </div>
 
-      {/* Duration */}
+      {/* Duration — locked to 24h when private */}
       <div>
         <label className="text-[11px] text-muted-foreground block mb-2">
-          مدة الختمة <span className="text-muted-foreground/50">(اختياري)</span>
+          مدة الختمة {visibility === 'public' && <span className="text-muted-foreground/50">(اختياري)</span>}
         </label>
         <div className="grid grid-cols-4 gap-2">
           <button
             type="button"
             onClick={() => setDurationHours(null)}
-            disabled={verifying}
+            disabled={verifying || visibility === 'private'}
             className={`h-11 rounded-xl text-[11px] border transition-colors ${
               durationHours === null
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'bg-secondary/40 text-foreground border-border/30'
-            } disabled:opacity-50`}
+            } disabled:opacity-30`}
           >
             دائمة
           </button>
-          {DURATION_OPTIONS.map((opt) => (
-            <button
-              key={opt.hours}
-              type="button"
-              onClick={() => setDurationHours(opt.hours)}
-              disabled={verifying}
-              className={`h-11 rounded-xl text-[11px] border transition-colors ${
-                durationHours === opt.hours
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-secondary/40 text-foreground border-border/30'
-              } disabled:opacity-50`}
-            >
-              {opt.label}
-            </button>
-          ))}
+          {DURATION_OPTIONS.map((opt) => {
+            const lockedOut = visibility === 'private' && opt.hours !== 24;
+            return (
+              <button
+                key={opt.hours}
+                type="button"
+                onClick={() => setDurationHours(opt.hours)}
+                disabled={verifying || lockedOut}
+                className={`h-11 rounded-xl text-[11px] border transition-colors ${
+                  durationHours === opt.hours
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-secondary/40 text-foreground border-border/30'
+                } disabled:opacity-30`}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
         </div>
+        {visibility === 'private' && (
+          <p className="text-[10px] text-muted-foreground/60 mt-2 font-light leading-relaxed">
+            الختمة الخاصة مدتها ٢٤ ساعة فقط.
+          </p>
+        )}
       </div>
 
       {verifying && (

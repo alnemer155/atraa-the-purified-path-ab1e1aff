@@ -177,12 +177,14 @@ export type Database = {
           is_published: boolean
           mode: string
           recitations_count: number
+          short_code: string | null
           slug: string
           surah_name: string | null
           surah_number: number | null
           title: string
           updated_at: string
           verified_at: string | null
+          visibility: string
         }
         Insert: {
           completed_juz_count?: number
@@ -194,12 +196,14 @@ export type Database = {
           is_published?: boolean
           mode?: string
           recitations_count?: number
+          short_code?: string | null
           slug?: string
           surah_name?: string | null
           surah_number?: number | null
           title: string
           updated_at?: string
           verified_at?: string | null
+          visibility?: string
         }
         Update: {
           completed_juz_count?: number
@@ -211,12 +215,14 @@ export type Database = {
           is_published?: boolean
           mode?: string
           recitations_count?: number
+          short_code?: string | null
           slug?: string
           surah_name?: string | null
           surah_number?: number | null
           title?: string
           updated_at?: string
           verified_at?: string | null
+          visibility?: string
         }
         Relationships: []
       }
