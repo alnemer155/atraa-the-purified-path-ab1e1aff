@@ -120,11 +120,11 @@ const KhatmaPage = () => {
     );
   }
 
-  if (!khatma) {
+  if (!khatma || (isExpired && !isCreator)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center" dir="rtl">
-        <p className="text-[14px] text-foreground mb-2">الختمة غير موجودة</p>
-        <p className="text-[11px] text-muted-foreground mb-6">قد تكون قد حُذفت أو الرابط غير صحيح</p>
+        <p className="text-[14px] text-foreground mb-2">الختمة غير متاحة</p>
+        <p className="text-[11px] text-muted-foreground mb-6">قد تكون قد انتهت مدتها أو حُذفت أو الرابط غير صحيح</p>
         <Link to="/" className="text-[12px] text-primary underline-offset-4 underline">العودة للرئيسية</Link>
       </div>
     );
