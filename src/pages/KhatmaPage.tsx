@@ -196,6 +196,33 @@ const KhatmaPage = () => {
         </div>
       </div>
 
+      {/* Creator-only controls */}
+      {isCreator && (
+        <div className="px-5 mt-5">
+          <div className="rounded-2xl border border-border/30 bg-secondary/20 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
+              <p className="text-[11px] text-muted-foreground font-light flex-1">
+                {khatma.expires_at ? expiryLabel() : 'ختمة دائمة (بدون مدة)'}
+              </p>
+            </div>
+            {isExpired && (
+              <p className="text-[10px] text-muted-foreground/70 font-light">
+                هذه الختمة منتهية ولا تظهر للآخرين
+              </p>
+            )}
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="w-full h-11 rounded-full border border-border/40 text-[12px] text-foreground flex items-center justify-center gap-2 active:bg-secondary/40 transition-colors disabled:opacity-50"
+            >
+              <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+              {deleting ? 'جارٍ الحذف...' : 'حذف الختمة'}
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="px-5 mt-6 text-center">
         <Link
           to="/"
