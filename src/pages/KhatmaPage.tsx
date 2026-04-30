@@ -47,6 +47,9 @@ const KhatmaPage = () => {
   const [now, setNow] = useState(() => Date.now());
   const [deleting, setDeleting] = useState(false);
   const [busyJuz, setBusyJuz] = useState<number | null>(null);
+  const [convertOpen, setConvertOpen] = useState(false);
+  const [convertText, setConvertText] = useState('');
+  const [converting, setConverting] = useState(false);
 
   const creatorToken = khatma ? getCreatorToken(khatma.id) : null;
   const isCreator = !!creatorToken;
