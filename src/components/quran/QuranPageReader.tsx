@@ -599,36 +599,56 @@ const QuranPageReader = ({
         )}
       </div>
 
-      {/* ============ Footer ============
-        * Minimal navigation: prev / progress (tap to open quick-panel) / next.
-        * Progress fill doubles as the visual position indicator. */}
+      {/* ============ Footer — refined navigation ============
+        * Square arrow tiles + center reading-progress card with juz dot, page,
+        * and a continuous gold scrubber. Tap card → opens quick panel. */}
       <div
-        className={`${inline ? 'sticky bottom-14 z-30' : 'flex-shrink-0'} relative bg-background/90 backdrop-blur-2xl px-3 pt-2 pb-2.5`}
+        className={`${inline ? 'sticky bottom-14 z-30' : 'flex-shrink-0'} relative bg-background/92 backdrop-blur-2xl px-3 pt-2 pb-2.5`}
       >
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-l from-transparent via-gold/25 to-transparent pointer-events-none" />
-        <div className="flex items-center gap-2.5">
+        <div className="absolute inset-x-0 top-0 pointer-events-none">
+          <div className="h-px bg-gradient-to-l from-transparent via-gold/30 to-transparent" />
+          <div className="h-px mt-[2px] bg-gradient-to-l from-transparent via-gold/12 to-transparent" />
+        </div>
+        <div className="flex items-stretch gap-2">
           {/* Next page (RTL: visual right → next Arabic page) */}
           <button
             onClick={goNext}
             disabled={page >= 604}
-            className="w-11 h-11 rounded-full bg-secondary/30 border border-border/15 flex items-center justify-center disabled:opacity-25 active:scale-90 transition-transform"
+            className="w-11 h-12 rounded-xl bg-secondary/35 border border-border/20 flex items-center justify-center disabled:opacity-25 active:scale-90 transition-transform"
             aria-label="الصفحة التالية"
           >
-            <ChevronLeft className="w-[15px] h-[15px] text-foreground/70" strokeWidth={1.7} />
+            <ChevronLeft className="w-[15px] h-[15px] text-foreground/75" strokeWidth={1.7} />
           </button>
 
+          {/* Center progress card */}
           <button
             onClick={() => setShowPanel(true)}
-            className="flex-1 h-11 rounded-full bg-gradient-to-b from-secondary/25 to-secondary/10 border border-border/15 active:scale-[0.99] transition-all overflow-hidden relative"
+            className="flex-1 h-12 rounded-xl bg-gradient-to-b from-secondary/30 to-secondary/10 border border-border/20 active:scale-[0.99] transition-all overflow-hidden relative"
             aria-label="فهرس وأدوات"
           >
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-4">
-              <span className="text-[10.5px] text-muted-foreground/80 font-light tabular-nums leading-none">
-                {toArabicNumerals(page)} <span className="text-muted-foreground/40 mx-0.5">·</span> {toArabicNumerals(604)}
-              </span>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-4">
+              <div className="flex items-center gap-2 leading-none">
+                {juzHizb && (
+                  <>
+                    <span className="text-[8.5px] text-gold/75 font-light tracking-wide">
+                      جـ{toArabicNumerals(juzHizb.juz)}
+                    </span>
+                    <span className="w-px h-2.5 bg-border/40" />
+                  </>
+                )}
+                <span className="text-[10.5px] text-foreground/85 font-light tabular-nums leading-none">
+                  {toArabicNumerals(page)}
+                  <span className="text-muted-foreground/40 mx-1">/</span>
+                  {toArabicNumerals(604)}
+                </span>
+                <span className="w-px h-2.5 bg-border/40" />
+                <span className="text-[8.5px] text-muted-foreground/55 font-light tabular-nums">
+                  {Math.round((page / 604) * 100)}٪
+                </span>
+              </div>
               <div className="w-full h-[2px] rounded-full bg-border/25 overflow-hidden">
                 <motion.div
-                  className="h-full rounded-full bg-gradient-to-l from-gold/80 via-gold/60 to-primary/70"
+                  className="h-full rounded-full bg-gradient-to-l from-gold via-gold/70 to-primary/60"
                   initial={false}
                   animate={{ width: `${(page / 604) * 100}%` }}
                   transition={{ type: 'spring', stiffness: 220, damping: 28 }}
@@ -641,10 +661,10 @@ const QuranPageReader = ({
           <button
             onClick={goPrev}
             disabled={page <= 1}
-            className="w-11 h-11 rounded-full bg-secondary/30 border border-border/15 flex items-center justify-center disabled:opacity-25 active:scale-90 transition-transform"
+            className="w-11 h-12 rounded-xl bg-secondary/35 border border-border/20 flex items-center justify-center disabled:opacity-25 active:scale-90 transition-transform"
             aria-label="الصفحة السابقة"
           >
-            <ChevronRight className="w-[15px] h-[15px] text-foreground/70" strokeWidth={1.7} />
+            <ChevronRight className="w-[15px] h-[15px] text-foreground/75" strokeWidth={1.7} />
           </button>
         </div>
       </div>
