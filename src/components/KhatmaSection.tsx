@@ -23,6 +23,7 @@ const KhatmaSection = () => {
   const [showCreate, setShowCreate] = useState(false);
   const [title, setTitle] = useState('');
   const [surahNumber, setSurahNumber] = useState<number>(36); // Yasin default
+  const [durationHours, setDurationHours] = useState<number | null>(null);
   const [verifying, setVerifying] = useState(false);
   const [countdown, setCountdown] = useState(30);
 
