@@ -23,7 +23,11 @@ const DisclaimerPage = lazy(() => import("./pages/legal/DisclaimerPage"));
 const DataPage = lazy(() => import("./pages/legal/DataPage"));
 const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
 const KhatmaPage = lazy(() => import("./pages/KhatmaPage"));
+const KhatmaLandingPage = lazy(() => import("./pages/KhatmaLandingPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+
+const isKhatmaHost = typeof window !== "undefined"
+  && window.location.hostname === "khatma.atraa.xyz";
 
 const queryClient = new QueryClient();
 
