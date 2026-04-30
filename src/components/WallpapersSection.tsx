@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Download, Check, Heart, ThumbsDown, X, Grid3x3, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '@/integrations/supabase/client';
 import wallpaper1 from '@/assets/wallpapers/wallpaper-1.png';
 import wallpaper2 from '@/assets/wallpapers/wallpaper-2.png';
 import wallpaper3 from '@/assets/wallpapers/wallpaper-3.png';
