@@ -24,10 +24,13 @@ const DataPage = lazy(() => import("./pages/legal/DataPage"));
 const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
 const KhatmaPage = lazy(() => import("./pages/KhatmaPage"));
 const KhatmaLandingPage = lazy(() => import("./pages/KhatmaLandingPage"));
+const AdminPage = lazy(() => import("./pages/AdminPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-const isKhatmaHost = typeof window !== "undefined"
-  && window.location.hostname === "khatma.atraa.xyz";
+const hostname = typeof window !== "undefined" ? window.location.hostname : "";
+const isKhatmaHost = hostname === "khatma.atraa.xyz";
+const isAdminHost = hostname === "admin.atraa.xyz";
+const isStandaloneHost = isKhatmaHost || isAdminHost;
 
 const queryClient = new QueryClient();
 
