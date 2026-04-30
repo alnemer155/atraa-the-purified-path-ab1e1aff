@@ -5,6 +5,7 @@ import { BookMarked, Plus, ChevronLeft, X, Check, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { SURAHS } from '@/lib/surahs-list';
 import { toast } from '@/hooks/use-toast';
+import { generateCreatorToken, rememberCreator, DURATION_OPTIONS } from '@/lib/khatma-creator';
 
 interface Khatma {
   id: string;
