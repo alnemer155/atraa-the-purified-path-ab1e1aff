@@ -3,6 +3,7 @@ import { parseDuasContent, type DuaItem } from '@/lib/duas-parser';
 import duasRaw from '@/data/duas-content.txt?raw';
 import { SUNNI_CONTENT } from '@/data/sunni-content';
 import { useMadhhab } from '@/lib/madhhab';
+import { supabase } from '@/integrations/supabase/client';
 import { ChevronLeft, Search, X, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { saveLastReading } from '@/lib/user';
@@ -39,10 +40,38 @@ const DuasPage = ({ initialItemId }: DuasPageProps = {}) => {
   useEffect(() => {
     // Shia → use the full curated Shia library shipped with the app.
     // Sunni → use the curated Sunni starter set from trusted sources.
-    const parsed = madhhab === 'sunni' ? SUNNI_CONTENT : parseDuasContent(duasRaw);
-    setItems(parsed);
+    const base = madhhab === 'sunni' ? SUNNI_CONTENT : parseDuasContent(duasRaw);
+    setItems(base);
+
+    // Merge in admin-managed entries (filtered by current sect)
+    const sect = madhhab === 'sunni' ? 'sunni' : 'shia';
+    void supabase
+      .from('admin_duas')
+      .select('id, category, title, content, source')
+      .eq('sect', sect)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (!data?.length) return;
+        const adminItems: DuaItem[] = data.map((r: any) => ({
+          id: `admin-${r.id}`,
+          title: r.title,
+          content: r.source ? `${r.content}\n\n— ${r.source}` : r.content,
+          category: r.category as DuaItem['category'],
+        }));
+        // Admin items appear first
+        const merged = [...adminItems, ...base];
+        setItems(merged);
+        if (initialItemId) {
+          const found = merged.find(p => p.id === initialItemId);
+          if (found) {
+            setActiveCategory(found.category);
+            setSelectedItem(found);
+          }
+        }
+      });
+
     if (initialItemId) {
-      const found = parsed.find(p => p.id === initialItemId);
+      const found = base.find(p => p.id === initialItemId);
       if (found) {
         setActiveCategory(found.category);
         setSelectedItem(found);
