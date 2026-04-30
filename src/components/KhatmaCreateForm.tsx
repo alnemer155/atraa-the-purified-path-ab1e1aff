@@ -29,7 +29,7 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
   const [visibility, setVisibility] = useState<Visibility>('public');
   const [title, setTitle] = useState('');
   const [surahNumber, setSurahNumber] = useState<number>(36);
-  const [durationHours, setDurationHours] = useState<number | null>(24);
+  const [durationHours, setDurationHours] = useState<number | null>(null);
   const [verifying, setVerifying] = useState(false);
   const [countdown, setCountdown] = useState(30);
 
