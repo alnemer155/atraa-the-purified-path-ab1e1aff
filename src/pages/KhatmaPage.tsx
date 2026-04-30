@@ -63,10 +63,11 @@ const KhatmaPage = () => {
   const load = useCallback(async () => {
     if (!slug) return;
     setLoading(true);
+    // Lookup by slug OR short_code (private khatmas use short_code).
     const { data, error } = await supabase
       .from('khatmas')
       .select('*')
-      .eq('slug', slug)
+      .or(`slug.eq.${slug},short_code.eq.${slug}`)
       .eq('is_published', true)
       .maybeSingle();
     if (error) console.error(error);
