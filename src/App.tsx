@@ -22,6 +22,7 @@ const TermsPage = lazy(() => import("./pages/legal/TermsPage"));
 const DisclaimerPage = lazy(() => import("./pages/legal/DisclaimerPage"));
 const DataPage = lazy(() => import("./pages/legal/DataPage"));
 const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
+const KhatmaPage = lazy(() => import("./pages/KhatmaPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -84,6 +85,9 @@ const App = () => {
                     <Route path="/data" element={<DataPage />} />
                     <Route path="/about" element={<AboutPage />} />
                   </Route>
+
+                  {/* Khatma standalone (no app shell, accessed via shared link) */}
+                  <Route path="/khatma/:slug" element={<KhatmaPage />} />
 
                   <Route element={<AppLayout />}>
                     {/* Locale-aware aliases: /SA-ar, /SA-en, /US-en, etc. */}
