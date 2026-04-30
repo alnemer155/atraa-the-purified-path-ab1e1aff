@@ -85,6 +85,11 @@ const KhatmaSection = () => {
         return;
       }
 
+      const creatorToken = generateCreatorToken();
+      const expiresAt = durationHours
+        ? new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString()
+        : null;
+
       const { data: inserted, error: insertErr } = await supabase
         .from('khatmas')
         .insert({
@@ -93,15 +98,19 @@ const KhatmaSection = () => {
           surah_name: surah?.name ?? '',
           is_published: true,
           verified_at: new Date().toISOString(),
+          creator_token: creatorToken,
+          expires_at: expiresAt,
         })
         .select()
         .single();
 
       if (insertErr) throw insertErr;
+      rememberCreator(inserted.id, creatorToken);
 
       toast({ title: 'تم نشر الختمة' });
       setShowCreate(false);
       setTitle('');
+      setDurationHours(null);
       setVerifying(false);
       void loadRecent();
       navigate(`/khatma/${inserted.slug}`);
