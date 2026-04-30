@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookMarked, Plus, ChevronLeft, X, Check, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { SURAHS } from '@/lib/surahs-list';
 import { toast } from '@/hooks/use-toast';
 import { generateCreatorToken, rememberCreator, DURATION_OPTIONS } from '@/lib/khatma-creator';
 
@@ -10,8 +11,9 @@ interface Khatma {
   id: string;
   slug: string;
   title: string;
-  dedication: string | null;
-  completed_juz_count: number;
+  surah_number: number;
+  surah_name: string;
+  recitations_count: number;
   created_at: string;
 }
 
@@ -20,7 +22,7 @@ const KhatmaSection = () => {
   const [recent, setRecent] = useState<Khatma[]>([]);
   const [showCreate, setShowCreate] = useState(false);
   const [title, setTitle] = useState('');
-  const [dedication, setDedication] = useState('');
+  const [surahNumber, setSurahNumber] = useState<number>(36); // Yasin default
   const [durationHours, setDurationHours] = useState<number | null>(null);
   const [verifying, setVerifying] = useState(false);
   const [countdown, setCountdown] = useState(30);
@@ -33,7 +35,7 @@ const KhatmaSection = () => {
     const nowIso = new Date().toISOString();
     const { data } = await supabase
       .from('khatmas')
-      .select('id, slug, title, dedication, completed_juz_count, created_at')
+      .select('*')
       .eq('is_published', true)
       .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
       .order('created_at', { ascending: false })
@@ -55,12 +57,16 @@ const KhatmaSection = () => {
     setVerifying(true);
     setCountdown(30);
 
+    // Visible 30s countdown for the user (AI verification window)
     const startedAt = Date.now();
     const tick = setInterval(() => {
       const elapsed = Math.floor((Date.now() - startedAt) / 1000);
-      setCountdown(Math.max(0, 30 - elapsed));
+      const left = Math.max(0, 30 - elapsed);
+      setCountdown(left);
     }, 250);
 
+    // Run AI verification + 30s minimum wait in parallel
+    const surah = SURAHS.find(s => s.number === surahNumber);
     const verifyPromise = supabase.functions.invoke('verify-khatma-title', {
       body: { title: trimmed },
     });
@@ -84,14 +90,12 @@ const KhatmaSection = () => {
         ? new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString()
         : null;
 
-      // Keep legacy NOT NULL columns satisfied (full Quran khatma).
       const { data: inserted, error: insertErr } = await supabase
         .from('khatmas')
         .insert({
           title: result.cleaned_title,
-          dedication: dedication.trim() || null,
-          surah_number: 0,
-          surah_name: 'القرآن الكريم كاملاً',
+          surah_number: surahNumber,
+          surah_name: surah?.name ?? '',
           is_published: true,
           verified_at: new Date().toISOString(),
           creator_token: creatorToken,
@@ -106,7 +110,6 @@ const KhatmaSection = () => {
       toast({ title: 'تم نشر الختمة' });
       setShowCreate(false);
       setTitle('');
-      setDedication('');
       setDurationHours(null);
       setVerifying(false);
       void loadRecent();
@@ -137,8 +140,8 @@ const KhatmaSection = () => {
             <Plus className="w-4 h-4 text-primary" strokeWidth={1.5} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[13px] text-foreground">إنشاء ختمة قرآن كاملة</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5 font-light">٣٠ جزءاً، يختار كل قارئ جزءاً</p>
+            <p className="text-[13px] text-foreground">إنشاء ختمة جديدة</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5 font-light">اختر سورة، اكتب الإهداء، وانشره</p>
           </div>
           <BookMarked className="w-4 h-4 text-muted-foreground/40" strokeWidth={1.5} />
         </button>
@@ -154,7 +157,7 @@ const KhatmaSection = () => {
                 <div className="flex-1 min-w-0 text-right">
                   <p className="text-[12px] text-foreground truncate">{k.title}</p>
                   <p className="text-[10px] text-muted-foreground/70 font-light mt-0.5 tabular-nums">
-                    {k.completed_juz_count} / 30 جزء
+                    سورة {k.surah_name} · {k.recitations_count} قراءة
                   </p>
                 </div>
                 <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground/40 flex-shrink-0" strokeWidth={1.5} />
@@ -164,6 +167,7 @@ const KhatmaSection = () => {
         )}
       </div>
 
+      {/* Create modal */}
       <AnimatePresence>
         {showCreate && (
           <motion.div
@@ -186,43 +190,41 @@ const KhatmaSection = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto px-5 py-6 space-y-6">
-              <div className="rounded-xl bg-secondary/30 border border-border/30 p-3">
-                <p className="text-[11px] text-foreground leading-relaxed">
-                  ختمة قرآن كاملة (٣٠ جزءاً). بعد النشر يمكن لأي قارئ اختيار جزء واحد لقراءته.
-                </p>
+              {/* Surah picker */}
+              <div>
+                <label className="text-[11px] text-muted-foreground block mb-2">السورة</label>
+                <select
+                  value={surahNumber}
+                  onChange={(e) => setSurahNumber(parseInt(e.target.value, 10))}
+                  disabled={verifying}
+                  className="w-full h-12 px-3 rounded-xl bg-secondary/40 border border-border/30 text-[14px] text-foreground text-right disabled:opacity-50"
+                >
+                  {SURAHS.map(s => (
+                    <option key={s.number} value={s.number}>
+                      {s.number}. سورة {s.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
+              {/* Title */}
               <div>
-                <label className="text-[11px] text-muted-foreground block mb-2">العنوان</label>
-                <input
-                  type="text"
+                <label className="text-[11px] text-muted-foreground block mb-2">العنوان / الإهداء</label>
+                <textarea
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   disabled={verifying}
-                  maxLength={120}
-                  placeholder="مثال: ختمة قرآن إهداءً للمرحوم محمد بن علي"
-                  className="w-full h-12 px-3 rounded-xl bg-secondary/40 border border-border/30 text-[13px] text-foreground text-right placeholder:text-muted-foreground/40 disabled:opacity-50"
+                  maxLength={150}
+                  rows={3}
+                  placeholder="مثال: إهداء إلى روح المرحوم محمد بن علي"
+                  className="w-full px-3 py-3 rounded-xl bg-secondary/40 border border-border/30 text-[13px] text-foreground text-right resize-none placeholder:text-muted-foreground/40 disabled:opacity-50"
                 />
                 <p className="text-[10px] text-muted-foreground/60 mt-2 font-light leading-relaxed">
                   لا تستخدم الألقاب (الشيخ، الحاج، السيد، الدكتور...). اكتفِ بـ "المرحوم/المرحومة" + الاسم + اسم الأب.
                 </p>
               </div>
 
-              <div>
-                <label className="text-[11px] text-muted-foreground block mb-2">
-                  الإهداء <span className="text-muted-foreground/50">(اختياري)</span>
-                </label>
-                <textarea
-                  value={dedication}
-                  onChange={(e) => setDedication(e.target.value)}
-                  disabled={verifying}
-                  maxLength={300}
-                  rows={3}
-                  placeholder="نص إهداء قصير يُعرض في صفحة الختمة"
-                  className="w-full px-3 py-3 rounded-xl bg-secondary/40 border border-border/30 text-[12px] text-foreground text-right resize-none placeholder:text-muted-foreground/40 disabled:opacity-50"
-                />
-              </div>
-
+              {/* Duration (optional) */}
               <div>
                 <label className="text-[11px] text-muted-foreground block mb-2">
                   مدة الختمة <span className="text-muted-foreground/50">(اختياري)</span>
