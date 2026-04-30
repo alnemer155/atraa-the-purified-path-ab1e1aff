@@ -157,7 +157,43 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
         </div>
       </div>
 
-      {/* Surah picker — only for surah mode */}
+      {/* Visibility picker */}
+      <div>
+        <label className="text-[11px] text-muted-foreground block mb-2">الخصوصية</label>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setVisibility('public')}
+            disabled={verifying}
+            className={`h-16 rounded-xl border flex flex-col items-center justify-center gap-1 transition-colors ${
+              visibility === 'public'
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-secondary/40 text-foreground border-border/30'
+            } disabled:opacity-50`}
+          >
+            <Globe className="w-4 h-4" strokeWidth={1.5} />
+            <span className="text-[11px]">عامة</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => { setVisibility('private'); setDurationHours(24); }}
+            disabled={verifying}
+            className={`h-16 rounded-xl border flex flex-col items-center justify-center gap-1 transition-colors ${
+              visibility === 'private'
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-secondary/40 text-foreground border-border/30'
+            } disabled:opacity-50`}
+          >
+            <Lock className="w-4 h-4" strokeWidth={1.5} />
+            <span className="text-[11px]">خاصة</span>
+          </button>
+        </div>
+        <p className="text-[10px] text-muted-foreground/60 mt-2 font-light leading-relaxed">
+          {visibility === 'public'
+            ? 'تظهر في قائمة الختمات المنشورة ويراها الجميع.'
+            : 'لا تظهر في القوائم. الرابط مختصر بـ ٨ خانات يُشارك مع من تختار. المدة ٢٤ ساعة.'}
+        </p>
+      </div>
       {mode === 'surah' && (
         <div>
           <label className="text-[11px] text-muted-foreground block mb-2">السورة</label>
