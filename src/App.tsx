@@ -72,12 +72,17 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          {!isKhatmaHost && showSplash && <SplashScreen onFinish={handleSplashFinish} />}
-          {!isKhatmaHost && !showSplash && showOnboarding && <OnboardingScreen onFinish={handleOnboardingFinish} />}
+          {!isStandaloneHost && showSplash && <SplashScreen onFinish={handleSplashFinish} />}
+          {!isStandaloneHost && !showSplash && showOnboarding && <OnboardingScreen onFinish={handleOnboardingFinish} />}
           <BrowserRouter>
             <UIProvider>
               <Suspense fallback={<PageLoader />}>
-                {isKhatmaHost ? (
+                {isAdminHost ? (
+                  <Routes>
+                    <Route path="/" element={<AdminPage />} />
+                    <Route path="*" element={<AdminPage />} />
+                  </Routes>
+                ) : isKhatmaHost ? (
                   <Routes>
                     <Route path="/" element={<KhatmaLandingPage />} />
                     <Route path="/:slug" element={<KhatmaPage />} />
