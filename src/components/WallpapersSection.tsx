@@ -22,7 +22,7 @@ import wpNew8 from '@/assets/wallpapers/wp-new-8.jpeg';
 import wpNew9 from '@/assets/wallpapers/wp-new-9.jpeg';
 import wpHussainShrine from '@/assets/wallpapers/hussain-shrine.jpg';
 
-const wallpapers = [
+const baseWallpapers = [
   // Newest addition — appears first
   { id: 'h1', src: wpHussainShrine, name: 'حرم الإمام الحسين (ع) — إنّي لا أرى الموت إلا سعادة' },
   // New verified wallpapers (Round 2)
