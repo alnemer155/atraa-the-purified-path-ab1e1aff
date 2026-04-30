@@ -123,7 +123,42 @@ const SettingsPage = () => {
         </div>
       </motion.div>
 
-      {/* Madhhab (school) — both Shia and Sunni now supported */}
+      {/* Reading mode — default / sepia / night, applies app-wide */}
+      <motion.div variants={fadeUp} custom={1}>
+        <p className="text-[11px] text-muted-foreground/70 px-1 mb-1.5 font-medium">
+          {isAr ? 'وضع القراءة' : 'Reading mode'}
+        </p>
+        <div className="bg-card rounded-2xl border border-border/40 overflow-hidden shadow-card">
+          <div className="grid grid-cols-3 gap-2 p-2">
+            {([
+              { id: 'default' as const, labelAr: 'افتراضي', labelEn: 'Default', Icon: Sun },
+              { id: 'sepia'   as const, labelAr: 'سيبيا',   labelEn: 'Sepia',   Icon: Coffee },
+              { id: 'night'   as const, labelAr: 'ليلي',    labelEn: 'Night',   Icon: Moon },
+            ]).map((opt) => {
+              const active = readingTheme === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  onClick={() => setReadingTheme(opt.id as QuranTheme)}
+                  className={`py-2.5 rounded-xl text-[12px] flex flex-col items-center justify-center gap-1 transition-all active:scale-[0.97] ${
+                    active ? 'bg-primary text-primary-foreground' : 'bg-secondary/40 text-foreground/80'
+                  }`}
+                  aria-pressed={active}
+                >
+                  <opt.Icon className="w-3.5 h-3.5" strokeWidth={1.6} />
+                  <span>{isAr ? opt.labelAr : opt.labelEn}</span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="px-3 pb-3 text-[10px] text-muted-foreground/65 font-light leading-relaxed">
+            {isAr
+              ? 'يطبَّق هذا الوضع على التطبيق بالكامل وليس على القرآن فقط.'
+              : 'This mode applies to the entire app, not just the Quran.'}
+          </p>
+        </div>
+      </motion.div>
+
       <motion.div variants={fadeUp} custom={2}>
         <p className="text-[11px] text-muted-foreground/70 px-1 mb-1.5 font-medium">
           {isAr ? 'المذهب' : 'School of thought'}
