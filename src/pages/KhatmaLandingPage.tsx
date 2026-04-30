@@ -35,6 +35,10 @@ const KhatmaLandingPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-12" dir="rtl">
+      {/* Theme toggle (top-left) */}
+      <div className="absolute top-3 left-3 z-10">
+        <ReadingThemeToggle allowNight />
+      </div>
       {/* Header */}
       <div className="px-6 pt-10 pb-6 text-center">
         <motion.div
