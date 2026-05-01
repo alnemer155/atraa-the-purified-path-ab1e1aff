@@ -340,7 +340,7 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
     <div className="px-5 pb-6 pt-2 border-t border-border/20">
       <button
         onClick={handleSubmit}
-        disabled={verifying || !title.trim()}
+        disabled={verifying || !titleCheck.ok}
         className="w-full h-12 rounded-full bg-primary text-primary-foreground text-[13px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform disabled:opacity-40"
       >
         {verifying ? (
