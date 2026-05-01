@@ -45,15 +45,12 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
   const [countdown, setCountdown] = useState(30);
 
   async function handleSubmit() {
-    const trimmed = title.trim();
-    if (!trimmed) {
-      toast({ title: 'الرجاء كتابة العنوان', variant: 'destructive' });
+    const check = checkKhatmaTitle(title);
+    if (!check.ok) {
+      toast({ title: check.reason || 'العنوان غير مقبول', variant: 'destructive' });
       return;
     }
-    if (trimmed.length < 4) {
-      toast({ title: 'العنوان قصير جداً', variant: 'destructive' });
-      return;
-    }
+    const trimmed = title.trim().replace(/\s+/g, ' ');
 
     setVerifying(true);
     setCountdown(30);
