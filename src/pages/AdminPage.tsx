@@ -416,6 +416,16 @@ const WallpapersManager = () => {
     void load();
   };
 
+  const saveRename = async (row: WallpaperRow) => {
+    const v = renameValue.trim();
+    if (!v) { toast({ title: 'الاسم لا يمكن أن يكون فارغاً', variant: 'destructive' }); return; }
+    const { error } = await supabase.from('admin_wallpapers').update({ name: v }).eq('id', row.id);
+    if (error) { toast({ title: 'تعذّر الحفظ', variant: 'destructive' }); return; }
+    setRenamingId(null);
+    setRenameValue('');
+    void load();
+  };
+
   return (
     <div>
       <div className="rounded-2xl border border-border/30 bg-card p-4 mb-4 space-y-3">
