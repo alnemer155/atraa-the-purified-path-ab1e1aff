@@ -475,7 +475,37 @@ const WallpapersManager = () => {
                 loading="lazy"
               />
               <div className="p-2 flex items-center justify-between gap-1">
-                <p className="text-[10px] text-foreground truncate flex-1">{w.name}</p>
+                {renamingId === w.id ? (
+                  <input
+                    autoFocus
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') void saveRename(w);
+                      if (e.key === 'Escape') { setRenamingId(null); setRenameValue(''); }
+                    }}
+                    className="flex-1 min-w-0 h-7 rounded-md bg-secondary/40 border border-border/30 px-2 text-[10px] outline-none"
+                  />
+                ) : (
+                  <p className="text-[10px] text-foreground truncate flex-1">{w.name}</p>
+                )}
+                {renamingId === w.id ? (
+                  <button
+                    onClick={() => void saveRename(w)}
+                    className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0"
+                    aria-label="حفظ"
+                  >
+                    <Save className="w-3 h-3 text-primary" strokeWidth={1.6} />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => { setRenamingId(w.id); setRenameValue(w.name); }}
+                    className="w-7 h-7 rounded-full bg-secondary/40 flex items-center justify-center flex-shrink-0"
+                    aria-label="تعديل الاسم"
+                  >
+                    <Pencil className="w-3 h-3 text-foreground" strokeWidth={1.6} />
+                  </button>
+                )}
                 <button
                   onClick={() => void remove(w)}
                   className="w-7 h-7 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0"
