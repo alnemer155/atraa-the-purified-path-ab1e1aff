@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { X, Check, Loader2, BookMarked, BookOpen, Globe, Lock } from 'lucide-react';
+import { X, Check, Loader2, BookMarked, BookOpen, Globe, Lock, Info } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { SURAHS } from '@/lib/surahs-list';
+import { SHORT_SURAH_NUMBERS } from '@/lib/short-surahs';
+import { checkKhatmaTitle, TITLE_MAX_WORDS, ALLOWED_PHRASES } from '@/lib/khatma-title-rules';
 import { toast } from '@/hooks/use-toast';
 import {
   generateCreatorToken,
@@ -28,21 +30,27 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
   const [mode, setMode] = useState<Mode>('surah');
   const [visibility, setVisibility] = useState<Visibility>('public');
   const [title, setTitle] = useState('');
-  const [surahNumber, setSurahNumber] = useState<number>(36);
+  const [surahNumber, setSurahNumber] = useState<number>(SHORT_SURAH_NUMBERS[0]);
   const [durationHours, setDurationHours] = useState<number | null>(null);
+  const [showRules, setShowRules] = useState(false);
+
+  // Only short surahs (7–20 ayahs) are eligible. Listed publicly to all.
+  const shortSurahs = useMemo(
+    () => SURAHS.filter((s) => SHORT_SURAH_NUMBERS.includes(s.number)),
+    [],
+  );
+
+  const titleCheck = useMemo(() => checkKhatmaTitle(title), [title]);
   const [verifying, setVerifying] = useState(false);
   const [countdown, setCountdown] = useState(30);
 
   async function handleSubmit() {
-    const trimmed = title.trim();
-    if (!trimmed) {
-      toast({ title: 'الرجاء كتابة العنوان', variant: 'destructive' });
+    const check = checkKhatmaTitle(title);
+    if (!check.ok) {
+      toast({ title: check.reason || 'العنوان غير مقبول', variant: 'destructive' });
       return;
     }
-    if (trimmed.length < 4) {
-      toast({ title: 'العنوان قصير جداً', variant: 'destructive' });
-      return;
-    }
+    const trimmed = title.trim().replace(/\s+/g, ' ');
 
     setVerifying(true);
     setCountdown(30);
@@ -196,19 +204,22 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
       </div>
       {mode === 'surah' && (
         <div>
-          <label className="text-[11px] text-muted-foreground block mb-2">السورة</label>
+          <label className="text-[11px] text-muted-foreground block mb-2">السورة (٧–٢٠ آية)</label>
           <select
             value={surahNumber}
             onChange={(e) => setSurahNumber(parseInt(e.target.value, 10))}
             disabled={verifying}
             className="w-full h-12 px-3 rounded-xl bg-secondary/40 border border-border/30 text-[14px] text-foreground text-right disabled:opacity-50"
           >
-            {SURAHS.map(s => (
+            {shortSurahs.map(s => (
               <option key={s.number} value={s.number}>
                 {s.number}. سورة {s.name}
               </option>
             ))}
           </select>
+          <p className="text-[10px] text-muted-foreground/60 mt-2 font-light leading-relaxed">
+            ختمة السورة القصيرة معروضة للجميع لتسهيل المشاركة.
+          </p>
         </div>
       )}
 
@@ -222,19 +233,49 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
 
       {/* Title */}
       <div>
-        <label className="text-[11px] text-muted-foreground block mb-2">العنوان / الإهداء</label>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-[11px] text-muted-foreground">العنوان / الإهداء</label>
+          <button
+            type="button"
+            onClick={() => setShowRules((s) => !s)}
+            className="flex items-center gap-1 text-[10px] text-muted-foreground/70 active:opacity-60"
+          >
+            <Info className="w-3 h-3" strokeWidth={1.6} />
+            القواعد
+          </button>
+        </div>
         <textarea
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           disabled={verifying}
-          maxLength={150}
           rows={3}
           placeholder="مثال: إهداء إلى روح المرحوم محمد بن علي"
           className="w-full px-3 py-3 rounded-xl bg-secondary/40 border border-border/30 text-[13px] text-foreground text-right resize-none placeholder:text-muted-foreground/40 disabled:opacity-50"
         />
-        <p className="text-[10px] text-muted-foreground/60 mt-2 font-light leading-relaxed">
-          لا تستخدم الألقاب (الشيخ، الحاج، السيد، الدكتور...). اكتفِ بـ "المرحوم/المرحومة" + الاسم + اسم الأب.
-        </p>
+        <div className="flex items-center justify-between mt-2">
+          <p className={`text-[10px] font-light leading-relaxed flex-1 pl-2 ${
+            titleCheck.ok || !title.trim() ? 'text-muted-foreground/60' : 'text-destructive'
+          }`}>
+            {title.trim() && !titleCheck.ok
+              ? titleCheck.reason
+              : 'حروف عربية ومسافات فقط — بدون أرقام أو نقاط أو رموز.'}
+          </p>
+          <span className="text-[10px] text-muted-foreground/60 tabular-nums flex-shrink-0">
+            {titleCheck.wordCount}/{TITLE_MAX_WORDS}
+          </span>
+        </div>
+        {showRules && (
+          <div className="mt-3 rounded-xl bg-secondary/30 border border-border/30 p-3 space-y-2">
+            <p className="text-[10px] text-foreground/80">مسموح كتابة:</p>
+            <ul className="text-[10px] text-muted-foreground/80 font-light leading-relaxed space-y-0.5 pr-3 list-disc">
+              {ALLOWED_PHRASES.map((p) => <li key={p}>{p}</li>)}
+            </ul>
+            <p className="text-[10px] text-foreground/80 pt-1">غير مسموح:</p>
+            <p className="text-[10px] text-muted-foreground/80 font-light leading-relaxed">
+              الأرقام، النقاط، علامات الترقيم، الرموز، الحروف اللاتينية — يُسمح بالمسافة فقط.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Duration — locked to 24h when private */}
@@ -299,7 +340,7 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
     <div className="px-5 pb-6 pt-2 border-t border-border/20">
       <button
         onClick={handleSubmit}
-        disabled={verifying || !title.trim()}
+        disabled={verifying || !titleCheck.ok}
         className="w-full h-12 rounded-full bg-primary text-primary-foreground text-[13px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform disabled:opacity-40"
       >
         {verifying ? (

@@ -15,13 +15,25 @@ import { useEffect, useState } from 'react';
 export type QuranTheme = 'default' | 'sepia' | 'night';
 
 const KEY = 'atraa_quran_theme_v1';
+const SEED_KEY = 'atraa_quran_theme_seeded_v1';
 const EVENT = 'atraa:reading-theme-changed';
 
+/**
+ * First-run default = sepia (warm, low-glare). Users may override at any time;
+ * once a value (including 'default') has been set explicitly, we never reseed.
+ */
 export const getStoredQuranTheme = (): QuranTheme => {
   try {
     const v = localStorage.getItem(KEY);
-    return v === 'sepia' || v === 'night' ? v : 'default';
-  } catch { return 'default'; }
+    if (v === 'sepia' || v === 'night' || v === 'default') return v;
+    const seeded = localStorage.getItem(SEED_KEY);
+    if (!seeded) {
+      localStorage.setItem(KEY, 'sepia');
+      localStorage.setItem(SEED_KEY, '1');
+      return 'sepia';
+    }
+    return 'default';
+  } catch { return 'sepia'; }
 };
 
 export const applyThemeToDocument = (t: QuranTheme): void => {
