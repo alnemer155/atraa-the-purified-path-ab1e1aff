@@ -527,12 +527,13 @@ const KhatmasManager = () => {
   const [rows, setRows] = useState<KhatmaRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
+  const [selected, setSelected] = useState<KhatmaRow | null>(null);
 
   const load = async () => {
     setLoading(true);
     const { data } = await supabase
       .from('khatmas')
-      .select('id, slug, title, mode, surah_name, recitations_count, completed_juz_count')
+      .select('*')
       .order('created_at', { ascending: false })
       .limit(100);
     setRows((data as KhatmaRow[]) ?? []);
@@ -542,9 +543,9 @@ const KhatmasManager = () => {
 
   const remove = async (id: string) => {
     if (!confirm('حذف هذه الختمة؟ لا يمكن التراجع.')) return;
-    // Admin override: update creator_token to a dummy then delete (RLS allows delete when creator_token is not null)
     const { error } = await supabase.from('khatmas').delete().eq('id', id);
     if (error) { toast({ title: 'تعذّر الحذف', variant: 'destructive' }); return; }
+    setSelected(null);
     void load();
   };
 
@@ -579,9 +580,10 @@ const KhatmasManager = () => {
               ? `قرآن كامل · ${k.completed_juz_count}/30`
               : `سورة ${k.surah_name} · ${k.recitations_count}`;
             return (
-              <div
+              <button
                 key={k.id}
-                className="flex items-center gap-3 p-3.5 border-b border-border/10 last:border-b-0"
+                onClick={() => setSelected(k)}
+                className="w-full text-right flex items-center gap-3 p-3.5 border-b border-border/10 last:border-b-0 active:bg-secondary/30 transition-colors"
               >
                 {isFull
                   ? <BookOpen className="w-3.5 h-3.5 text-muted-foreground/60" strokeWidth={1.5} />
@@ -590,28 +592,125 @@ const KhatmasManager = () => {
                   <p className="text-[12px] text-foreground truncate">{k.title}</p>
                   <p className="text-[10px] text-muted-foreground/70 font-light tabular-nums mt-0.5">{meta}</p>
                 </div>
-                <a
-                  href={`https://khatma.atraa.xyz/${k.slug}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[10px] text-primary underline-offset-4 underline"
-                >
-                  فتح
-                </a>
-                <button
-                  onClick={() => void remove(k.id)}
-                  className="w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center"
-                  aria-label="حذف"
-                >
-                  <Trash2 className="w-3.5 h-3.5 text-destructive" strokeWidth={1.5} />
-                </button>
-              </div>
+                {k.visibility === 'private' && (
+                  <Lock className="w-3 h-3 text-muted-foreground/60 flex-shrink-0" strokeWidth={1.6} />
+                )}
+                <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground/40 flex-shrink-0" strokeWidth={1.5} />
+              </button>
             );
           })}
         </div>
       )}
+
+      {selected && (
+        <KhatmaDetailModal
+          khatma={selected}
+          onClose={() => setSelected(null)}
+          onDelete={() => void remove(selected.id)}
+        />
+      )}
     </div>
   );
 };
+
+const KhatmaDetailModal = ({
+  khatma, onClose, onDelete,
+}: { khatma: KhatmaRow; onClose: () => void; onDelete: () => void }) => {
+  const isFull = khatma.mode === 'full_quran';
+  const routeKey = khatma.visibility === 'private' && khatma.short_code
+    ? khatma.short_code
+    : khatma.slug;
+  const url = `https://khatma.atraa.xyz/${routeKey}`;
+  const fmt = (iso: string | null) => {
+    if (!iso) return '—';
+    try { return new Date(iso).toLocaleString('ar-EG'); } catch { return iso; }
+  };
+  return (
+    <div
+      className="fixed inset-0 z-[70] bg-background/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3"
+      onClick={onClose}
+      dir="rtl"
+    >
+      <motion.div
+        initial={{ y: 16, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-3xl border border-border/30 bg-card p-5"
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] text-muted-foreground/60 mb-1">
+              {isFull ? 'ختمة قرآن كاملة' : `سورة ${khatma.surah_name ?? ''}`}
+            </p>
+            <p className="text-[15px] text-foreground leading-relaxed">{khatma.title}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full flex items-center justify-center active:bg-secondary/40 flex-shrink-0"
+            aria-label="إغلاق"
+          >
+            <X className="w-4 h-4" strokeWidth={1.5} />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <DetailCell
+            icon={khatma.visibility === 'public' ? Globe : Lock}
+            label="الخصوصية"
+            value={khatma.visibility === 'public' ? 'عامة' : 'خاصة'}
+          />
+          <DetailCell
+            icon={isFull ? BookOpen : BookMarked}
+            label={isFull ? 'الأجزاء المكتملة' : 'عدد القراءات'}
+            value={isFull ? `${khatma.completed_juz_count}/30` : String(khatma.recitations_count)}
+          />
+          <DetailCell icon={Clock} label="أُنشئت" value={fmt(khatma.created_at)} />
+          <DetailCell icon={Clock} label="تنتهي" value={fmt(khatma.expires_at)} />
+        </div>
+
+        <div className="rounded-xl bg-secondary/30 border border-border/30 p-3 mb-3">
+          <p className="text-[10px] text-muted-foreground/70 mb-1">رابط المشاركة</p>
+          <p className="text-[11px] text-foreground break-all font-light" dir="ltr">{url}</p>
+        </div>
+
+        {khatma.short_code && (
+          <div className="rounded-xl bg-secondary/30 border border-border/30 p-3 mb-3">
+            <p className="text-[10px] text-muted-foreground/70 mb-1">الرمز المختصر</p>
+            <p className="text-[12px] text-foreground tabular-nums tracking-widest" dir="ltr">{khatma.short_code}</p>
+          </div>
+        )}
+
+        <div className="flex gap-2 mt-4">
+          <a
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            className="flex-1 h-10 rounded-full bg-primary text-primary-foreground text-[12px] flex items-center justify-center gap-1.5"
+          >
+            فتح
+          </a>
+          <button
+            onClick={onDelete}
+            className="flex-1 h-10 rounded-full bg-destructive/10 text-destructive text-[12px] flex items-center justify-center gap-1.5"
+          >
+            <Trash2 className="w-3.5 h-3.5" strokeWidth={1.6} /> حذف
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const DetailCell = ({
+  icon: Icon, label, value,
+}: { icon: typeof Lock; label: string; value: string }) => (
+  <div className="rounded-xl bg-secondary/30 border border-border/30 p-3">
+    <div className="flex items-center gap-1.5 text-muted-foreground/70 mb-1">
+      <Icon className="w-3 h-3" strokeWidth={1.6} />
+      <span className="text-[9px]">{label}</span>
+    </div>
+    <p className="text-[11px] text-foreground tabular-nums">{value}</p>
+  </div>
+);
 
 export default AdminPage;
