@@ -204,19 +204,22 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
       </div>
       {mode === 'surah' && (
         <div>
-          <label className="text-[11px] text-muted-foreground block mb-2">السورة</label>
+          <label className="text-[11px] text-muted-foreground block mb-2">السورة (٧–٢٠ آية)</label>
           <select
             value={surahNumber}
             onChange={(e) => setSurahNumber(parseInt(e.target.value, 10))}
             disabled={verifying}
             className="w-full h-12 px-3 rounded-xl bg-secondary/40 border border-border/30 text-[14px] text-foreground text-right disabled:opacity-50"
           >
-            {SURAHS.map(s => (
+            {shortSurahs.map(s => (
               <option key={s.number} value={s.number}>
                 {s.number}. سورة {s.name}
               </option>
             ))}
           </select>
+          <p className="text-[10px] text-muted-foreground/60 mt-2 font-light leading-relaxed">
+            ختمة السورة القصيرة معروضة للجميع لتسهيل المشاركة.
+          </p>
         </div>
       )}
 
@@ -230,19 +233,49 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
 
       {/* Title */}
       <div>
-        <label className="text-[11px] text-muted-foreground block mb-2">العنوان / الإهداء</label>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-[11px] text-muted-foreground">العنوان / الإهداء</label>
+          <button
+            type="button"
+            onClick={() => setShowRules((s) => !s)}
+            className="flex items-center gap-1 text-[10px] text-muted-foreground/70 active:opacity-60"
+          >
+            <Info className="w-3 h-3" strokeWidth={1.6} />
+            القواعد
+          </button>
+        </div>
         <textarea
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           disabled={verifying}
-          maxLength={150}
           rows={3}
           placeholder="مثال: إهداء إلى روح المرحوم محمد بن علي"
           className="w-full px-3 py-3 rounded-xl bg-secondary/40 border border-border/30 text-[13px] text-foreground text-right resize-none placeholder:text-muted-foreground/40 disabled:opacity-50"
         />
-        <p className="text-[10px] text-muted-foreground/60 mt-2 font-light leading-relaxed">
-          لا تستخدم الألقاب (الشيخ، الحاج، السيد، الدكتور...). اكتفِ بـ "المرحوم/المرحومة" + الاسم + اسم الأب.
-        </p>
+        <div className="flex items-center justify-between mt-2">
+          <p className={`text-[10px] font-light leading-relaxed flex-1 pl-2 ${
+            titleCheck.ok || !title.trim() ? 'text-muted-foreground/60' : 'text-destructive'
+          }`}>
+            {title.trim() && !titleCheck.ok
+              ? titleCheck.reason
+              : 'حروف عربية ومسافات فقط — بدون أرقام أو نقاط أو رموز.'}
+          </p>
+          <span className="text-[10px] text-muted-foreground/60 tabular-nums flex-shrink-0">
+            {titleCheck.wordCount}/{TITLE_MAX_WORDS}
+          </span>
+        </div>
+        {showRules && (
+          <div className="mt-3 rounded-xl bg-secondary/30 border border-border/30 p-3 space-y-2">
+            <p className="text-[10px] text-foreground/80">مسموح كتابة:</p>
+            <ul className="text-[10px] text-muted-foreground/80 font-light leading-relaxed space-y-0.5 pr-3 list-disc">
+              {ALLOWED_PHRASES.map((p) => <li key={p}>{p}</li>)}
+            </ul>
+            <p className="text-[10px] text-foreground/80 pt-1">غير مسموح:</p>
+            <p className="text-[10px] text-muted-foreground/80 font-light leading-relaxed">
+              الأرقام، النقاط، علامات الترقيم، الرموز، الحروف اللاتينية — يُسمح بالمسافة فقط.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Duration — locked to 24h when private */}
