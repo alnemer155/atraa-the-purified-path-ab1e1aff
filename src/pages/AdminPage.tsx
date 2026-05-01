@@ -34,11 +34,17 @@ interface WallpaperRow {
 interface KhatmaRow {
   id: string;
   slug: string;
+  short_code: string | null;
+  visibility: 'public' | 'private';
   title: string;
   mode: string;
+  surah_number: number | null;
   surah_name: string | null;
   recitations_count: number;
   completed_juz_count: number;
+  created_at: string;
+  expires_at: string | null;
+  is_published: boolean;
 }
 
 const CATEGORY_LABEL: Record<Category, string> = {
