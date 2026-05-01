@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Lock, BookMarked, BookOpen, Heart, Image as ImageIcon, Plus, Trash2,
-  Pencil, Save, X, LogOut, Upload, Sparkles,
+  Lock, BookMarked, BookOpen, Image as ImageIcon, Plus, Trash2,
+  Pencil, Save, X, LogOut, Upload, Sparkles, Globe, Clock, ChevronLeft,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
