@@ -30,8 +30,17 @@ const KhatmaCreateForm = ({ onClose, onCreated, embedded = false }: Props) => {
   const [mode, setMode] = useState<Mode>('surah');
   const [visibility, setVisibility] = useState<Visibility>('public');
   const [title, setTitle] = useState('');
-  const [surahNumber, setSurahNumber] = useState<number>(36);
+  const [surahNumber, setSurahNumber] = useState<number>(SHORT_SURAH_NUMBERS[0]);
   const [durationHours, setDurationHours] = useState<number | null>(null);
+  const [showRules, setShowRules] = useState(false);
+
+  // Only short surahs (7–20 ayahs) are eligible. Listed publicly to all.
+  const shortSurahs = useMemo(
+    () => SURAHS.filter((s) => SHORT_SURAH_NUMBERS.includes(s.number)),
+    [],
+  );
+
+  const titleCheck = useMemo(() => checkKhatmaTitle(title), [title]);
   const [verifying, setVerifying] = useState(false);
   const [countdown, setCountdown] = useState(30);
 
