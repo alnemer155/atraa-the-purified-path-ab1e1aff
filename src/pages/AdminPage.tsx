@@ -57,24 +57,45 @@ const CATEGORY_LABEL: Record<Category, string> = {
 const SECT_LABEL: Record<Sect, string> = { shia: 'شيعي', sunni: 'سني' };
 
 const AdminPage = () => {
+  const isMobile = useIsMobile();
   const [unlocked, setUnlocked] = useState(isAdminUnlocked);
-  const [pin, setPin] = useState('');
+  const [secret, setSecret] = useState('');
+  const [textMode, setTextMode] = useState(false);
   const [tab, setTab] = useState<Tab>('duas');
+
+  // Strict mobile-only access for the admin dashboard.
+  if (isMobile === false) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6 bg-background" dir="rtl">
+        <div className="max-w-sm text-center">
+          <div className="w-14 h-14 rounded-full bg-secondary/40 flex items-center justify-center mx-auto mb-5">
+            <Lock className="w-5 h-5 text-muted-foreground" strokeWidth={1.4} />
+          </div>
+          <h1 className="text-[16px] text-foreground font-light mb-2">لوحة المطور</h1>
+          <p className="text-[12px] text-muted-foreground/80 font-light leading-relaxed">
+            هذه اللوحة متاحة من الهاتف فقط.
+            <br />
+            يرجى فتحها من جهاز جوّال.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
-    if (unlockAdmin(pin)) {
+    if (unlockAdmin(secret)) {
       setUnlocked(true);
-      setPin('');
+      setSecret('');
     } else {
-      toast({ title: 'رقم سري غير صحيح', variant: 'destructive' });
-      setPin('');
+      toast({ title: 'بيانات الدخول غير صحيحة', variant: 'destructive' });
+      setSecret('');
     }
   };
 
   if (!unlocked) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6 bg-background" dir="rtl">
+      <div className="min-h-screen flex items-center justify-center px-5 bg-background" dir="rtl">
         <motion.form
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -85,21 +106,36 @@ const AdminPage = () => {
             <Lock className="w-5 h-5 text-primary" strokeWidth={1.4} />
           </div>
           <h1 className="text-[16px] text-foreground font-light mb-1">لوحة المطور</h1>
-          <p className="text-[11px] text-muted-foreground/70 font-light mb-5">أدخل الرقم السري للدخول</p>
+          <p className="text-[11px] text-muted-foreground/70 font-light mb-5">
+            {textMode ? 'أدخل كلمة المرور النصية' : 'أدخل الرقم السري'}
+          </p>
           <input
-            type="password"
-            inputMode="numeric"
-            value={pin}
-            onChange={(e) => setPin(e.target.value)}
-            placeholder="••••"
+            type={textMode ? 'text' : 'password'}
+            inputMode={textMode ? 'text' : 'numeric'}
+            value={secret}
+            onChange={(e) => setSecret(e.target.value)}
+            placeholder={textMode ? 'كلمة المرور' : '••••'}
             autoFocus
-            className="w-full h-12 text-center text-[18px] tracking-[0.4em] tabular-nums rounded-2xl bg-secondary/40 border border-border/30 outline-none focus:border-primary/40"
+            autoComplete="off"
+            spellCheck={false}
+            dir={textMode ? 'ltr' : 'rtl'}
+            className={`w-full h-12 text-center rounded-2xl bg-secondary/40 border border-border/30 outline-none focus:border-primary/40 ${
+              textMode ? 'text-[14px]' : 'text-[18px] tracking-[0.4em] tabular-nums'
+            }`}
           />
           <button
             type="submit"
             className="mt-4 w-full h-11 rounded-full bg-primary text-primary-foreground text-[12px]"
           >
             دخول
+          </button>
+          <button
+            type="button"
+            onClick={() => { setTextMode(m => !m); setSecret(''); }}
+            className="mt-3 w-full h-9 rounded-full bg-secondary/30 text-muted-foreground text-[10px] font-light flex items-center justify-center gap-1.5 active:bg-secondary/50"
+          >
+            {textMode ? <Hash className="w-3 h-3" strokeWidth={1.6} /> : <Type className="w-3 h-3" strokeWidth={1.6} />}
+            {textMode ? 'استخدام الرقم السري' : 'استخدام كلمة المرور النصية'}
           </button>
         </motion.form>
       </div>
@@ -110,10 +146,10 @@ const AdminPage = () => {
     <div className="min-h-screen bg-background pb-16" dir="rtl">
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/85 backdrop-blur-xl border-b border-border/20">
-        <div className="px-4 py-3 flex items-center justify-between">
+        <div className="px-3 py-3 flex items-center justify-between gap-2">
           <button
             onClick={() => { lockAdmin(); setUnlocked(false); }}
-            className="w-9 h-9 rounded-full flex items-center justify-center active:bg-secondary/40"
+            className="w-9 h-9 rounded-full flex items-center justify-center active:bg-secondary/40 flex-shrink-0"
             aria-label="خروج"
           >
             <LogOut className="w-4 h-4 text-foreground" strokeWidth={1.5} />
@@ -122,17 +158,18 @@ const AdminPage = () => {
           <ReadingThemeToggle allowNight={false} />
         </div>
 
-        {/* Tabs */}
-        <div className="px-4 pb-3 flex gap-2">
+        {/* Tabs — horizontally scrollable for small screens */}
+        <div className="px-3 pb-3 flex gap-1.5 overflow-x-auto scrollbar-hide">
           {([
             ['duas', 'الأدعية', BookMarked],
             ['wallpapers', 'الخلفيات', ImageIcon],
             ['khatmas', 'الختمات', BookOpen],
+            ['qasaid', 'القصائد', Play],
           ] as [Tab, string, typeof Lock][]).map(([k, label, Icon]) => (
             <button
               key={k}
               onClick={() => setTab(k)}
-              className={`flex-1 h-9 rounded-full text-[11px] flex items-center justify-center gap-1.5 transition-colors ${
+              className={`flex-shrink-0 px-3 h-9 min-w-[72px] rounded-full text-[11px] flex items-center justify-center gap-1.5 transition-colors ${
                 tab === k
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-secondary/40 text-foreground border border-border/30'
@@ -145,10 +182,11 @@ const AdminPage = () => {
         </div>
       </div>
 
-      <div className="px-4 pt-5">
+      <div className="px-3 sm:px-4 pt-5">
         {tab === 'duas' && <DuasManager />}
         {tab === 'wallpapers' && <WallpapersManager />}
         {tab === 'khatmas' && <KhatmasManager />}
+        {tab === 'qasaid' && <QasaidManager />}
       </div>
     </div>
   );
