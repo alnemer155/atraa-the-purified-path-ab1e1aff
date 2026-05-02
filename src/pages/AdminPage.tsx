@@ -3,16 +3,18 @@ import { motion } from 'framer-motion';
 import {
   Lock, BookMarked, BookOpen, Image as ImageIcon, Plus, Trash2,
   Pencil, Save, X, LogOut, Upload, Sparkles, Globe, Clock, ChevronLeft,
+  Hash, Type, Play, Music,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { isAdminUnlocked, unlockAdmin, lockAdmin } from '@/lib/admin-auth';
 import ReadingThemeToggle from '@/components/ReadingThemeToggle';
 import KhatmaCreateForm from '@/components/KhatmaCreateForm';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type Category = 'dua' | 'ziyara' | 'dhikr';
 type Sect = 'shia' | 'sunni';
-type Tab = 'duas' | 'wallpapers' | 'khatmas';
+type Tab = 'duas' | 'wallpapers' | 'khatmas' | 'qasaid';
 
 interface DuaRow {
   id: string;
@@ -55,24 +57,45 @@ const CATEGORY_LABEL: Record<Category, string> = {
 const SECT_LABEL: Record<Sect, string> = { shia: 'شيعي', sunni: 'سني' };
 
 const AdminPage = () => {
+  const isMobile = useIsMobile();
   const [unlocked, setUnlocked] = useState(isAdminUnlocked);
-  const [pin, setPin] = useState('');
+  const [secret, setSecret] = useState('');
+  const [textMode, setTextMode] = useState(false);
   const [tab, setTab] = useState<Tab>('duas');
+
+  // Strict mobile-only access for the admin dashboard.
+  if (isMobile === false) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6 bg-background" dir="rtl">
+        <div className="max-w-sm text-center">
+          <div className="w-14 h-14 rounded-full bg-secondary/40 flex items-center justify-center mx-auto mb-5">
+            <Lock className="w-5 h-5 text-muted-foreground" strokeWidth={1.4} />
+          </div>
+          <h1 className="text-[16px] text-foreground font-light mb-2">لوحة المطور</h1>
+          <p className="text-[12px] text-muted-foreground/80 font-light leading-relaxed">
+            هذه اللوحة متاحة من الهاتف فقط.
+            <br />
+            يرجى فتحها من جهاز جوّال.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
-    if (unlockAdmin(pin)) {
+    if (unlockAdmin(secret)) {
       setUnlocked(true);
-      setPin('');
+      setSecret('');
     } else {
-      toast({ title: 'رقم سري غير صحيح', variant: 'destructive' });
-      setPin('');
+      toast({ title: 'بيانات الدخول غير صحيحة', variant: 'destructive' });
+      setSecret('');
     }
   };
 
   if (!unlocked) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6 bg-background" dir="rtl">
+      <div className="min-h-screen flex items-center justify-center px-5 bg-background" dir="rtl">
         <motion.form
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -83,21 +106,36 @@ const AdminPage = () => {
             <Lock className="w-5 h-5 text-primary" strokeWidth={1.4} />
           </div>
           <h1 className="text-[16px] text-foreground font-light mb-1">لوحة المطور</h1>
-          <p className="text-[11px] text-muted-foreground/70 font-light mb-5">أدخل الرقم السري للدخول</p>
+          <p className="text-[11px] text-muted-foreground/70 font-light mb-5">
+            {textMode ? 'أدخل كلمة المرور النصية' : 'أدخل الرقم السري'}
+          </p>
           <input
-            type="password"
-            inputMode="numeric"
-            value={pin}
-            onChange={(e) => setPin(e.target.value)}
-            placeholder="••••"
+            type={textMode ? 'text' : 'password'}
+            inputMode={textMode ? 'text' : 'numeric'}
+            value={secret}
+            onChange={(e) => setSecret(e.target.value)}
+            placeholder={textMode ? 'كلمة المرور' : '••••'}
             autoFocus
-            className="w-full h-12 text-center text-[18px] tracking-[0.4em] tabular-nums rounded-2xl bg-secondary/40 border border-border/30 outline-none focus:border-primary/40"
+            autoComplete="off"
+            spellCheck={false}
+            dir={textMode ? 'ltr' : 'rtl'}
+            className={`w-full h-12 text-center rounded-2xl bg-secondary/40 border border-border/30 outline-none focus:border-primary/40 ${
+              textMode ? 'text-[14px]' : 'text-[18px] tracking-[0.4em] tabular-nums'
+            }`}
           />
           <button
             type="submit"
             className="mt-4 w-full h-11 rounded-full bg-primary text-primary-foreground text-[12px]"
           >
             دخول
+          </button>
+          <button
+            type="button"
+            onClick={() => { setTextMode(m => !m); setSecret(''); }}
+            className="mt-3 w-full h-9 rounded-full bg-secondary/30 text-muted-foreground text-[10px] font-light flex items-center justify-center gap-1.5 active:bg-secondary/50"
+          >
+            {textMode ? <Hash className="w-3 h-3" strokeWidth={1.6} /> : <Type className="w-3 h-3" strokeWidth={1.6} />}
+            {textMode ? 'استخدام الرقم السري' : 'استخدام كلمة المرور النصية'}
           </button>
         </motion.form>
       </div>
@@ -108,10 +146,10 @@ const AdminPage = () => {
     <div className="min-h-screen bg-background pb-16" dir="rtl">
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/85 backdrop-blur-xl border-b border-border/20">
-        <div className="px-4 py-3 flex items-center justify-between">
+        <div className="px-3 py-3 flex items-center justify-between gap-2">
           <button
             onClick={() => { lockAdmin(); setUnlocked(false); }}
-            className="w-9 h-9 rounded-full flex items-center justify-center active:bg-secondary/40"
+            className="w-9 h-9 rounded-full flex items-center justify-center active:bg-secondary/40 flex-shrink-0"
             aria-label="خروج"
           >
             <LogOut className="w-4 h-4 text-foreground" strokeWidth={1.5} />
@@ -120,17 +158,18 @@ const AdminPage = () => {
           <ReadingThemeToggle allowNight={false} />
         </div>
 
-        {/* Tabs */}
-        <div className="px-4 pb-3 flex gap-2">
+        {/* Tabs — horizontally scrollable for small screens */}
+        <div className="px-3 pb-3 flex gap-1.5 overflow-x-auto scrollbar-hide">
           {([
             ['duas', 'الأدعية', BookMarked],
             ['wallpapers', 'الخلفيات', ImageIcon],
             ['khatmas', 'الختمات', BookOpen],
+            ['qasaid', 'القصائد', Play],
           ] as [Tab, string, typeof Lock][]).map(([k, label, Icon]) => (
             <button
               key={k}
               onClick={() => setTab(k)}
-              className={`flex-1 h-9 rounded-full text-[11px] flex items-center justify-center gap-1.5 transition-colors ${
+              className={`flex-shrink-0 px-3 h-9 min-w-[72px] rounded-full text-[11px] flex items-center justify-center gap-1.5 transition-colors ${
                 tab === k
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-secondary/40 text-foreground border border-border/30'
@@ -143,10 +182,11 @@ const AdminPage = () => {
         </div>
       </div>
 
-      <div className="px-4 pt-5">
+      <div className="px-3 sm:px-4 pt-5">
         {tab === 'duas' && <DuasManager />}
         {tab === 'wallpapers' && <WallpapersManager />}
         {tab === 'khatmas' && <KhatmasManager />}
+        {tab === 'qasaid' && <QasaidManager />}
       </div>
     </div>
   );
@@ -712,5 +752,287 @@ const DetailCell = ({
     <p className="text-[11px] text-foreground tabular-nums">{value}</p>
   </div>
 );
+
+// ============== QASAID (Husayni elegies) ==============
+interface QasaidRow {
+  id: string;
+  title: string;
+  reciter: string;
+  details: string | null;
+  duration_seconds: number | null;
+  cover_path: string | null;
+  audio_path: string | null;
+  video_path: string | null;
+  created_at: string;
+}
+
+const QASAID_BUCKET = 'qasaid-media';
+const DETAILS_WORD_LIMIT = 40;
+
+const countWords = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
+
+const QasaidManager = () => {
+  const [rows, setRows] = useState<QasaidRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<Partial<QasaidRow> | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('admin_qasaid')
+      .select('*')
+      .order('created_at', { ascending: false });
+    setRows((data as QasaidRow[]) ?? []);
+    setLoading(false);
+  };
+  useEffect(() => { void load(); }, []);
+
+  const publicUrl = (path: string | null) =>
+    path ? supabase.storage.from(QASAID_BUCKET).getPublicUrl(path).data.publicUrl : '';
+
+  const uploadFile = async (file: File): Promise<string | null> => {
+    const ext = file.name.split('.').pop() || 'bin';
+    const path = `${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage
+      .from(QASAID_BUCKET)
+      .upload(path, file, { contentType: file.type, upsert: false });
+    if (error) return null;
+    return path;
+  };
+
+  const beginEdit = (row?: QasaidRow) => {
+    setCoverFile(null);
+    setAudioFile(null);
+    setEditing(row ?? { reciter: '', title: '', details: '' });
+  };
+
+  const save = async () => {
+    if (!editing) return;
+    if (!editing.title?.trim() || !editing.reciter?.trim()) {
+      toast({ title: 'العنوان والرادود مطلوبان', variant: 'destructive' });
+      return;
+    }
+    if (editing.details && countWords(editing.details) > DETAILS_WORD_LIMIT) {
+      toast({ title: `الحد ${DETAILS_WORD_LIMIT} كلمة فقط للتفاصيل`, variant: 'destructive' });
+      return;
+    }
+    setSaving(true);
+    let cover_path = editing.cover_path ?? null;
+    let audio_path = editing.audio_path ?? null;
+
+    if (coverFile) {
+      const p = await uploadFile(coverFile);
+      if (!p) { setSaving(false); toast({ title: 'تعذّر رفع الخلفية', variant: 'destructive' }); return; }
+      cover_path = p;
+    }
+    if (audioFile) {
+      const p = await uploadFile(audioFile);
+      if (!p) { setSaving(false); toast({ title: 'تعذّر رفع الصوت', variant: 'destructive' }); return; }
+      audio_path = p;
+    }
+
+    const payload = {
+      title: editing.title.trim(),
+      reciter: editing.reciter.trim(),
+      details: editing.details?.trim() || null,
+      duration_seconds: editing.duration_seconds ?? null,
+      cover_path,
+      audio_path,
+      video_path: editing.video_path ?? null,
+    };
+
+    if (editing.id) {
+      const { error } = await supabase.from('admin_qasaid').update(payload).eq('id', editing.id);
+      if (error) { setSaving(false); toast({ title: 'تعذّر الحفظ', variant: 'destructive' }); return; }
+    } else {
+      const { error } = await supabase.from('admin_qasaid').insert(payload);
+      if (error) { setSaving(false); toast({ title: 'تعذّر الإضافة', variant: 'destructive' }); return; }
+    }
+    setSaving(false);
+    setEditing(null);
+    setCoverFile(null);
+    setAudioFile(null);
+    void load();
+    toast({ title: 'تم الحفظ' });
+  };
+
+  const remove = async (row: QasaidRow) => {
+    if (!confirm('حذف هذه القصيدة؟')) return;
+    const paths = [row.cover_path, row.audio_path, row.video_path].filter(Boolean) as string[];
+    if (paths.length) await supabase.storage.from(QASAID_BUCKET).remove(paths);
+    await supabase.from('admin_qasaid').delete().eq('id', row.id);
+    void load();
+  };
+
+  const detailsWords = editing?.details ? countWords(editing.details) : 0;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[10px] text-muted-foreground/70 font-light">
+          {rows.length} قصيدة
+        </p>
+        <button
+          onClick={() => beginEdit()}
+          className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center"
+          aria-label="إضافة قصيدة"
+        >
+          <Plus className="w-4 h-4" strokeWidth={1.6} />
+        </button>
+      </div>
+
+      {editing && (
+        <div className="rounded-2xl border border-primary/30 bg-card p-4 mb-4 space-y-3">
+          <input
+            placeholder="عنوان القصيدة"
+            value={editing.title ?? ''}
+            onChange={(e) => setEditing({ ...editing, title: e.target.value })}
+            className="w-full h-10 rounded-xl bg-secondary/40 border border-border/30 px-3 text-[12px] outline-none"
+          />
+          <input
+            placeholder="اسم الرادود"
+            value={editing.reciter ?? ''}
+            onChange={(e) => setEditing({ ...editing, reciter: e.target.value })}
+            className="w-full h-10 rounded-xl bg-secondary/40 border border-border/30 px-3 text-[12px] outline-none"
+          />
+          <input
+            type="number"
+            placeholder="مدة القصيدة بالثواني (اختياري)"
+            value={editing.duration_seconds ?? ''}
+            onChange={(e) => setEditing({
+              ...editing,
+              duration_seconds: e.target.value ? parseInt(e.target.value, 10) : null,
+            })}
+            className="w-full h-10 rounded-xl bg-secondary/40 border border-border/30 px-3 text-[12px] outline-none tabular-nums"
+            dir="ltr"
+          />
+
+          {/* Details — capped at 40 words, vertical resize prevented */}
+          <div>
+            <textarea
+              placeholder={`تفاصيل القصيدة (الحد ${DETAILS_WORD_LIMIT} كلمة)`}
+              value={editing.details ?? ''}
+              onChange={(e) => setEditing({ ...editing, details: e.target.value })}
+              rows={4}
+              className="w-full rounded-xl bg-secondary/40 border border-border/30 p-3 text-[12px] outline-none leading-relaxed font-light resize-none"
+              style={{ resize: 'none' }}
+            />
+            <p className={`text-[9px] mt-1 text-left tabular-nums ${
+              detailsWords > DETAILS_WORD_LIMIT ? 'text-destructive' : 'text-muted-foreground/60'
+            }`} dir="ltr">
+              {detailsWords} / {DETAILS_WORD_LIMIT}
+            </p>
+          </div>
+
+          {/* Cover — square 1:1, any image */}
+          <label className="flex items-center justify-between gap-3 h-11 rounded-xl bg-secondary/40 border border-border/30 px-3 cursor-pointer">
+            <span className="text-[11px] text-muted-foreground font-light truncate flex-1">
+              {coverFile ? coverFile.name : (editing.cover_path ? 'الخلفية الحالية محفوظة' : 'اختر خلفية مربعة 1:1')}
+            </span>
+            <ImageIcon className="w-3.5 h-3.5 text-foreground" strokeWidth={1.5} />
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
+            />
+          </label>
+
+          {/* Audio */}
+          <label className="flex items-center justify-between gap-3 h-11 rounded-xl bg-secondary/40 border border-border/30 px-3 cursor-pointer">
+            <span className="text-[11px] text-muted-foreground font-light truncate flex-1">
+              {audioFile ? audioFile.name : (editing.audio_path ? 'الصوت الحالي محفوظ' : 'اختر ملف صوتي')}
+            </span>
+            <Music className="w-3.5 h-3.5 text-foreground" strokeWidth={1.5} />
+            <input
+              type="file"
+              accept="audio/*"
+              className="hidden"
+              onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)}
+            />
+          </label>
+
+          {/* Video — placeholder, locked */}
+          <div className="flex items-center justify-between gap-3 h-11 rounded-xl bg-secondary/20 border border-border/20 px-3 opacity-60">
+            <span className="text-[11px] text-muted-foreground font-light flex-1">
+              فيديو — قريباً
+            </span>
+            <Lock className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => void save()}
+              disabled={saving}
+              className="flex-1 h-10 rounded-full bg-primary text-primary-foreground text-[12px] flex items-center justify-center gap-1.5 disabled:opacity-50"
+            >
+              <Save className="w-3.5 h-3.5" strokeWidth={1.6} />
+              {saving ? 'جارٍ الحفظ...' : 'حفظ'}
+            </button>
+            <button
+              onClick={() => { setEditing(null); setCoverFile(null); setAudioFile(null); }}
+              className="flex-1 h-10 rounded-full bg-secondary/40 text-foreground text-[12px] flex items-center justify-center gap-1.5"
+            >
+              <X className="w-3.5 h-3.5" strokeWidth={1.6} /> إلغاء
+            </button>
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <p className="text-center text-[11px] text-muted-foreground py-10">جارٍ التحميل...</p>
+      ) : rows.length === 0 ? (
+        <div className="rounded-2xl border border-border/30 bg-card p-8 text-center">
+          <Play className="w-5 h-5 text-muted-foreground/50 mx-auto mb-2" strokeWidth={1.4} />
+          <p className="text-[11px] text-muted-foreground/70 font-light">لا توجد قصائد بعد</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {rows.map((q) => (
+            <div key={q.id} className="rounded-2xl border border-border/30 bg-card p-3 flex items-center gap-3">
+              {q.cover_path ? (
+                <img
+                  src={publicUrl(q.cover_path)}
+                  alt={q.title}
+                  className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Play className="w-4 h-4 text-primary" strokeWidth={1.5} />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] text-foreground truncate">{q.title}</p>
+                <p className="text-[10px] text-muted-foreground/70 font-light truncate mt-0.5">
+                  {q.reciter}
+                </p>
+              </div>
+              <div className="flex gap-1 flex-shrink-0">
+                <button
+                  onClick={() => beginEdit(q)}
+                  className="w-8 h-8 rounded-full bg-secondary/40 flex items-center justify-center"
+                  aria-label="تعديل"
+                >
+                  <Pencil className="w-3.5 h-3.5 text-foreground" strokeWidth={1.5} />
+                </button>
+                <button
+                  onClick={() => void remove(q)}
+                  className="w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center"
+                  aria-label="حذف"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-destructive" strokeWidth={1.5} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default AdminPage;

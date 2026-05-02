@@ -47,6 +47,45 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_qasaid: {
+        Row: {
+          audio_path: string | null
+          cover_path: string | null
+          created_at: string
+          details: string | null
+          duration_seconds: number | null
+          id: string
+          reciter: string
+          title: string
+          updated_at: string
+          video_path: string | null
+        }
+        Insert: {
+          audio_path?: string | null
+          cover_path?: string | null
+          created_at?: string
+          details?: string | null
+          duration_seconds?: number | null
+          id?: string
+          reciter: string
+          title: string
+          updated_at?: string
+          video_path?: string | null
+        }
+        Update: {
+          audio_path?: string | null
+          cover_path?: string | null
+          created_at?: string
+          details?: string | null
+          duration_seconds?: number | null
+          id?: string
+          reciter?: string
+          title?: string
+          updated_at?: string
+          video_path?: string | null
+        }
+        Relationships: []
+      }
       admin_wallpapers: {
         Row: {
           created_at: string
