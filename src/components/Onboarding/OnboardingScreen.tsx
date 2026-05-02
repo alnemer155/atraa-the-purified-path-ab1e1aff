@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight, Check, Calendar, MapPin, LocateFixed, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Calendar, MapPin, LocateFixed, Loader2, Globe } from 'lucide-react';
 import { setHijriAdjustment } from '@/lib/user';
 import { getBestAccuracyLocation } from '@/lib/geo';
 import { toast } from 'sonner';
@@ -224,7 +224,24 @@ const OnboardingScreen = ({ onFinish }: Props) => {
           <p className="text-[10px] text-muted-foreground/60 font-light tabular-nums">
             {step + 1} / 4
           </p>
-          <div className="w-9 h-9" />
+          {step < 3 ? (
+            <button
+              onClick={() => {
+                const next = isAr ? 'en' : 'ar';
+                void i18n.changeLanguage(next);
+                try { localStorage.setItem('i18nextLng', next); } catch { /* ignore */ }
+              }}
+              className="h-9 px-2.5 min-w-9 rounded-full flex items-center justify-center gap-1 active:bg-secondary/40 transition-colors"
+              aria-label="change language"
+            >
+              <Globe className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+              <span className="text-[10px] text-muted-foreground font-light uppercase tracking-wide">
+                {isAr ? 'EN' : 'ع'}
+              </span>
+            </button>
+          ) : (
+            <div className="w-9 h-9" />
+          )}
         </div>
         <div className="h-[2px] w-full rounded-full bg-border/40 overflow-hidden">
           <motion.div
