@@ -3,16 +3,18 @@ import { motion } from 'framer-motion';
 import {
   Lock, BookMarked, BookOpen, Image as ImageIcon, Plus, Trash2,
   Pencil, Save, X, LogOut, Upload, Sparkles, Globe, Clock, ChevronLeft,
+  Hash, Type, Play, Music,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { isAdminUnlocked, unlockAdmin, lockAdmin } from '@/lib/admin-auth';
 import ReadingThemeToggle from '@/components/ReadingThemeToggle';
 import KhatmaCreateForm from '@/components/KhatmaCreateForm';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type Category = 'dua' | 'ziyara' | 'dhikr';
 type Sect = 'shia' | 'sunni';
-type Tab = 'duas' | 'wallpapers' | 'khatmas';
+type Tab = 'duas' | 'wallpapers' | 'khatmas' | 'qasaid';
 
 interface DuaRow {
   id: string;
