@@ -83,7 +83,7 @@ const DuaReader = ({ item, filtered, fontSize, setFontSize, onClose, onSelect }:
 
         {/* Title */}
         <div className="mb-6">
-          <span className="text-[9px] text-primary/60 tracking-wider font-light">
+          <span className="text-[9px] text-primary/60 font-light">
             {CATEGORY_LABELS[item.category]}
           </span>
           <SmartText as="div" className="text-xl text-foreground leading-snug tracking-tight mt-1 block" iconSize={16}>{item.title}</SmartText>

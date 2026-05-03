@@ -361,7 +361,7 @@ const KhatmaPage = () => {
       ) : (
         <div className="px-5 mt-6">
           <div className="rounded-2xl bg-card border border-border/30 p-6 text-center">
-            <p className="text-[10px] text-muted-foreground/70 font-light tracking-wider mb-2">عدد القراءات</p>
+            <p className="text-[10px] text-muted-foreground/70 font-light mb-2">عدد القراءات</p>
             <p className="text-[40px] text-foreground tabular-nums font-light leading-none mb-5">
               {khatma.recitations_count}
             </p>

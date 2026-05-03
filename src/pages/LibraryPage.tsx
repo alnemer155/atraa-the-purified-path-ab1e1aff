@@ -32,7 +32,7 @@ const LibraryPage = () => {
         <div className="px-5 pt-5 pb-3">
           {/* Title row — single line, refined hairline */}
           <div className={`flex items-baseline justify-between mb-4 ${isAr ? 'flex-row' : 'flex-row-reverse'}`}>
-            <span className="text-[9px] text-muted-foreground/40 font-light tracking-[0.18em] uppercase tabular-nums">
+            <span className={`text-[9px] text-muted-foreground/40 font-light tabular-nums ${isAr ? '' : 'tracking-[0.18em] uppercase'}`}>
               {isAr ? '٠٣ أقسام' : '03 sections'}
             </span>
             <h1 className="text-[22px] text-foreground leading-none tracking-tight font-light">
