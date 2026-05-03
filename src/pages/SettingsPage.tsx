@@ -333,16 +333,30 @@ const SettingsPage = () => {
         <p className="text-[11px] text-muted-foreground/70 px-1 mb-1.5 font-medium">{t('settings.legal')}</p>
         <div className="bg-card rounded-2xl border border-border/40 overflow-hidden divide-y divide-border/30 shadow-card">
           {[
-            { to: '/privacy', label: t('settings.privacy') },
-            { to: '/terms', label: t('settings.terms') },
-            { to: '/disclaimer', label: t('settings.disclaimer') },
-            { to: '/data', label: t('settings.data') },
-            { to: '/about', label: t('settings.about') },
+            { to: '/privacy', label: t('settings.privacy'), external: false },
+            { to: '/terms', label: t('settings.terms'), external: false },
+            { to: '/disclaimer', label: t('settings.disclaimer'), external: false },
+            { to: '/data', label: t('settings.data'), external: false },
+            { to: '/about', label: t('settings.about'), external: false },
+            { to: 'https://khatma.atraa.xyz', label: isAr ? 'تطبيق الختمة' : 'Khatma App', external: true },
           ].map(item => (
-            <Link key={item.to} to={item.to} className="flex items-center justify-between p-3.5 active:bg-secondary/30 transition-colors">
-              <p className="text-[13px] text-foreground">{item.label}</p>
-              <Chevron className="w-4 h-4 text-muted-foreground/40" />
-            </Link>
+            item.external ? (
+              <a
+                key={item.to}
+                href={item.to}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-3.5 active:bg-secondary/30 transition-colors"
+              >
+                <p className="text-[13px] text-foreground">{item.label}</p>
+                <Chevron className="w-4 h-4 text-muted-foreground/40" />
+              </a>
+            ) : (
+              <Link key={item.to} to={item.to} className="flex items-center justify-between p-3.5 active:bg-secondary/30 transition-colors">
+                <p className="text-[13px] text-foreground">{item.label}</p>
+                <Chevron className="w-4 h-4 text-muted-foreground/40" />
+              </Link>
+            )
           ))}
         </div>
       </motion.div>
