@@ -1,7 +1,7 @@
 // Dynamic seasonal logo based on Hijri date
 // Falls back to default logo outside special periods
 
-import defaultLogo from '@/assets/logo-v11.png';
+import defaultLogo from '@/assets/atraa-logo-v12.png';
 
 const LOGOS = {
   default: defaultLogo,

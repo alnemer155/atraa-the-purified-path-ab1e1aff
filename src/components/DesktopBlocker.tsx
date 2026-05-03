@@ -1,4 +1,4 @@
-import logo from '@/assets/logo-v11.png';
+import logo from '@/assets/atraa-logo-v12.png';
 
 const DesktopBlocker = () => {
   return (

@@ -370,7 +370,7 @@ const PrayerTimes = () => {
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div>
-    <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/45 font-light mb-2 px-1">{title}</p>
+    <p className="text-[10px] text-muted-foreground/45 font-light mb-2 px-1">{title}</p>
     <div className="rounded-2xl bg-card border border-border/15 divide-y divide-border/10 overflow-hidden">
       {children}
     </div>

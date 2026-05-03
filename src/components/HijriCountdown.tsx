@@ -306,7 +306,7 @@ const HijriCountdown = () => {
         )}
 
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[8px] text-muted-foreground/45 tracking-[0.22em] font-light uppercase">
+          <span className={`text-[8px] text-muted-foreground/45 font-light ${isAr ? '' : 'tracking-[0.22em] uppercase'}`}>
             {isAr ? 'هجري' : 'Hijri'}
           </span>
           {hijri && (
@@ -381,7 +381,7 @@ const HijriCountdown = () => {
               <div className="relative flex-shrink-0 px-5 pt-5 pb-4 border-b border-border/10">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="text-[9px] text-muted-foreground/55 tracking-[0.3em] font-light uppercase mb-2">
+                    <p className={`text-[9px] text-muted-foreground/55 font-light mb-2 ${isAr ? '' : 'tracking-[0.3em] uppercase'}`}>
                       {isAr ? 'التقويم الهجري' : 'Hijri Calendar'}
                     </p>
                     <div className="flex items-baseline gap-2 mb-1">
@@ -433,7 +433,7 @@ const HijriCountdown = () => {
                     className="w-full text-start rounded-2xl bg-card border border-border/20 p-4 active:scale-[0.99] transition-transform relative overflow-hidden"
                   >
                     <div className="absolute inset-y-0 start-0 w-[2px] bg-gold/60" />
-                    <p className="text-[9px] text-muted-foreground/60 uppercase tracking-[0.25em] font-light mb-2">
+                    <p className={`text-[9px] text-muted-foreground/60 font-light mb-2 ${isAr ? '' : 'uppercase tracking-[0.25em]'}`}>
                       {isAr ? 'مناسبة اليوم' : 'Today'}
                     </p>
                     <p className="text-[15px] text-foreground leading-relaxed">
@@ -448,7 +448,7 @@ const HijriCountdown = () => {
                 {/* Ramadan / Eid prediction — clean text card, no icons */}
                 {hijri.monthNumber === 8 && (
                   <div className="rounded-2xl bg-card border border-border/15 p-4">
-                    <p className="text-[9px] text-muted-foreground/55 uppercase tracking-[0.25em] font-light mb-1.5">
+                    <p className={`text-[9px] text-muted-foreground/55 font-light mb-1.5 ${isAr ? '' : 'uppercase tracking-[0.25em]'}`}>
                       {isAr ? 'توقّع' : 'Forecast'}
                     </p>
                     <p className="text-[12px] text-foreground">
@@ -463,7 +463,7 @@ const HijriCountdown = () => {
                 )}
                 {hijri.monthNumber === 9 && (
                   <div className="rounded-2xl bg-card border border-border/15 p-4">
-                    <p className="text-[9px] text-muted-foreground/55 uppercase tracking-[0.25em] font-light mb-1.5">
+                    <p className={`text-[9px] text-muted-foreground/55 font-light mb-1.5 ${isAr ? '' : 'uppercase tracking-[0.25em]'}`}>
                       {isAr ? 'توقّع' : 'Forecast'}
                     </p>
                     <p className="text-[12px] text-foreground">
@@ -480,7 +480,7 @@ const HijriCountdown = () => {
                 {/* Upcoming occasions */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <p className="text-[10px] text-muted-foreground/55 uppercase tracking-[0.25em] font-light">
+                    <p className={`text-[10px] text-muted-foreground/55 font-light ${isAr ? '' : 'uppercase tracking-[0.25em]'}`}>
                       {isAr ? 'المناسبات القادمة' : 'Upcoming occasions'}
                     </p>
                     {upcomingOccasions.length > 0 && (

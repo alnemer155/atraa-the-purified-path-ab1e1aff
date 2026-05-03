@@ -146,7 +146,7 @@ const MadinahSurahHeader = ({ meta }: { meta: SurahMeta }) => {
 
         <div className="relative flex flex-col items-center" style={{ lineHeight: 1.05 }}>
           <p className="quran-uthmani text-[26px] text-foreground leading-none">{cleanName}</p>
-          <p className="text-[7.5px] text-gold/80 font-light mt-2 tracking-[0.32em]">
+          <p className="text-[8.5px] text-gold/80 font-light mt-2">
             {meta.revelationType === 'Medinan' ? 'مَدَنِيَّة' : 'مَكِّيَّة'} · {toArabicNumerals(meta.numberOfAyahs)} آية
           </p>
         </div>

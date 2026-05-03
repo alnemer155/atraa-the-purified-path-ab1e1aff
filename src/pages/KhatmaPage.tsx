@@ -276,7 +276,7 @@ const KhatmaPage = () => {
             ? <BookOpen className="w-6 h-6 text-primary" strokeWidth={1.3} />
             : <BookMarked className="w-6 h-6 text-primary" strokeWidth={1.3} />}
         </div>
-        <p className="text-[11px] text-muted-foreground/70 mb-3 font-light tracking-wider">إهداء</p>
+        <p className="text-[11px] text-muted-foreground/70 mb-3 font-light">إهداء</p>
         <h1 className="text-[20px] text-foreground leading-relaxed font-light mb-6 px-2">
           {khatma.title}
         </h1>
@@ -361,7 +361,7 @@ const KhatmaPage = () => {
       ) : (
         <div className="px-5 mt-6">
           <div className="rounded-2xl bg-card border border-border/30 p-6 text-center">
-            <p className="text-[10px] text-muted-foreground/70 font-light tracking-wider mb-2">عدد القراءات</p>
+            <p className="text-[10px] text-muted-foreground/70 font-light mb-2">عدد القراءات</p>
             <p className="text-[40px] text-foreground tabular-nums font-light leading-none mb-5">
               {khatma.recitations_count}
             </p>
