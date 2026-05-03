@@ -351,7 +351,7 @@ const QiblaPage = () => {
     <div className="px-5 pt-3 pb-6 animate-fade-in min-h-[calc(100vh-130px)] flex flex-col" dir={isAr ? 'rtl' : 'ltr'}>
       {/* Header — sleek */}
       <div className="text-center mb-1">
-        <p className="text-[8px] text-gold/70 font-light tracking-[0.4em] uppercase mb-1.5">
+        <p className={`text-[8px] text-gold/70 font-light mb-1.5 ${isAr ? '' : 'tracking-[0.4em] uppercase'}`}>
           {isAr ? 'القبلة' : 'Qibla'}
         </p>
         <h1 className="text-[20px] text-foreground tracking-tight font-light leading-none">
@@ -478,7 +478,7 @@ const QiblaPage = () => {
       {/* Stats — three-column hairline row */}
       <div className="grid grid-cols-3 gap-2 mt-2 mb-2">
         <div className="rounded-2xl bg-card border border-border/20 px-3 py-3 text-center">
-          <p className="text-[7.5px] text-muted-foreground/45 font-light tracking-[0.22em] uppercase mb-1">
+          <p className={`text-[7.5px] text-muted-foreground/45 font-light mb-1 ${isAr ? '' : 'tracking-[0.22em] uppercase'}`}>
             {isAr ? 'الاتجاه' : 'Bearing'}
           </p>
           <p className="text-[18px] text-foreground tracking-tight font-light tabular-nums leading-none">
@@ -486,7 +486,7 @@ const QiblaPage = () => {
           </p>
         </div>
         <div className="rounded-2xl bg-card border border-border/20 px-3 py-3 text-center">
-          <p className="text-[7.5px] text-muted-foreground/45 font-light tracking-[0.22em] uppercase mb-1">
+          <p className={`text-[7.5px] text-muted-foreground/45 font-light mb-1 ${isAr ? '' : 'tracking-[0.22em] uppercase'}`}>
             {isAr ? 'المسافة' : 'Distance'}
           </p>
           <p className="text-[18px] text-foreground tracking-tight font-light tabular-nums leading-none">
@@ -497,7 +497,7 @@ const QiblaPage = () => {
           </p>
         </div>
         <div className="rounded-2xl bg-card border border-border/20 px-3 py-3 text-center">
-          <p className="text-[7.5px] text-muted-foreground/45 font-light tracking-[0.22em] uppercase mb-1">
+          <p className={`text-[7.5px] text-muted-foreground/45 font-light mb-1 ${isAr ? '' : 'tracking-[0.22em] uppercase'}`}>
             {isAr ? 'الدقة' : 'Accuracy'}
           </p>
           <p className="text-[18px] text-foreground tracking-tight font-light tabular-nums leading-none">
