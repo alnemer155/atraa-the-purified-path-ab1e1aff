@@ -276,7 +276,7 @@ const KhatmaPage = () => {
             ? <BookOpen className="w-6 h-6 text-primary" strokeWidth={1.3} />
             : <BookMarked className="w-6 h-6 text-primary" strokeWidth={1.3} />}
         </div>
-        <p className="text-[11px] text-muted-foreground/70 mb-3 font-light tracking-wider">إهداء</p>
+        <p className="text-[11px] text-muted-foreground/70 mb-3 font-light">إهداء</p>
         <h1 className="text-[20px] text-foreground leading-relaxed font-light mb-6 px-2">
           {khatma.title}
         </h1>
