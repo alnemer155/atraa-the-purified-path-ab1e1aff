@@ -16,7 +16,7 @@ const AboutPage = () => {
       {isAr ? (
         <>
           <section className="rounded-2xl border border-gold/30 bg-gold/5 p-4 text-center">
-            <p className="text-[8px] text-gold/80 font-light tracking-[0.3em] mb-2">قال رسول الله ﷺ</p>
+            <p className="text-[10px] text-gold/80 font-light mb-2">قال رسول الله ﷺ</p>
             <p className="quran-uthmani text-[17px] text-foreground leading-loose">
               إنِّي تَارِكٌ فِيكُمُ الثَّقَلَيْنِ كِتَابَ اللهِ وَعِتْرَتِي أَهْلَ بَيْتِي
             </p>

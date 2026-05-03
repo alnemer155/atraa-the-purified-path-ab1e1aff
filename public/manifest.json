@@ -1,7 +1,7 @@
 {
-  "name": "عِتَرَةً - Atraa",
-  "short_name": "عِتَرَةً",
-  "description": "عِتَرَةً تطبيق ديني يُقدّم: أوقات الصلاة، اتجاه القبلة، التاريخ الهجري، الأدعية، الزيارات، الأذكار، التسبيح الرقمي، وعرض القرآن الكريم بالرسم العثماني. التطبيق مجاني بالكامل ولا يتطلّب اشتراكاً ولا تسجيل حساب ولا أي عملية دفع",
+  "name": "منصة عترة - Atraa",
+  "short_name": "منصة عترة",
+  "description": "منصة عترة — منصة إسلامية شاملة: أوقات الصلاة، اتجاه القبلة، التاريخ الهجري، الأدعية، الزيارات، الأذكار، التسبيح الرقمي، القرآن الكريم بالرسم العثماني، والقصائد الحسينية. مجانية بالكامل بلا حساب ولا اشتراك.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -12,13 +12,13 @@
   "dir": "rtl",
   "icons": [
     {
-      "src": "/logo-v11.png",
+      "src": "/logo-v12.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo-v11.png",
+      "src": "/logo-v12.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
@@ -26,14 +26,8 @@
   ],
   "categories": ["lifestyle", "utilities", "education"],
   "shortcuts": [
-    {
-      "name": "المكتبة",
-      "url": "/library"
-    },
-    {
-      "name": "القبلة",
-      "url": "/qibla"
-    }
+    { "name": "المكتبة", "url": "/library" },
+    { "name": "القبلة", "url": "/qibla" }
   ],
   "prefer_related_applications": false
 }
