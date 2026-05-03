@@ -338,7 +338,7 @@ const SettingsPage = () => {
             { to: '/disclaimer', label: t('settings.disclaimer'), external: false },
             { to: '/data', label: t('settings.data'), external: false },
             { to: '/about', label: t('settings.about'), external: false },
-            { to: 'https://khatma.atraa.xyz', label: isAr ? 'تطبيق الختمة' : 'Khatma App', external: true },
+            { to: 'https://khatma.atraa.xyz', label: isAr ? 'تطبيق الختمة التابع لـ منصة عترة' : 'Khatma App by Atraa', external: true },
           ].map(item => (
             item.external ? (
               <a
