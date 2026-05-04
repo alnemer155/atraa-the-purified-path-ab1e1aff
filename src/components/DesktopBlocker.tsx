@@ -1,4 +1,4 @@
-import logo from 'phonto.png';
+import logo from '@/assets/logo-Atraa-v3.png';
 
 const DesktopBlocker = () => {
   return (
