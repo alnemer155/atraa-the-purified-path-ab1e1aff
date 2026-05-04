@@ -777,6 +777,7 @@ const QasaidManager = () => {
   const [editing, setEditing] = useState<Partial<QasaidRow> | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
@@ -806,6 +807,7 @@ const QasaidManager = () => {
   const beginEdit = (row?: QasaidRow) => {
     setCoverFile(null);
     setAudioFile(null);
+    setVideoFile(null);
     setEditing(row ?? { reciter: '', title: '', details: '' });
   };
 
@@ -822,6 +824,7 @@ const QasaidManager = () => {
     setSaving(true);
     let cover_path = editing.cover_path ?? null;
     let audio_path = editing.audio_path ?? null;
+    let video_path = editing.video_path ?? null;
 
     if (coverFile) {
       const p = await uploadFile(coverFile);
@@ -833,6 +836,11 @@ const QasaidManager = () => {
       if (!p) { setSaving(false); toast({ title: 'تعذّر رفع الصوت', variant: 'destructive' }); return; }
       audio_path = p;
     }
+    if (videoFile) {
+      const p = await uploadFile(videoFile);
+      if (!p) { setSaving(false); toast({ title: 'تعذّر رفع الفيديو', variant: 'destructive' }); return; }
+      video_path = p;
+    }
 
     const payload = {
       title: editing.title.trim(),
@@ -841,7 +849,7 @@ const QasaidManager = () => {
       duration_seconds: editing.duration_seconds ?? null,
       cover_path,
       audio_path,
-      video_path: editing.video_path ?? null,
+      video_path,
     };
 
     if (editing.id) {
@@ -855,6 +863,7 @@ const QasaidManager = () => {
     setEditing(null);
     setCoverFile(null);
     setAudioFile(null);
+    setVideoFile(null);
     void load();
     toast({ title: 'تم الحفظ' });
   };
@@ -955,13 +964,19 @@ const QasaidManager = () => {
             />
           </label>
 
-          {/* Video — placeholder, locked */}
-          <div className="flex items-center justify-between gap-3 h-11 rounded-xl bg-secondary/20 border border-border/20 px-3 opacity-60">
-            <span className="text-[11px] text-muted-foreground font-light flex-1">
-              فيديو — قريباً
+          {/* Video upload */}
+          <label className="flex items-center justify-between gap-3 h-11 rounded-xl bg-secondary/40 border border-border/30 px-3 cursor-pointer">
+            <span className="text-[11px] text-muted-foreground font-light truncate flex-1">
+              {videoFile ? videoFile.name : (editing.video_path ? 'الفيديو الحالي محفوظ' : 'اختر ملف فيديو (اختياري)')}
             </span>
-            <Lock className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
-          </div>
+            <Play className="w-3.5 h-3.5 text-foreground" strokeWidth={1.5} />
+            <input
+              type="file"
+              accept="video/*"
+              className="hidden"
+              onChange={(e) => setVideoFile(e.target.files?.[0] ?? null)}
+            />
+          </label>
 
           <div className="flex gap-2">
             <button
@@ -973,7 +988,7 @@ const QasaidManager = () => {
               {saving ? 'جارٍ الحفظ...' : 'حفظ'}
             </button>
             <button
-              onClick={() => { setEditing(null); setCoverFile(null); setAudioFile(null); }}
+              onClick={() => { setEditing(null); setCoverFile(null); setAudioFile(null); setVideoFile(null); }}
               className="flex-1 h-10 rounded-full bg-secondary/40 text-foreground text-[12px] flex items-center justify-center gap-1.5"
             >
               <X className="w-3.5 h-3.5" strokeWidth={1.6} /> إلغاء

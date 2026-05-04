@@ -1,7 +1,7 @@
 // Dynamic seasonal logo based on Hijri date
 // Falls back to default logo outside special periods
 
-import defaultLogo from 'phonto.png';
+import defaultLogo from '@/assets/logo-Atraa-v3.png';
 
 const LOGOS = {
   default: defaultLogo,
@@ -13,7 +13,7 @@ const LOGOS = {
 
 interface HijriDate {
   day: number;
-  month: number; // 1-12
+  month: number;
 }
 
 function getHijriToday(): HijriDate {
@@ -32,33 +32,12 @@ function getHijriToday(): HijriDate {
   }
 }
 
-/**
- * Returns the appropriate seasonal logo URL based on the current Hijri date.
- * Periods (inclusive):
- *  - Eid al-Ghadeer:  15 Dhul-Hijjah → 19 Dhul-Hijjah    (month 12)
- *  - Muharram:        28 Dhul-Hijjah → 14 Muharram       (month 12 → month 1)
- *  - Ramadan:         27 Sha'ban     → 27 Ramadan        (month 8 → month 9)
- *  - Eid al-Fitr:     29 Ramadan     → 4 Shawwal         (month 9 → month 10)
- */
 export function getSeasonalLogo(): string {
   const { day, month } = getHijriToday();
-
-  // Eid al-Fitr: 29 Ramadan – 4 Shawwal
-  if ((month === 9 && day >= 29) || (month === 10 && day <= 4)) {
-    return LOGOS.fitr;
-  }
-  // Ramadan: 27 Sha'ban – 27 Ramadan (Fitr takes over from 29)
-  if ((month === 8 && day >= 27) || (month === 9 && day <= 27)) {
-    return LOGOS.ramadan;
-  }
-  // Muharram: 28 Dhul-Hijjah – 14 Muharram
-  if ((month === 12 && day >= 28) || (month === 1 && day <= 14)) {
-    return LOGOS.muharram;
-  }
-  // Eid al-Ghadeer: 15–19 Dhul-Hijjah
-  if (month === 12 && day >= 15 && day <= 19) {
-    return LOGOS.ghadeer;
-  }
+  if ((month === 9 && day >= 29) || (month === 10 && day <= 4)) return LOGOS.fitr;
+  if ((month === 8 && day >= 27) || (month === 9 && day <= 27)) return LOGOS.ramadan;
+  if ((month === 12 && day >= 28) || (month === 1 && day <= 14)) return LOGOS.muharram;
+  if (month === 12 && day >= 15 && day <= 19) return LOGOS.ghadeer;
   return LOGOS.default;
 }
 
