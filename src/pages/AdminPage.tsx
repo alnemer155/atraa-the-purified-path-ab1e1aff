@@ -964,13 +964,19 @@ const QasaidManager = () => {
             />
           </label>
 
-          {/* Video — placeholder, locked */}
-          <div className="flex items-center justify-between gap-3 h-11 rounded-xl bg-secondary/20 border border-border/20 px-3 opacity-60">
-            <span className="text-[11px] text-muted-foreground font-light flex-1">
-              فيديو — قريباً
+          {/* Video upload */}
+          <label className="flex items-center justify-between gap-3 h-11 rounded-xl bg-secondary/40 border border-border/30 px-3 cursor-pointer">
+            <span className="text-[11px] text-muted-foreground font-light truncate flex-1">
+              {videoFile ? videoFile.name : (editing.video_path ? 'الفيديو الحالي محفوظ' : 'اختر ملف فيديو (اختياري)')}
             </span>
-            <Lock className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
-          </div>
+            <Play className="w-3.5 h-3.5 text-foreground" strokeWidth={1.5} />
+            <input
+              type="file"
+              accept="video/*"
+              className="hidden"
+              onChange={(e) => setVideoFile(e.target.files?.[0] ?? null)}
+            />
+          </label>
 
           <div className="flex gap-2">
             <button
@@ -982,7 +988,7 @@ const QasaidManager = () => {
               {saving ? 'جارٍ الحفظ...' : 'حفظ'}
             </button>
             <button
-              onClick={() => { setEditing(null); setCoverFile(null); setAudioFile(null); }}
+              onClick={() => { setEditing(null); setCoverFile(null); setAudioFile(null); setVideoFile(null); }}
               className="flex-1 h-10 rounded-full bg-secondary/40 text-foreground text-[12px] flex items-center justify-center gap-1.5"
             >
               <X className="w-3.5 h-3.5" strokeWidth={1.6} /> إلغاء
