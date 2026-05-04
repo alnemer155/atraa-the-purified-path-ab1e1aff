@@ -824,6 +824,7 @@ const QasaidManager = () => {
     setSaving(true);
     let cover_path = editing.cover_path ?? null;
     let audio_path = editing.audio_path ?? null;
+    let video_path = editing.video_path ?? null;
 
     if (coverFile) {
       const p = await uploadFile(coverFile);
@@ -835,6 +836,11 @@ const QasaidManager = () => {
       if (!p) { setSaving(false); toast({ title: 'تعذّر رفع الصوت', variant: 'destructive' }); return; }
       audio_path = p;
     }
+    if (videoFile) {
+      const p = await uploadFile(videoFile);
+      if (!p) { setSaving(false); toast({ title: 'تعذّر رفع الفيديو', variant: 'destructive' }); return; }
+      video_path = p;
+    }
 
     const payload = {
       title: editing.title.trim(),
@@ -843,7 +849,7 @@ const QasaidManager = () => {
       duration_seconds: editing.duration_seconds ?? null,
       cover_path,
       audio_path,
-      video_path: editing.video_path ?? null,
+      video_path,
     };
 
     if (editing.id) {
@@ -857,6 +863,7 @@ const QasaidManager = () => {
     setEditing(null);
     setCoverFile(null);
     setAudioFile(null);
+    setVideoFile(null);
     void load();
     toast({ title: 'تم الحفظ' });
   };
