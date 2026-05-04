@@ -777,6 +777,7 @@ const QasaidManager = () => {
   const [editing, setEditing] = useState<Partial<QasaidRow> | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
@@ -806,6 +807,7 @@ const QasaidManager = () => {
   const beginEdit = (row?: QasaidRow) => {
     setCoverFile(null);
     setAudioFile(null);
+    setVideoFile(null);
     setEditing(row ?? { reciter: '', title: '', details: '' });
   };
 
