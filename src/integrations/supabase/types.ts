@@ -172,6 +172,7 @@ export type Database = {
           completed_at: string
           created_at: string
           id: string
+          is_private: boolean
           juz_number: number
           khatma_id: string
           reader_name: string | null
@@ -181,6 +182,7 @@ export type Database = {
           completed_at?: string
           created_at?: string
           id?: string
+          is_private?: boolean
           juz_number: number
           khatma_id: string
           reader_name?: string | null
@@ -190,6 +192,7 @@ export type Database = {
           completed_at?: string
           created_at?: string
           id?: string
+          is_private?: boolean
           juz_number?: number
           khatma_id?: string
           reader_name?: string | null
@@ -198,6 +201,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "khatma_juz_claims_khatma_id_fkey"
+            columns: ["khatma_id"]
+            isOneToOne: false
+            referencedRelation: "khatmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      khatma_recitations: {
+        Row: {
+          created_at: string
+          id: string
+          is_private: boolean
+          khatma_id: string
+          reader_name: string | null
+          reader_token: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_private?: boolean
+          khatma_id: string
+          reader_name?: string | null
+          reader_token: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_private?: boolean
+          khatma_id?: string
+          reader_name?: string | null
+          reader_token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "khatma_recitations_khatma_id_fkey"
             columns: ["khatma_id"]
             isOneToOne: false
             referencedRelation: "khatmas"
@@ -264,6 +302,70 @@ export type Database = {
           visibility?: string
         }
         Relationships: []
+      }
+      qasida_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          qasida_id: string
+          visitor_name: string
+          visitor_token: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          qasida_id: string
+          visitor_name: string
+          visitor_token?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          qasida_id?: string
+          visitor_name?: string
+          visitor_token?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qasida_comments_qasida_id_fkey"
+            columns: ["qasida_id"]
+            isOneToOne: false
+            referencedRelation: "admin_qasaid"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qasida_likes: {
+        Row: {
+          created_at: string
+          id: string
+          qasida_id: string
+          visitor_token: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          qasida_id: string
+          visitor_token: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          qasida_id?: string
+          visitor_token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qasida_likes_qasida_id_fkey"
+            columns: ["qasida_id"]
+            isOneToOne: false
+            referencedRelation: "admin_qasaid"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
