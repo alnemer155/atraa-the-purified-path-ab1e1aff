@@ -7,6 +7,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import SplashScreen from "@/components/SplashScreen";
 import OnboardingScreen, { isOnboardingDone } from "@/components/Onboarding/OnboardingScreen";
 import { UIProvider } from "@/contexts/UIContext";
+import { QasaidPlayerProvider } from "@/contexts/QasaidPlayerContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AppLayout from "./components/AppLayout";
@@ -25,6 +26,7 @@ const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
 const KhatmaPage = lazy(() => import("./pages/KhatmaPage"));
 const KhatmaLandingPage = lazy(() => import("./pages/KhatmaLandingPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
+const QasaidPage = lazy(() => import("./pages/QasaidPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const hostname = typeof window !== "undefined" ? window.location.hostname : "";
@@ -76,6 +78,7 @@ const App = () => {
           {!isStandaloneHost && !showSplash && showOnboarding && <OnboardingScreen onFinish={handleOnboardingFinish} />}
           <BrowserRouter>
             <UIProvider>
+            <QasaidPlayerProvider>
               <Suspense fallback={<PageLoader />}>
                 {isAdminHost ? (
                   <Routes>
@@ -103,6 +106,7 @@ const App = () => {
                       <Route path="/disclaimer" element={<DisclaimerPage />} />
                       <Route path="/data" element={<DataPage />} />
                       <Route path="/about" element={<AboutPage />} />
+                      <Route path="/qasaid" element={<QasaidPage />} />
                     </Route>
 
                     {/* Khatma standalone (no app shell, accessed via shared link) */}
@@ -132,6 +136,7 @@ const App = () => {
                   </Routes>
                 )}
               </Suspense>
+            </QasaidPlayerProvider>
             </UIProvider>
           </BrowserRouter>
           <Analytics />

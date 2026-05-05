@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import AppHeader from './AppHeader';
 import BottomNav from './BottomNav';
+import FloatingQasaidBar from './FloatingQasaidBar';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUI } from '@/contexts/UIContext';
@@ -18,6 +19,7 @@ const AppLayout = () => {
   return (
     <div className="min-h-screen bg-background max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto relative">
       {!hideHeader && <AppHeader />}
+      <FloatingQasaidBar />
       <main className="safe-bottom">
         <Outlet />
       </main>
