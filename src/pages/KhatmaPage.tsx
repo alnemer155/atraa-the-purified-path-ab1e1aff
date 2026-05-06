@@ -486,6 +486,15 @@ const KhatmaPage = () => {
           العودة إلى الرئيسية
         </Link>
       </div>
+
+      <RecitationRegisterDialog
+        open={registerOpen}
+        onClose={() => { setRegisterOpen(false); setRegisterJuz(null); }}
+        onConfirm={async (meta) => {
+          if (registerJuz != null) await claimJuz(registerJuz, meta);
+          else await addRecitation(meta);
+        }}
+      />
     </div>
   );
 };
