@@ -5,6 +5,7 @@ import { ChevronRight, BookMarked, BookOpen, Share2, Plus, Check, Trash2, Clock,
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import ReadingThemeToggle from '@/components/ReadingThemeToggle';
+import RecitationRegisterDialog from '@/components/khatma/RecitationRegisterDialog';
 import {
   getCreatorToken,
   forgetCreator,
@@ -50,6 +51,8 @@ const KhatmaPage = () => {
   const [convertOpen, setConvertOpen] = useState(false);
   const [convertText, setConvertText] = useState('');
   const [converting, setConverting] = useState(false);
+  const [registerOpen, setRegisterOpen] = useState(false);
+  const [registerJuz, setRegisterJuz] = useState<number | null>(null);
 
   const creatorToken = khatma ? getCreatorToken(khatma.id) : null;
   const isCreator = !!creatorToken;
@@ -87,7 +90,7 @@ const KhatmaPage = () => {
 
   useEffect(() => { void load(); }, [load]);
 
-  async function addRecitation() {
+  async function addRecitation(meta?: { name: string; isPrivate: boolean; skipped: boolean }) {
     if (!khatma || counted) return;
     const next = khatma.recitations_count + 1;
     const { error } = await supabase
@@ -98,18 +101,32 @@ const KhatmaPage = () => {
       toast({ title: 'تعذّر التسجيل', variant: 'destructive' });
       return;
     }
+    if (meta && !meta.skipped) {
+      await supabase.from('khatma_recitations').insert({
+        khatma_id: khatma.id,
+        reader_token: getReaderToken(),
+        reader_name: meta.name,
+        is_private: meta.isPrivate,
+      });
+    }
     setKhatma({ ...khatma, recitations_count: next });
     setCounted(true);
     toast({ title: 'تُقبَّل منكم — تم تسجيل قراءتك' });
   }
 
-  async function claimJuz(juz: number) {
+  async function claimJuz(juz: number, meta?: { name: string; isPrivate: boolean; skipped: boolean }) {
     if (!khatma) return;
     setBusyJuz(juz);
     const readerToken = getReaderToken();
     const { data, error } = await supabase
       .from('khatma_juz_claims')
-      .insert({ khatma_id: khatma.id, juz_number: juz, reader_token: readerToken })
+      .insert({
+        khatma_id: khatma.id,
+        juz_number: juz,
+        reader_token: readerToken,
+        reader_name: meta && !meta.skipped ? meta.name : null,
+        is_private: meta?.isPrivate ?? false,
+      })
       .select()
       .single();
     setBusyJuz(null);
