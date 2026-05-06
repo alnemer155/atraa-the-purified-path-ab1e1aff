@@ -779,6 +779,7 @@ const QasaidManager = () => {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [viewing, setViewing] = useState<QasaidRow | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -1008,24 +1009,26 @@ const QasaidManager = () => {
         <div className="space-y-2">
           {rows.map((q) => (
             <div key={q.id} className="rounded-2xl border border-border/30 bg-card p-3 flex items-center gap-3">
-              {q.cover_path ? (
-                <img
-                  src={publicUrl(q.cover_path)}
-                  alt={q.title}
-                  className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Play className="w-4 h-4 text-primary" strokeWidth={1.5} />
+              <button onClick={() => setViewing(q)} className="flex items-center gap-3 flex-1 min-w-0 text-right active:opacity-70">
+                {q.cover_path ? (
+                  <img
+                    src={publicUrl(q.cover_path)}
+                    alt={q.title}
+                    className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Play className="w-4 h-4 text-primary" strokeWidth={1.5} />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] text-foreground truncate">{q.title}</p>
+                  <p className="text-[10px] text-muted-foreground/70 font-light truncate mt-0.5">
+                    {q.reciter}
+                  </p>
                 </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <p className="text-[12px] text-foreground truncate">{q.title}</p>
-                <p className="text-[10px] text-muted-foreground/70 font-light truncate mt-0.5">
-                  {q.reciter}
-                </p>
-              </div>
+              </button>
               <div className="flex gap-1 flex-shrink-0">
                 <button
                   onClick={() => beginEdit(q)}
@@ -1044,6 +1047,57 @@ const QasaidManager = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {viewing && (
+        <div className="fixed inset-0 z-[80] bg-background/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3" onClick={() => setViewing(null)} dir="rtl">
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md max-h-[88vh] overflow-y-auto rounded-3xl border border-border/30 bg-card p-5">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] text-muted-foreground/60 mb-1">قصيدة حسينية</p>
+                <p className="text-[15px] text-foreground leading-relaxed">{viewing.title}</p>
+              </div>
+              <button onClick={() => setViewing(null)} className="w-8 h-8 rounded-full active:bg-secondary/40 flex items-center justify-center">
+                <X className="w-4 h-4" strokeWidth={1.5} />
+              </button>
+            </div>
+
+            {viewing.cover_path && (
+              <img src={publicUrl(viewing.cover_path)} alt={viewing.title} className="w-full aspect-square rounded-2xl object-cover mb-4" />
+            )}
+
+            <div className="space-y-2 text-[12px] text-foreground">
+              <div className="flex justify-between gap-3"><span className="text-muted-foreground/70">الرادود</span><span>{viewing.reciter}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-muted-foreground/70">المدة</span><span className="tabular-nums" dir="ltr">{viewing.duration_seconds ? `${viewing.duration_seconds}s` : '—'}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-muted-foreground/70">صوت</span><span>{viewing.audio_path ? '✓' : '—'}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-muted-foreground/70">فيديو</span><span>{viewing.video_path ? '✓' : '—'}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-muted-foreground/70">أُضيفت</span><span className="text-[10px]" dir="ltr">{new Date(viewing.created_at).toLocaleString('ar-EG')}</span></div>
+            </div>
+
+            {viewing.details && (
+              <div className="mt-3 rounded-xl bg-secondary/30 border border-border/30 p-3">
+                <p className="text-[10px] text-muted-foreground/70 mb-1">التفاصيل</p>
+                <p className="text-[12px] text-foreground font-light leading-relaxed">{viewing.details}</p>
+              </div>
+            )}
+
+            {viewing.audio_path && (
+              <audio controls src={publicUrl(viewing.audio_path)} className="w-full mt-3" />
+            )}
+            {viewing.video_path && (
+              <video controls src={publicUrl(viewing.video_path)} className="w-full mt-3 rounded-xl" />
+            )}
+
+            <div className="flex gap-2 mt-4">
+              <button onClick={() => { beginEdit(viewing); setViewing(null); }} className="flex-1 h-11 rounded-full bg-primary text-primary-foreground text-[12px] flex items-center justify-center gap-1.5">
+                <Pencil className="w-3.5 h-3.5" strokeWidth={1.6} /> تعديل
+              </button>
+              <button onClick={() => { void remove(viewing); setViewing(null); }} className="flex-1 h-11 rounded-full bg-destructive/10 text-destructive text-[12px] flex items-center justify-center gap-1.5">
+                <Trash2 className="w-3.5 h-3.5" strokeWidth={1.6} /> حذف
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

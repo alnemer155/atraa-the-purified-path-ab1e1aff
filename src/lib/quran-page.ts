@@ -84,11 +84,26 @@ export const toArabicNumerals = (n: number | string): string =>
  * Strip "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ" from the start of an ayah.
  * In the Uthmani text, every surah's first ayah (except At-Tawbah) BEGINS
  * with the basmalah and we render the basmalah separately as part of the
- * illuminated surah header.
+ * illuminated surah header. Robust against diacritic variants by stripping
+ * tashkīl from a leading window and matching the consonantal skeleton.
  */
 export const stripBasmalah = (text: string): string => {
-  // Cover both spellings (with/without superscript alif)
-  return text
-    .replace(/^بِسْمِ\s*ٱللَّ[هـ]ِ\s*ٱلرَّحْمَ[ـٰ]ـ?نِ\s*ٱلرَّحِيمِ\s*/u, '')
-    .replace(/^بِسْمِ\s*ٱللَّهِ\s*ٱلرَّحْم[َـٰ]نِ\s*ٱلرَّحِيمِ\s*/u, '');
+  // Quick consonantal check on the first 60 chars (after removing diacritics).
+  const head = text.slice(0, 60);
+  const bare = head.replace(/[\u064B-\u0652\u0670\u0653-\u065F\u06D6-\u06ED\u0640]/g, '');
+  // Bare basmalah skeleton: بسم الله الرحمن الرحيم
+  const m = bare.match(/^\s*بسم\s*ا?لله\s*ا?لرحم[نـ]ن?\s*ا?لرحيم\s*/);
+  if (!m) return text;
+  // Walk original text consuming visible non-diacritic chars equal to bare match length
+  let consumed = 0;
+  let i = 0;
+  const target = m[0].length;
+  while (i < text.length && consumed < target) {
+    const ch = text[i];
+    if (!/[\u064B-\u0652\u0670\u0653-\u065F\u06D6-\u06ED\u0640]/.test(ch)) consumed++;
+    i++;
+  }
+  // Skip any trailing diacritics/spaces
+  while (i < text.length && /[\u064B-\u0652\u0670\u0653-\u065F\u06D6-\u06ED\u0640\s]/.test(text[i])) i++;
+  return text.slice(i);
 };
