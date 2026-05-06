@@ -347,7 +347,7 @@ const KhatmaPage = () => {
                     key={juz}
                     type="button"
                     disabled={busy || (isClaimed && !isMine)}
-                    onClick={() => isMine ? releaseJuz(juz) : claimJuz(juz)}
+                    onClick={() => isMine ? releaseJuz(juz) : (setRegisterJuz(juz), setRegisterOpen(true))}
                     className={`aspect-square rounded-xl border text-[12px] tabular-nums flex flex-col items-center justify-center gap-0.5 transition-colors disabled:opacity-60 ${cls}`}
                   >
                     {busy ? (
@@ -383,7 +383,7 @@ const KhatmaPage = () => {
               {khatma.recitations_count}
             </p>
             <button
-              onClick={addRecitation}
+              onClick={() => { setRegisterJuz(null); setRegisterOpen(true); }}
               disabled={counted}
               className="w-full h-12 rounded-full bg-primary text-primary-foreground text-[13px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform disabled:opacity-50"
             >
