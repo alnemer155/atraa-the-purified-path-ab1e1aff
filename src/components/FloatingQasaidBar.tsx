@@ -21,7 +21,7 @@ const FloatingQasaidBar = () => {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: -12, opacity: 0 }}
         transition={{ duration: 0.22 }}
-        className="sticky top-0 z-40 mx-2 mt-1 rounded-2xl border border-border/30 bg-card/95 backdrop-blur-xl shadow-card overflow-hidden"
+        className="fixed left-2 right-2 bottom-[68px] z-40 mx-auto max-w-lg md:max-w-2xl lg:max-w-3xl rounded-2xl border border-border/30 bg-card/95 backdrop-blur-xl shadow-card overflow-hidden"
         dir="rtl"
       >
         <div className="flex items-center gap-2 p-2">

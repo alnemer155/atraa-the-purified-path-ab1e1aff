@@ -19,10 +19,11 @@ const AppLayout = () => {
   return (
     <div className="min-h-screen bg-background max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto relative">
       {!hideHeader && <AppHeader />}
-      <FloatingQasaidBar />
       <main className="safe-bottom">
         <Outlet />
       </main>
+      {/* Floating Qasaid mini-player sits above the bottom nav so it's always reachable */}
+      <FloatingQasaidBar />
       {!hideBottomNav && <BottomNav />}
     </div>
   );
