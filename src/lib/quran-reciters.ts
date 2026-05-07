@@ -63,10 +63,16 @@ export const RECITERS: Reciter[] = [
     folder: 'ahmed_ibn_3ali_al-3ajamy_128kbps',
   },
   {
-    id: 'mishary',
-    name: 'الشيخ مشاري راشد العفاسي',
-    hint: 'مرتّل · الكويت',
-    folder: 'Alafasy_128kbps',
+    id: 'parhizgar',
+    name: 'الشيخ شهريار برهيزكار',
+    hint: 'مرتّل · إيران (قراءة شيعية)',
+    folder: 'Parhizgar_48kbps',
+  },
+  {
+    id: 'karim_mansoori',
+    name: 'الشيخ كريم منصوري',
+    hint: 'مرتّل · إيران (قراءة شيعية)',
+    folder: 'Karim_Mansoori_40kbps',
   },
 ];
 
