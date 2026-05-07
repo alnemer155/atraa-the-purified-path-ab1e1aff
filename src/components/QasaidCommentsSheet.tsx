@@ -1,13 +1,13 @@
 /**
- * Comments + likes bottom sheet for a Qasida.
- * Anonymous: requires only a name (no auth). Likes are token-based to
- * prevent duplicates per device.
+ * Unified Qasida sheet — playback + comments + likes.
+ * Opens when the user taps an elegy. Anonymous (name only).
  */
 import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Send } from 'lucide-react';
+import { X, Heart, Send, Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useQasaidPlayer, qasaidPublicUrl } from '@/contexts/QasaidPlayerContext';
 
 interface Comment {
   id: string;
@@ -28,15 +28,20 @@ const NAME_KEY = 'atraa_visitor_name';
 const getToken = (): string => {
   try {
     let t = localStorage.getItem(TOKEN_KEY);
-    if (!t) {
-      t = crypto.randomUUID();
-      localStorage.setItem(TOKEN_KEY, t);
-    }
+    if (!t) { t = crypto.randomUUID(); localStorage.setItem(TOKEN_KEY, t); }
     return t;
   } catch { return crypto.randomUUID(); }
 };
 
+const fmt = (s: number) => {
+  if (!Number.isFinite(s) || s < 0) return '0:00';
+  const m = Math.floor(s / 60);
+  const r = Math.floor(s % 60);
+  return `${m}:${String(r).padStart(2, '0')}`;
+};
+
 const QasaidCommentsSheet = ({ qasidaId, open, onClose }: Props) => {
+  const { current, isPlaying, toggle, next, prev, position, duration, seek } = useQasaidPlayer();
   const [comments, setComments] = useState<Comment[]>([]);
   const [likeCount, setLikeCount] = useState(0);
   const [iLiked, setILiked] = useState(false);
@@ -47,8 +52,11 @@ const QasaidCommentsSheet = ({ qasidaId, open, onClose }: Props) => {
   const [posting, setPosting] = useState(false);
   const token = useMemo(() => getToken(), []);
 
+  // The sheet may have been opened for the same id that's now playing.
+  const showPlayer = current && current.id === qasidaId;
+
   useEffect(() => {
-    if (!open) return;
+    if (!open || !qasidaId) return;
     void (async () => {
       const [{ data: cs }, { data: ls }, { data: mine }] = await Promise.all([
         supabase.from('qasida_comments').select('*').eq('qasida_id', qasidaId).order('created_at', { ascending: false }).limit(100),
@@ -68,10 +76,7 @@ const QasaidCommentsSheet = ({ qasidaId, open, onClose }: Props) => {
       setLikeCount((c) => Math.max(0, c - 1));
     } else {
       const { error } = await supabase.from('qasida_likes').insert({ qasida_id: qasidaId, visitor_token: token });
-      if (!error) {
-        setILiked(true);
-        setLikeCount((c) => c + 1);
-      }
+      if (!error) { setILiked(true); setLikeCount((c) => c + 1); }
     }
   };
 
@@ -94,6 +99,9 @@ const QasaidCommentsSheet = ({ qasidaId, open, onClose }: Props) => {
     setContent('');
   };
 
+  const cover = showPlayer && current?.cover_path ? qasaidPublicUrl(current.cover_path) : '';
+  const progress = duration > 0 ? (position / duration) * 100 : 0;
+
   return (
     <AnimatePresence>
       {open && (
@@ -112,7 +120,7 @@ const QasaidCommentsSheet = ({ qasidaId, open, onClose }: Props) => {
             transition={{ type: 'spring', stiffness: 320, damping: 32 }}
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-md bg-card rounded-t-3xl border-t border-border/30 flex flex-col"
-            style={{ maxHeight: '85vh' }}
+            style={{ maxHeight: '92vh' }}
           >
             <div className="flex justify-center pt-2.5 pb-1">
               <div className="w-10 h-1 rounded-full bg-border/60" />
@@ -121,7 +129,7 @@ const QasaidCommentsSheet = ({ qasidaId, open, onClose }: Props) => {
               <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center active:bg-secondary/40" aria-label="إغلاق">
                 <X className="w-4 h-4" strokeWidth={1.5} />
               </button>
-              <p className="text-[13px] text-foreground">التعليقات والإعجابات</p>
+              <p className="text-[13px] text-foreground">القصيدة</p>
               <button
                 onClick={() => void toggleLike()}
                 className={`flex items-center gap-1 px-3 h-8 rounded-full text-[11px] ${iLiked ? 'bg-foreground text-background' : 'bg-secondary/50 text-foreground'}`}
@@ -131,9 +139,53 @@ const QasaidCommentsSheet = ({ qasidaId, open, onClose }: Props) => {
               </button>
             </div>
 
+            {showPlayer && current && (
+              <div className="px-5 py-4 border-b border-border/15">
+                <div className="flex items-center gap-3">
+                  {cover ? (
+                    <img src={cover} alt="" className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Play className="w-4 h-4 text-primary" strokeWidth={1.5} />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] text-foreground truncate">{current.title}</p>
+                    <p className="text-[10px] text-muted-foreground/70 font-light truncate mt-0.5">{current.reciter}</p>
+                  </div>
+                </div>
+                <div
+                  className="mt-3 h-1 rounded-full bg-border/30 cursor-pointer"
+                  onClick={(e) => {
+                    const r = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+                    const x = (e.clientX - r.left) / r.width;
+                    if (duration) seek(Math.max(0, Math.min(1, 1 - x)) * duration); // RTL
+                  }}
+                >
+                  <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
+                </div>
+                <div className="flex items-center justify-between mt-1.5 text-[9px] text-muted-foreground/60 font-light tabular-nums">
+                  <span>{fmt(position)}</span>
+                  <span>{fmt(duration)}</span>
+                </div>
+                <div className="flex items-center justify-center gap-3 mt-3">
+                  <button onClick={prev} aria-label="السابق" className="w-9 h-9 rounded-full flex items-center justify-center active:bg-secondary/50">
+                    <SkipForward className="w-4 h-4 text-foreground" strokeWidth={1.6} />
+                  </button>
+                  <button onClick={toggle} aria-label={isPlaying ? 'إيقاف' : 'تشغيل'} className="w-12 h-12 rounded-full bg-foreground text-background flex items-center justify-center">
+                    {isPlaying ? <Pause className="w-4 h-4" strokeWidth={2} /> : <Play className="w-4 h-4 ms-0.5" strokeWidth={2} />}
+                  </button>
+                  <button onClick={next} aria-label="التالي" className="w-9 h-9 rounded-full flex items-center justify-center active:bg-secondary/50">
+                    <SkipBack className="w-4 h-4 text-foreground" strokeWidth={1.6} />
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="flex-1 overflow-y-auto px-5 py-3 space-y-2">
+              <p className="text-[11px] text-foreground mb-2">التعليقات</p>
               {comments.length === 0 ? (
-                <p className="text-center text-[11px] text-muted-foreground/60 py-10 font-light">
+                <p className="text-center text-[11px] text-muted-foreground/60 py-6 font-light">
                   لا توجد تعليقات بعد — كن أول من يعلّق
                 </p>
               ) : comments.map((c) => (
@@ -170,9 +222,6 @@ const QasaidCommentsSheet = ({ qasidaId, open, onClose }: Props) => {
                   <Send className="w-4 h-4" strokeWidth={1.6} />
                 </button>
               </div>
-              <p className="text-[9px] text-muted-foreground/60 font-light leading-relaxed">
-                التعليقات بدون تسجيل دخول — اكتب اسمك فقط. يُرجى الاحترام والابتعاد عن الإساءة.
-              </p>
             </div>
           </motion.div>
         </motion.div>

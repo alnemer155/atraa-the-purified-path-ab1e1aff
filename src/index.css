@@ -224,24 +224,46 @@
     display: inline-block;
   }
 
-  /* Madinah-style ayah number medallion — gold circle with Arabic numeral */
+  /* Madinah-style ayah number — Uthmani end-of-ayah glyph (۝) with the
+     verse number rendered in its centre. The glyph itself is the medallion. */
   .ayah-number-medallion {
-    width: 1.6em;
-    height: 1.6em;
-    min-width: 1.6em;
-    border-radius: 9999px;
-    border: 1.5px solid hsl(var(--gold) / 0.7);
-    background: radial-gradient(circle at 50% 45%, hsl(var(--gold) / 0.18), hsl(var(--gold) / 0.04));
-    color: hsl(var(--gold));
-    font-family: 'IBM Plex Sans Arabic', sans-serif;
-    font-size: 0.5em;
-    font-weight: 500;
-    line-height: 1;
-    box-shadow: inset 0 0 0 2px hsl(var(--background));
-    vertical-align: middle;
     position: relative;
-    top: -0.05em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.55em;
+    height: 1.55em;
+    min-width: 1.55em;
+    vertical-align: middle;
+    color: hsl(var(--gold));
+    background: transparent;
+    border: 0;
+    line-height: 1;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 0.42em;
+    font-weight: 500;
   }
+  .ayah-number-medallion::before {
+    content: '۝';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'KFGQPC Uthmanic Script', 'Amiri Quran', serif;
+    font-size: 2.4em;
+    line-height: 1;
+    color: hsl(var(--gold));
+    opacity: 0.92;
+    pointer-events: none;
+  }
+  .ayah-number-medallion > * {
+    position: relative;
+    z-index: 1;
+    color: hsl(var(--gold));
+    transform: translateY(0.05em);
+  }
+
 
   /* iOS 26 Liquid Glass — used for cards and surfaces */
   .glass-card {
