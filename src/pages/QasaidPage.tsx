@@ -4,7 +4,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Play, MessageCircle, Heart } from 'lucide-react';
+import { ChevronRight, Play } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQasaidPlayer, qasaidPublicUrl, type QasaidTrack } from '@/contexts/QasaidPlayerContext';
 import QasaidCommentsSheet from '@/components/QasaidCommentsSheet';
@@ -43,6 +43,7 @@ const QasaidPage = () => {
     }));
     const realIdx = tracks.findIndex((t) => t.id === filtered[idx].id);
     if (realIdx >= 0) setQueue(tracks, realIdx);
+    setCommentsFor(filtered[idx].id);
   };
 
   return (
@@ -77,35 +78,27 @@ const QasaidPage = () => {
         {filtered.map((q, i) => {
           const isCurrent = current?.id === q.id;
           return (
-            <div key={q.id} className={`rounded-2xl border bg-card overflow-hidden ${isCurrent ? 'border-primary/40' : 'border-border/30'}`}>
+            <button key={q.id} onClick={() => playFrom(i)} className={`w-full text-right rounded-2xl border bg-card overflow-hidden active:opacity-80 ${isCurrent ? 'border-primary/40' : 'border-border/30'}`}>
               <div className="flex items-center gap-3 p-3">
-                <button onClick={() => playFrom(i)} className="flex items-center gap-3 flex-1 min-w-0 text-right active:opacity-70">
-                  {q.cover_path ? (
-                    <img src={qasaidPublicUrl(q.cover_path)} alt={q.title} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" loading="lazy" />
-                  ) : (
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Play className="w-4 h-4 text-primary" strokeWidth={1.5} />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[12px] text-foreground truncate">{q.title}</p>
-                    <p className="text-[10px] text-muted-foreground/70 font-light mt-0.5 truncate">{q.reciter}</p>
+                {q.cover_path ? (
+                  <img src={qasaidPublicUrl(q.cover_path)} alt={q.title} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" loading="lazy" />
+                ) : (
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Play className="w-4 h-4 text-primary" strokeWidth={1.5} />
                   </div>
-                </button>
-                <button
-                  onClick={() => setCommentsFor(q.id)}
-                  className="w-9 h-9 rounded-full bg-secondary/40 flex items-center justify-center"
-                  aria-label="التعليقات"
-                >
-                  <MessageCircle className="w-3.5 h-3.5 text-foreground" strokeWidth={1.6} />
-                </button>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] text-foreground truncate">{q.title}</p>
+                  <p className="text-[10px] text-muted-foreground/70 font-light mt-0.5 truncate">{q.reciter}</p>
+                </div>
+                <Play className="w-3.5 h-3.5 text-muted-foreground/50 flex-shrink-0" strokeWidth={1.6} />
               </div>
               {q.details && (
                 <p className="px-3 pb-3 text-[11px] text-muted-foreground/80 font-light leading-relaxed">
                   {q.details}
                 </p>
               )}
-            </div>
+            </button>
           );
         })}
       </div>
