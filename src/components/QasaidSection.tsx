@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Play, ChevronLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQasaidPlayer, qasaidPublicUrl, type QasaidTrack } from '@/contexts/QasaidPlayerContext';
+import QasaidCommentsSheet from './QasaidCommentsSheet';
 
 interface QasaidRow extends QasaidTrack {
   details: string | null;
@@ -22,6 +23,7 @@ const formatDuration = (s: number | null) => {
 const QasaidSection = () => {
   const [rows, setRows] = useState<QasaidRow[]>([]);
   const [reciter, setReciter] = useState<string>(RECITER_ALL);
+  const [openId, setOpenId] = useState<string | null>(null);
   const { setQueue, current } = useQasaidPlayer();
 
   useEffect(() => {
@@ -52,6 +54,7 @@ const QasaidSection = () => {
     }));
     const realIdx = tracks.findIndex((t) => t.id === filtered[idx].id);
     if (realIdx >= 0) setQueue(tracks, realIdx);
+    setOpenId(filtered[idx].id);
   };
 
   return (
@@ -120,6 +123,8 @@ const QasaidSection = () => {
           </Link>
         )}
       </div>
+
+      <QasaidCommentsSheet qasidaId={openId ?? ''} open={!!openId} onClose={() => setOpenId(null)} />
     </div>
   );
 };
