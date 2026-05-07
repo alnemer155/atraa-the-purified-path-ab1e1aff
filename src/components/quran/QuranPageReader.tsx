@@ -230,12 +230,11 @@ const PageContent = ({
               const isPlaying =
                 playingAyah?.surah === a.surah.number && playingAyah?.ayah === a.numberInSurah;
               const tokens = color ? AYAH_COLOR_TOKENS[color] : null;
-              const medallionStyle: React.CSSProperties = tokens
+              const wrapStyle: React.CSSProperties = tokens
                 ? {
-                    background: `hsl(${tokens.bg})`,
-                    color: `hsl(${tokens.text})`,
-                    borderColor: `hsl(${tokens.ring})`,
-                    boxShadow: `inset 0 0 0 2px hsl(var(--background)), 0 0 0 1px hsl(${tokens.ring} / 0.6)`,
+                    background: `hsl(${tokens.bg} / 0.18)`,
+                    borderRadius: 9999,
+                    boxShadow: `0 0 0 1px hsl(${tokens.ring} / 0.5)`,
                   }
                 : {};
               return (
@@ -244,13 +243,13 @@ const PageContent = ({
                   <button
                     type="button"
                     onClick={() => onAyahTap(a.surah.number, a.numberInSurah)}
-                    className={`ayah-number-medallion mx-1 inline-flex items-center justify-center align-middle cursor-pointer transition-transform active:scale-90 ${
-                      isPlaying ? 'ring-2 ring-primary/70 ring-offset-1 ring-offset-background' : ''
+                    className={`ayah-number-medallion mx-1 cursor-pointer transition-transform active:scale-90 ${
+                      isPlaying ? 'ring-2 ring-primary/70 ring-offset-1 ring-offset-background rounded-full' : ''
                     }`}
-                    style={medallionStyle}
+                    style={wrapStyle}
                     aria-label={`الآية ${a.numberInSurah}`}
                   >
-                    {toArabicNumerals(a.numberInSurah)}
+                    <span>{toArabicNumerals(a.numberInSurah)}</span>
                   </button>
                   {i < block.ayahs.length - 1 ? ' ' : ''}
                 </span>
