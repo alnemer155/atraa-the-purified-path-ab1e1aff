@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ChevronRight, BookMarked, BookOpen, Share2, Plus, Check, Trash2, Clock, Lock, Globe } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { toArabicNumerals } from '@/lib/quran-page';
 import ReadingThemeToggle from '@/components/ReadingThemeToggle';
 import RecitationRegisterDialog from '@/components/khatma/RecitationRegisterDialog';
 import {
