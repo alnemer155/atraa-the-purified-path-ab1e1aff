@@ -417,6 +417,32 @@ const KhatmaPage = () => {
             </p>
           </div>
         </div>
+
+        {/* Surah text for reading */}
+        {surahText && (
+          <div className="px-5 mt-5">
+            <div className="rounded-2xl bg-card border border-border/30 p-5">
+              <p className="text-[11px] text-muted-foreground/70 font-light mb-3 text-center">
+                اقرأ السورة من المصحف
+              </p>
+              <div className="text-center mb-4">
+                <p className="quran-uthmani text-[20px] text-foreground leading-loose">
+                  {surahText.name}
+                </p>
+              </div>
+              <div className="quran-uthmani text-[22px] text-foreground leading-[2.2] text-center" dir="rtl">
+                {surahText.ayahs.map((a) => (
+                  <span key={a.number} className="inline">
+                    {a.text}
+                    <span className="ayah-number-medallion inline-block align-middle mx-1 text-[14px]">
+                      {toArabicNumerals(a.number)}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       )}
 
       {/* Creator-only controls */}
