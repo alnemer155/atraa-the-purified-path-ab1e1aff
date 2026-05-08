@@ -1048,9 +1048,14 @@ const QasaidManager = () => {
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-[12px] text-foreground truncate">{q.title}</p>
-                  <p className="text-[10px] text-muted-foreground/70 font-light truncate mt-0.5">
-                    {q.reciter}
-                  </p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <p className="text-[10px] text-muted-foreground/70 font-light truncate">
+                      {q.reciter}
+                    </p>
+                    <span className={`text-[8px] px-1.5 py-0.5 rounded-full ${q.category === 'podcast' ? 'bg-primary/10 text-primary' : 'bg-secondary/60 text-muted-foreground'}`}>
+                      {q.category === 'podcast' ? 'بودكاست' : 'قصيدة'}
+                    </span>
+                  </div>
                 </div>
               </button>
               <div className="flex gap-1 flex-shrink-0">
