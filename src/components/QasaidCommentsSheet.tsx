@@ -40,6 +40,11 @@ const fmt = (s: number) => {
   return `${m}:${String(r).padStart(2, '0')}`;
 };
 
+const extractYoutubeId = (url: string): string => {
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : url; // fallback to raw if already an ID
+};
+
 const QasaidCommentsSheet = ({ qasidaId, open, onClose }: Props) => {
   const { current, isPlaying, toggle, next, prev, position, duration, seek } = useQasaidPlayer();
   const [comments, setComments] = useState<Comment[]>([]);
