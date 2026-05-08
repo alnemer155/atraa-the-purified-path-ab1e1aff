@@ -1084,7 +1084,7 @@ const QasaidManager = () => {
           <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md max-h-[88vh] overflow-y-auto rounded-3xl border border-border/30 bg-card p-5">
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] text-muted-foreground/60 mb-1">قصيدة حسينية</p>
+                <p className="text-[10px] text-muted-foreground/60 mb-1">{viewing.category === 'podcast' ? 'بودكاست' : 'قصيدة حسينية'}</p>
                 <p className="text-[15px] text-foreground leading-relaxed">{viewing.title}</p>
               </div>
               <button onClick={() => setViewing(null)} className="w-8 h-8 rounded-full active:bg-secondary/40 flex items-center justify-center">
@@ -1097,10 +1097,12 @@ const QasaidManager = () => {
             )}
 
             <div className="space-y-2 text-[12px] text-foreground">
+              <div className="flex justify-between gap-3"><span className="text-muted-foreground/70">التصنيف</span><span>{viewing.category === 'podcast' ? 'بودكاست' : 'قصيدة'}</span></div>
               <div className="flex justify-between gap-3"><span className="text-muted-foreground/70">الرادود</span><span>{viewing.reciter}</span></div>
               <div className="flex justify-between gap-3"><span className="text-muted-foreground/70">المدة</span><span className="tabular-nums" dir="ltr">{viewing.duration_seconds ? `${viewing.duration_seconds}s` : '—'}</span></div>
               <div className="flex justify-between gap-3"><span className="text-muted-foreground/70">صوت</span><span>{viewing.audio_path ? '✓' : '—'}</span></div>
               <div className="flex justify-between gap-3"><span className="text-muted-foreground/70">فيديو</span><span>{viewing.video_path ? '✓' : '—'}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-muted-foreground/70">يوتيوب</span><span className="truncate" dir="ltr">{viewing.youtube_url || '—'}</span></div>
               <div className="flex justify-between gap-3"><span className="text-muted-foreground/70">أُضيفت</span><span className="text-[10px]" dir="ltr">{new Date(viewing.created_at).toLocaleString('ar-EG')}</span></div>
             </div>
 
@@ -1108,6 +1110,18 @@ const QasaidManager = () => {
               <div className="mt-3 rounded-xl bg-secondary/30 border border-border/30 p-3">
                 <p className="text-[10px] text-muted-foreground/70 mb-1">التفاصيل</p>
                 <p className="text-[12px] text-foreground font-light leading-relaxed">{viewing.details}</p>
+              </div>
+            )}
+
+            {viewing.youtube_url && (
+              <div className="mt-3 relative w-full aspect-video rounded-xl overflow-hidden bg-black">
+                <iframe
+                  src={`https://www.youtube.com/embed/${viewing.youtube_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/)?.[1] ?? ''}`}
+                  title="YouTube"
+                  className="absolute inset-0 w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
               </div>
             )}
 
