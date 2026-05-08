@@ -50,6 +50,7 @@ const QasaidCommentsSheet = ({ qasidaId, open, onClose }: Props) => {
   });
   const [content, setContent] = useState('');
   const [posting, setPosting] = useState(false);
+  const [youtubeUrl, setYoutubeUrl] = useState<string | null>(null);
   const token = useMemo(() => getToken(), []);
 
   // The sheet may have been opened for the same id that's now playing.
@@ -58,14 +59,16 @@ const QasaidCommentsSheet = ({ qasidaId, open, onClose }: Props) => {
   useEffect(() => {
     if (!open || !qasidaId) return;
     void (async () => {
-      const [{ data: cs }, { data: ls }, { data: mine }] = await Promise.all([
+      const [{ data: cs }, { data: ls }, { data: mine }, { data: qasida }] = await Promise.all([
         supabase.from('qasida_comments').select('*').eq('qasida_id', qasidaId).order('created_at', { ascending: false }).limit(100),
         supabase.from('qasida_likes').select('id', { count: 'exact', head: true }).eq('qasida_id', qasidaId),
         supabase.from('qasida_likes').select('id').eq('qasida_id', qasidaId).eq('visitor_token', token).maybeSingle(),
+        supabase.from('admin_qasaid').select('youtube_url').eq('id', qasidaId).maybeSingle(),
       ]);
       setComments((cs as Comment[]) ?? []);
       setLikeCount((ls as unknown as { count?: number })?.count ?? 0);
       setILiked(!!mine);
+      setYoutubeUrl((qasida as { youtube_url?: string | null })?.youtube_url ?? null);
     })();
   }, [open, qasidaId, token]);
 
