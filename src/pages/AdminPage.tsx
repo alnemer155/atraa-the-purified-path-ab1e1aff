@@ -900,6 +900,28 @@ const QasaidManager = () => {
 
       {editing && (
         <div className="rounded-2xl border border-primary/30 bg-card p-4 mb-4 space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            <select
+              value={editing.category ?? 'qasaid'}
+              onChange={(e) => setEditing({ ...editing, category: e.target.value as 'qasaid' | 'podcast' })}
+              className="h-10 rounded-xl bg-secondary/40 border border-border/30 px-3 text-[12px] outline-none"
+            >
+              <option value="qasaid">قصيدة</option>
+              <option value="podcast">بودكاست</option>
+            </select>
+            <input
+              type="number"
+              placeholder="مدة القصيدة بالثواني (اختياري)"
+              value={editing.duration_seconds ?? ''}
+              onChange={(e) => setEditing({
+                ...editing,
+                duration_seconds: e.target.value ? parseInt(e.target.value, 10) : null,
+              })}
+              className="h-10 rounded-xl bg-secondary/40 border border-border/30 px-3 text-[12px] outline-none tabular-nums"
+              dir="ltr"
+            />
+          </div>
+
           <input
             placeholder="عنوان القصيدة"
             value={editing.title ?? ''}
@@ -912,15 +934,13 @@ const QasaidManager = () => {
             onChange={(e) => setEditing({ ...editing, reciter: e.target.value })}
             className="w-full h-10 rounded-xl bg-secondary/40 border border-border/30 px-3 text-[12px] outline-none"
           />
+
+          {/* YouTube URL */}
           <input
-            type="number"
-            placeholder="مدة القصيدة بالثواني (اختياري)"
-            value={editing.duration_seconds ?? ''}
-            onChange={(e) => setEditing({
-              ...editing,
-              duration_seconds: e.target.value ? parseInt(e.target.value, 10) : null,
-            })}
-            className="w-full h-10 rounded-xl bg-secondary/40 border border-border/30 px-3 text-[12px] outline-none tabular-nums"
+            placeholder="رابط يوتيوب (اختياري)"
+            value={editing.youtube_url ?? ''}
+            onChange={(e) => setEditing({ ...editing, youtube_url: e.target.value })}
+            className="w-full h-10 rounded-xl bg-secondary/40 border border-border/30 px-3 text-[12px] outline-none"
             dir="ltr"
           />
 
