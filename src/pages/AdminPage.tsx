@@ -753,7 +753,7 @@ const DetailCell = ({
   </div>
 );
 
-// ============== QASAID (Husayni elegies) ==============
+// ============== QASAID (Husayni elegies + podcasts) ==============
 interface QasaidRow {
   id: string;
   title: string;
@@ -763,6 +763,8 @@ interface QasaidRow {
   cover_path: string | null;
   audio_path: string | null;
   video_path: string | null;
+  youtube_url: string | null;
+  category: 'qasaid' | 'podcast';
   created_at: string;
 }
 
