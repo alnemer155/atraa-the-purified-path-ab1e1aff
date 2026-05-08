@@ -54,6 +54,7 @@ const KhatmaPage = () => {
   const [converting, setConverting] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
   const [registerJuz, setRegisterJuz] = useState<number | null>(null);
+  const [surahText, setSurahText] = useState<{ ayahs: { number: number; text: string }[]; name: string } | null>(null);
 
   const creatorToken = khatma ? getCreatorToken(khatma.id) : null;
   const isCreator = !!creatorToken;
