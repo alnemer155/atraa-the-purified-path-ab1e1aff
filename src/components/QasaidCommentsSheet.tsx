@@ -185,6 +185,21 @@ const QasaidCommentsSheet = ({ qasidaId, open, onClose }: Props) => {
               </div>
             )}
 
+            {/* YouTube embed */}
+            {youtubeUrl && (
+              <div className="px-5 pb-3 border-b border-border/15">
+                <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${extractYoutubeId(youtubeUrl)}`}
+                    title="YouTube"
+                    className="absolute inset-0 w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="flex-1 overflow-y-auto px-5 py-3 space-y-2">
               <p className="text-[11px] text-foreground mb-2">التعليقات</p>
               {comments.length === 0 ? (
