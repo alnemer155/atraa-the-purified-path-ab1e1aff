@@ -34,6 +34,8 @@ const DEVOTIONAL_ROTATION: DevotionalItem[] = [
   { text: 'يَا عَلِيُّ يَا عَظِيم', type: 'dua' },
   { text: 'يَا حُسَيْنُ يَا شَهِيد', type: 'dua' },
   { text: 'حَسْبِيَ اللَّهُ لِدِينِي وَدُنْيَاي', type: 'dua' },
+  { taxt: 'يا عليُّ أدرِكني', type: 'dua' },
+  { taxt: 'ربِّ اغفر لي ولوالديَّ', type 'dua' },
 ];
 
 const tasbihatLabels = ['الله أكبر', 'الحمد لله', 'سبحان الله'];
