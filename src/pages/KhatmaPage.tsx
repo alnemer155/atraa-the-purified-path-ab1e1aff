@@ -87,6 +87,23 @@ const KhatmaPage = () => {
         .order('juz_number', { ascending: true });
       setClaims((cd as JuzClaim[]) ?? []);
     }
+
+    if (k && k.mode === 'surah' && k.surah_number) {
+      try {
+        const r = await fetch(`https://api.alquran.cloud/v1/surah/${k.surah_number}/quran-uthmani`);
+        const json = await r.json();
+        const ayahs = json?.data?.ayahs;
+        if (Array.isArray(ayahs)) {
+          setSurahText({
+            name: json.data.name,
+            ayahs: ayahs.map((a: any) => ({ number: a.numberInSurah, text: a.text })),
+          });
+        }
+      } catch { setSurahText(null); }
+    } else {
+      setSurahText(null);
+    }
+
     setLoading(false);
   }, [slug]);
 
