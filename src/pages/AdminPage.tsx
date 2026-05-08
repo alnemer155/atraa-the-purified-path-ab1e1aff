@@ -853,6 +853,8 @@ const QasaidManager = () => {
       cover_path,
       audio_path,
       video_path,
+      youtube_url: editing.youtube_url?.trim() || null,
+      category: (editing.category ?? 'qasaid') as 'qasaid' | 'podcast',
     };
 
     if (editing.id) {
