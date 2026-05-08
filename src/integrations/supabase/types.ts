@@ -50,6 +50,7 @@ export type Database = {
       admin_qasaid: {
         Row: {
           audio_path: string | null
+          category: string
           cover_path: string | null
           created_at: string
           details: string | null
@@ -59,9 +60,11 @@ export type Database = {
           title: string
           updated_at: string
           video_path: string | null
+          youtube_url: string | null
         }
         Insert: {
           audio_path?: string | null
+          category?: string
           cover_path?: string | null
           created_at?: string
           details?: string | null
@@ -71,9 +74,11 @@ export type Database = {
           title: string
           updated_at?: string
           video_path?: string | null
+          youtube_url?: string | null
         }
         Update: {
           audio_path?: string | null
+          category?: string
           cover_path?: string | null
           created_at?: string
           details?: string | null
@@ -83,6 +88,7 @@ export type Database = {
           title?: string
           updated_at?: string
           video_path?: string | null
+          youtube_url?: string | null
         }
         Relationships: []
       }

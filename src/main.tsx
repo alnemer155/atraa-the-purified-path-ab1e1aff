@@ -7,11 +7,11 @@ import { applyThemeToDocument, getStoredQuranTheme } from "./lib/quran-theme";
 // Boot stored reading mode (default / sepia / night) before first paint.
 applyThemeToDocument(getStoredQuranTheme());
 
-// Cleanup: unregister any previously installed service worker (PWA removed)
+// Register service worker for PWA offline support
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then((regs) => {
-    regs.forEach((r) => r.unregister().catch(() => {}));
-  }).catch(() => {});
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
 }
 
 // Copyright & rights notice (visible in DevTools — discourages casual copying).

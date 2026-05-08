@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ChevronRight, BookMarked, BookOpen, Share2, Plus, Check, Trash2, Clock, Lock, Globe } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { toArabicNumerals } from '@/lib/quran-page';
 import ReadingThemeToggle from '@/components/ReadingThemeToggle';
 import RecitationRegisterDialog from '@/components/khatma/RecitationRegisterDialog';
 import {
@@ -53,6 +54,7 @@ const KhatmaPage = () => {
   const [converting, setConverting] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
   const [registerJuz, setRegisterJuz] = useState<number | null>(null);
+  const [surahText, setSurahText] = useState<{ ayahs: { number: number; text: string }[]; name: string } | null>(null);
 
   const creatorToken = khatma ? getCreatorToken(khatma.id) : null;
   const isCreator = !!creatorToken;
@@ -85,6 +87,23 @@ const KhatmaPage = () => {
         .order('juz_number', { ascending: true });
       setClaims((cd as JuzClaim[]) ?? []);
     }
+
+    if (k && k.mode === 'surah' && k.surah_number) {
+      try {
+        const r = await fetch(`https://api.alquran.cloud/v1/surah/${k.surah_number}/quran-uthmani`);
+        const json = await r.json();
+        const ayahs = json?.data?.ayahs;
+        if (Array.isArray(ayahs)) {
+          setSurahText({
+            name: json.data.name,
+            ayahs: ayahs.map((a: any) => ({ number: a.numberInSurah, text: a.text })),
+          });
+        }
+      } catch { setSurahText(null); }
+    } else {
+      setSurahText(null);
+    }
+
     setLoading(false);
   }, [slug]);
 
@@ -376,28 +395,56 @@ const KhatmaPage = () => {
           </div>
         </div>
       ) : (
-        <div className="px-5 mt-6">
-          <div className="rounded-2xl bg-card border border-border/30 p-6 text-center">
-            <p className="text-[10px] text-muted-foreground/70 font-light mb-2">عدد القراءات</p>
-            <p className="text-[40px] text-foreground tabular-nums font-light leading-none mb-5">
-              {khatma.recitations_count}
-            </p>
-            <button
-              onClick={() => { setRegisterJuz(null); setRegisterOpen(true); }}
-              disabled={counted}
-              className="w-full h-12 rounded-full bg-primary text-primary-foreground text-[13px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform disabled:opacity-50"
-            >
-              {counted ? (
-                <><Check className="w-4 h-4" /> تم تسجيل قراءتك</>
-              ) : (
-                <><Plus className="w-4 h-4" /> سجّل قراءتي للسورة</>
-              )}
-            </button>
-            <p className="text-[10px] text-muted-foreground/60 mt-4 font-light leading-relaxed">
-              اضغط بعد قراءتك لسورة {khatma.surah_name} لإضافة قراءتك للختمة
-            </p>
+        <>
+          <div className="px-5 mt-6">
+            <div className="rounded-2xl bg-card border border-border/30 p-6 text-center">
+              <p className="text-[10px] text-muted-foreground/70 font-light mb-2">عدد القراءات</p>
+              <p className="text-[40px] text-foreground tabular-nums font-light leading-none mb-5">
+                {khatma.recitations_count}
+              </p>
+              <button
+                onClick={() => { setRegisterJuz(null); setRegisterOpen(true); }}
+                disabled={counted}
+                className="w-full h-12 rounded-full bg-primary text-primary-foreground text-[13px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform disabled:opacity-50"
+              >
+                {counted ? (
+                  <><Check className="w-4 h-4" /> تم تسجيل قراءتك</>
+                ) : (
+                  <><Plus className="w-4 h-4" /> سجّل قراءتي للسورة</>
+                )}
+              </button>
+              <p className="text-[10px] text-muted-foreground/60 mt-4 font-light leading-relaxed">
+                اضغط بعد قراءتك لسورة {khatma.surah_name} لإضافة قراءتك للختمة
+              </p>
+            </div>
           </div>
-        </div>
+
+          {/* Surah text for reading */}
+          {surahText && (
+            <div className="px-5 mt-5">
+              <div className="rounded-2xl bg-card border border-border/30 p-5">
+                <p className="text-[11px] text-muted-foreground/70 font-light mb-3 text-center">
+                  اقرأ السورة من المصحف
+                </p>
+                <div className="text-center mb-4">
+                  <p className="quran-uthmani text-[20px] text-foreground leading-loose">
+                    {surahText.name}
+                  </p>
+                </div>
+                <div className="quran-uthmani text-[22px] text-foreground leading-[2.2] text-center" dir="rtl">
+                  {surahText.ayahs.map((a) => (
+                    <span key={a.number} className="inline">
+                      {a.text}
+                      <span className="ayah-number-medallion inline-block align-middle mx-1 text-[14px]">
+                        {toArabicNumerals(a.number)}
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Creator-only controls */}
