@@ -21,6 +21,8 @@ export interface QasaidTrack {
   cover_path: string | null;
   audio_path: string | null;
   duration_seconds: number | null;
+  category?: 'qasaid' | 'podcast';
+  youtube_url?: string | null;
 }
 
 interface Ctx {
