@@ -395,54 +395,56 @@ const KhatmaPage = () => {
           </div>
         </div>
       ) : (
-        <div className="px-5 mt-6">
-          <div className="rounded-2xl bg-card border border-border/30 p-6 text-center">
-            <p className="text-[10px] text-muted-foreground/70 font-light mb-2">عدد القراءات</p>
-            <p className="text-[40px] text-foreground tabular-nums font-light leading-none mb-5">
-              {khatma.recitations_count}
-            </p>
-            <button
-              onClick={() => { setRegisterJuz(null); setRegisterOpen(true); }}
-              disabled={counted}
-              className="w-full h-12 rounded-full bg-primary text-primary-foreground text-[13px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform disabled:opacity-50"
-            >
-              {counted ? (
-                <><Check className="w-4 h-4" /> تم تسجيل قراءتك</>
-              ) : (
-                <><Plus className="w-4 h-4" /> سجّل قراءتي للسورة</>
-              )}
-            </button>
-            <p className="text-[10px] text-muted-foreground/60 mt-4 font-light leading-relaxed">
-              اضغط بعد قراءتك لسورة {khatma.surah_name} لإضافة قراءتك للختمة
-            </p>
-          </div>
-        </div>
-
-        {/* Surah text for reading */}
-        {surahText && (
-          <div className="px-5 mt-5">
-            <div className="rounded-2xl bg-card border border-border/30 p-5">
-              <p className="text-[11px] text-muted-foreground/70 font-light mb-3 text-center">
-                اقرأ السورة من المصحف
+        <>
+          <div className="px-5 mt-6">
+            <div className="rounded-2xl bg-card border border-border/30 p-6 text-center">
+              <p className="text-[10px] text-muted-foreground/70 font-light mb-2">عدد القراءات</p>
+              <p className="text-[40px] text-foreground tabular-nums font-light leading-none mb-5">
+                {khatma.recitations_count}
               </p>
-              <div className="text-center mb-4">
-                <p className="quran-uthmani text-[20px] text-foreground leading-loose">
-                  {surahText.name}
-                </p>
-              </div>
-              <div className="quran-uthmani text-[22px] text-foreground leading-[2.2] text-center" dir="rtl">
-                {surahText.ayahs.map((a) => (
-                  <span key={a.number} className="inline">
-                    {a.text}
-                    <span className="ayah-number-medallion inline-block align-middle mx-1 text-[14px]">
-                      {toArabicNumerals(a.number)}
-                    </span>
-                  </span>
-                ))}
-              </div>
+              <button
+                onClick={() => { setRegisterJuz(null); setRegisterOpen(true); }}
+                disabled={counted}
+                className="w-full h-12 rounded-full bg-primary text-primary-foreground text-[13px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform disabled:opacity-50"
+              >
+                {counted ? (
+                  <><Check className="w-4 h-4" /> تم تسجيل قراءتك</>
+                ) : (
+                  <><Plus className="w-4 h-4" /> سجّل قراءتي للسورة</>
+                )}
+              </button>
+              <p className="text-[10px] text-muted-foreground/60 mt-4 font-light leading-relaxed">
+                اضغط بعد قراءتك لسورة {khatma.surah_name} لإضافة قراءتك للختمة
+              </p>
             </div>
           </div>
-        )}
+
+          {/* Surah text for reading */}
+          {surahText && (
+            <div className="px-5 mt-5">
+              <div className="rounded-2xl bg-card border border-border/30 p-5">
+                <p className="text-[11px] text-muted-foreground/70 font-light mb-3 text-center">
+                  اقرأ السورة من المصحف
+                </p>
+                <div className="text-center mb-4">
+                  <p className="quran-uthmani text-[20px] text-foreground leading-loose">
+                    {surahText.name}
+                  </p>
+                </div>
+                <div className="quran-uthmani text-[22px] text-foreground leading-[2.2] text-center" dir="rtl">
+                  {surahText.ayahs.map((a) => (
+                    <span key={a.number} className="inline">
+                      {a.text}
+                      <span className="ayah-number-medallion inline-block align-middle mx-1 text-[14px]">
+                        {toArabicNumerals(a.number)}
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Creator-only controls */}
