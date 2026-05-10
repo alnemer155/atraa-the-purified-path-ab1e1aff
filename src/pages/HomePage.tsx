@@ -12,6 +12,7 @@ import WallpapersSection from '@/components/WallpapersSection';
 import LiveChannelsSection from '@/components/LiveChannelsSection';
 import KhatmaSection from '@/components/KhatmaSection';
 import QasaidSection from '@/components/QasaidSection';
+import AtharSection from '@/components/AtharSection';
 import { useMadhhab } from '@/lib/madhhab';
 
 // Mixed devotional rotation under the greeting:
@@ -168,6 +169,10 @@ const HomePage = () => {
 
         <motion.div variants={fadeUp}>
           <KhatmaSection />
+        </motion.div>
+
+        <motion.div variants={fadeUp}>
+          <AtharSection />
         </motion.div>
 
         {madhhab !== 'sunni' && (
