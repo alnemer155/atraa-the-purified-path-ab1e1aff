@@ -14,7 +14,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 type Category = 'dua' | 'ziyara' | 'dhikr';
 type Sect = 'shia' | 'sunni';
-type Tab = 'duas' | 'wallpapers' | 'khatmas' | 'qasaid';
+type Tab = 'duas' | 'wallpapers' | 'khatmas' | 'qasaid' | 'athar';
 
 interface DuaRow {
   id: string;
@@ -165,6 +165,7 @@ const AdminPage = () => {
             ['wallpapers', 'الخلفيات', ImageIcon],
             ['khatmas', 'الختمات', BookOpen],
             ['qasaid', 'القصائد', Play],
+            ['athar', 'أثر', Type],
           ] as [Tab, string, typeof Lock][]).map(([k, label, Icon]) => (
             <button
               key={k}
@@ -187,6 +188,7 @@ const AdminPage = () => {
         {tab === 'wallpapers' && <WallpapersManager />}
         {tab === 'khatmas' && <KhatmasManager />}
         {tab === 'qasaid' && <QasaidManager />}
+        {tab === 'athar' && <AtharManager />}
       </div>
     </div>
   );
