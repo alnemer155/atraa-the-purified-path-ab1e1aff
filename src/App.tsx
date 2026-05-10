@@ -27,12 +27,17 @@ const KhatmaPage = lazy(() => import("./pages/KhatmaPage"));
 const KhatmaLandingPage = lazy(() => import("./pages/KhatmaLandingPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const QasaidPage = lazy(() => import("./pages/QasaidPage"));
+const AtharQuotePage = lazy(() => import("./pages/AtharQuotePage"));
+const MaintenancePage = lazy(() => import("./pages/MaintenancePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const hostname = typeof window !== "undefined" ? window.location.hostname : "";
 const isKhatmaHost = hostname === "khatma.atraa.xyz";
 const isAdminHost = hostname === "admin.atraa.xyz";
-const isStandaloneHost = isKhatmaHost || isAdminHost;
+const isAtharHost = hostname === "athar.atraa.xyz";
+const isQasaidHost = hostname === "qasaid.atraa.xyz";
+const isAudioHost = hostname === "audio.atraa.xyz";
+const isStandaloneHost = isKhatmaHost || isAdminHost || isAtharHost || isQasaidHost || isAudioHost;
 
 const queryClient = new QueryClient();
 
@@ -85,6 +90,20 @@ const App = () => {
                     <Route path="/" element={<AdminPage />} />
                     <Route path="*" element={<AdminPage />} />
                   </Routes>
+                ) : isAtharHost ? (
+                  <Routes>
+                    <Route path="/" element={<MaintenancePage name="أثر — منصة عترة الدينية" />} />
+                    <Route path="/:id" element={<AtharQuotePage />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                ) : isQasaidHost ? (
+                  <Routes>
+                    <Route path="*" element={<MaintenancePage name="قصائد — منصة عترة الدينية" />} />
+                  </Routes>
+                ) : isAudioHost ? (
+                  <Routes>
+                    <Route path="*" element={<MaintenancePage name="صوتيات — منصة عترة الدينية" />} />
+                  </Routes>
                 ) : isKhatmaHost ? (
                   <Routes>
                     <Route path="/" element={<KhatmaLandingPage />} />
@@ -107,6 +126,7 @@ const App = () => {
                       <Route path="/data" element={<DataPage />} />
                       <Route path="/about" element={<AboutPage />} />
                       <Route path="/qasaid" element={<QasaidPage />} />
+                      <Route path="/athar/:id" element={<AtharQuotePage />} />
                     </Route>
 
                     {/* Khatma standalone (no app shell, accessed via shared link) */}
