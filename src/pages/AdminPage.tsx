@@ -1151,7 +1151,6 @@ const QasaidManager = () => {
 };
 
 // ============== ATHAR (sayings) ==============
-import { generateAtharId, type AtharQuote } from '@/lib/athar';
 const AtharManager = () => {
   const [rows, setRows] = useState<AtharQuote[]>([]);
   const [loading, setLoading] = useState(true);
