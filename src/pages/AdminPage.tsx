@@ -11,6 +11,7 @@ import { isAdminUnlocked, unlockAdmin, lockAdmin } from '@/lib/admin-auth';
 import ReadingThemeToggle from '@/components/ReadingThemeToggle';
 import KhatmaCreateForm from '@/components/KhatmaCreateForm';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { generateAtharId, type AtharQuote } from '@/lib/athar';
 
 type Category = 'dua' | 'ziyara' | 'dhikr';
 type Sect = 'shia' | 'sunni';
