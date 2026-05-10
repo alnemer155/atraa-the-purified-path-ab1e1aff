@@ -11,10 +11,11 @@ import { isAdminUnlocked, unlockAdmin, lockAdmin } from '@/lib/admin-auth';
 import ReadingThemeToggle from '@/components/ReadingThemeToggle';
 import KhatmaCreateForm from '@/components/KhatmaCreateForm';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { generateAtharId, type AtharQuote } from '@/lib/athar';
 
 type Category = 'dua' | 'ziyara' | 'dhikr';
 type Sect = 'shia' | 'sunni';
-type Tab = 'duas' | 'wallpapers' | 'khatmas' | 'qasaid';
+type Tab = 'duas' | 'wallpapers' | 'khatmas' | 'qasaid' | 'athar';
 
 interface DuaRow {
   id: string;
@@ -165,6 +166,7 @@ const AdminPage = () => {
             ['wallpapers', 'الخلفيات', ImageIcon],
             ['khatmas', 'الختمات', BookOpen],
             ['qasaid', 'القصائد', Play],
+            ['athar', 'أثر', Type],
           ] as [Tab, string, typeof Lock][]).map(([k, label, Icon]) => (
             <button
               key={k}
@@ -187,6 +189,7 @@ const AdminPage = () => {
         {tab === 'wallpapers' && <WallpapersManager />}
         {tab === 'khatmas' && <KhatmasManager />}
         {tab === 'qasaid' && <QasaidManager />}
+        {tab === 'athar' && <AtharManager />}
       </div>
     </div>
   );
@@ -1138,6 +1141,145 @@ const QasaidManager = () => {
               </button>
               <button onClick={() => { void remove(viewing); setViewing(null); }} className="flex-1 h-11 rounded-full bg-destructive/10 text-destructive text-[12px] flex items-center justify-center gap-1.5">
                 <Trash2 className="w-3.5 h-3.5" strokeWidth={1.6} /> حذف
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ============== ATHAR (sayings) ==============
+const AtharManager = () => {
+  const [rows, setRows] = useState<AtharQuote[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<Partial<AtharQuote> | null>(null);
+  const [filter, setFilter] = useState<'all' | 'shia' | 'sunni' | 'both'>('all');
+
+  const load = async () => {
+    setLoading(true);
+    const { data } = await supabase.from('athar_quotes').select('*').order('created_at', { ascending: false });
+    setRows((data as AtharQuote[]) ?? []);
+    setLoading(false);
+  };
+  useEffect(() => { void load(); }, []);
+
+  const filtered = filter === 'all' ? rows : rows.filter(r => r.sect === filter);
+
+  const save = async () => {
+    if (!editing?.text || !editing?.sayer) {
+      toast({ title: 'النص والقائل مطلوبان', variant: 'destructive' });
+      return;
+    }
+    const sect = (editing.sect ?? 'both') as 'shia' | 'sunni' | 'both';
+    if (editing.id) {
+      const { error } = await supabase.from('athar_quotes').update({
+        text: editing.text, sayer: editing.sayer, sayer_info: editing.sayer_info ?? null,
+        source: editing.source ?? null, interpretation: editing.interpretation ?? null, sect,
+      }).eq('id', editing.id);
+      if (error) { toast({ title: 'فشل الحفظ', description: error.message, variant: 'destructive' }); return; }
+    } else {
+      let id = generateAtharId();
+      // Ensure unique (very unlikely collision but be safe)
+      for (let i = 0; i < 5; i++) {
+        const { data } = await supabase.from('athar_quotes').select('id').eq('id', id).maybeSingle();
+        if (!data) break;
+        id = generateAtharId();
+      }
+      const { error } = await supabase.from('athar_quotes').insert({
+        id, text: editing.text, sayer: editing.sayer, sayer_info: editing.sayer_info ?? null,
+        source: editing.source ?? null, interpretation: editing.interpretation ?? null, sect,
+      });
+      if (error) { toast({ title: 'فشل الإضافة', description: error.message, variant: 'destructive' }); return; }
+    }
+    toast({ title: 'تم الحفظ' });
+    setEditing(null); void load();
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm('حذف هذه المقولة؟')) return;
+    const { error } = await supabase.from('athar_quotes').delete().eq('id', id);
+    if (error) { toast({ title: 'فشل الحذف', variant: 'destructive' }); return; }
+    void load();
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide flex-1">
+          {([['all','الكل'],['shia','شيعي'],['sunni','سني'],['both','كلاهما']] as const).map(([k,l]) => (
+            <button key={k} onClick={() => setFilter(k)}
+              className={`flex-shrink-0 px-3 h-8 rounded-full text-[10px] ${filter===k?'bg-primary text-primary-foreground':'bg-secondary/40 border border-border/30 text-foreground'}`}>
+              {l}
+            </button>
+          ))}
+        </div>
+        <button onClick={() => setEditing({ sect: 'both' })}
+          className="h-8 px-3 rounded-full bg-foreground text-background text-[11px] flex items-center gap-1 flex-shrink-0">
+          <Plus className="w-3 h-3" /> إضافة
+        </button>
+      </div>
+
+      {loading ? (
+        <p className="text-[11px] text-muted-foreground/60 text-center py-6">جارٍ التحميل...</p>
+      ) : filtered.length === 0 ? (
+        <p className="text-[11px] text-muted-foreground/60 text-center py-6">لا توجد مقولات.</p>
+      ) : (
+        <div className="space-y-1.5">
+          {filtered.map((r) => (
+            <div key={r.id} className="rounded-2xl border border-border/30 bg-card p-3">
+              <div className="flex items-start justify-between gap-2 mb-1.5">
+                <span className="text-[9px] tabular-nums text-muted-foreground/60 font-light">{r.id}</span>
+                <span className="text-[9px] px-1.5 h-5 rounded-full bg-secondary/40 text-foreground/80 flex items-center">{r.sect}</span>
+              </div>
+              <p className="text-[12px] text-foreground line-clamp-3 text-right leading-relaxed">{r.text}</p>
+              <p className="text-[10px] text-muted-foreground/70 text-right mt-1">{r.sayer}</p>
+              <div className="flex gap-1.5 mt-2">
+                <button onClick={() => setEditing(r)} className="h-7 px-2.5 rounded-full bg-secondary/40 text-[10px] text-foreground flex items-center gap-1">
+                  <Pencil className="w-3 h-3" /> تعديل
+                </button>
+                <button onClick={() => remove(r.id)} className="h-7 px-2.5 rounded-full bg-destructive/10 text-destructive text-[10px] flex items-center gap-1">
+                  <Trash2 className="w-3 h-3" /> حذف
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {editing && (
+        <div className="fixed inset-0 z-[70] bg-background/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3" dir="rtl">
+          <div className="w-full max-w-md rounded-3xl border border-border/30 bg-card p-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[13px] text-foreground">{editing.id ? 'تعديل المقولة' : 'إضافة مقولة'}</p>
+              <button onClick={() => setEditing(null)} className="w-8 h-8 rounded-full active:bg-secondary/40 flex items-center justify-center">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-2 text-right">
+              <textarea value={editing.text ?? ''} onChange={(e) => setEditing({ ...editing, text: e.target.value })}
+                placeholder="نص المقولة" rows={4}
+                className="w-full p-3 rounded-xl bg-secondary/40 border border-border/30 text-[12px] outline-none" />
+              <input value={editing.sayer ?? ''} onChange={(e) => setEditing({ ...editing, sayer: e.target.value })}
+                placeholder='القائل (مثال: النبي محمد ﷺ)' className="w-full h-10 px-3 rounded-xl bg-secondary/40 border border-border/30 text-[12px] outline-none" />
+              <input value={editing.sayer_info ?? ''} onChange={(e) => setEditing({ ...editing, sayer_info: e.target.value })}
+                placeholder="معلومات عن القائل (اختياري)" className="w-full h-10 px-3 rounded-xl bg-secondary/40 border border-border/30 text-[12px] outline-none" />
+              <input value={editing.source ?? ''} onChange={(e) => setEditing({ ...editing, source: e.target.value })}
+                placeholder="المصدر / الكتاب (اختياري)" className="w-full h-10 px-3 rounded-xl bg-secondary/40 border border-border/30 text-[12px] outline-none" />
+              <textarea value={editing.interpretation ?? ''} onChange={(e) => setEditing({ ...editing, interpretation: e.target.value })}
+                placeholder="التفسير (اختياري)" rows={3}
+                className="w-full p-3 rounded-xl bg-secondary/40 border border-border/30 text-[12px] outline-none" />
+              <div className="grid grid-cols-3 gap-1.5">
+                {(['shia','sunni','both'] as const).map((s) => (
+                  <button key={s} onClick={() => setEditing({ ...editing, sect: s })}
+                    className={`h-10 rounded-xl text-[11px] ${editing.sect===s?'bg-primary text-primary-foreground':'bg-secondary/40 border border-border/30 text-foreground'}`}>
+                    {s==='shia'?'شيعي':s==='sunni'?'سني':'كلاهما'}
+                  </button>
+                ))}
+              </div>
+              <button onClick={save} className="w-full h-11 rounded-full bg-primary text-primary-foreground text-[12px] flex items-center justify-center gap-1.5">
+                <Save className="w-4 h-4" /> حفظ
               </button>
             </div>
           </div>

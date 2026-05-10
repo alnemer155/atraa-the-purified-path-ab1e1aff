@@ -113,6 +113,42 @@ export type Database = {
         }
         Relationships: []
       }
+      athar_quotes: {
+        Row: {
+          created_at: string
+          id: string
+          interpretation: string | null
+          sayer: string
+          sayer_info: string | null
+          sect: string
+          source: string | null
+          text: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          interpretation?: string | null
+          sayer: string
+          sayer_info?: string | null
+          sect?: string
+          source?: string | null
+          text: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interpretation?: string | null
+          sayer?: string
+          sayer_info?: string | null
+          sect?: string
+          source?: string | null
+          text?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           amount_cents: number

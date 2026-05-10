@@ -12,6 +12,7 @@ import WallpapersSection from '@/components/WallpapersSection';
 import LiveChannelsSection from '@/components/LiveChannelsSection';
 import KhatmaSection from '@/components/KhatmaSection';
 import QasaidSection from '@/components/QasaidSection';
+import AtharSection from '@/components/AtharSection';
 import { useMadhhab } from '@/lib/madhhab';
 
 // Mixed devotional rotation under the greeting:
@@ -34,8 +35,8 @@ const DEVOTIONAL_ROTATION: DevotionalItem[] = [
   { text: 'يَا عَلِيُّ يَا عَظِيم', type: 'dua' },
   { text: 'يَا حُسَيْنُ يَا شَهِيد', type: 'dua' },
   { text: 'حَسْبِيَ اللَّهُ لِدِينِي وَدُنْيَاي', type: 'dua' },
-  { taxt: 'يا عليُّ أدرِكني', type: 'dua' },
-  { taxt: 'ربِّ اغفر لي ولوالديَّ', type 'dua' },
+  { text: 'يا عليُّ أدرِكني', type: 'dua' },
+  { text: 'ربِّ اغفر لي ولوالديَّ', type: 'dua' },
 ];
 
 const tasbihatLabels = ['الله أكبر', 'الحمد لله', 'سبحان الله'];
@@ -168,6 +169,10 @@ const HomePage = () => {
 
         <motion.div variants={fadeUp}>
           <KhatmaSection />
+        </motion.div>
+
+        <motion.div variants={fadeUp}>
+          <AtharSection />
         </motion.div>
 
         {madhhab !== 'sunni' && (
