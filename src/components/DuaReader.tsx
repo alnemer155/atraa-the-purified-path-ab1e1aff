@@ -90,12 +90,12 @@ const DuaReader = ({ item, filtered, fontSize, setFontSize, onClose, onSelect }:
           <p className="text-[9px] text-muted-foreground/40 mt-1.5 font-light">المصدر: حقيبة المؤمن</p>
         </div>
 
-        {/* Body */}
+        {/* Body — double-tap a word to highlight it in the platform's accent color */}
         <div
           className="bg-card rounded-3xl p-6 border border-border/15 text-foreground whitespace-pre-wrap religious-text leading-[2.4]"
           style={{ fontSize: `${fontSize}px`, fontWeight: 400 }}
         >
-          {item.content}
+          <DoubleTapHighlightText text={item.content} />
         </div>
       </div>
 
