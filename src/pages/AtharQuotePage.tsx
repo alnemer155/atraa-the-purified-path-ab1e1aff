@@ -23,50 +23,56 @@ const AtharQuotePage = () => {
     })();
   }, [id]);
 
+  const buildImageBlob = async (): Promise<Blob | null> => {
+    if (!quote) return null;
+    const W = 1080, H = 1080;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = '#f5efe6'; ctx.fillRect(0, 0, W, H);
+
+    // Quote text (center-upper area)
+    ctx.fillStyle = '#2b1d10'; ctx.textAlign = 'right'; ctx.direction = 'rtl';
+    ctx.font = '300 44px "IBM Plex Sans Arabic", system-ui';
+    const words = quote.text.split(' ');
+    const lines: string[] = []; let line = '';
+    const maxW = W - 160;
+    words.forEach((w) => {
+      const test = line ? `${line} ${w}` : w;
+      if (ctx.measureText(test).width > maxW) { lines.push(line); line = w; } else line = test;
+    });
+    if (line) lines.push(line);
+    const startY = H / 2 - (lines.length * 60) / 2 - 40;
+    lines.forEach((ln, i) => ctx.fillText(ln, W - 80, startY + i * 60));
+
+    // Sayer
+    ctx.font = '300 30px "IBM Plex Sans Arabic", system-ui';
+    ctx.fillStyle = '#6b5840';
+    ctx.fillText(`— ${quote.sayer}`, W - 80, startY + lines.length * 60 + 40);
+
+    // Small logo at bottom-center (per spec: نقل الشعار إلى الأسفل و تصغيره)
+    const img = new Image(); img.crossOrigin = 'anonymous'; img.src = logoAthar;
+    await new Promise((r) => { img.onload = r; img.onerror = r; });
+    const wmSize = 110;
+    ctx.globalAlpha = 0.85;
+    ctx.drawImage(img, (W - wmSize) / 2, H - wmSize - 90, wmSize, wmSize);
+    ctx.globalAlpha = 1;
+
+    // Platform name beside logo (under it)
+    ctx.textAlign = 'center';
+    ctx.font = '300 22px "IBM Plex Sans Arabic", system-ui';
+    ctx.fillStyle = '#3a2c1a';
+    ctx.fillText('أثر · منصة عترة الدينية', W / 2, H - 50);
+
+    return await new Promise<Blob>((resolve) =>
+      canvas.toBlob((b) => resolve(b!), 'image/png')!,
+    );
+  };
+
   const downloadAsImage = async () => {
-    if (!quote) return;
     try {
-      const W = 1080, H = 1080;
-      const canvas = document.createElement('canvas');
-      canvas.width = W; canvas.height = H;
-      const ctx = canvas.getContext('2d')!;
-      ctx.fillStyle = '#f5efe6'; ctx.fillRect(0, 0, W, H);
-
-      // Watermark logo (40% opacity, centered, large)
-      const img = new Image(); img.crossOrigin = 'anonymous'; img.src = logoAthar;
-      await new Promise((r) => { img.onload = r; img.onerror = r; });
-      ctx.globalAlpha = 0.4;
-      const wmSize = 720;
-      ctx.drawImage(img, (W - wmSize) / 2, (H - wmSize) / 2, wmSize, wmSize);
-      ctx.globalAlpha = 1;
-
-      // Quote text
-      ctx.fillStyle = '#2b1d10'; ctx.textAlign = 'right'; ctx.direction = 'rtl';
-      ctx.font = '300 44px "IBM Plex Sans Arabic", system-ui';
-      const words = quote.text.split(' ');
-      const lines: string[] = []; let line = '';
-      const maxW = W - 160;
-      words.forEach((w) => {
-        const test = line ? `${line} ${w}` : w;
-        if (ctx.measureText(test).width > maxW) { lines.push(line); line = w; } else line = test;
-      });
-      if (line) lines.push(line);
-      const startY = H / 2 - (lines.length * 60) / 2;
-      lines.forEach((ln, i) => ctx.fillText(ln, W - 80, startY + i * 60));
-
-      // Sayer
-      ctx.font = '300 30px "IBM Plex Sans Arabic", system-ui';
-      ctx.fillStyle = '#6b5840';
-      ctx.fillText(`— ${quote.sayer}`, W - 80, startY + lines.length * 60 + 40);
-
-      // Platform name (bottom-left)
-      ctx.textAlign = 'left'; ctx.font = '300 26px "IBM Plex Sans Arabic", system-ui';
-      ctx.fillStyle = '#3a2c1a';
-      ctx.fillText('منصة عترة الدينية · أثر', 80, H - 60);
-
-      const blob: Blob = await new Promise((resolve) =>
-        canvas.toBlob((b) => resolve(b!), 'image/png')!
-      );
+      const blob = await buildImageBlob();
+      if (!blob || !quote) return;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url; a.download = `athar-${quote.id}.png`; a.click();
@@ -82,8 +88,17 @@ const AtharQuotePage = () => {
     if (!quote) return;
     const url = `https://athar.atraa.xyz/${quote.id}`;
     try {
-      if (navigator.share) await navigator.share({ title: 'أثر', text: quote.text, url });
-      else { await navigator.clipboard.writeText(url); toast({ title: 'تم نسخ الرابط' }); }
+      // Per spec: النشر يكون معه صوره — attach the generated image when supported.
+      const blob = await buildImageBlob();
+      const file = blob ? new File([blob], `athar-${quote.id}.png`, { type: 'image/png' }) : null;
+      const navAny = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+      if (file && navAny.canShare?.({ files: [file] }) && navigator.share) {
+        await navigator.share({ title: 'أثر', text: quote.text, url, files: [file] } as ShareData);
+        return;
+      }
+      if (navigator.share) { await navigator.share({ title: 'أثر', text: quote.text, url }); return; }
+      await navigator.clipboard.writeText(url);
+      toast({ title: 'تم نسخ الرابط' });
     } catch { /* cancelled */ }
   };
 
