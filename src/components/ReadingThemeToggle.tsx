@@ -27,7 +27,7 @@ const ReadingThemeToggle = ({ allowNight = false, className = '' }: Props) => {
   const Icon = theme === 'night' ? Moon : theme === 'default' ? Sun : BookOpen;
 
   const handleClick = () => {
-    toast({ title: 'الأوضاع الأخرى قيد الصيانة', description: 'الوضع الحالي: سيبيا' });
+    toast({ title: 'مُقفل مؤقتاً', description: 'الوضع الحالي: سيبيا' });
   };
 
   // `allowNight` kept in signature for compatibility; locked regardless.
