@@ -59,6 +59,7 @@ export const QasaidPlayerProvider = ({ children }: { children: ReactNode }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [repeat, setRepeat] = useState<RepeatMode>('off');
 
   // Lazily create the singleton audio element
   if (typeof window !== 'undefined' && !audioRef.current) {
