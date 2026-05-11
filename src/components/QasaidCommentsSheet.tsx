@@ -51,7 +51,7 @@ const extractYoutubeId = (url: string): string => {
 };
 
 const QasaidCommentsSheet = ({ qasidaId, open, onClose }: Props) => {
-  const { current, isPlaying, toggle, next, prev, position, duration, seek } = useQasaidPlayer();
+  const { current, isPlaying, toggle, next, prev, position, duration, seek, seekBy, repeat, cycleRepeat } = useQasaidPlayer();
   const [comments, setComments] = useState<Comment[]>([]);
   const [likeCount, setLikeCount] = useState(0);
   const [iLiked, setILiked] = useState(false);
@@ -61,10 +61,13 @@ const QasaidCommentsSheet = ({ qasidaId, open, onClose }: Props) => {
   const [content, setContent] = useState('');
   const [posting, setPosting] = useState(false);
   const [youtubeUrl, setYoutubeUrl] = useState<string | null>(null);
+  const [videoPath, setVideoPath] = useState<string | null>(null);
+  const [shareCode, setShareCode] = useState<string | null>(null);
+  const [category, setCategory] = useState<string>('qasaid');
   const token = useMemo(() => getToken(), []);
 
-  // The sheet may have been opened for the same id that's now playing.
   const showPlayer = current && current.id === qasidaId;
+  const isPodcast = category === 'podcast';
 
   useEffect(() => {
     if (!open || !qasidaId) return;
@@ -73,14 +76,28 @@ const QasaidCommentsSheet = ({ qasidaId, open, onClose }: Props) => {
         supabase.from('qasida_comments').select('*').eq('qasida_id', qasidaId).order('created_at', { ascending: false }).limit(100),
         supabase.from('qasida_likes').select('id', { count: 'exact', head: true }).eq('qasida_id', qasidaId),
         supabase.from('qasida_likes').select('id').eq('qasida_id', qasidaId).eq('visitor_token', token).maybeSingle(),
-        supabase.from('admin_qasaid').select('youtube_url').eq('id', qasidaId).maybeSingle(),
+        supabase.from('admin_qasaid').select('youtube_url, video_path, share_code, category').eq('id', qasidaId).maybeSingle(),
       ]);
       setComments((cs as Comment[]) ?? []);
       setLikeCount((ls as unknown as { count?: number })?.count ?? 0);
       setILiked(!!mine);
-      setYoutubeUrl((qasida as { youtube_url?: string | null })?.youtube_url ?? null);
+      const q = qasida as { youtube_url?: string | null; video_path?: string | null; share_code?: string | null; category?: string | null } | null;
+      setYoutubeUrl(q?.youtube_url ?? null);
+      setVideoPath(q?.video_path ?? null);
+      setShareCode(q?.share_code ?? null);
+      setCategory(q?.category ?? 'qasaid');
     })();
   }, [open, qasidaId, token]);
+
+  const sharePublic = async () => {
+    if (!shareCode) { toast({ title: 'لا يوجد رمز مشاركة' }); return; }
+    const url = `https://qasaid.atraa.xyz/q/${shareCode}`;
+    const text = current ? `${current.title} — ${current.reciter}` : 'قصيدة من منصة عترة';
+    try {
+      if (navigator.share) await navigator.share({ title: 'قصيدة', text, url });
+      else { await navigator.clipboard.writeText(url); toast({ title: 'تم نسخ الرابط' }); }
+    } catch { /* cancelled */ }
+  };
 
   const toggleLike = async () => {
     if (iLiked) {
