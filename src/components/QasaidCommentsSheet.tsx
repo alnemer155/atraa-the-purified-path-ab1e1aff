@@ -1,10 +1,15 @@
 /**
  * Unified Qasida sheet — playback + comments + likes.
  * Opens when the user taps an elegy. Anonymous (name only).
+ * Adds: ±10s seek, repeat (off/all/one), share-with-4-digit-code, video badge,
+ * and a dedicated podcast layout with YouTube/video embeds.
  */
 import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Send, Play, Pause, SkipBack, SkipForward } from 'lucide-react';
+import {
+  X, Heart, Send, Play, Pause, SkipBack, SkipForward,
+  Repeat, Repeat1, Rewind, FastForward, Share2, Video, Headphones,
+} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useQasaidPlayer, qasaidPublicUrl } from '@/contexts/QasaidPlayerContext';
