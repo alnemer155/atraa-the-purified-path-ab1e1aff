@@ -64,7 +64,7 @@ const QasaidSection = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-2.5">
-        <h2 className="text-[12px] text-foreground text-right">قصائد حسينية</h2>
+        <h2 className="text-[12px] text-foreground text-right">قصائد حسينية والمزيد</h2>
         <span className="text-[8px] text-muted-foreground/40 font-light tabular-nums">
           {filtered.length}
         </span>
