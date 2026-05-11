@@ -103,7 +103,18 @@ export const QasaidPlayerProvider = ({ children }: { children: ReactNode }) => {
     const onPause = () => setIsPlaying(false);
     const onTime = () => setPosition(a.currentTime);
     const onMeta = () => setDuration(a.duration || 0);
-    const onEnd = () => next();
+    const onEnd = () => {
+      if (repeat === 'one' && audioRef.current) {
+        audioRef.current.currentTime = 0;
+        void audioRef.current.play().catch(() => {});
+        return;
+      }
+      if (repeat === 'off' && queue.length > 0 && index >= queue.length - 1) {
+        setIsPlaying(false);
+        return;
+      }
+      next();
+    };
     a.addEventListener('play', onPlay);
     a.addEventListener('pause', onPause);
     a.addEventListener('timeupdate', onTime);
