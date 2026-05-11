@@ -127,7 +127,7 @@ export const QasaidPlayerProvider = ({ children }: { children: ReactNode }) => {
       a.removeEventListener('loadedmetadata', onMeta);
       a.removeEventListener('ended', onEnd);
     };
-  }, [next]);
+  }, [next, repeat, queue.length, index]);
 
   // Load new track when current changes
   useEffect(() => {
