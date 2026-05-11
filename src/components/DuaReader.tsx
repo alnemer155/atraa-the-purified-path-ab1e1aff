@@ -6,6 +6,33 @@ import SmartText from '@/components/SmartText';
 
 const CATEGORY_LABELS: Record<string, string> = { dua: 'الأدعية', ziyara: 'الزيارات', dhikr: 'الأذكار' };
 
+/**
+ * Renders religious text where each whitespace-separated word is tappable.
+ * Double-tap toggles a highlight in the platform's secondary/accent color.
+ */
+const DoubleTapHighlightText = ({ text }: { text: string }) => {
+  const [highlighted, setHighlighted] = useState<Record<number, boolean>>({});
+  // Split preserving newlines & whitespace so original layout is kept.
+  const parts = text.split(/(\s+)/);
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (/^\s+$/.test(part)) return <span key={i}>{part}</span>;
+        return (
+          <span
+            key={i}
+            onDoubleClick={() => setHighlighted((p) => ({ ...p, [i]: !p[i] }))}
+            className={`inline cursor-pointer transition-colors ${highlighted[i] ? 'text-primary' : ''}`}
+            style={{ WebkitTapHighlightColor: 'transparent' }}
+          >
+            {part}
+          </span>
+        );
+      })}
+    </>
+  );
+};
+
 interface DuaReaderProps {
   item: DuaItem;
   filtered: DuaItem[];
@@ -90,12 +117,12 @@ const DuaReader = ({ item, filtered, fontSize, setFontSize, onClose, onSelect }:
           <p className="text-[9px] text-muted-foreground/40 mt-1.5 font-light">المصدر: حقيبة المؤمن</p>
         </div>
 
-        {/* Body */}
+        {/* Body — double-tap a word to highlight it in the platform's accent color */}
         <div
           className="bg-card rounded-3xl p-6 border border-border/15 text-foreground whitespace-pre-wrap religious-text leading-[2.4]"
           style={{ fontSize: `${fontSize}px`, fontWeight: 400 }}
         >
-          {item.content}
+          <DoubleTapHighlightText text={item.content} />
         </div>
       </div>
 

@@ -57,6 +57,7 @@ export type Database = {
           duration_seconds: number | null
           id: string
           reciter: string
+          share_code: string | null
           title: string
           updated_at: string
           video_path: string | null
@@ -71,6 +72,7 @@ export type Database = {
           duration_seconds?: number | null
           id?: string
           reciter: string
+          share_code?: string | null
           title: string
           updated_at?: string
           video_path?: string | null
@@ -85,6 +87,7 @@ export type Database = {
           duration_seconds?: number | null
           id?: string
           reciter?: string
+          share_code?: string | null
           title?: string
           updated_at?: string
           video_path?: string | null

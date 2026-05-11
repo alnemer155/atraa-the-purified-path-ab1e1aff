@@ -64,7 +64,7 @@ const QasaidSection = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-2.5">
-        <h2 className="text-[12px] text-foreground text-right">قصائد حسينية</h2>
+        <h2 className="text-[12px] text-foreground text-right">قصائد حسينية والمزيد</h2>
         <span className="text-[8px] text-muted-foreground/40 font-light tabular-nums">
           {filtered.length}
         </span>
@@ -138,15 +138,15 @@ const QasaidSection = () => {
           );
         })}
 
-        {hiddenCount > 0 && (
-          <Link
-            to="/qasaid"
-            className="w-full flex items-center justify-between p-3 border-t border-border/10 text-[11px] text-primary active:bg-secondary/30 transition-colors"
-          >
-            <span>عرض المزيد ({hiddenCount})</span>
-            <ChevronLeft className="w-3.5 h-3.5" strokeWidth={1.6} />
-          </Link>
-        )}
+        <a
+          href="https://qasaid.atraa.xyz"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full flex items-center justify-between p-3 border-t border-border/10 text-[11px] text-primary active:bg-secondary/30 transition-colors"
+        >
+          <span>المزيد على qasaid.atraa.xyz{hiddenCount > 0 ? ` (${hiddenCount}+)` : ''}</span>
+          <ChevronLeft className="w-3.5 h-3.5" strokeWidth={1.6} />
+        </a>
       </div>
 
       <QasaidCommentsSheet qasidaId={openId ?? ''} open={!!openId} onClose={() => setOpenId(null)} />

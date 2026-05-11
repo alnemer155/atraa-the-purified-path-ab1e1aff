@@ -25,12 +25,17 @@ export interface QasaidTrack {
   youtube_url?: string | null;
 }
 
+export type RepeatMode = 'off' | 'all' | 'one';
+
 interface Ctx {
   current: QasaidTrack | null;
   queue: QasaidTrack[];
   isPlaying: boolean;
   position: number;
   duration: number;
+  repeat: RepeatMode;
+  setRepeat: (m: RepeatMode) => void;
+  cycleRepeat: () => void;
   setQueue: (tracks: QasaidTrack[], startIndex?: number) => void;
   play: () => void;
   pause: () => void;
@@ -38,6 +43,7 @@ interface Ctx {
   next: () => void;
   prev: () => void;
   seek: (s: number) => void;
+  seekBy: (delta: number) => void;
   stop: () => void;
 }
 
@@ -53,6 +59,7 @@ export const QasaidPlayerProvider = ({ children }: { children: ReactNode }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [repeat, setRepeat] = useState<RepeatMode>('off');
 
   // Lazily create the singleton audio element
   if (typeof window !== 'undefined' && !audioRef.current) {
@@ -78,6 +85,16 @@ export const QasaidPlayerProvider = ({ children }: { children: ReactNode }) => {
     setIndex((i) => (queue.length ? (i - 1 + queue.length) % queue.length : 0));
   }, [queue.length]);
 
+  const cycleRepeat = useCallback(() => {
+    setRepeat((m) => (m === 'off' ? 'all' : m === 'all' ? 'one' : 'off'));
+  }, []);
+
+  const seekBy = useCallback((delta: number) => {
+    const a = audioRef.current;
+    if (!a) return;
+    a.currentTime = Math.max(0, Math.min((a.duration || 0), a.currentTime + delta));
+  }, []);
+
   // Wire audio element events
   useEffect(() => {
     const a = audioRef.current;
@@ -86,7 +103,18 @@ export const QasaidPlayerProvider = ({ children }: { children: ReactNode }) => {
     const onPause = () => setIsPlaying(false);
     const onTime = () => setPosition(a.currentTime);
     const onMeta = () => setDuration(a.duration || 0);
-    const onEnd = () => next();
+    const onEnd = () => {
+      if (repeat === 'one' && audioRef.current) {
+        audioRef.current.currentTime = 0;
+        void audioRef.current.play().catch(() => {});
+        return;
+      }
+      if (repeat === 'off' && queue.length > 0 && index >= queue.length - 1) {
+        setIsPlaying(false);
+        return;
+      }
+      next();
+    };
     a.addEventListener('play', onPlay);
     a.addEventListener('pause', onPause);
     a.addEventListener('timeupdate', onTime);
@@ -99,7 +127,7 @@ export const QasaidPlayerProvider = ({ children }: { children: ReactNode }) => {
       a.removeEventListener('loadedmetadata', onMeta);
       a.removeEventListener('ended', onEnd);
     };
-  }, [next]);
+  }, [next, repeat, queue.length, index]);
 
   // Load new track when current changes
   useEffect(() => {
@@ -157,6 +185,9 @@ export const QasaidPlayerProvider = ({ children }: { children: ReactNode }) => {
     isPlaying,
     position,
     duration,
+    repeat,
+    setRepeat,
+    cycleRepeat,
     setQueue,
     play: playInternal,
     pause: pauseInternal,
@@ -164,8 +195,9 @@ export const QasaidPlayerProvider = ({ children }: { children: ReactNode }) => {
     next,
     prev,
     seek: (s) => { if (audioRef.current) audioRef.current.currentTime = s; },
+    seekBy,
     stop,
-  }), [current, queue, isPlaying, position, duration, setQueue, playInternal, pauseInternal, next, prev, stop]);
+  }), [current, queue, isPlaying, position, duration, repeat, cycleRepeat, seekBy, setQueue, playInternal, pauseInternal, next, prev, stop]);
 
   return <QasaidPlayerContext.Provider value={value}>{children}</QasaidPlayerContext.Provider>;
 };
