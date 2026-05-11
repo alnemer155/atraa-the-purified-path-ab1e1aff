@@ -25,12 +25,17 @@ export interface QasaidTrack {
   youtube_url?: string | null;
 }
 
+export type RepeatMode = 'off' | 'all' | 'one';
+
 interface Ctx {
   current: QasaidTrack | null;
   queue: QasaidTrack[];
   isPlaying: boolean;
   position: number;
   duration: number;
+  repeat: RepeatMode;
+  setRepeat: (m: RepeatMode) => void;
+  cycleRepeat: () => void;
   setQueue: (tracks: QasaidTrack[], startIndex?: number) => void;
   play: () => void;
   pause: () => void;
@@ -38,6 +43,7 @@ interface Ctx {
   next: () => void;
   prev: () => void;
   seek: (s: number) => void;
+  seekBy: (delta: number) => void;
   stop: () => void;
 }
 
