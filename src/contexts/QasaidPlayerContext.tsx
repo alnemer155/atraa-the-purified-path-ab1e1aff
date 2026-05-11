@@ -85,6 +85,16 @@ export const QasaidPlayerProvider = ({ children }: { children: ReactNode }) => {
     setIndex((i) => (queue.length ? (i - 1 + queue.length) % queue.length : 0));
   }, [queue.length]);
 
+  const cycleRepeat = useCallback(() => {
+    setRepeat((m) => (m === 'off' ? 'all' : m === 'all' ? 'one' : 'off'));
+  }, []);
+
+  const seekBy = useCallback((delta: number) => {
+    const a = audioRef.current;
+    if (!a) return;
+    a.currentTime = Math.max(0, Math.min((a.duration || 0), a.currentTime + delta));
+  }, []);
+
   // Wire audio element events
   useEffect(() => {
     const a = audioRef.current;
