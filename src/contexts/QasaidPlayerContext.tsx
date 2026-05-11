@@ -185,6 +185,9 @@ export const QasaidPlayerProvider = ({ children }: { children: ReactNode }) => {
     isPlaying,
     position,
     duration,
+    repeat,
+    setRepeat,
+    cycleRepeat,
     setQueue,
     play: playInternal,
     pause: pauseInternal,
@@ -192,8 +195,9 @@ export const QasaidPlayerProvider = ({ children }: { children: ReactNode }) => {
     next,
     prev,
     seek: (s) => { if (audioRef.current) audioRef.current.currentTime = s; },
+    seekBy,
     stop,
-  }), [current, queue, isPlaying, position, duration, setQueue, playInternal, pauseInternal, next, prev, stop]);
+  }), [current, queue, isPlaying, position, duration, repeat, cycleRepeat, seekBy, setQueue, playInternal, pauseInternal, next, prev, stop]);
 
   return <QasaidPlayerContext.Provider value={value}>{children}</QasaidPlayerContext.Provider>;
 };
