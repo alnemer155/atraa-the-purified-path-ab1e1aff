@@ -92,7 +92,7 @@ const SettingsPage = () => {
 
   return (
     <motion.div
-      className={`px-4 py-4 pb-32 space-y-4 ${isAr ? 'text-right' : 'text-left'}`}
+      className={`px-4 py-4 pb-20 space-y-4 ${isAr ? 'text-right' : 'text-left'}`}
       initial="hidden"
       animate="visible"
     >
