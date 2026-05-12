@@ -27,7 +27,9 @@ const KhatmaPage = lazy(() => import("./pages/KhatmaPage"));
 const KhatmaLandingPage = lazy(() => import("./pages/KhatmaLandingPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const QasaidPage = lazy(() => import("./pages/QasaidPage"));
+const QasaidHomePage = lazy(() => import("./pages/QasaidHomePage"));
 const AtharQuotePage = lazy(() => import("./pages/AtharQuotePage"));
+const AtharHomePage = lazy(() => import("./pages/AtharHomePage"));
 const MaintenancePage = lazy(() => import("./pages/MaintenancePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -92,13 +94,14 @@ const App = () => {
                   </Routes>
                 ) : isAtharHost ? (
                   <Routes>
-                    <Route path="/" element={<MaintenancePage name="أثر — منصة عترة الدينية" />} />
+                    <Route path="/" element={<AtharHomePage />} />
                     <Route path="/:id" element={<AtharQuotePage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 ) : isQasaidHost ? (
                   <Routes>
-                    <Route path="*" element={<MaintenancePage name="قصائد — منصة عترة الدينية" />} />
+                    <Route path="/" element={<QasaidHomePage />} />
+                    <Route path="*" element={<QasaidHomePage />} />
                   </Routes>
                 ) : isAudioHost ? (
                   <Routes>

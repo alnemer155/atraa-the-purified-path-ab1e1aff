@@ -233,10 +233,10 @@ const DuasManager = () => {
     };
     if (editing.id) {
       const { error } = await supabase.from('admin_duas').update(payload).eq('id', editing.id);
-      if (error) { toast({ title: 'تعذّر الحفظ', variant: 'destructive' }); return; }
+      if (error) { toast({ title: 'تعذّر الحفظ', description: error.message, variant: 'destructive' }); return; }
     } else {
       const { error } = await supabase.from('admin_duas').insert(payload);
-      if (error) { toast({ title: 'تعذّر الإضافة', variant: 'destructive' }); return; }
+      if (error) { toast({ title: 'تعذّر الإضافة', description: error.message, variant: 'destructive' }); return; }
     }
     setEditing(null);
     void load();
@@ -862,10 +862,10 @@ const QasaidManager = () => {
 
     if (editing.id) {
       const { error } = await supabase.from('admin_qasaid').update(payload).eq('id', editing.id);
-      if (error) { setSaving(false); toast({ title: 'تعذّر الحفظ', variant: 'destructive' }); return; }
+      if (error) { setSaving(false); toast({ title: 'تعذّر الحفظ', description: error.message, variant: 'destructive' }); return; }
     } else {
       const { error } = await supabase.from('admin_qasaid').insert(payload);
-      if (error) { setSaving(false); toast({ title: 'تعذّر الإضافة', variant: 'destructive' }); return; }
+      if (error) { setSaving(false); toast({ title: 'تعذّر الإضافة', description: error.message, variant: 'destructive' }); return; }
     }
     setSaving(false);
     setEditing(null);
