@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Search, Play, Pause, Headphones, Repeat, Repeat1, SkipBack, SkipForward, RotateCcw, RotateCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import {
-  QasaidPlayerProvider,
   useQasaidPlayer,
   qasaidPublicUrl,
   type QasaidTrack,
@@ -269,10 +268,6 @@ const QasaidHomeInner = () => {
   );
 };
 
-const QasaidHomePage = () => (
-  <QasaidPlayerProvider>
-    <QasaidHomeInner />
-  </QasaidPlayerProvider>
-);
+const QasaidHomePage = () => <QasaidHomeInner />;
 
 export default QasaidHomePage;
