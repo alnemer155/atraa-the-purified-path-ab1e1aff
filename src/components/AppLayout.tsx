@@ -15,7 +15,13 @@ const AppLayout = () => {
   }, [i18n.language]);
 
   return (
-    <div className="min-h-screen bg-background max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto relative">
+    <div
+      className="min-h-screen bg-background max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto relative"
+      style={{
+        paddingLeft: 'env(safe-area-inset-left, 0px)',
+        paddingRight: 'env(safe-area-inset-right, 0px)',
+      }}
+    >
       {!hideHeader && <AppHeader />}
       <main className="safe-bottom">
         <Outlet />
