@@ -1,7 +1,7 @@
 /**
  * Athar (أثر) public homepage — athar.atraa.xyz
- * A dedicated browsing experience for the prophetic & Imami sayings.
- * Sepia-locked design matching Atraa's restricted visual system.
+ * v2.9.20 — sect filter removed (sayings shown to everyone). Includes the
+ * naming-story section explaining how the project was named "أثر".
  */
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,13 +10,10 @@ import { supabase } from '@/integrations/supabase/client';
 import type { AtharQuote } from '@/lib/athar';
 import logoAthar from '@/assets/logo-athar.png';
 
-type Sect = 'all' | 'shia' | 'sunni' | 'both';
-
 const AtharHomePage = () => {
   const navigate = useNavigate();
   const [items, setItems] = useState<AtharQuote[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sect, setSect] = useState<Sect>('all');
   const [query, setQuery] = useState('');
 
   useEffect(() => {
@@ -25,22 +22,24 @@ const AtharHomePage = () => {
         .from('athar_quotes')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(120);
+        .limit(500);
       setItems((data as AtharQuote[]) ?? []);
       setLoading(false);
     })();
   }, []);
 
   const filtered = useMemo(() => {
-    let list = items;
-    if (sect !== 'all') list = list.filter((q) => q.sect === sect);
     const q = query.trim();
-    if (q) list = list.filter((it) => it.text.includes(q) || it.sayer.includes(q));
-    return list;
-  }, [items, sect, query]);
+    if (!q) return items;
+    return items.filter((it) => it.text.includes(q) || it.sayer.includes(q));
+  }, [items, query]);
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+    <div
+      className="min-h-screen bg-background"
+      dir="rtl"
+      style={{ paddingTop: 'max(env(safe-area-inset-top), 0px)' }}
+    >
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/70 backdrop-blur-2xl border-b border-border/10">
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
@@ -48,7 +47,9 @@ const AtharHomePage = () => {
             <img src={logoAthar} alt="أثر" className="h-7 w-auto" />
             <div>
               <p className="text-[13px] text-foreground leading-none">أثر</p>
-              <p className="text-[9px] text-muted-foreground/60 font-light mt-0.5">منصة عترة الدينية</p>
+              <p className="text-[9px] text-muted-foreground/60 font-light mt-0.5">
+                منصة عترة الدينية
+              </p>
             </div>
           </div>
           <a
@@ -60,7 +61,10 @@ const AtharHomePage = () => {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-5 pb-16">
+      <main
+        className="max-w-2xl mx-auto px-5"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 4rem)' }}
+      >
         {/* Hero */}
         <section className="pt-10 pb-8 text-center">
           <p className="text-[10px] text-muted-foreground/60 mb-3 font-light tracking-[0.3em]">
@@ -76,37 +80,32 @@ const AtharHomePage = () => {
           </p>
         </section>
 
+        {/* Naming story */}
+        <section className="rounded-2xl border border-border/25 bg-card/60 p-5 mb-6 text-center">
+          <p className="text-[10px] text-muted-foreground/60 font-light tracking-[0.25em] mb-2">
+            قصّة التسمية
+          </p>
+          <p className="text-[13px] text-foreground/90 font-light leading-loose">
+            جاءت تسمية «<span className="text-foreground">أثر</span>» بالصدفة عندما قال
+            المطوّر لأحد أصدقائه:
+          </p>
+          <p className="text-[14px] text-foreground font-light leading-loose mt-2">
+            «المقولة تبقى في الأَثَر.»
+          </p>
+        </section>
+
         {/* Search */}
-        <div className="relative mb-3">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60" strokeWidth={1.6} />
+        <div className="relative mb-4">
+          <Search
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60"
+            strokeWidth={1.6}
+          />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="ابحث في النص أو القائل…"
             className="w-full h-11 pr-9 pl-3 rounded-2xl bg-secondary/40 border border-border/30 text-[12px] text-foreground outline-none focus:border-primary/40"
           />
-        </div>
-
-        {/* Sect filter */}
-        <div className="flex gap-1.5 overflow-x-auto pb-3 scrollbar-hide">
-          {([
-            ['all', 'الكل'],
-            ['shia', 'شيعي'],
-            ['sunni', 'سني'],
-            ['both', 'مشترك'],
-          ] as [Sect, string][]).map(([k, l]) => (
-            <button
-              key={k}
-              onClick={() => setSect(k)}
-              className={`flex-shrink-0 px-3 h-8 rounded-full text-[10px] transition-colors ${
-                sect === k
-                  ? 'bg-foreground text-background'
-                  : 'bg-secondary/40 text-foreground border border-border/30'
-              }`}
-            >
-              {l}
-            </button>
-          ))}
         </div>
 
         {/* Grid */}
@@ -151,7 +150,10 @@ const AtharHomePage = () => {
         {/* Footer */}
         <footer className="mt-12 pt-6 border-t border-border/15 text-center">
           <p className="text-[10px] text-muted-foreground/60 font-light leading-relaxed">
-            مشروع تابع لـ <a href="https://atraa.xyz" className="text-foreground">منصة عترة الدينية</a>
+            مشروع تابع لـ{' '}
+            <a href="https://atraa.xyz" className="text-foreground">
+              منصة عترة الدينية
+            </a>
             <br />
             © 2024–2026 · جميع الحقوق محفوظة
           </p>

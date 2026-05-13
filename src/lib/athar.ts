@@ -2,9 +2,12 @@
  * Athar (أثر) — quotes/sayings of the Prophet ﷺ and the Imams (a.s.).
  * 7-character alphanumeric public IDs, hosted externally at
  * https://athar.atraa.xyz/{id} for sharing & rich detail pages.
+ *
+ * v2.9.20: sect filtering removed. All quotes are visible to everyone
+ * regardless of madhhab. The `sect` column is kept in the DB for historical
+ * reasons but ignored on the client.
  */
 import { supabase } from '@/integrations/supabase/client';
-import type { Madhhab } from './madhhab';
 
 export interface AtharQuote {
   id: string;
@@ -31,16 +34,21 @@ export const generateAtharId = (): string => {
   return id;
 };
 
-export const fetchAtharForMadhhab = async (m: Madhhab, limit = 6): Promise<AtharQuote[]> => {
-  const sects = m === 'sunni' ? ['sunni', 'both'] : ['shia', 'both'];
+/** Fetch latest quotes — no sect filter (visible to everyone). */
+export const fetchAthar = async (limit = 6): Promise<AtharQuote[]> => {
   const { data } = await supabase
     .from('athar_quotes')
     .select('*')
-    .in('sect', sects)
     .order('created_at', { ascending: false })
     .limit(limit);
   return (data as AtharQuote[]) ?? [];
 };
+
+/** @deprecated kept for compatibility — sect param is ignored. */
+export const fetchAtharForMadhhab = async (
+  _m: unknown,
+  limit = 6,
+): Promise<AtharQuote[]> => fetchAthar(limit);
 
 export const fetchAtharById = async (id: string): Promise<AtharQuote | null> => {
   const { data } = await supabase

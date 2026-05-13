@@ -3,34 +3,95 @@ import { ChevronLeft, ChevronRight, ArrowRight, Type } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { DuaItem } from '@/lib/duas-parser';
 import SmartText from '@/components/SmartText';
+import PeaceBeUponHim from '@/components/PeaceBeUponHim';
 
 const CATEGORY_LABELS: Record<string, string> = { dua: 'الأدعية', ziyara: 'الزيارات', dhikr: 'الأذكار' };
 
+// Captures any group wrapped in (), [], or {} including the brackets.
+const BRACKET_RE = /([\(\[\{][^\)\]\}\(\[\{]*[\)\]\}])/g;
+
 /**
- * Renders religious text where each whitespace-separated word is tappable.
- * Double-tap toggles a highlight in the platform's secondary/accent color.
+ * A bracket group should keep its normal color (not be dimmed) when it
+ * carries one of these religious meanings:
+ *   - عليه/عليها/عليهم/عليهما السلام  (rendered as the dedicated icon)
+ *   - any "صلوات" formula on the Prophet ﷺ or the Imams (a.s.)
+ */
+const isExemptBracket = (inner: string): boolean => {
+  const t = inner.trim();
+  if (/^(عليه|عليها|عليهم|عليهما)\s+السلام$/.test(t)) return true;
+  if (/صلوات/.test(t)) return true;
+  return false;
+};
+
+const PBUH_RE = /^\((عليه|عليها|عليهم|عليهما) السلام\)$/;
+
+/**
+ * Renders religious text with two enhancements:
+ *   1. Bracketed clarifications — `(…)`, `[…]`, `{…}` — render in a
+ *      transparent muted-gray to visually de-emphasise them, EXCEPT for
+ *      the "صلوات" and "عليه السلام / عليها السلام" formulas which keep
+ *      their normal styling (and the latter is replaced by the icon).
+ *   2. Each non-bracket whitespace word is tappable; double-tap toggles a
+ *      highlight using the platform's secondary background + primary text.
  */
 const DoubleTapHighlightText = ({ text }: { text: string }) => {
   const [highlighted, setHighlighted] = useState<Record<number, boolean>>({});
-  // Split preserving newlines & whitespace so original layout is kept.
-  const parts = text.split(/(\s+)/);
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (/^\s+$/.test(part)) return <span key={i}>{part}</span>;
-        return (
-          <span
-            key={i}
-            onDoubleClick={() => setHighlighted((p) => ({ ...p, [i]: !p[i] }))}
-            className={`inline cursor-pointer transition-colors ${highlighted[i] ? 'text-primary' : ''}`}
-            style={{ WebkitTapHighlightColor: 'transparent' }}
-          >
-            {part}
-          </span>
-        );
-      })}
-    </>
-  );
+
+  // First split by bracket groups, then within plain runs split by whitespace.
+  const segments = text.split(BRACKET_RE);
+  const out: React.ReactNode[] = [];
+  let wordKey = 0;
+
+  segments.forEach((seg, segIdx) => {
+    if (!seg) return;
+    if (BRACKET_RE.test(seg)) {
+      // Reset lastIndex (we used the regex with .test)
+      BRACKET_RE.lastIndex = 0;
+      const inner = seg.slice(1, -1);
+      if (PBUH_RE.test(seg)) {
+        out.push(<PeaceBeUponHim key={`b-${segIdx}`} size={14} />);
+        return;
+      }
+      if (isExemptBracket(inner)) {
+        out.push(<span key={`b-${segIdx}`}>{seg}</span>);
+        return;
+      }
+      out.push(
+        <span
+          key={`b-${segIdx}`}
+          className="text-muted-foreground/45"
+        >
+          {seg}
+        </span>,
+      );
+      return;
+    }
+    // Plain run — split preserving whitespace so layout is kept.
+    const parts = seg.split(/(\s+)/);
+    parts.forEach((part, partIdx) => {
+      if (!part) return;
+      if (/^\s+$/.test(part)) {
+        out.push(<span key={`w-${segIdx}-${partIdx}`}>{part}</span>);
+        return;
+      }
+      const k = wordKey++;
+      const isOn = highlighted[k];
+      out.push(
+        <span
+          key={`w-${segIdx}-${partIdx}`}
+          onDoubleClick={() => setHighlighted((p) => ({ ...p, [k]: !p[k] }))}
+          className={`inline cursor-pointer transition-colors rounded-[4px] ${
+            isOn ? 'bg-secondary text-primary px-0.5' : ''
+          }`}
+          style={{ WebkitTapHighlightColor: 'transparent' }}
+        >
+          {part}
+        </span>,
+      );
+    });
+  });
+
+  return <>{out}</>;
 };
 
 interface DuaReaderProps {

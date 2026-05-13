@@ -1,21 +1,19 @@
 /**
  * Athar (أثر) home-page section.
  * Shows up to 5 quote tiles + a 6th "more" tile linking to athar.atraa.xyz.
- * Tiles are smaller than the previous design.
+ * v2.9.20 — no sect filter, all sayings shown to everyone.
  */
 import { useEffect, useState } from 'react';
 import { ArrowUpLeft, MoreHorizontal } from 'lucide-react';
-import { useMadhhab } from '@/lib/madhhab';
-import { fetchAtharForMadhhab, ATHAR_PUBLIC_BASE, type AtharQuote } from '@/lib/athar';
+import { fetchAthar, ATHAR_PUBLIC_BASE, type AtharQuote } from '@/lib/athar';
 import logoAthar from '@/assets/logo-athar.png';
 
 const AtharSection = () => {
-  const madhhab = useMadhhab();
   const [items, setItems] = useState<AtharQuote[]>([]);
 
   useEffect(() => {
-    void (async () => setItems(await fetchAtharForMadhhab(madhhab, 5)))();
-  }, [madhhab]);
+    void (async () => setItems(await fetchAthar(5)))();
+  }, []);
 
   if (items.length === 0) return null;
 

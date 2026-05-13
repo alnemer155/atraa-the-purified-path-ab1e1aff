@@ -13,7 +13,7 @@ const PrivacyPage = () => {
   return (
     <LegalLayout
       title={isAr ? 'سياسة الخصوصية' : 'Privacy Policy'}
-      updated={isAr ? 'آخر تحديث: 2026-05-12 — v2.9.19' : 'Last updated: 2026-05-12 — v2.9.19'}
+      updated={isAr ? 'آخر تحديث: 2026-05-13 — v2.9.20' : 'Last updated: 2026-05-13 — v2.9.20'}
     >
       {isAr ? (
         <>
