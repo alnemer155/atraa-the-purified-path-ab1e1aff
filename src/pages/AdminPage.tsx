@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   Lock, BookMarked, BookOpen, Image as ImageIcon, Plus, Trash2,
   Pencil, Save, X, LogOut, Upload, Sparkles, Globe, Clock, ChevronLeft,
-  Hash, Type, Play, Music,
+  Hash, Type, Play, Music, Wrench,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
