@@ -8,7 +8,9 @@
 
 import { useState } from 'react';
 
-export type Madhhab = 'shia';
+// The type still includes 'sunni' so legacy comparisons keep type-checking,
+// but every code path now returns 'shia' at runtime.
+export type Madhhab = 'shia' | 'sunni';
 
 export const getMadhhab = (): Madhhab => 'shia';
 
