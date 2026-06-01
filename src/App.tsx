@@ -30,16 +30,15 @@ const QasaidPage = lazy(() => import("./pages/QasaidPage"));
 const QasaidHomePage = lazy(() => import("./pages/QasaidHomePage"));
 const AtharQuotePage = lazy(() => import("./pages/AtharQuotePage"));
 const AtharHomePage = lazy(() => import("./pages/AtharHomePage"));
-const MaintenancePage = lazy(() => import("./pages/MaintenancePage"));
+const MinbarHomePage = lazy(() => import("./pages/MinbarHomePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const hostname = typeof window !== "undefined" ? window.location.hostname : "";
 const isKhatmaHost = hostname === "khatma.atraa.xyz";
 const isAdminHost = hostname === "admin.atraa.xyz";
 const isAtharHost = hostname === "athar.atraa.xyz";
-const isQasaidHost = hostname === "qasaid.atraa.xyz";
-const isAudioHost = hostname === "audio.atraa.xyz";
-const isStandaloneHost = isKhatmaHost || isAdminHost || isAtharHost || isQasaidHost || isAudioHost;
+const isMinbarHost = hostname === "minbr.atraa.xyz" || hostname === "qasaid.atraa.xyz" || hostname === "audio.atraa.xyz";
+const isStandaloneHost = isKhatmaHost || isAdminHost || isAtharHost || isMinbarHost;
 
 const queryClient = new QueryClient();
 
