@@ -412,6 +412,30 @@ export type Database = {
           },
         ]
       }
+      site_settings: {
+        Row: {
+          id: string
+          maintenance_active: boolean
+          maintenance_message: string
+          maintenance_until: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          maintenance_active?: boolean
+          maintenance_message?: string
+          maintenance_until?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          maintenance_active?: boolean
+          maintenance_message?: string
+          maintenance_until?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

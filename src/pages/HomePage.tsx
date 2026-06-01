@@ -164,7 +164,7 @@ const HomePage = () => {
         </motion.div>
 
         <motion.div variants={fadeUp}>
-          {madhhab === 'sunni' ? <LiveChannelsSection /> : <WallpapersSection />}
+          <WallpapersSection />
         </motion.div>
 
         <motion.div variants={fadeUp}>
@@ -175,11 +175,9 @@ const HomePage = () => {
           <AtharSection />
         </motion.div>
 
-        {madhhab !== 'sunni' && (
-          <motion.div variants={fadeUp}>
-            <QasaidSection />
-          </motion.div>
-        )}
+        <motion.div variants={fadeUp}>
+          <QasaidSection />
+        </motion.div>
 
         <motion.div variants={fadeUp}>
           <DailyRecommendations />

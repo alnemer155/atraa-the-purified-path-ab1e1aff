@@ -12,6 +12,23 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AppLayout from "./components/AppLayout";
 import HomePage from "./pages/HomePage";
+import { useSiteMaintenance } from "./lib/site-maintenance";
+import MaintenancePageRuntime from "./pages/MaintenancePage";
+
+const SiteMaintenanceGate = ({ children }: { children: React.ReactNode }) => {
+  const { state, loading } = useSiteMaintenance();
+  if (loading) return <>{children}</>;
+  if (!state.active) return <>{children}</>;
+  const until = state.until ? new Date(state.until) : null;
+  const untilStr = until ? until.toLocaleString('ar', { dateStyle: 'long', timeStyle: 'short' }) : null;
+  return (
+    <MaintenancePageRuntime
+      name="منصة عترة"
+      message={state.message}
+      until={untilStr}
+    />
+  );
+};
 
 const LibraryPage = lazy(() => import("./pages/LibraryPage"));
 const QuranPage = lazy(() => import("./pages/QuranPage"));
@@ -26,10 +43,9 @@ const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
 const KhatmaPage = lazy(() => import("./pages/KhatmaPage"));
 const KhatmaLandingPage = lazy(() => import("./pages/KhatmaLandingPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
-const QasaidPage = lazy(() => import("./pages/QasaidPage"));
-const QasaidHomePage = lazy(() => import("./pages/QasaidHomePage"));
 const AtharQuotePage = lazy(() => import("./pages/AtharQuotePage"));
 const AtharHomePage = lazy(() => import("./pages/AtharHomePage"));
+const MinbarHomePage = lazy(() => import("./pages/MinbarHomePage"));
 const MaintenancePage = lazy(() => import("./pages/MaintenancePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -37,9 +53,8 @@ const hostname = typeof window !== "undefined" ? window.location.hostname : "";
 const isKhatmaHost = hostname === "khatma.atraa.xyz";
 const isAdminHost = hostname === "admin.atraa.xyz";
 const isAtharHost = hostname === "athar.atraa.xyz";
-const isQasaidHost = hostname === "qasaid.atraa.xyz";
-const isAudioHost = hostname === "audio.atraa.xyz";
-const isStandaloneHost = isKhatmaHost || isAdminHost || isAtharHost || isQasaidHost || isAudioHost;
+const isMinbarHost = hostname === "minbr.atraa.xyz" || hostname === "qasaid.atraa.xyz" || hostname === "audio.atraa.xyz";
+const isStandaloneHost = isKhatmaHost || isAdminHost || isAtharHost || isMinbarHost;
 
 const queryClient = new QueryClient();
 
@@ -87,6 +102,7 @@ const App = () => {
             <UIProvider>
             <QasaidPlayerProvider>
               <Suspense fallback={<PageLoader />}>
+                <SiteMaintenanceGate>
                 {isAdminHost ? (
                   <Routes>
                     <Route path="/" element={<AdminPage />} />
@@ -98,14 +114,10 @@ const App = () => {
                     <Route path="/:id" element={<AtharQuotePage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                ) : isQasaidHost ? (
+                ) : isMinbarHost ? (
                   <Routes>
-                    <Route path="/" element={<QasaidHomePage />} />
-                    <Route path="*" element={<QasaidHomePage />} />
-                  </Routes>
-                ) : isAudioHost ? (
-                  <Routes>
-                    <Route path="*" element={<MaintenancePage name="صوتيات — منصة عترة الدينية" />} />
+                    <Route path="/" element={<MinbarHomePage />} />
+                    <Route path="*" element={<MinbarHomePage />} />
                   </Routes>
                 ) : isKhatmaHost ? (
                   <Routes>
@@ -128,7 +140,8 @@ const App = () => {
                       <Route path="/disclaimer" element={<DisclaimerPage />} />
                       <Route path="/data" element={<DataPage />} />
                       <Route path="/about" element={<AboutPage />} />
-                      <Route path="/qasaid" element={<QasaidPage />} />
+                      <Route path="/qasaid" element={<MinbarHomePage />} />
+                      <Route path="/minbr" element={<MinbarHomePage />} />
                       <Route path="/athar/:id" element={<AtharQuotePage />} />
                     </Route>
 
@@ -158,6 +171,7 @@ const App = () => {
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 )}
+                </SiteMaintenanceGate>
               </Suspense>
             </QasaidPlayerProvider>
             </UIProvider>

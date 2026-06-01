@@ -1,11 +1,20 @@
 /**
- * Generic "under construction" page used for sub-domains that are
- * routed but not yet built (qasaid.atraa.xyz, audio.atraa.xyz).
+ * Generic "under maintenance" page. Used both for sub-domains that are
+ * routed but not yet built (e.g. legacy stubs), and for the global
+ * admin-controlled maintenance toggle (with an optional message and
+ * scheduled date/time).
+ *
  * Icon-only design (no emoji); respects iOS 26.5 PWA safe-area insets.
  */
-import { Wrench } from 'lucide-react';
+import { Wrench, Clock } from 'lucide-react';
 
-const MaintenancePage = ({ name }: { name: string }) => (
+interface Props {
+  name: string;
+  message?: string;
+  until?: string | null;
+}
+
+const MaintenancePage = ({ name, message, until }: Props) => (
   <div
     className="min-h-screen flex items-center justify-center bg-background px-6"
     dir="rtl"
@@ -21,12 +30,16 @@ const MaintenancePage = ({ name }: { name: string }) => (
       <p className="text-[10px] text-muted-foreground/50 font-light tracking-[0.35em] mb-2">
         صيانة
       </p>
-      <h1 className="text-[16px] text-foreground font-light mb-2">{name}</h1>
-      <p className="text-[12px] text-muted-foreground/80 font-light leading-relaxed">
-        جارٍ العمل عليه.
-        <br />
-        ترقّبوا الإطلاق قريباً بإذن الله.
+      <h1 className="text-[16px] text-foreground font-light mb-3">{name}</h1>
+      <p className="text-[12px] text-muted-foreground/80 font-light leading-relaxed whitespace-pre-line">
+        {message || 'جارٍ العمل عليه.\nترقّبوا الإطلاق قريباً بإذن الله.'}
       </p>
+      {until && (
+        <div className="mt-5 inline-flex items-center gap-1.5 px-3 h-8 rounded-full bg-secondary/40 text-[10px] text-muted-foreground">
+          <Clock className="w-3 h-3" strokeWidth={1.5} />
+          <span>متوقع: {until}</span>
+        </div>
+      )}
     </div>
   </div>
 );
