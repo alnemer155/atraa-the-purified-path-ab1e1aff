@@ -24,7 +24,10 @@ const MinbarHomePage = () => {
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const [reciter, setReciter] = useState<string>('__all__');
-  const { current, isPlaying, toggle, next, previous, setQueue, repeatMode, cycleRepeat, seek, currentTime, duration } = useQasaidPlayer();
+  const { current, isPlaying, toggle, next, prev, setQueue, repeat, cycleRepeat, seek, position, duration } = useQasaidPlayer();
+  const currentTime = position;
+  const repeatMode = repeat;
+  const previous = prev;
 
   useEffect(() => {
     void (async () => {
