@@ -97,14 +97,10 @@ const App = () => {
                     <Route path="/:id" element={<AtharQuotePage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                ) : isQasaidHost ? (
+                ) : isMinbarHost ? (
                   <Routes>
-                    <Route path="/" element={<QasaidHomePage />} />
-                    <Route path="*" element={<QasaidHomePage />} />
-                  </Routes>
-                ) : isAudioHost ? (
-                  <Routes>
-                    <Route path="*" element={<MaintenancePage name="صوتيات — منصة عترة الدينية" />} />
+                    <Route path="/" element={<MinbarHomePage />} />
+                    <Route path="*" element={<MinbarHomePage />} />
                   </Routes>
                 ) : isKhatmaHost ? (
                   <Routes>
