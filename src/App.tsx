@@ -85,6 +85,7 @@ const App = () => {
             <UIProvider>
             <QasaidPlayerProvider>
               <Suspense fallback={<PageLoader />}>
+                <SiteMaintenanceGate>
                 {isAdminHost ? (
                   <Routes>
                     <Route path="/" element={<AdminPage />} />
