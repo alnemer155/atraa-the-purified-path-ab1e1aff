@@ -15,7 +15,7 @@ import { generateAtharId, type AtharQuote } from '@/lib/athar';
 
 type Category = 'dua' | 'ziyara' | 'dhikr';
 type Sect = 'shia' | 'sunni';
-type Tab = 'duas' | 'wallpapers' | 'khatmas' | 'qasaid' | 'athar';
+type Tab = 'duas' | 'wallpapers' | 'khatmas' | 'qasaid' | 'athar' | 'maintenance';
 
 interface DuaRow {
   id: string;
