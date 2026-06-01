@@ -12,6 +12,23 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AppLayout from "./components/AppLayout";
 import HomePage from "./pages/HomePage";
+import { useSiteMaintenance } from "./lib/site-maintenance";
+import MaintenancePageRuntime from "./pages/MaintenancePage";
+
+const SiteMaintenanceGate = ({ children }: { children: React.ReactNode }) => {
+  const { state, loading } = useSiteMaintenance();
+  if (loading) return <>{children}</>;
+  if (!state.active) return <>{children}</>;
+  const until = state.until ? new Date(state.until) : null;
+  const untilStr = until ? until.toLocaleString('ar', { dateStyle: 'long', timeStyle: 'short' }) : null;
+  return (
+    <MaintenancePageRuntime
+      name="منصة عترة"
+      message={state.message}
+      until={untilStr}
+    />
+  );
+};
 
 const LibraryPage = lazy(() => import("./pages/LibraryPage"));
 const QuranPage = lazy(() => import("./pages/QuranPage"));
