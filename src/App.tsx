@@ -122,7 +122,8 @@ const App = () => {
                       <Route path="/disclaimer" element={<DisclaimerPage />} />
                       <Route path="/data" element={<DataPage />} />
                       <Route path="/about" element={<AboutPage />} />
-                      <Route path="/qasaid" element={<QasaidPage />} />
+                      <Route path="/qasaid" element={<MinbarHomePage />} />
+                      <Route path="/minbr" element={<MinbarHomePage />} />
                       <Route path="/athar/:id" element={<AtharQuotePage />} />
                     </Route>
 
