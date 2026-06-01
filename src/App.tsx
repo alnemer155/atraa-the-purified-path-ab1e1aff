@@ -26,11 +26,10 @@ const AboutPage = lazy(() => import("./pages/legal/AboutPage"));
 const KhatmaPage = lazy(() => import("./pages/KhatmaPage"));
 const KhatmaLandingPage = lazy(() => import("./pages/KhatmaLandingPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
-const QasaidPage = lazy(() => import("./pages/QasaidPage"));
-const QasaidHomePage = lazy(() => import("./pages/QasaidHomePage"));
 const AtharQuotePage = lazy(() => import("./pages/AtharQuotePage"));
 const AtharHomePage = lazy(() => import("./pages/AtharHomePage"));
 const MinbarHomePage = lazy(() => import("./pages/MinbarHomePage"));
+const MaintenancePage = lazy(() => import("./pages/MaintenancePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const hostname = typeof window !== "undefined" ? window.location.hostname : "";
