@@ -59,7 +59,7 @@ const OCCASIONS: Occasion[] = [
   // Muharram
   {
     month: 1, day: 1, ar: 'بداية السنة الهجرية', en: 'Hijri New Year', type: 'event',
-    descriptionAr: 'بداية السنة الهجرية الجديدة هي بداية شهر محرم الحرام أول الأشهر القمرية الإسلامية، وقد جعلها أمير المؤمنين عمر بن الخطاب مبدأً للتقويم الإسلامي إحياءً لذكرى هجرة النبي محمد صلى الله عليه وآله من مكة المكرمة إلى المدينة المنورة، وهي محطة فاصلة في تاريخ الإسلام تذكّر المؤمنين بمعاني التضحية والصبر والثبات على الحق وبدء صفحة جديدة من الطاعة والقرب من الله تعالى.',
+    descriptionAr: 'بداية السنة الهجرية الجديدة هي بداية شهر محرم الحرام أول الأشهر القمرية الإسلامية، وقد اعتُمد التقويم الهجري إحياءً لذكرى هجرة النبي الأكرم محمد صلى الله عليه وآله من مكة المكرمة إلى المدينة المنورة، وهي محطة فاصلة في تاريخ الإسلام تذكّر المؤمنين بمعاني التضحية والصبر والثبات على الحق وبدء صفحة جديدة من الطاعة والقرب من الله تعالى.',
     descriptionEn: 'The first day of the Hijri year marks the beginning of the sacred month of Muharram, the first month in the Islamic lunar calendar. It commemorates the Prophet Muhammad’s migration from Mecca to Medina, a defining moment that reminds believers of sacrifice, patience, perseverance in truth, and the start of a renewed page of devotion to God.',
   },
   {
