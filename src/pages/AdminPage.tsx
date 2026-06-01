@@ -165,8 +165,9 @@ const AdminPage = () => {
             ['duas', 'الأدعية', BookMarked],
             ['wallpapers', 'الخلفيات', ImageIcon],
             ['khatmas', 'الختمات', BookOpen],
-            ['qasaid', 'القصائد', Play],
+            ['qasaid', 'منبر', Play],
             ['athar', 'أثر', Type],
+            ['maintenance', 'الصيانة', Wrench],
           ] as [Tab, string, typeof Lock][]).map(([k, label, Icon]) => (
             <button
               key={k}
@@ -190,7 +191,79 @@ const AdminPage = () => {
         {tab === 'khatmas' && <KhatmasManager />}
         {tab === 'qasaid' && <QasaidManager />}
         {tab === 'athar' && <AtharManager />}
+        {tab === 'maintenance' && <MaintenanceManager />}
       </div>
+    </div>
+  );
+};
+
+// ============== MAINTENANCE ==============
+const MaintenanceManager = () => {
+  const [active, setActive] = useState(false);
+  const [message, setMessage] = useState('');
+  const [until, setUntil] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    void (async () => {
+      const { data } = await supabase.from('site_settings').select('*').eq('id', 'global').maybeSingle();
+      if (data) {
+        setActive(!!data.maintenance_active);
+        setMessage(data.maintenance_message ?? '');
+        setUntil(data.maintenance_until ? new Date(data.maintenance_until).toISOString().slice(0, 16) : '');
+      }
+    })();
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    const { error } = await supabase.from('site_settings').upsert({
+      id: 'global',
+      maintenance_active: active,
+      maintenance_message: message || 'الموقع تحت الصيانة حالياً، نعتذر عن الإزعاج.',
+      maintenance_until: until ? new Date(until).toISOString() : null,
+    });
+    setSaving(false);
+    if (error) {
+      toast({ title: 'تعذّر الحفظ', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: active ? 'تم تفعيل وضع الصيانة' : 'تم إيقاف وضع الصيانة' });
+    }
+  };
+
+  return (
+    <div className="space-y-4" dir="rtl">
+      <div className="rounded-2xl border border-border/30 bg-card p-4">
+        <label className="flex items-center justify-between gap-3 cursor-pointer">
+          <div>
+            <p className="text-[13px] text-foreground">تفعيل وضع الصيانة</p>
+            <p className="text-[10px] text-muted-foreground/70 font-light mt-0.5">
+              عند التفعيل سيظهر للزوار صفحة الصيانة مع الرسالة والوقت
+            </p>
+          </div>
+          <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)}
+            className="w-5 h-5 accent-primary" />
+        </label>
+      </div>
+
+      <div className="rounded-2xl border border-border/30 bg-card p-4 space-y-3">
+        <div>
+          <p className="text-[11px] text-muted-foreground/80 mb-1.5">رسالة الصيانة</p>
+          <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={4}
+            placeholder="الموقع تحت الصيانة حالياً…"
+            className="w-full rounded-xl bg-secondary/40 border border-border/30 p-3 text-[12px] outline-none focus:border-primary/40 resize-none" />
+        </div>
+        <div>
+          <p className="text-[11px] text-muted-foreground/80 mb-1.5">الوقت والتاريخ المتوقع للانتهاء</p>
+          <input type="datetime-local" value={until} onChange={(e) => setUntil(e.target.value)} dir="ltr"
+            className="w-full rounded-xl bg-secondary/40 border border-border/30 p-3 text-[12px] outline-none focus:border-primary/40" />
+        </div>
+      </div>
+
+      <button onClick={save} disabled={saving}
+        className="w-full h-11 rounded-full bg-primary text-primary-foreground text-[12px] disabled:opacity-60">
+        {saving ? 'جارٍ الحفظ…' : 'حفظ'}
+      </button>
     </div>
   );
 };
