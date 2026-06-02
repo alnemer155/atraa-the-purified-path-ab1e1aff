@@ -5,9 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
 import { requestNotificationPermission, getNotificationPermission } from '@/lib/notifications';
-import { useMadhhab, type Madhhab } from '@/lib/madhhab';
 import { useQuranTheme, type QuranTheme } from '@/lib/quran-theme';
-import MadhhabSwitchModal from '@/components/MadhhabSwitchModal';
 import CityPicker from '@/components/CityPicker';
 import { toast } from 'sonner';
 
@@ -28,17 +26,8 @@ const SettingsPage = () => {
   const [hijriAdj, setHijriAdj] = useState(() => getHijriAdjustment());
   const [shareCopied, setShareCopied] = useState(false);
 
-  // Madhhab state — reactive to changes from anywhere in the app
-  const madhhab = useMadhhab();
-  const [pendingMadhhab, setPendingMadhhab] = useState<Madhhab | null>(null);
-
   // Reading mode (default / sepia / night) — applied app-wide.
   const [readingTheme, setReadingTheme] = useQuranTheme();
-
-  const requestMadhhabChange = (target: Madhhab) => {
-    if (target === madhhab) return;
-    setPendingMadhhab(target);
-  };
 
 
   const toggleAdhan = async () => {
