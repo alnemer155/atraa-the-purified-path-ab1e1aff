@@ -218,10 +218,9 @@ const MaintenanceManager = () => {
         setActive(!!data.maintenance_active);
         setMessage(data.maintenance_message ?? '');
         setUntil(data.maintenance_until ? new Date(data.maintenance_until).toISOString().slice(0, 16) : '');
-        const rec = data as Record<string, unknown>;
-        setQuranPaused(rec.quran_paused !== false);
-        setQuranResume(rec.quran_resume_at ? new Date(rec.quran_resume_at as string).toISOString().slice(0, 16) : '');
-        setQuranMsg((rec.quran_pause_message as string) ?? '');
+        setQuranPaused(data.quran_paused !== false);
+        setQuranResume(data.quran_resume_at ? new Date(data.quran_resume_at).toISOString().slice(0, 16) : '');
+        setQuranMsg(data.quran_pause_message ?? '');
       }
       // Load counters
       const [d, q, a, k, w] = await Promise.all([
@@ -243,7 +242,7 @@ const MaintenanceManager = () => {
 
   const save = async () => {
     setSaving(true);
-    const payload: Record<string, unknown> = {
+    const { error } = await supabase.from('site_settings').upsert({
       id: 'global',
       maintenance_active: active,
       maintenance_message: message || 'الموقع تحت الصيانة حالياً، نعتذر عن الإزعاج.',
@@ -251,8 +250,7 @@ const MaintenanceManager = () => {
       quran_paused: quranPaused,
       quran_resume_at: quranResume ? new Date(quranResume).toISOString() : null,
       quran_pause_message: quranMsg || 'القرآن الكريم في فترة صيانة وتحسين، وسيعود تلقائياً للجميع.',
-    };
-    const { error } = await supabase.from('site_settings').upsert(payload as never);
+    });
     setSaving(false);
     if (error) {
       toast({ title: 'تعذّر الحفظ', description: error.message, variant: 'destructive' });
