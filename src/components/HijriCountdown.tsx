@@ -500,17 +500,12 @@ const HijriCountdown = () => {
   const daysRemaining = hijri ? Math.max(0, hijri.daysInMonth - hijri.day) : 0;
   const progress = hijri ? (hijri.day / hijri.daysInMonth) * 100 : 0;
 
-  // Compute upcoming occasions in the current and next month — featured come first
-  const upcomingOccasions = (hijri && showOccasions) ? [
-    ...OCCASIONS.filter(o => o.month === hijri.monthNumber && o.day >= hijri.day),
-    ...OCCASIONS.filter(o => o.month === ((hijri.monthNumber % 12) + 1)),
-  ].sort((a, b) => {
-    if (a.month === b.month) {
-      if (!!a.featured !== !!b.featured) return a.featured ? -1 : 1;
-      return a.day - b.day;
-    }
-    return 0;
-  }) : [];
+  // Upcoming occasions across the next 12 Hijri months (for the bottom list).
+  const upcomingOccasions = useMemo(() => {
+    if (!hijri || !showOccasions) return [] as UpcomingEntry[];
+    return buildUpcomingList(hijri.monthNumber, hijri.day, hijri.year);
+  }, [hijri, showOccasions]);
+
 
   const todaysOccasion = (hijri && showOccasions)
     ? OCCASIONS.find(o => o.month === hijri.monthNumber && o.day === hijri.day)
