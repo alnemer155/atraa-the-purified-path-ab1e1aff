@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getHijriAdjustment } from '@/lib/user';
 import PeaceBeUponHim from '@/components/PeaceBeUponHim';
@@ -212,6 +212,241 @@ const MONTH_NAMES_EN = [
   'Rajab', 'Sha\'ban', 'Ramadan', 'Shawwal', 'Dhu al-Qadah', 'Dhu al-Hijjah',
 ];
 
+// ============== HIJRI CALENDAR MODAL (v2.10.55) ==============
+// Full month-grid Hijri calendar with month navigation, occasion dots,
+// today highlight, and a 12-month-ahead occasions list.
+
+interface DayCell {
+  day: number;
+  weekdayIdx: number; // 0=Saturday … 6=Friday
+  gregorianISO: string;
+  occasion: Occasion | undefined;
+}
+
+const WEEKDAY_INDEX: Record<string, number> = {
+  Saturday: 0, Sunday: 1, Monday: 2, Tuesday: 3, Wednesday: 4, Thursday: 5, Friday: 6,
+};
+const WEEKDAYS_AR = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+const WEEKDAYS_EN = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+
+interface HijriCalendarProps {
+  initialMonth: number;
+  initialYear: number;
+  todayMonth: number;
+  todayDay: number;
+  todayYear: number;
+  isAr: boolean;
+  onOpenOccasion: (o: Occasion) => void;
+}
+
+const HijriCalendar = ({
+  initialMonth, initialYear, todayMonth, todayDay, todayYear, isAr, onOpenOccasion,
+}: HijriCalendarProps) => {
+  const [month, setMonth] = useState(initialMonth);
+  const [year, setYear] = useState(initialYear);
+  const [days, setDays] = useState<DayCell[] | null>(null);
+  const [selectedDay, setSelectedDay] = useState<number | null>(
+    initialMonth === todayMonth && initialYear === todayYear ? todayDay : null,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    setDays(null);
+    fetch(`https://api.aladhan.com/v1/hToGCalendar/${month}/${year}?adjustment=0`)
+      .then(r => r.json())
+      .then(json => {
+        if (cancelled) return;
+        const arr = (json?.data ?? []) as Array<{
+          hijri: { day: string };
+          gregorian: { date: string; weekday?: { en: string } };
+        }>;
+        const cells: DayCell[] = arr.map(d => {
+          const dn = parseInt(d.hijri.day, 10);
+          const wdEn = d.gregorian?.weekday?.en ?? 'Saturday';
+          const occasion = OCCASIONS.find(o => o.month === month && o.day === dn);
+          return {
+            day: dn,
+            weekdayIdx: WEEKDAY_INDEX[wdEn] ?? 0,
+            gregorianISO: d.gregorian?.date ?? '',
+            occasion,
+          };
+        });
+        setDays(cells);
+      })
+      .catch(() => { /* silent */ });
+    return () => { cancelled = true; };
+  }, [month, year]);
+
+  const prev = () => {
+    if (month === 1) { setMonth(12); setYear(year - 1); }
+    else setMonth(month - 1);
+    setSelectedDay(null);
+  };
+  const next = () => {
+    if (month === 12) { setMonth(1); setYear(year + 1); }
+    else setMonth(month + 1);
+    setSelectedDay(null);
+  };
+  const jumpToToday = () => {
+    setMonth(todayMonth);
+    setYear(todayYear);
+    setSelectedDay(todayDay);
+  };
+
+  const selectedOccasion = selectedDay
+    ? OCCASIONS.find(o => o.month === month && o.day === selectedDay)
+    : undefined;
+
+  return (
+    <div dir={isAr ? 'rtl' : 'ltr'} className="space-y-4">
+      {/* Month nav */}
+      <div className="flex items-center justify-between gap-3 px-1">
+        <button
+          onClick={prev}
+          className="w-9 h-9 rounded-full bg-secondary/40 border border-border/20 flex items-center justify-center active:scale-95 transition-transform"
+          aria-label={isAr ? 'الشهر السابق' : 'Previous month'}
+        >
+          {isAr ? <ChevronRight className="w-4 h-4 text-foreground/70" strokeWidth={1.6} />
+                : <ChevronLeft  className="w-4 h-4 text-foreground/70" strokeWidth={1.6} />}
+        </button>
+
+        <div className="text-center flex-1 min-w-0">
+          <p className="text-[14px] text-foreground leading-tight truncate">
+            {isAr ? MONTH_NAMES_AR[month - 1] : MONTH_NAMES_EN[month - 1]}
+          </p>
+          <p className="text-[10px] text-muted-foreground/55 font-light tabular-nums mt-0.5">
+            {year} {isAr ? 'هـ' : 'AH'}
+          </p>
+        </div>
+
+        <button
+          onClick={next}
+          className="w-9 h-9 rounded-full bg-secondary/40 border border-border/20 flex items-center justify-center active:scale-95 transition-transform"
+          aria-label={isAr ? 'الشهر التالي' : 'Next month'}
+        >
+          {isAr ? <ChevronLeft  className="w-4 h-4 text-foreground/70" strokeWidth={1.6} />
+                : <ChevronRight className="w-4 h-4 text-foreground/70" strokeWidth={1.6} />}
+        </button>
+      </div>
+
+      {/* "Today" chip */}
+      <div className="flex justify-center">
+        <button
+          onClick={jumpToToday}
+          className="text-[10px] text-muted-foreground/70 px-3 h-7 rounded-full bg-secondary/30 border border-border/20 active:scale-95"
+        >
+          {isAr ? 'اليوم' : 'Today'}
+        </button>
+      </div>
+
+      {/* Weekday header */}
+      <div className="grid grid-cols-7 gap-1">
+        {(isAr ? WEEKDAYS_AR : WEEKDAYS_EN).map((d, i) => (
+          <div key={i} className="text-center text-[9px] text-muted-foreground/55 font-light py-1">
+            {d}
+          </div>
+        ))}
+      </div>
+
+      {/* Day grid */}
+      {days === null ? (
+        <div className="grid grid-cols-7 gap-1">
+          {Array.from({ length: 35 }).map((_, i) => (
+            <div key={i} className="aspect-square rounded-lg bg-secondary/15 animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-7 gap-1">
+          {Array.from({ length: days[0]?.weekdayIdx ?? 0 }).map((_, i) => (
+            <div key={`blank-${i}`} className="aspect-square" />
+          ))}
+          {days.map(cell => {
+            const isToday = cell.day === todayDay && month === todayMonth && year === todayYear;
+            const isSelected = cell.day === selectedDay;
+            const hasOccasion = !!cell.occasion;
+            return (
+              <button
+                key={cell.day}
+                onClick={() => {
+                  setSelectedDay(cell.day);
+                  if (cell.occasion) onOpenOccasion(cell.occasion);
+                }}
+                className={`relative aspect-square rounded-lg flex flex-col items-center justify-center transition-all active:scale-95 ${
+                  isSelected
+                    ? 'bg-foreground text-background'
+                    : isToday
+                      ? 'bg-secondary/60 border border-foreground/30 text-foreground'
+                      : 'bg-card border border-border/15 text-foreground/85 active:bg-secondary/40'
+                }`}
+              >
+                <span className="text-[12px] tabular-nums leading-none font-light">{cell.day}</span>
+                {hasOccasion && (
+                  <span className={`absolute bottom-1 w-1 h-1 rounded-full ${
+                    isSelected ? 'bg-background/70'
+                      : cell.occasion?.featured ? 'bg-gold' : 'bg-foreground/45'
+                  }`} />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Selected day info */}
+      {selectedOccasion ? (
+        <button
+          onClick={() => onOpenOccasion(selectedOccasion)}
+          className="w-full text-start rounded-2xl bg-card border border-border/20 p-4 active:scale-[0.99] transition-transform relative overflow-hidden"
+        >
+          {selectedOccasion.featured && (
+            <span className="absolute inset-y-0 start-0 w-[2px] bg-gold/60" />
+          )}
+          <p className="text-[9px] text-muted-foreground/55 font-light mb-1.5">
+            {selectedDay} {isAr ? MONTH_NAMES_AR[month - 1] : MONTH_NAMES_EN[month - 1]} {year} {isAr ? 'هـ' : 'AH'}
+          </p>
+          <p className="text-[13px] text-foreground leading-relaxed">
+            {renderHonored(isAr ? selectedOccasion.ar : selectedOccasion.en)}
+          </p>
+          <p className="text-[9px] text-muted-foreground/50 mt-1.5 font-light">
+            {isAr ? 'اضغط للتفاصيل' : 'Tap for details'}
+          </p>
+        </button>
+      ) : selectedDay ? (
+        <div className="rounded-2xl bg-card border border-border/15 p-4 text-center">
+          <p className="text-[11px] text-muted-foreground/65 font-light">
+            {selectedDay} {isAr ? MONTH_NAMES_AR[month - 1] : MONTH_NAMES_EN[month - 1]} {year} {isAr ? 'هـ' : 'AH'}
+          </p>
+          <p className="text-[10px] text-muted-foreground/45 mt-1 font-light">
+            {isAr ? 'لا توجد مناسبة في هذا اليوم' : 'No occasion on this day'}
+          </p>
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
+// Compute upcoming occasions for the next 12 Hijri months starting today.
+interface UpcomingEntry { o: Occasion; month: number; year: number; dist: number; }
+const buildUpcomingList = (
+  currentMonth: number, currentDay: number, currentYear: number,
+): UpcomingEntry[] => {
+  const out: UpcomingEntry[] = [];
+  OCCASIONS.forEach(o => {
+    for (let k = 0; k < 13; k++) {
+      const m = ((currentMonth - 1 + k) % 12) + 1;
+      const y = currentYear + Math.floor((currentMonth - 1 + k) / 12);
+      if (o.month !== m) continue;
+      if (k === 0 && o.day < currentDay) continue;
+      const dist = k * 30 + (o.day - (k === 0 ? currentDay : 0));
+      out.push({ o, month: m, year: y, dist });
+      break;
+    }
+  });
+  return out.sort((a, b) => a.dist - b.dist);
+};
+
+
+
 const HijriCountdown = () => {
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
@@ -265,17 +500,12 @@ const HijriCountdown = () => {
   const daysRemaining = hijri ? Math.max(0, hijri.daysInMonth - hijri.day) : 0;
   const progress = hijri ? (hijri.day / hijri.daysInMonth) * 100 : 0;
 
-  // Compute upcoming occasions in the current and next month — featured come first
-  const upcomingOccasions = (hijri && showOccasions) ? [
-    ...OCCASIONS.filter(o => o.month === hijri.monthNumber && o.day >= hijri.day),
-    ...OCCASIONS.filter(o => o.month === ((hijri.monthNumber % 12) + 1)),
-  ].sort((a, b) => {
-    if (a.month === b.month) {
-      if (!!a.featured !== !!b.featured) return a.featured ? -1 : 1;
-      return a.day - b.day;
-    }
-    return 0;
-  }) : [];
+  // Upcoming occasions across the next 12 Hijri months (for the bottom list).
+  const upcomingOccasions = useMemo(() => {
+    if (!hijri || !showOccasions) return [] as UpcomingEntry[];
+    return buildUpcomingList(hijri.monthNumber, hijri.day, hijri.year);
+  }, [hijri, showOccasions]);
+
 
   const todaysOccasion = (hijri && showOccasions)
     ? OCCASIONS.find(o => o.month === hijri.monthNumber && o.day === hijri.day)
@@ -425,27 +655,21 @@ const HijriCountdown = () => {
               </div>
 
               {/* Body — scrollable */}
-              <div className="flex-1 overflow-y-auto p-5 space-y-4">
-                {/* Today's occasion — restrained gold accent (single gold hairline) */}
-                {todaysOccasion && (
-                  <button
-                    onClick={() => setOpenOccasion(todaysOccasion)}
-                    className="w-full text-start rounded-2xl bg-card border border-border/20 p-4 active:scale-[0.99] transition-transform relative overflow-hidden"
-                  >
-                    <div className="absolute inset-y-0 start-0 w-[2px] bg-gold/60" />
-                    <p className={`text-[9px] text-muted-foreground/60 font-light mb-2 ${isAr ? '' : 'uppercase tracking-[0.25em]'}`}>
-                      {isAr ? 'مناسبة اليوم' : 'Today'}
-                    </p>
-                    <p className="text-[15px] text-foreground leading-relaxed">
-                      {renderHonored(isAr ? todaysOccasion.ar : todaysOccasion.en)}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground/50 mt-2 font-light">
-                      {isAr ? 'اضغط لقراءة تفاصيل المناسبة' : 'Tap to read full details'}
-                    </p>
-                  </button>
+              <div className="flex-1 overflow-y-auto p-5 space-y-5">
+                {/* Full month-grid Hijri calendar (v2.10.55) */}
+                {showOccasions && (
+                  <HijriCalendar
+                    initialMonth={hijri.monthNumber}
+                    initialYear={hijri.year}
+                    todayMonth={hijri.monthNumber}
+                    todayDay={hijri.day}
+                    todayYear={hijri.year}
+                    isAr={isAr}
+                    onOpenOccasion={setOpenOccasion}
+                  />
                 )}
 
-                {/* Ramadan / Eid prediction — clean text card, no icons */}
+                {/* Ramadan / Eid prediction */}
                 {hijri.monthNumber === 8 && (
                   <div className="rounded-2xl bg-card border border-border/15 p-4">
                     <p className={`text-[9px] text-muted-foreground/55 font-light mb-1.5 ${isAr ? '' : 'uppercase tracking-[0.25em]'}`}>
@@ -477,11 +701,11 @@ const HijriCountdown = () => {
                   </div>
                 )}
 
-                {/* Upcoming occasions */}
+                {/* Upcoming occasions — next 12 Hijri months, grouped by month */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <p className={`text-[10px] text-muted-foreground/55 font-light ${isAr ? '' : 'uppercase tracking-[0.25em]'}`}>
-                      {isAr ? 'المناسبات القادمة' : 'Upcoming occasions'}
+                      {isAr ? 'المناسبات القادمة — السنة الكاملة' : 'Upcoming occasions — full year'}
                     </p>
                     {upcomingOccasions.length > 0 && (
                       <span className="text-[9px] text-muted-foreground/40 tabular-nums font-light">
@@ -489,47 +713,82 @@ const HijriCountdown = () => {
                       </span>
                     )}
                   </div>
-                  <div className="space-y-2">
-                    {upcomingOccasions.length === 0 && (
-                      <p className="text-[11px] text-muted-foreground/40 font-light text-center py-4">
-                        {isAr ? 'لا توجد مناسبات قريبة' : 'No upcoming occasions'}
-                      </p>
-                    )}
-                    {upcomingOccasions.map((o, i) => (
-                      <button
-                        key={`${o.month}-${o.day}-${i}`}
-                        onClick={() => setOpenOccasion(o)}
-                        className="w-full flex items-stretch gap-3 p-3 rounded-2xl bg-card border border-border/15 active:scale-[0.985] transition-transform text-start relative overflow-hidden"
-                      >
-                        {o.featured && (
-                          <span className="absolute inset-y-0 start-0 w-[2px] bg-gold/55" />
-                        )}
-                        <div className="w-12 h-14 rounded-xl bg-secondary/40 flex flex-col items-center justify-center flex-shrink-0">
-                          <span className="text-[15px] tabular-nums leading-none mt-0.5 text-foreground">{o.day}</span>
-                          <span className="text-[7px] text-muted-foreground/60 font-light mt-1 uppercase tracking-wider">
-                            {(isAr ? MONTH_NAMES_AR[o.month - 1] : MONTH_NAMES_EN[o.month - 1]).slice(0, 4)}
-                          </span>
+
+                  {upcomingOccasions.length === 0 ? (
+                    <p className="text-[11px] text-muted-foreground/40 font-light text-center py-4">
+                      {isAr ? 'لا توجد مناسبات قريبة' : 'No upcoming occasions'}
+                    </p>
+                  ) : (
+                    (() => {
+                      // Group by `${month}-${year}` for a clean monthly header layout.
+                      const groups = new Map<string, { month: number; year: number; items: UpcomingEntry[] }>();
+                      upcomingOccasions.forEach(e => {
+                        const k = `${e.month}-${e.year}`;
+                        if (!groups.has(k)) groups.set(k, { month: e.month, year: e.year, items: [] });
+                        groups.get(k)!.items.push(e);
+                      });
+                      return (
+                        <div className="space-y-4">
+                          {Array.from(groups.values()).map(g => (
+                            <div key={`${g.month}-${g.year}`} className="space-y-2">
+                              <p className="text-[10px] text-muted-foreground/70 font-light flex items-center gap-2">
+                                <span className="text-foreground/80">
+                                  {isAr ? MONTH_NAMES_AR[g.month - 1] : MONTH_NAMES_EN[g.month - 1]}
+                                </span>
+                                <span className="text-muted-foreground/40 tabular-nums">
+                                  {g.year} {isAr ? 'هـ' : 'AH'}
+                                </span>
+                                <span className="flex-1 h-px bg-border/25" />
+                                <span className="text-[9px] text-muted-foreground/40 tabular-nums">{g.items.length}</span>
+                              </p>
+                              {g.items.map((entry, i) => {
+                                const o = entry.o;
+                                return (
+                                  <button
+                                    key={`${g.month}-${g.year}-${o.day}-${i}`}
+                                    onClick={() => setOpenOccasion(o)}
+                                    className="w-full flex items-stretch gap-3 p-3 rounded-2xl bg-card border border-border/15 active:scale-[0.985] transition-transform text-start relative overflow-hidden"
+                                  >
+                                    {o.featured && (
+                                      <span className="absolute inset-y-0 start-0 w-[2px] bg-gold/55" />
+                                    )}
+                                    <div className="w-12 h-14 rounded-xl bg-secondary/40 flex flex-col items-center justify-center flex-shrink-0">
+                                      <span className="text-[15px] tabular-nums leading-none mt-0.5 text-foreground">{o.day}</span>
+                                      <span className="text-[7px] text-muted-foreground/60 font-light mt-1 uppercase tracking-wider">
+                                        {(isAr ? MONTH_NAMES_AR[o.month - 1] : MONTH_NAMES_EN[o.month - 1]).slice(0, 4)}
+                                      </span>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-[12px] text-foreground leading-snug">
+                                        {renderHonored(isAr ? o.ar : o.en)}
+                                      </p>
+                                      <div className="flex items-center gap-1.5 mt-1.5">
+                                        <span className={`text-[8px] font-light px-1.5 py-0.5 rounded-md ${typeColor(o.type)}`}>
+                                          {typeLabel(o.type)}
+                                        </span>
+                                        <span className="text-[8px] text-muted-foreground/45 font-light tabular-nums">
+                                          {entry.dist === 0 ? (isAr ? 'اليوم' : 'today')
+                                            : (isAr ? `بعد ${entry.dist} يوم` : `in ${entry.dist}d`)}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <ChevronLeft className={`w-3.5 h-3.5 text-muted-foreground/30 flex-shrink-0 self-center ${isAr ? '' : 'rotate-180'}`} />
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          ))}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[12px] text-foreground leading-snug">
-                            {renderHonored(isAr ? o.ar : o.en)}
-                          </p>
-                          <div className="flex items-center gap-1.5 mt-1.5">
-                            <span className={`text-[8px] font-light px-1.5 py-0.5 rounded-md ${typeColor(o.type)}`}>
-                              {typeLabel(o.type)}
-                            </span>
-                          </div>
-                        </div>
-                        <ChevronLeft className={`w-3.5 h-3.5 text-muted-foreground/30 flex-shrink-0 self-center ${isAr ? '' : 'rotate-180'}`} />
-                      </button>
-                    ))}
-                  </div>
+                      );
+                    })()
+                  )}
                 </div>
 
                 <p className="text-[9px] text-muted-foreground/35 text-center font-light pt-2">
                   {isAr ? 'التواريخ تقريبية وقد تتغير برؤية الهلال' : 'Dates are approximate and subject to moon sighting'}
                 </p>
               </div>
+
             </motion.div>
           </motion.div>
         )}
