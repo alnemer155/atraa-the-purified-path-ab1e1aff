@@ -418,6 +418,9 @@ export type Database = {
           maintenance_active: boolean
           maintenance_message: string
           maintenance_until: string | null
+          quran_pause_message: string
+          quran_paused: boolean
+          quran_resume_at: string | null
           updated_at: string
         }
         Insert: {
@@ -425,6 +428,9 @@ export type Database = {
           maintenance_active?: boolean
           maintenance_message?: string
           maintenance_until?: string | null
+          quran_pause_message?: string
+          quran_paused?: boolean
+          quran_resume_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -432,6 +438,9 @@ export type Database = {
           maintenance_active?: boolean
           maintenance_message?: string
           maintenance_until?: string | null
+          quran_pause_message?: string
+          quran_paused?: boolean
+          quran_resume_at?: string | null
           updated_at?: string
         }
         Relationships: []

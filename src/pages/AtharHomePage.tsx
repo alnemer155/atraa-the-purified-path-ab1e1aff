@@ -65,20 +65,23 @@ const AtharHomePage = () => {
         className="max-w-2xl mx-auto px-5"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 4rem)' }}
       >
-        {/* Hero */}
-        <section className="pt-10 pb-8 text-center">
-          <p className="text-[10px] text-muted-foreground/60 mb-3 font-light tracking-[0.3em]">
-            أثر · ATHAR
-          </p>
-          <h1 className="text-[22px] text-foreground font-light leading-relaxed mb-3">
-            أقوال النبي محمد ﷺ
-            <br />
-            وأهل البيت عليهم السلام
-          </h1>
-          <p className="text-[12px] text-muted-foreground/80 font-light leading-relaxed max-w-md mx-auto">
-            مكتبة منتقاة من المقولات والوصايا، بمعرّف فريد لكل مقولة لتسهيل المشاركة.
-          </p>
+        {/* Hero — brand band consistent with Minbar */}
+        <section className="relative overflow-hidden -mx-5 mb-2">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_-10%,hsl(var(--primary)/0.14),transparent_60%),radial-gradient(circle_at_85%_120%,hsl(var(--gold)/0.10),transparent_55%)]" />
+          <div className="relative px-6 pt-10 pb-9 text-center">
+            <p className="text-[10px] tracking-[0.45em] text-muted-foreground/70 uppercase">ATRAA · ATHAR</p>
+            <h1 className="text-[28px] mt-3 leading-tight font-light tracking-tight text-foreground">
+              أثَر
+            </h1>
+            <p className="text-[13px] mt-2 text-foreground/85 font-light leading-relaxed">
+              أقوال النبي محمد ﷺ وأهل البيت عليهم السلام
+            </p>
+            <p className="text-[11px] mt-3 text-muted-foreground/75 font-light leading-relaxed max-w-md mx-auto">
+              مكتبة منتقاة من المقولات والوصايا، بمعرّف فريد لكل مقولة لتسهيل المشاركة.
+            </p>
+          </div>
         </section>
+
 
         {/* Naming story */}
         <section className="rounded-2xl border border-border/25 bg-card/60 p-5 mb-6 text-center">

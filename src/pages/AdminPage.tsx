@@ -197,11 +197,18 @@ const AdminPage = () => {
   );
 };
 
-// ============== MAINTENANCE ==============
+// ============== MAINTENANCE & GLOBAL CONTROLS ==============
 const MaintenanceManager = () => {
+  // Site-wide maintenance
   const [active, setActive] = useState(false);
   const [message, setMessage] = useState('');
   const [until, setUntil] = useState('');
+  // Quran section controls
+  const [quranPaused, setQuranPaused] = useState(true);
+  const [quranResume, setQuranResume] = useState('');
+  const [quranMsg, setQuranMsg] = useState('');
+  // Counters for at-a-glance health
+  const [counts, setCounts] = useState<{ duas: number; qasaid: number; athar: number; khatmas: number; wallpapers: number } | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -211,7 +218,25 @@ const MaintenanceManager = () => {
         setActive(!!data.maintenance_active);
         setMessage(data.maintenance_message ?? '');
         setUntil(data.maintenance_until ? new Date(data.maintenance_until).toISOString().slice(0, 16) : '');
+        setQuranPaused(data.quran_paused !== false);
+        setQuranResume(data.quran_resume_at ? new Date(data.quran_resume_at).toISOString().slice(0, 16) : '');
+        setQuranMsg(data.quran_pause_message ?? '');
       }
+      // Load counters
+      const [d, q, a, k, w] = await Promise.all([
+        supabase.from('admin_duas').select('id', { count: 'exact', head: true }),
+        supabase.from('admin_qasaid').select('id', { count: 'exact', head: true }),
+        supabase.from('athar_quotes').select('id', { count: 'exact', head: true }),
+        supabase.from('khatmas').select('id', { count: 'exact', head: true }),
+        supabase.from('admin_wallpapers').select('id', { count: 'exact', head: true }),
+      ]);
+      setCounts({
+        duas: d.count ?? 0,
+        qasaid: q.count ?? 0,
+        athar: a.count ?? 0,
+        khatmas: k.count ?? 0,
+        wallpapers: w.count ?? 0,
+      });
     })();
   }, []);
 
@@ -222,51 +247,107 @@ const MaintenanceManager = () => {
       maintenance_active: active,
       maintenance_message: message || 'الموقع تحت الصيانة حالياً، نعتذر عن الإزعاج.',
       maintenance_until: until ? new Date(until).toISOString() : null,
+      quran_paused: quranPaused,
+      quran_resume_at: quranResume ? new Date(quranResume).toISOString() : null,
+      quran_pause_message: quranMsg || 'القرآن الكريم في فترة صيانة وتحسين، وسيعود تلقائياً للجميع.',
     });
     setSaving(false);
     if (error) {
       toast({ title: 'تعذّر الحفظ', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: active ? 'تم تفعيل وضع الصيانة' : 'تم إيقاف وضع الصيانة' });
+      toast({ title: 'تم حفظ إعدادات النظام' });
     }
   };
 
   return (
-    <div className="space-y-4" dir="rtl">
-      <div className="rounded-2xl border border-border/30 bg-card p-4">
-        <label className="flex items-center justify-between gap-3 cursor-pointer">
+    <div className="space-y-5" dir="rtl">
+      {/* At-a-glance counters */}
+      {counts && (
+        <div className="grid grid-cols-5 gap-2">
+          {[
+            ['أدعية', counts.duas],
+            ['منبر', counts.qasaid],
+            ['أثر', counts.athar],
+            ['ختمات', counts.khatmas],
+            ['خلفيات', counts.wallpapers],
+          ].map(([label, n]) => (
+            <div key={String(label)} className="rounded-2xl border border-border/30 bg-card px-2 py-3 text-center">
+              <p className="text-[18px] font-light text-foreground tabular-nums">{n as number}</p>
+              <p className="text-[9px] text-muted-foreground/70 mt-0.5">{label as string}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Site maintenance */}
+      <div className="rounded-2xl border border-border/30 bg-card overflow-hidden">
+        <div className="px-4 pt-3.5 pb-2 border-b border-border/20">
+          <p className="text-[12px] text-foreground/85">صيانة الموقع بالكامل</p>
+        </div>
+        <div className="p-4 space-y-3.5">
+          <label className="flex items-center justify-between gap-3 cursor-pointer">
+            <div>
+              <p className="text-[12px] text-foreground">تفعيل وضع الصيانة</p>
+              <p className="text-[10px] text-muted-foreground/70 font-light mt-0.5">
+                يُقفل كل المنصات ويعرض رسالة الصيانة لجميع الزوار
+              </p>
+            </div>
+            <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)}
+              className="w-5 h-5 accent-primary" />
+          </label>
+
           <div>
-            <p className="text-[13px] text-foreground">تفعيل وضع الصيانة</p>
-            <p className="text-[10px] text-muted-foreground/70 font-light mt-0.5">
-              عند التفعيل سيظهر للزوار صفحة الصيانة مع الرسالة والوقت
-            </p>
+            <p className="text-[10px] text-muted-foreground/80 mb-1.5">رسالة الصيانة</p>
+            <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3}
+              placeholder="الموقع تحت الصيانة حالياً…"
+              className="w-full rounded-xl bg-secondary/40 border border-border/30 p-3 text-[12px] outline-none focus:border-primary/40 resize-none" />
           </div>
-          <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)}
-            className="w-5 h-5 accent-primary" />
-        </label>
+          <div>
+            <p className="text-[10px] text-muted-foreground/80 mb-1.5">الوقت المتوقع لعودة الموقع</p>
+            <input type="datetime-local" value={until} onChange={(e) => setUntil(e.target.value)} dir="ltr"
+              className="w-full rounded-xl bg-secondary/40 border border-border/30 p-3 text-[12px] outline-none focus:border-primary/40" />
+          </div>
+        </div>
       </div>
 
-      <div className="rounded-2xl border border-border/30 bg-card p-4 space-y-3">
-        <div>
-          <p className="text-[11px] text-muted-foreground/80 mb-1.5">رسالة الصيانة</p>
-          <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={4}
-            placeholder="الموقع تحت الصيانة حالياً…"
-            className="w-full rounded-xl bg-secondary/40 border border-border/30 p-3 text-[12px] outline-none focus:border-primary/40 resize-none" />
+      {/* Quran section pause */}
+      <div className="rounded-2xl border border-border/30 bg-card overflow-hidden">
+        <div className="px-4 pt-3.5 pb-2 border-b border-border/20">
+          <p className="text-[12px] text-foreground/85">قسم القرآن الكريم</p>
         </div>
-        <div>
-          <p className="text-[11px] text-muted-foreground/80 mb-1.5">الوقت والتاريخ المتوقع للانتهاء</p>
-          <input type="datetime-local" value={until} onChange={(e) => setUntil(e.target.value)} dir="ltr"
-            className="w-full rounded-xl bg-secondary/40 border border-border/30 p-3 text-[12px] outline-none focus:border-primary/40" />
+        <div className="p-4 space-y-3.5">
+          <label className="flex items-center justify-between gap-3 cursor-pointer">
+            <div>
+              <p className="text-[12px] text-foreground">إيقاف قسم القرآن مؤقتاً</p>
+              <p className="text-[10px] text-muted-foreground/70 font-light mt-0.5">
+                يُخفي القسم من شريط التنقل ويعرض رسالة عودة محددة
+              </p>
+            </div>
+            <input type="checkbox" checked={quranPaused} onChange={(e) => setQuranPaused(e.target.checked)}
+              className="w-5 h-5 accent-primary" />
+          </label>
+          <div>
+            <p className="text-[10px] text-muted-foreground/80 mb-1.5">رسالة الإيقاف</p>
+            <textarea value={quranMsg} onChange={(e) => setQuranMsg(e.target.value)} rows={2}
+              placeholder="القرآن الكريم في فترة صيانة وتحسين…"
+              className="w-full rounded-xl bg-secondary/40 border border-border/30 p-3 text-[12px] outline-none focus:border-primary/40 resize-none" />
+          </div>
+          <div>
+            <p className="text-[10px] text-muted-foreground/80 mb-1.5">تاريخ ووقت العودة</p>
+            <input type="datetime-local" value={quranResume} onChange={(e) => setQuranResume(e.target.value)} dir="ltr"
+              className="w-full rounded-xl bg-secondary/40 border border-border/30 p-3 text-[12px] outline-none focus:border-primary/40" />
+          </div>
         </div>
       </div>
 
       <button onClick={save} disabled={saving}
         className="w-full h-11 rounded-full bg-primary text-primary-foreground text-[12px] disabled:opacity-60">
-        {saving ? 'جارٍ الحفظ…' : 'حفظ'}
+        {saving ? 'جارٍ الحفظ…' : 'حفظ جميع الإعدادات'}
       </button>
     </div>
   );
 };
+
 
 // ============== DUAS ==============
 const DuasManager = () => {

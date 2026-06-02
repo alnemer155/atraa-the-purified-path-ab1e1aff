@@ -3,15 +3,18 @@ import { Home, Settings, BookText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import BookAlt from './icons/BookAlt';
+import { useQuranPause } from '@/lib/quran-paused';
 
 const BottomNav = () => {
   const location = useLocation();
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
+  const { paused: quranPaused } = useQuranPause();
 
   const items = [
     { path: '/settings', label: t('nav.settings'), icon: Settings },
-    { path: '/quran', label: isAr ? 'القرآن' : 'Quran', icon: BookText },
+    // Hide Quran tab while paused (v2.10.50 — admin-controlled pause).
+    ...(quranPaused ? [] : [{ path: '/quran', label: isAr ? 'القرآن' : 'Quran', icon: BookText }]),
     { path: '/library', label: t('nav.library'), icon: BookAlt },
     { path: '/', label: t('nav.home'), icon: Home },
   ];
