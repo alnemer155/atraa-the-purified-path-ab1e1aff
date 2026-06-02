@@ -655,27 +655,21 @@ const HijriCountdown = () => {
               </div>
 
               {/* Body — scrollable */}
-              <div className="flex-1 overflow-y-auto p-5 space-y-4">
-                {/* Today's occasion — restrained gold accent (single gold hairline) */}
-                {todaysOccasion && (
-                  <button
-                    onClick={() => setOpenOccasion(todaysOccasion)}
-                    className="w-full text-start rounded-2xl bg-card border border-border/20 p-4 active:scale-[0.99] transition-transform relative overflow-hidden"
-                  >
-                    <div className="absolute inset-y-0 start-0 w-[2px] bg-gold/60" />
-                    <p className={`text-[9px] text-muted-foreground/60 font-light mb-2 ${isAr ? '' : 'uppercase tracking-[0.25em]'}`}>
-                      {isAr ? 'مناسبة اليوم' : 'Today'}
-                    </p>
-                    <p className="text-[15px] text-foreground leading-relaxed">
-                      {renderHonored(isAr ? todaysOccasion.ar : todaysOccasion.en)}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground/50 mt-2 font-light">
-                      {isAr ? 'اضغط لقراءة تفاصيل المناسبة' : 'Tap to read full details'}
-                    </p>
-                  </button>
+              <div className="flex-1 overflow-y-auto p-5 space-y-5">
+                {/* Full month-grid Hijri calendar (v2.10.55) */}
+                {showOccasions && (
+                  <HijriCalendar
+                    initialMonth={hijri.monthNumber}
+                    initialYear={hijri.year}
+                    todayMonth={hijri.monthNumber}
+                    todayDay={hijri.day}
+                    todayYear={hijri.year}
+                    isAr={isAr}
+                    onOpenOccasion={setOpenOccasion}
+                  />
                 )}
 
-                {/* Ramadan / Eid prediction — clean text card, no icons */}
+                {/* Ramadan / Eid prediction */}
                 {hijri.monthNumber === 8 && (
                   <div className="rounded-2xl bg-card border border-border/15 p-4">
                     <p className={`text-[9px] text-muted-foreground/55 font-light mb-1.5 ${isAr ? '' : 'uppercase tracking-[0.25em]'}`}>
@@ -707,11 +701,11 @@ const HijriCountdown = () => {
                   </div>
                 )}
 
-                {/* Upcoming occasions */}
+                {/* Upcoming occasions — next 12 Hijri months, grouped by month */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <p className={`text-[10px] text-muted-foreground/55 font-light ${isAr ? '' : 'uppercase tracking-[0.25em]'}`}>
-                      {isAr ? 'المناسبات القادمة' : 'Upcoming occasions'}
+                      {isAr ? 'المناسبات القادمة — السنة الكاملة' : 'Upcoming occasions — full year'}
                     </p>
                     {upcomingOccasions.length > 0 && (
                       <span className="text-[9px] text-muted-foreground/40 tabular-nums font-light">
@@ -719,47 +713,82 @@ const HijriCountdown = () => {
                       </span>
                     )}
                   </div>
-                  <div className="space-y-2">
-                    {upcomingOccasions.length === 0 && (
-                      <p className="text-[11px] text-muted-foreground/40 font-light text-center py-4">
-                        {isAr ? 'لا توجد مناسبات قريبة' : 'No upcoming occasions'}
-                      </p>
-                    )}
-                    {upcomingOccasions.map((o, i) => (
-                      <button
-                        key={`${o.month}-${o.day}-${i}`}
-                        onClick={() => setOpenOccasion(o)}
-                        className="w-full flex items-stretch gap-3 p-3 rounded-2xl bg-card border border-border/15 active:scale-[0.985] transition-transform text-start relative overflow-hidden"
-                      >
-                        {o.featured && (
-                          <span className="absolute inset-y-0 start-0 w-[2px] bg-gold/55" />
-                        )}
-                        <div className="w-12 h-14 rounded-xl bg-secondary/40 flex flex-col items-center justify-center flex-shrink-0">
-                          <span className="text-[15px] tabular-nums leading-none mt-0.5 text-foreground">{o.day}</span>
-                          <span className="text-[7px] text-muted-foreground/60 font-light mt-1 uppercase tracking-wider">
-                            {(isAr ? MONTH_NAMES_AR[o.month - 1] : MONTH_NAMES_EN[o.month - 1]).slice(0, 4)}
-                          </span>
+
+                  {upcomingOccasions.length === 0 ? (
+                    <p className="text-[11px] text-muted-foreground/40 font-light text-center py-4">
+                      {isAr ? 'لا توجد مناسبات قريبة' : 'No upcoming occasions'}
+                    </p>
+                  ) : (
+                    (() => {
+                      // Group by `${month}-${year}` for a clean monthly header layout.
+                      const groups = new Map<string, { month: number; year: number; items: UpcomingEntry[] }>();
+                      upcomingOccasions.forEach(e => {
+                        const k = `${e.month}-${e.year}`;
+                        if (!groups.has(k)) groups.set(k, { month: e.month, year: e.year, items: [] });
+                        groups.get(k)!.items.push(e);
+                      });
+                      return (
+                        <div className="space-y-4">
+                          {Array.from(groups.values()).map(g => (
+                            <div key={`${g.month}-${g.year}`} className="space-y-2">
+                              <p className="text-[10px] text-muted-foreground/70 font-light flex items-center gap-2">
+                                <span className="text-foreground/80">
+                                  {isAr ? MONTH_NAMES_AR[g.month - 1] : MONTH_NAMES_EN[g.month - 1]}
+                                </span>
+                                <span className="text-muted-foreground/40 tabular-nums">
+                                  {g.year} {isAr ? 'هـ' : 'AH'}
+                                </span>
+                                <span className="flex-1 h-px bg-border/25" />
+                                <span className="text-[9px] text-muted-foreground/40 tabular-nums">{g.items.length}</span>
+                              </p>
+                              {g.items.map((entry, i) => {
+                                const o = entry.o;
+                                return (
+                                  <button
+                                    key={`${g.month}-${g.year}-${o.day}-${i}`}
+                                    onClick={() => setOpenOccasion(o)}
+                                    className="w-full flex items-stretch gap-3 p-3 rounded-2xl bg-card border border-border/15 active:scale-[0.985] transition-transform text-start relative overflow-hidden"
+                                  >
+                                    {o.featured && (
+                                      <span className="absolute inset-y-0 start-0 w-[2px] bg-gold/55" />
+                                    )}
+                                    <div className="w-12 h-14 rounded-xl bg-secondary/40 flex flex-col items-center justify-center flex-shrink-0">
+                                      <span className="text-[15px] tabular-nums leading-none mt-0.5 text-foreground">{o.day}</span>
+                                      <span className="text-[7px] text-muted-foreground/60 font-light mt-1 uppercase tracking-wider">
+                                        {(isAr ? MONTH_NAMES_AR[o.month - 1] : MONTH_NAMES_EN[o.month - 1]).slice(0, 4)}
+                                      </span>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-[12px] text-foreground leading-snug">
+                                        {renderHonored(isAr ? o.ar : o.en)}
+                                      </p>
+                                      <div className="flex items-center gap-1.5 mt-1.5">
+                                        <span className={`text-[8px] font-light px-1.5 py-0.5 rounded-md ${typeColor(o.type)}`}>
+                                          {typeLabel(o.type)}
+                                        </span>
+                                        <span className="text-[8px] text-muted-foreground/45 font-light tabular-nums">
+                                          {entry.dist === 0 ? (isAr ? 'اليوم' : 'today')
+                                            : (isAr ? `بعد ${entry.dist} يوم` : `in ${entry.dist}d`)}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <ChevronLeft className={`w-3.5 h-3.5 text-muted-foreground/30 flex-shrink-0 self-center ${isAr ? '' : 'rotate-180'}`} />
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          ))}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[12px] text-foreground leading-snug">
-                            {renderHonored(isAr ? o.ar : o.en)}
-                          </p>
-                          <div className="flex items-center gap-1.5 mt-1.5">
-                            <span className={`text-[8px] font-light px-1.5 py-0.5 rounded-md ${typeColor(o.type)}`}>
-                              {typeLabel(o.type)}
-                            </span>
-                          </div>
-                        </div>
-                        <ChevronLeft className={`w-3.5 h-3.5 text-muted-foreground/30 flex-shrink-0 self-center ${isAr ? '' : 'rotate-180'}`} />
-                      </button>
-                    ))}
-                  </div>
+                      );
+                    })()
+                  )}
                 </div>
 
                 <p className="text-[9px] text-muted-foreground/35 text-center font-light pt-2">
                   {isAr ? 'التواريخ تقريبية وقد تتغير برؤية الهلال' : 'Dates are approximate and subject to moon sighting'}
                 </p>
               </div>
+
             </motion.div>
           </motion.div>
         )}
