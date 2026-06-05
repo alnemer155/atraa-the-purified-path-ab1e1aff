@@ -122,10 +122,11 @@ export async function unlockWithBiometric(): Promise<boolean> {
   if (!id) return false;
   try {
     const challenge = crypto.getRandomValues(new Uint8Array(32));
+    const credId = b64uDecode(id);
     const assertion = await navigator.credentials.get({
       publicKey: {
-        challenge,
-        allowCredentials: [{ id: b64uDecode(id), type: 'public-key', transports: ['internal'] }],
+        challenge: challenge.buffer as ArrayBuffer,
+        allowCredentials: [{ id: credId.buffer as ArrayBuffer, type: 'public-key', transports: ['internal'] }],
         userVerification: 'required',
         timeout: 60000,
       },

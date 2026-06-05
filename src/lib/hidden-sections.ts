@@ -21,12 +21,13 @@ let inflight: Promise<Record<string, boolean>> | null = null;
 async function fetchAll(): Promise<Record<string, boolean>> {
   if (cache) return cache;
   if (inflight) return inflight;
-  inflight = supabase.from('hidden_sections').select('id, hidden').then(({ data }) => {
+  inflight = (async () => {
+    const { data } = await supabase.from('hidden_sections').select('id, hidden');
     cache = {};
     (data ?? []).forEach((r: any) => { cache![r.id] = !!r.hidden; });
     inflight = null;
     return cache;
-  });
+  })();
   return inflight;
 }
 

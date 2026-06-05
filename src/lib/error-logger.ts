@@ -11,14 +11,14 @@ export function logError(message: string, opts: { stack?: string; level?: 'error
   inFlight.add(key);
   setTimeout(() => inFlight.delete(key), 4000);
   try {
-    void supabase.from('error_logs').insert({
+    void supabase.from('error_logs').insert([{
       message: String(message).slice(0, 4000),
       stack: opts.stack ? String(opts.stack).slice(0, 8000) : null,
       url: typeof window !== 'undefined' ? window.location.href : null,
       user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
       level: opts.level ?? 'error',
-      context: opts.context ?? {},
-    });
+      context: (opts.context ?? {}) as any,
+    }]);
   } catch { /* never let logging crash the app */ }
 }
 
