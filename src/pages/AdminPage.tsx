@@ -101,58 +101,13 @@ const AdminPage = () => {
   };
 
   if (!unlocked) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-5 bg-background" dir="rtl">
-        <motion.form
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          onSubmit={handleUnlock}
-          className="w-full max-w-xs rounded-3xl border border-border/30 bg-card p-7 text-center"
-        >
-          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5">
-            <Lock className="w-5 h-5 text-primary" strokeWidth={1.4} />
-          </div>
-          <h1 className="text-[16px] text-foreground font-light mb-1">لوحة المطور</h1>
-          <p className="text-[11px] text-muted-foreground/70 font-light mb-5">
-            {textMode ? 'أدخل كلمة المرور النصية' : 'أدخل الرقم السري'}
-          </p>
-          <input
-            type={textMode ? 'text' : 'password'}
-            inputMode={textMode ? 'text' : 'numeric'}
-            value={secret}
-            onChange={(e) => setSecret(e.target.value)}
-            placeholder={textMode ? 'كلمة المرور' : '••••'}
-            autoFocus
-            autoComplete="off"
-            spellCheck={false}
-            dir={textMode ? 'ltr' : 'rtl'}
-            className={`w-full h-12 text-center rounded-2xl bg-secondary/40 border border-border/30 outline-none focus:border-primary/40 ${
-              textMode ? 'text-[14px]' : 'text-[18px] tracking-[0.4em] tabular-nums'
-            }`}
-          />
-          <button
-            type="submit"
-            className="mt-4 w-full h-11 rounded-full bg-primary text-primary-foreground text-[12px]"
-          >
-            دخول
-          </button>
-          <button
-            type="button"
-            onClick={() => { setTextMode(m => !m); setSecret(''); }}
-            className="mt-3 w-full h-9 rounded-full bg-secondary/30 text-muted-foreground text-[10px] font-light flex items-center justify-center gap-1.5 active:bg-secondary/50"
-          >
-            {textMode ? <Hash className="w-3 h-3" strokeWidth={1.6} /> : <Type className="w-3 h-3" strokeWidth={1.6} />}
-            {textMode ? 'استخدام الرقم السري' : 'استخدام كلمة المرور النصية'}
-          </button>
-        </motion.form>
-      </div>
-    );
+    return <UnlockScreen onUnlock={() => setUnlocked(true)} textMode={textMode} setTextMode={setTextMode} secret={secret} setSecret={setSecret} />;
   }
 
   return (
     <div className="min-h-screen bg-background pb-16" dir="rtl">
-      {/* Header */}
-      <div className="sticky top-0 z-30 bg-background/85 backdrop-blur-xl border-b border-border/20">
+      {/* Header — v2 design: cleaner chips, version badge */}
+      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/15">
         <div className="px-3 py-3 flex items-center justify-between gap-2">
           <button
             onClick={() => { lockAdmin(); setUnlocked(false); }}
@@ -161,11 +116,13 @@ const AdminPage = () => {
           >
             <LogOut className="w-4 h-4 text-foreground" strokeWidth={1.5} />
           </button>
-          <p className="text-[13px] text-foreground">لوحة المطور</p>
+          <div className="flex flex-col items-center leading-tight">
+            <p className="text-[13px] text-foreground">لوحة المطور</p>
+            <p className="text-[8px] text-muted-foreground/60 tracking-[0.3em] mt-0.5">v2 · ATRAA</p>
+          </div>
           <ReadingThemeToggle allowNight={false} />
         </div>
 
-        {/* Tabs — horizontally scrollable for small screens */}
         <div className="px-3 pb-3 flex gap-1.5 overflow-x-auto scrollbar-hide">
           {([
             ['duas', 'الأدعية', BookMarked],
@@ -173,14 +130,17 @@ const AdminPage = () => {
             ['khatmas', 'الختمات', BookOpen],
             ['qasaid', 'منبر', Play],
             ['athar', 'أثر', Type],
+            ['visibility', 'الإخفاء', EyeOff],
+            ['codes', 'الأكواد', KeyRound],
+            ['errors', 'الأخطاء', AlertOctagon],
             ['maintenance', 'الصيانة', Wrench],
           ] as [Tab, string, typeof Lock][]).map(([k, label, Icon]) => (
             <button
               key={k}
               onClick={() => setTab(k)}
-              className={`flex-shrink-0 px-3 h-9 min-w-[72px] rounded-full text-[11px] flex items-center justify-center gap-1.5 transition-colors ${
+              className={`flex-shrink-0 px-3 h-9 min-w-[72px] rounded-full text-[11px] flex items-center justify-center gap-1.5 transition-all ${
                 tab === k
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/20'
                   : 'bg-secondary/40 text-foreground border border-border/30'
               }`}
             >
@@ -197,8 +157,127 @@ const AdminPage = () => {
         {tab === 'khatmas' && <KhatmasManager />}
         {tab === 'qasaid' && <QasaidManager />}
         {tab === 'athar' && <AtharManager />}
+        {tab === 'visibility' && <VisibilityManager />}
+        {tab === 'codes' && <CodesManager />}
+        {tab === 'errors' && <ErrorsManager />}
         {tab === 'maintenance' && <MaintenanceManager />}
       </div>
+    </div>
+  );
+};
+
+// ============== UNLOCK SCREEN (v2 — adds FaceID) ==============
+interface UnlockProps {
+  onUnlock: () => void;
+  textMode: boolean;
+  setTextMode: (v: boolean | ((m: boolean) => boolean)) => void;
+  secret: string;
+  setSecret: (s: string) => void;
+}
+const UnlockScreen = ({ onUnlock, textMode, setTextMode, secret, setSecret }: UnlockProps) => {
+  const [biomAvail, setBiomAvail] = useState(false);
+  const [hasBiom, setHasBiom] = useState(hasBiometricRegistered());
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => { void isBiometricAvailable().then(setBiomAvail); }, []);
+
+  useEffect(() => {
+    if (!hasBiom || !biomAvail) return;
+    let cancelled = false;
+    void (async () => {
+      const ok = await unlockWithBiometric();
+      if (!cancelled && ok) onUnlock();
+    })();
+    return () => { cancelled = true; };
+  }, [hasBiom, biomAvail, onUnlock]);
+
+  const handleUnlock = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (unlockAdmin(secret)) {
+      setSecret('');
+      if (biomAvail && !hasBiometricRegistered()) {
+        setBusy(true);
+        const ok = await registerBiometric();
+        setBusy(false);
+        if (ok) { setHasBiom(true); toast({ title: 'تم تفعيل الدخول بـ FaceID' }); }
+      }
+      onUnlock();
+    } else {
+      toast({ title: 'بيانات الدخول غير صحيحة', variant: 'destructive' });
+      setSecret('');
+    }
+  };
+
+  const tryBiometric = async () => {
+    setBusy(true);
+    const ok = await unlockWithBiometric();
+    setBusy(false);
+    if (ok) onUnlock();
+    else toast({ title: 'تعذّر التحقق', variant: 'destructive' });
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-5 bg-background" dir="rtl">
+      <motion.form
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        onSubmit={handleUnlock}
+        className="w-full max-w-xs rounded-3xl border border-border/30 bg-card p-7 text-center"
+      >
+        <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5">
+          <Lock className="w-5 h-5 text-primary" strokeWidth={1.4} />
+        </div>
+        <h1 className="text-[16px] text-foreground font-light mb-1">لوحة المطور</h1>
+        <p className="text-[11px] text-muted-foreground/70 font-light mb-5">
+          {textMode ? 'أدخل كلمة المرور النصية' : 'أدخل الرقم السري'}
+        </p>
+        <input
+          type={textMode ? 'text' : 'password'}
+          inputMode={textMode ? 'text' : 'numeric'}
+          value={secret}
+          onChange={(e) => setSecret(e.target.value)}
+          placeholder={textMode ? 'كلمة المرور' : '••••'}
+          autoFocus
+          autoComplete="off"
+          spellCheck={false}
+          dir={textMode ? 'ltr' : 'rtl'}
+          className={`w-full h-12 text-center rounded-2xl bg-secondary/40 border border-border/30 outline-none focus:border-primary/40 ${
+            textMode ? 'text-[14px]' : 'text-[18px] tracking-[0.4em] tabular-nums'
+          }`}
+        />
+        <button type="submit" disabled={busy}
+          className="mt-4 w-full h-11 rounded-full bg-primary text-primary-foreground text-[12px] disabled:opacity-60">
+          دخول
+        </button>
+
+        {biomAvail && hasBiom && (
+          <button type="button" onClick={tryBiometric} disabled={busy}
+            className="mt-2 w-full h-11 rounded-full bg-secondary/50 text-foreground text-[12px] flex items-center justify-center gap-2 active:bg-secondary/70 disabled:opacity-60">
+            <Fingerprint className="w-4 h-4" strokeWidth={1.6} />
+            الدخول بـ FaceID
+          </button>
+        )}
+        {biomAvail && !hasBiom && (
+          <p className="mt-3 text-[10px] text-muted-foreground/70 font-light">
+            بعد الدخول، سيتم اقتراح تفعيل FaceID
+          </p>
+        )}
+
+        <button
+          type="button"
+          onClick={() => { setTextMode((m: boolean) => !m); setSecret(''); }}
+          className="mt-3 w-full h-9 rounded-full bg-secondary/30 text-muted-foreground text-[10px] font-light flex items-center justify-center gap-1.5 active:bg-secondary/50"
+        >
+          {textMode ? <Hash className="w-3 h-3" strokeWidth={1.6} /> : <Type className="w-3 h-3" strokeWidth={1.6} />}
+          {textMode ? 'استخدام الرقم السري' : 'استخدام كلمة المرور النصية'}
+        </button>
+        {hasBiom && (
+          <button type="button" onClick={() => { unregisterBiometric(); setHasBiom(false); toast({ title: 'تم إلغاء FaceID' }); }}
+            className="mt-2 text-[10px] text-muted-foreground/60 underline-offset-2 hover:underline">
+            إلغاء FaceID لهذا الجهاز
+          </button>
+        )}
+      </motion.form>
     </div>
   );
 };
