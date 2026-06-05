@@ -3,9 +3,13 @@ import App from "./App.tsx";
 import "./index.css";
 import "./i18n";
 import { applyThemeToDocument, getStoredQuranTheme } from "./lib/quran-theme";
+import { installGlobalErrorLogging } from "./lib/error-logger";
 
 // Boot stored reading mode (default / sepia / night) before first paint.
 applyThemeToDocument(getStoredQuranTheme());
+
+// v2.10.60.20 — capture runtime errors & unhandled rejections for admin review.
+installGlobalErrorLogging();
 
 // Register service worker for PWA offline support
 if ('serviceWorker' in navigator) {
