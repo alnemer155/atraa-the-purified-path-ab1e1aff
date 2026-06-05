@@ -1528,4 +1528,321 @@ const AtharManager = () => {
   );
 };
 
+// ============== VISIBILITY MANAGER ==============
+const VisibilityManager = () => {
+  const [rows, setRows] = useState<Array<{ id: string; label: string; hidden: boolean }>>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    setLoading(true);
+    setRows(await listHiddenSections());
+    setLoading(false);
+  };
+  useEffect(() => { void load(); }, []);
+
+  const toggle = async (id: string, next: boolean) => {
+    setRows(rs => rs.map(r => r.id === id ? { ...r, hidden: next } : r));
+    await setSectionHidden(id as any, next);
+    invalidateHiddenSectionsCache();
+    toast({ title: next ? 'تم إخفاء القسم' : 'تم إظهار القسم' });
+  };
+
+  if (loading) return <p className="text-[11px] text-muted-foreground text-center py-6">جارٍ التحميل…</p>;
+
+  return (
+    <div className="space-y-3" dir="rtl">
+      <div className="rounded-2xl border border-border/30 bg-card p-4">
+        <p className="text-[12px] text-foreground/90 mb-1">إخفاء الصفحات والأقسام</p>
+        <p className="text-[10px] text-muted-foreground/70 font-light leading-relaxed">
+          فعّل الإخفاء لإخفاء الصفحة أو القسم من جميع المستخدمين فوراً. لوحة التحكم لا تتأثر.
+        </p>
+      </div>
+      <div className="space-y-1.5">
+        {rows.map(r => (
+          <label key={r.id}
+            className="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-border/30 bg-card cursor-pointer">
+            <div className="min-w-0 flex-1">
+              <p className="text-[12px] text-foreground truncate">{r.label}</p>
+              <p className="text-[9px] text-muted-foreground/60 mt-0.5 tracking-wide">{r.id}</p>
+            </div>
+            <input type="checkbox" checked={r.hidden}
+              onChange={(e) => toggle(r.id, e.target.checked)}
+              className="w-5 h-5 accent-primary" />
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ============== SUBSCRIPTION CODES MANAGER ==============
+interface CodeRow {
+  id: string;
+  code: string;
+  tier: string;
+  duration_days: number;
+  note: string | null;
+  redeemed_at: string | null;
+  created_at: string;
+}
+const TIERS = [
+  { id: 'pro', label: 'Pro' },
+  { id: 'pro_plus', label: 'Pro+' },
+  { id: 'lifetime', label: 'مدى الحياة' },
+];
+const generateCode = (len = 12) => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let out = '';
+  for (let i = 0; i < len; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  return out.replace(/(.{4})/g, '$1-').replace(/-$/, '');
+};
+
+const CodesManager = () => {
+  const [rows, setRows] = useState<CodeRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [tier, setTier] = useState('pro');
+  const [days, setDays] = useState(30);
+  const [count, setCount] = useState(1);
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    const { data } = await supabase.from('subscription_codes').select('*').order('created_at', { ascending: false }).limit(200);
+    setRows((data as CodeRow[]) ?? []);
+    setLoading(false);
+  };
+  useEffect(() => { void load(); }, []);
+
+  const create = async () => {
+    if (count < 1 || count > 50) { toast({ title: 'العدد يجب أن يكون بين 1 و 50', variant: 'destructive' }); return; }
+    setBusy(true);
+    const payload = Array.from({ length: count }, () => ({
+      code: generateCode(),
+      tier,
+      duration_days: days,
+      note: note.trim() || null,
+    }));
+    const { error } = await supabase.from('subscription_codes').insert(payload);
+    setBusy(false);
+    if (error) { toast({ title: 'تعذّر الإنشاء', description: error.message, variant: 'destructive' }); return; }
+    toast({ title: `تم إنشاء ${count} كود` });
+    setNote('');
+    void load();
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm('حذف هذا الكود؟')) return;
+    await supabase.from('subscription_codes').delete().eq('id', id);
+    void load();
+  };
+
+  const copy = async (code: string) => {
+    try { await navigator.clipboard.writeText(code); setCopied(code); setTimeout(() => setCopied(null), 1200); }
+    catch { toast({ title: 'تعذّر النسخ', variant: 'destructive' }); }
+  };
+
+  return (
+    <div className="space-y-4" dir="rtl">
+      <div className="rounded-2xl border border-border/30 bg-card p-4 space-y-3">
+        <div>
+          <p className="text-[12px] text-foreground/90">إنشاء أكواد اشتراك</p>
+          <p className="text-[9px] text-muted-foreground/60 mt-0.5">غير مفعّلة في الموقع الرئيسي حالياً — للتجهيز فقط</p>
+        </div>
+        <div className="grid grid-cols-3 gap-1.5">
+          {TIERS.map(t => (
+            <button key={t.id} onClick={() => setTier(t.id)}
+              className={`h-10 rounded-xl text-[11px] ${tier === t.id ? 'bg-primary text-primary-foreground' : 'bg-secondary/40 border border-border/30 text-foreground'}`}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <p className="text-[10px] text-muted-foreground/80 mb-1.5">المدة (يوم)</p>
+            <input type="number" value={days} min={1} onChange={(e) => setDays(parseInt(e.target.value) || 1)}
+              className="w-full h-10 px-3 rounded-xl bg-secondary/40 border border-border/30 text-[12px] outline-none text-center tabular-nums" />
+          </div>
+          <div>
+            <p className="text-[10px] text-muted-foreground/80 mb-1.5">العدد</p>
+            <input type="number" value={count} min={1} max={50} onChange={(e) => setCount(parseInt(e.target.value) || 1)}
+              className="w-full h-10 px-3 rounded-xl bg-secondary/40 border border-border/30 text-[12px] outline-none text-center tabular-nums" />
+          </div>
+        </div>
+        <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="ملاحظة (اختياري)"
+          className="w-full h-10 px-3 rounded-xl bg-secondary/40 border border-border/30 text-[12px] outline-none" />
+        <button onClick={create} disabled={busy}
+          className="w-full h-11 rounded-full bg-primary text-primary-foreground text-[12px] flex items-center justify-center gap-2 disabled:opacity-60">
+          <Plus className="w-4 h-4" strokeWidth={1.6} /> {busy ? 'جارٍ الإنشاء…' : 'إنشاء'}
+        </button>
+      </div>
+
+      <div className="space-y-1.5">
+        <p className="text-[10px] text-muted-foreground/70 px-1">آخر الأكواد ({rows.length})</p>
+        {loading && <p className="text-[11px] text-muted-foreground text-center py-4">جارٍ التحميل…</p>}
+        {!loading && rows.length === 0 && (
+          <p className="text-[11px] text-muted-foreground text-center py-6">لا توجد أكواد بعد</p>
+        )}
+        {rows.map(r => (
+          <div key={r.id} className="p-3 rounded-2xl border border-border/30 bg-card">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <button onClick={() => copy(r.code)}
+                className="font-mono text-[13px] text-foreground tracking-wider flex items-center gap-1.5 active:opacity-70">
+                {r.code}
+                {copied === r.code
+                  ? <Check className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
+                  : <Copy className="w-3 h-3 text-muted-foreground/60" strokeWidth={1.6} />}
+              </button>
+              <button onClick={() => remove(r.id)}
+                className="w-7 h-7 rounded-full active:bg-destructive/20 flex items-center justify-center">
+                <Trash2 className="w-3.5 h-3.5 text-destructive/70" strokeWidth={1.6} />
+              </button>
+            </div>
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground/70">
+              <span className="px-2 py-0.5 rounded-full bg-secondary/40">{TIERS.find(t => t.id === r.tier)?.label ?? r.tier}</span>
+              <span>{r.duration_days} يوم</span>
+              {r.redeemed_at
+                ? <span className="text-primary">مُستخدَم</span>
+                : <span className="text-muted-foreground/50">غير مُستخدَم</span>}
+              {r.note && <span className="truncate flex-1">· {r.note}</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ============== ERROR LOGS MANAGER ==============
+interface ErrorRow {
+  id: string;
+  message: string;
+  stack: string | null;
+  url: string | null;
+  user_agent: string | null;
+  level: string;
+  resolved: boolean;
+  created_at: string;
+}
+const ErrorsManager = () => {
+  const [rows, setRows] = useState<ErrorRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showResolved, setShowResolved] = useState(false);
+  const [open, setOpen] = useState<ErrorRow | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    let q = supabase.from('error_logs').select('*').order('created_at', { ascending: false }).limit(200);
+    if (!showResolved) q = q.eq('resolved', false);
+    const { data } = await q;
+    setRows((data as ErrorRow[]) ?? []);
+    setLoading(false);
+  };
+  useEffect(() => { void load(); }, [showResolved]);
+
+  const resolve = async (id: string) => {
+    await supabase.from('error_logs').update({ resolved: true }).eq('id', id);
+    void load();
+  };
+  const clearAll = async () => {
+    if (!confirm('حذف جميع السجلات الظاهرة؟')) return;
+    const ids = rows.map(r => r.id);
+    if (ids.length === 0) return;
+    await supabase.from('error_logs').delete().in('id', ids);
+    void load();
+  };
+
+  return (
+    <div className="space-y-3" dir="rtl">
+      <div className="rounded-2xl border border-border/30 bg-card p-4">
+        <p className="text-[12px] text-foreground/90 mb-1 flex items-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5 text-primary" strokeWidth={1.6} />
+          تتبع الأخطاء البرمجية والتقنية
+        </p>
+        <p className="text-[10px] text-muted-foreground/70 font-light leading-relaxed">
+          تُسجَّل أخطاء التطبيق تلقائياً (Runtime errors و Unhandled rejections) ليُمكن مراجعتها هنا.
+        </p>
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <label className="flex items-center gap-2 text-[11px] text-foreground/80">
+          <input type="checkbox" checked={showResolved} onChange={(e) => setShowResolved(e.target.checked)}
+            className="w-4 h-4 accent-primary" />
+          عرض المُحلّ
+        </label>
+        <button onClick={clearAll}
+          className="h-8 px-3 rounded-full bg-destructive/10 text-destructive text-[10px] flex items-center gap-1.5 active:bg-destructive/20">
+          <Trash2 className="w-3 h-3" strokeWidth={1.6} /> حذف الكل
+        </button>
+      </div>
+
+      {loading && <p className="text-[11px] text-muted-foreground text-center py-6">جارٍ التحميل…</p>}
+      {!loading && rows.length === 0 && (
+        <p className="text-[11px] text-muted-foreground text-center py-8">لا توجد أخطاء — كل شيء على ما يرام</p>
+      )}
+
+      <div className="space-y-1.5">
+        {rows.map(r => (
+          <button key={r.id} onClick={() => setOpen(r)}
+            className="w-full text-right p-3 rounded-2xl border border-border/30 bg-card active:bg-secondary/30">
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <p className="text-[12px] text-foreground line-clamp-2 flex-1">{r.message}</p>
+              <span className={`text-[9px] px-2 py-0.5 rounded-full flex-shrink-0 ${
+                r.level === 'warning' ? 'bg-amber-500/15 text-amber-500' : 'bg-destructive/15 text-destructive'
+              }`}>{r.level}</span>
+            </div>
+            <p className="text-[9px] text-muted-foreground/60 truncate">{r.url ?? '—'}</p>
+            <p className="text-[9px] text-muted-foreground/50 mt-1">{new Date(r.created_at).toLocaleString('ar')}</p>
+          </button>
+        ))}
+      </div>
+
+      {open && (
+        <div className="fixed inset-0 z-[70] bg-background/85 backdrop-blur-sm flex items-end sm:items-center justify-center p-3" dir="rtl">
+          <div className="w-full max-w-md rounded-3xl border border-border/30 bg-card p-4 max-h-[88vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[12px] text-foreground">تفاصيل الخطأ</p>
+              <button onClick={() => setOpen(null)} className="w-8 h-8 rounded-full active:bg-secondary/40 flex items-center justify-center">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-[12px] text-foreground mb-2">{open.message}</p>
+            <p className="text-[9px] text-muted-foreground/60 mb-3">{new Date(open.created_at).toLocaleString('ar')}</p>
+            {open.url && (
+              <div className="mb-3">
+                <p className="text-[9px] text-muted-foreground/60 mb-1">العنوان</p>
+                <p className="text-[10px] text-foreground/80 break-all bg-secondary/30 p-2 rounded-lg">{open.url}</p>
+              </div>
+            )}
+            {open.stack && (
+              <div className="mb-3">
+                <p className="text-[9px] text-muted-foreground/60 mb-1">Stack</p>
+                <pre className="text-[9px] text-foreground/70 bg-secondary/30 p-2 rounded-lg overflow-x-auto whitespace-pre-wrap break-all leading-relaxed" dir="ltr">{open.stack}</pre>
+              </div>
+            )}
+            {open.user_agent && (
+              <div className="mb-3">
+                <p className="text-[9px] text-muted-foreground/60 mb-1">User Agent</p>
+                <p className="text-[10px] text-foreground/70 break-all bg-secondary/30 p-2 rounded-lg" dir="ltr">{open.user_agent}</p>
+              </div>
+            )}
+            <div className="flex gap-2 mt-4">
+              {!open.resolved && (
+                <button onClick={async () => { await resolve(open.id); setOpen(null); }}
+                  className="flex-1 h-10 rounded-full bg-primary text-primary-foreground text-[11px]">
+                  وضع كمُحلّ
+                </button>
+              )}
+              <button onClick={async () => { await supabase.from('error_logs').delete().eq('id', open.id); setOpen(null); void load(); }}
+                className="flex-1 h-10 rounded-full bg-destructive/15 text-destructive text-[11px]">
+                حذف
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default AdminPage;
