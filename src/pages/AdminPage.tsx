@@ -3,19 +3,25 @@ import { motion } from 'framer-motion';
 import {
   Lock, BookMarked, BookOpen, Image as ImageIcon, Plus, Trash2,
   Pencil, Save, X, LogOut, Upload, Sparkles, Globe, Clock, ChevronLeft,
-  Hash, Type, Play, Music, Wrench,
+  Hash, Type, Play, Music, Wrench, Fingerprint, KeyRound, AlertOctagon,
+  EyeOff, Copy, Check, ShieldCheck,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { isAdminUnlocked, unlockAdmin, lockAdmin } from '@/lib/admin-auth';
+import {
+  isAdminUnlocked, unlockAdmin, lockAdmin,
+  isBiometricAvailable, hasBiometricRegistered, registerBiometric,
+  unlockWithBiometric, unregisterBiometric,
+} from '@/lib/admin-auth';
 import ReadingThemeToggle from '@/components/ReadingThemeToggle';
 import KhatmaCreateForm from '@/components/KhatmaCreateForm';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { generateAtharId, type AtharQuote } from '@/lib/athar';
+import { listHiddenSections, setSectionHidden, invalidateHiddenSectionsCache } from '@/lib/hidden-sections';
 
 type Category = 'dua' | 'ziyara' | 'dhikr';
 type Sect = 'shia' | 'sunni';
-type Tab = 'duas' | 'wallpapers' | 'khatmas' | 'qasaid' | 'athar' | 'maintenance';
+type Tab = 'duas' | 'wallpapers' | 'khatmas' | 'qasaid' | 'athar' | 'maintenance' | 'codes' | 'errors' | 'visibility';
 
 interface DuaRow {
   id: string;
@@ -95,58 +101,13 @@ const AdminPage = () => {
   };
 
   if (!unlocked) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-5 bg-background" dir="rtl">
-        <motion.form
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          onSubmit={handleUnlock}
-          className="w-full max-w-xs rounded-3xl border border-border/30 bg-card p-7 text-center"
-        >
-          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5">
-            <Lock className="w-5 h-5 text-primary" strokeWidth={1.4} />
-          </div>
-          <h1 className="text-[16px] text-foreground font-light mb-1">لوحة المطور</h1>
-          <p className="text-[11px] text-muted-foreground/70 font-light mb-5">
-            {textMode ? 'أدخل كلمة المرور النصية' : 'أدخل الرقم السري'}
-          </p>
-          <input
-            type={textMode ? 'text' : 'password'}
-            inputMode={textMode ? 'text' : 'numeric'}
-            value={secret}
-            onChange={(e) => setSecret(e.target.value)}
-            placeholder={textMode ? 'كلمة المرور' : '••••'}
-            autoFocus
-            autoComplete="off"
-            spellCheck={false}
-            dir={textMode ? 'ltr' : 'rtl'}
-            className={`w-full h-12 text-center rounded-2xl bg-secondary/40 border border-border/30 outline-none focus:border-primary/40 ${
-              textMode ? 'text-[14px]' : 'text-[18px] tracking-[0.4em] tabular-nums'
-            }`}
-          />
-          <button
-            type="submit"
-            className="mt-4 w-full h-11 rounded-full bg-primary text-primary-foreground text-[12px]"
-          >
-            دخول
-          </button>
-          <button
-            type="button"
-            onClick={() => { setTextMode(m => !m); setSecret(''); }}
-            className="mt-3 w-full h-9 rounded-full bg-secondary/30 text-muted-foreground text-[10px] font-light flex items-center justify-center gap-1.5 active:bg-secondary/50"
-          >
-            {textMode ? <Hash className="w-3 h-3" strokeWidth={1.6} /> : <Type className="w-3 h-3" strokeWidth={1.6} />}
-            {textMode ? 'استخدام الرقم السري' : 'استخدام كلمة المرور النصية'}
-          </button>
-        </motion.form>
-      </div>
-    );
+    return <UnlockScreen onUnlock={() => setUnlocked(true)} textMode={textMode} setTextMode={setTextMode} secret={secret} setSecret={setSecret} />;
   }
 
   return (
     <div className="min-h-screen bg-background pb-16" dir="rtl">
-      {/* Header */}
-      <div className="sticky top-0 z-30 bg-background/85 backdrop-blur-xl border-b border-border/20">
+      {/* Header — v2 design: cleaner chips, version badge */}
+      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/15">
         <div className="px-3 py-3 flex items-center justify-between gap-2">
           <button
             onClick={() => { lockAdmin(); setUnlocked(false); }}
@@ -155,11 +116,13 @@ const AdminPage = () => {
           >
             <LogOut className="w-4 h-4 text-foreground" strokeWidth={1.5} />
           </button>
-          <p className="text-[13px] text-foreground">لوحة المطور</p>
+          <div className="flex flex-col items-center leading-tight">
+            <p className="text-[13px] text-foreground">لوحة المطور</p>
+            <p className="text-[8px] text-muted-foreground/60 tracking-[0.3em] mt-0.5">v2 · ATRAA</p>
+          </div>
           <ReadingThemeToggle allowNight={false} />
         </div>
 
-        {/* Tabs — horizontally scrollable for small screens */}
         <div className="px-3 pb-3 flex gap-1.5 overflow-x-auto scrollbar-hide">
           {([
             ['duas', 'الأدعية', BookMarked],
@@ -167,14 +130,17 @@ const AdminPage = () => {
             ['khatmas', 'الختمات', BookOpen],
             ['qasaid', 'منبر', Play],
             ['athar', 'أثر', Type],
+            ['visibility', 'الإخفاء', EyeOff],
+            ['codes', 'الأكواد', KeyRound],
+            ['errors', 'الأخطاء', AlertOctagon],
             ['maintenance', 'الصيانة', Wrench],
           ] as [Tab, string, typeof Lock][]).map(([k, label, Icon]) => (
             <button
               key={k}
               onClick={() => setTab(k)}
-              className={`flex-shrink-0 px-3 h-9 min-w-[72px] rounded-full text-[11px] flex items-center justify-center gap-1.5 transition-colors ${
+              className={`flex-shrink-0 px-3 h-9 min-w-[72px] rounded-full text-[11px] flex items-center justify-center gap-1.5 transition-all ${
                 tab === k
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/20'
                   : 'bg-secondary/40 text-foreground border border-border/30'
               }`}
             >
@@ -191,8 +157,127 @@ const AdminPage = () => {
         {tab === 'khatmas' && <KhatmasManager />}
         {tab === 'qasaid' && <QasaidManager />}
         {tab === 'athar' && <AtharManager />}
+        {tab === 'visibility' && <VisibilityManager />}
+        {tab === 'codes' && <CodesManager />}
+        {tab === 'errors' && <ErrorsManager />}
         {tab === 'maintenance' && <MaintenanceManager />}
       </div>
+    </div>
+  );
+};
+
+// ============== UNLOCK SCREEN (v2 — adds FaceID) ==============
+interface UnlockProps {
+  onUnlock: () => void;
+  textMode: boolean;
+  setTextMode: (v: boolean | ((m: boolean) => boolean)) => void;
+  secret: string;
+  setSecret: (s: string) => void;
+}
+const UnlockScreen = ({ onUnlock, textMode, setTextMode, secret, setSecret }: UnlockProps) => {
+  const [biomAvail, setBiomAvail] = useState(false);
+  const [hasBiom, setHasBiom] = useState(hasBiometricRegistered());
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => { void isBiometricAvailable().then(setBiomAvail); }, []);
+
+  useEffect(() => {
+    if (!hasBiom || !biomAvail) return;
+    let cancelled = false;
+    void (async () => {
+      const ok = await unlockWithBiometric();
+      if (!cancelled && ok) onUnlock();
+    })();
+    return () => { cancelled = true; };
+  }, [hasBiom, biomAvail, onUnlock]);
+
+  const handleUnlock = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (unlockAdmin(secret)) {
+      setSecret('');
+      if (biomAvail && !hasBiometricRegistered()) {
+        setBusy(true);
+        const ok = await registerBiometric();
+        setBusy(false);
+        if (ok) { setHasBiom(true); toast({ title: 'تم تفعيل الدخول بـ FaceID' }); }
+      }
+      onUnlock();
+    } else {
+      toast({ title: 'بيانات الدخول غير صحيحة', variant: 'destructive' });
+      setSecret('');
+    }
+  };
+
+  const tryBiometric = async () => {
+    setBusy(true);
+    const ok = await unlockWithBiometric();
+    setBusy(false);
+    if (ok) onUnlock();
+    else toast({ title: 'تعذّر التحقق', variant: 'destructive' });
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-5 bg-background" dir="rtl">
+      <motion.form
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        onSubmit={handleUnlock}
+        className="w-full max-w-xs rounded-3xl border border-border/30 bg-card p-7 text-center"
+      >
+        <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5">
+          <Lock className="w-5 h-5 text-primary" strokeWidth={1.4} />
+        </div>
+        <h1 className="text-[16px] text-foreground font-light mb-1">لوحة المطور</h1>
+        <p className="text-[11px] text-muted-foreground/70 font-light mb-5">
+          {textMode ? 'أدخل كلمة المرور النصية' : 'أدخل الرقم السري'}
+        </p>
+        <input
+          type={textMode ? 'text' : 'password'}
+          inputMode={textMode ? 'text' : 'numeric'}
+          value={secret}
+          onChange={(e) => setSecret(e.target.value)}
+          placeholder={textMode ? 'كلمة المرور' : '••••'}
+          autoFocus
+          autoComplete="off"
+          spellCheck={false}
+          dir={textMode ? 'ltr' : 'rtl'}
+          className={`w-full h-12 text-center rounded-2xl bg-secondary/40 border border-border/30 outline-none focus:border-primary/40 ${
+            textMode ? 'text-[14px]' : 'text-[18px] tracking-[0.4em] tabular-nums'
+          }`}
+        />
+        <button type="submit" disabled={busy}
+          className="mt-4 w-full h-11 rounded-full bg-primary text-primary-foreground text-[12px] disabled:opacity-60">
+          دخول
+        </button>
+
+        {biomAvail && hasBiom && (
+          <button type="button" onClick={tryBiometric} disabled={busy}
+            className="mt-2 w-full h-11 rounded-full bg-secondary/50 text-foreground text-[12px] flex items-center justify-center gap-2 active:bg-secondary/70 disabled:opacity-60">
+            <Fingerprint className="w-4 h-4" strokeWidth={1.6} />
+            الدخول بـ FaceID
+          </button>
+        )}
+        {biomAvail && !hasBiom && (
+          <p className="mt-3 text-[10px] text-muted-foreground/70 font-light">
+            بعد الدخول، سيتم اقتراح تفعيل FaceID
+          </p>
+        )}
+
+        <button
+          type="button"
+          onClick={() => { setTextMode((m: boolean) => !m); setSecret(''); }}
+          className="mt-3 w-full h-9 rounded-full bg-secondary/30 text-muted-foreground text-[10px] font-light flex items-center justify-center gap-1.5 active:bg-secondary/50"
+        >
+          {textMode ? <Hash className="w-3 h-3" strokeWidth={1.6} /> : <Type className="w-3 h-3" strokeWidth={1.6} />}
+          {textMode ? 'استخدام الرقم السري' : 'استخدام كلمة المرور النصية'}
+        </button>
+        {hasBiom && (
+          <button type="button" onClick={() => { unregisterBiometric(); setHasBiom(false); toast({ title: 'تم إلغاء FaceID' }); }}
+            className="mt-2 text-[10px] text-muted-foreground/60 underline-offset-2 hover:underline">
+            إلغاء FaceID لهذا الجهاز
+          </button>
+        )}
+      </motion.form>
     </div>
   );
 };
@@ -1434,6 +1519,323 @@ const AtharManager = () => {
               </div>
               <button onClick={save} className="w-full h-11 rounded-full bg-primary text-primary-foreground text-[12px] flex items-center justify-center gap-1.5">
                 <Save className="w-4 h-4" /> حفظ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ============== VISIBILITY MANAGER ==============
+const VisibilityManager = () => {
+  const [rows, setRows] = useState<Array<{ id: string; label: string; hidden: boolean }>>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    setLoading(true);
+    setRows(await listHiddenSections());
+    setLoading(false);
+  };
+  useEffect(() => { void load(); }, []);
+
+  const toggle = async (id: string, next: boolean) => {
+    setRows(rs => rs.map(r => r.id === id ? { ...r, hidden: next } : r));
+    await setSectionHidden(id as any, next);
+    invalidateHiddenSectionsCache();
+    toast({ title: next ? 'تم إخفاء القسم' : 'تم إظهار القسم' });
+  };
+
+  if (loading) return <p className="text-[11px] text-muted-foreground text-center py-6">جارٍ التحميل…</p>;
+
+  return (
+    <div className="space-y-3" dir="rtl">
+      <div className="rounded-2xl border border-border/30 bg-card p-4">
+        <p className="text-[12px] text-foreground/90 mb-1">إخفاء الصفحات والأقسام</p>
+        <p className="text-[10px] text-muted-foreground/70 font-light leading-relaxed">
+          فعّل الإخفاء لإخفاء الصفحة أو القسم من جميع المستخدمين فوراً. لوحة التحكم لا تتأثر.
+        </p>
+      </div>
+      <div className="space-y-1.5">
+        {rows.map(r => (
+          <label key={r.id}
+            className="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-border/30 bg-card cursor-pointer">
+            <div className="min-w-0 flex-1">
+              <p className="text-[12px] text-foreground truncate">{r.label}</p>
+              <p className="text-[9px] text-muted-foreground/60 mt-0.5 tracking-wide">{r.id}</p>
+            </div>
+            <input type="checkbox" checked={r.hidden}
+              onChange={(e) => toggle(r.id, e.target.checked)}
+              className="w-5 h-5 accent-primary" />
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ============== SUBSCRIPTION CODES MANAGER ==============
+interface CodeRow {
+  id: string;
+  code: string;
+  tier: string;
+  duration_days: number;
+  note: string | null;
+  redeemed_at: string | null;
+  created_at: string;
+}
+const TIERS = [
+  { id: 'pro', label: 'Pro' },
+  { id: 'pro_plus', label: 'Pro+' },
+  { id: 'lifetime', label: 'مدى الحياة' },
+];
+const generateCode = (len = 12) => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let out = '';
+  for (let i = 0; i < len; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  return out.replace(/(.{4})/g, '$1-').replace(/-$/, '');
+};
+
+const CodesManager = () => {
+  const [rows, setRows] = useState<CodeRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [tier, setTier] = useState('pro');
+  const [days, setDays] = useState(30);
+  const [count, setCount] = useState(1);
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    const { data } = await supabase.from('subscription_codes').select('*').order('created_at', { ascending: false }).limit(200);
+    setRows((data as CodeRow[]) ?? []);
+    setLoading(false);
+  };
+  useEffect(() => { void load(); }, []);
+
+  const create = async () => {
+    if (count < 1 || count > 50) { toast({ title: 'العدد يجب أن يكون بين 1 و 50', variant: 'destructive' }); return; }
+    setBusy(true);
+    const payload = Array.from({ length: count }, () => ({
+      code: generateCode(),
+      tier,
+      duration_days: days,
+      note: note.trim() || null,
+    }));
+    const { error } = await supabase.from('subscription_codes').insert(payload);
+    setBusy(false);
+    if (error) { toast({ title: 'تعذّر الإنشاء', description: error.message, variant: 'destructive' }); return; }
+    toast({ title: `تم إنشاء ${count} كود` });
+    setNote('');
+    void load();
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm('حذف هذا الكود؟')) return;
+    await supabase.from('subscription_codes').delete().eq('id', id);
+    void load();
+  };
+
+  const copy = async (code: string) => {
+    try { await navigator.clipboard.writeText(code); setCopied(code); setTimeout(() => setCopied(null), 1200); }
+    catch { toast({ title: 'تعذّر النسخ', variant: 'destructive' }); }
+  };
+
+  return (
+    <div className="space-y-4" dir="rtl">
+      <div className="rounded-2xl border border-border/30 bg-card p-4 space-y-3">
+        <div>
+          <p className="text-[12px] text-foreground/90">إنشاء أكواد اشتراك</p>
+          <p className="text-[9px] text-muted-foreground/60 mt-0.5">غير مفعّلة في الموقع الرئيسي حالياً — للتجهيز فقط</p>
+        </div>
+        <div className="grid grid-cols-3 gap-1.5">
+          {TIERS.map(t => (
+            <button key={t.id} onClick={() => setTier(t.id)}
+              className={`h-10 rounded-xl text-[11px] ${tier === t.id ? 'bg-primary text-primary-foreground' : 'bg-secondary/40 border border-border/30 text-foreground'}`}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <p className="text-[10px] text-muted-foreground/80 mb-1.5">المدة (يوم)</p>
+            <input type="number" value={days} min={1} onChange={(e) => setDays(parseInt(e.target.value) || 1)}
+              className="w-full h-10 px-3 rounded-xl bg-secondary/40 border border-border/30 text-[12px] outline-none text-center tabular-nums" />
+          </div>
+          <div>
+            <p className="text-[10px] text-muted-foreground/80 mb-1.5">العدد</p>
+            <input type="number" value={count} min={1} max={50} onChange={(e) => setCount(parseInt(e.target.value) || 1)}
+              className="w-full h-10 px-3 rounded-xl bg-secondary/40 border border-border/30 text-[12px] outline-none text-center tabular-nums" />
+          </div>
+        </div>
+        <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="ملاحظة (اختياري)"
+          className="w-full h-10 px-3 rounded-xl bg-secondary/40 border border-border/30 text-[12px] outline-none" />
+        <button onClick={create} disabled={busy}
+          className="w-full h-11 rounded-full bg-primary text-primary-foreground text-[12px] flex items-center justify-center gap-2 disabled:opacity-60">
+          <Plus className="w-4 h-4" strokeWidth={1.6} /> {busy ? 'جارٍ الإنشاء…' : 'إنشاء'}
+        </button>
+      </div>
+
+      <div className="space-y-1.5">
+        <p className="text-[10px] text-muted-foreground/70 px-1">آخر الأكواد ({rows.length})</p>
+        {loading && <p className="text-[11px] text-muted-foreground text-center py-4">جارٍ التحميل…</p>}
+        {!loading && rows.length === 0 && (
+          <p className="text-[11px] text-muted-foreground text-center py-6">لا توجد أكواد بعد</p>
+        )}
+        {rows.map(r => (
+          <div key={r.id} className="p-3 rounded-2xl border border-border/30 bg-card">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <button onClick={() => copy(r.code)}
+                className="font-mono text-[13px] text-foreground tracking-wider flex items-center gap-1.5 active:opacity-70">
+                {r.code}
+                {copied === r.code
+                  ? <Check className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
+                  : <Copy className="w-3 h-3 text-muted-foreground/60" strokeWidth={1.6} />}
+              </button>
+              <button onClick={() => remove(r.id)}
+                className="w-7 h-7 rounded-full active:bg-destructive/20 flex items-center justify-center">
+                <Trash2 className="w-3.5 h-3.5 text-destructive/70" strokeWidth={1.6} />
+              </button>
+            </div>
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground/70">
+              <span className="px-2 py-0.5 rounded-full bg-secondary/40">{TIERS.find(t => t.id === r.tier)?.label ?? r.tier}</span>
+              <span>{r.duration_days} يوم</span>
+              {r.redeemed_at
+                ? <span className="text-primary">مُستخدَم</span>
+                : <span className="text-muted-foreground/50">غير مُستخدَم</span>}
+              {r.note && <span className="truncate flex-1">· {r.note}</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ============== ERROR LOGS MANAGER ==============
+interface ErrorRow {
+  id: string;
+  message: string;
+  stack: string | null;
+  url: string | null;
+  user_agent: string | null;
+  level: string;
+  resolved: boolean;
+  created_at: string;
+}
+const ErrorsManager = () => {
+  const [rows, setRows] = useState<ErrorRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showResolved, setShowResolved] = useState(false);
+  const [open, setOpen] = useState<ErrorRow | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    let q = supabase.from('error_logs').select('*').order('created_at', { ascending: false }).limit(200);
+    if (!showResolved) q = q.eq('resolved', false);
+    const { data } = await q;
+    setRows((data as ErrorRow[]) ?? []);
+    setLoading(false);
+  };
+  useEffect(() => { void load(); }, [showResolved]);
+
+  const resolve = async (id: string) => {
+    await supabase.from('error_logs').update({ resolved: true }).eq('id', id);
+    void load();
+  };
+  const clearAll = async () => {
+    if (!confirm('حذف جميع السجلات الظاهرة؟')) return;
+    const ids = rows.map(r => r.id);
+    if (ids.length === 0) return;
+    await supabase.from('error_logs').delete().in('id', ids);
+    void load();
+  };
+
+  return (
+    <div className="space-y-3" dir="rtl">
+      <div className="rounded-2xl border border-border/30 bg-card p-4">
+        <p className="text-[12px] text-foreground/90 mb-1 flex items-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5 text-primary" strokeWidth={1.6} />
+          تتبع الأخطاء البرمجية والتقنية
+        </p>
+        <p className="text-[10px] text-muted-foreground/70 font-light leading-relaxed">
+          تُسجَّل أخطاء التطبيق تلقائياً (Runtime errors و Unhandled rejections) ليُمكن مراجعتها هنا.
+        </p>
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <label className="flex items-center gap-2 text-[11px] text-foreground/80">
+          <input type="checkbox" checked={showResolved} onChange={(e) => setShowResolved(e.target.checked)}
+            className="w-4 h-4 accent-primary" />
+          عرض المُحلّ
+        </label>
+        <button onClick={clearAll}
+          className="h-8 px-3 rounded-full bg-destructive/10 text-destructive text-[10px] flex items-center gap-1.5 active:bg-destructive/20">
+          <Trash2 className="w-3 h-3" strokeWidth={1.6} /> حذف الكل
+        </button>
+      </div>
+
+      {loading && <p className="text-[11px] text-muted-foreground text-center py-6">جارٍ التحميل…</p>}
+      {!loading && rows.length === 0 && (
+        <p className="text-[11px] text-muted-foreground text-center py-8">لا توجد أخطاء — كل شيء على ما يرام</p>
+      )}
+
+      <div className="space-y-1.5">
+        {rows.map(r => (
+          <button key={r.id} onClick={() => setOpen(r)}
+            className="w-full text-right p-3 rounded-2xl border border-border/30 bg-card active:bg-secondary/30">
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <p className="text-[12px] text-foreground line-clamp-2 flex-1">{r.message}</p>
+              <span className={`text-[9px] px-2 py-0.5 rounded-full flex-shrink-0 ${
+                r.level === 'warning' ? 'bg-amber-500/15 text-amber-500' : 'bg-destructive/15 text-destructive'
+              }`}>{r.level}</span>
+            </div>
+            <p className="text-[9px] text-muted-foreground/60 truncate">{r.url ?? '—'}</p>
+            <p className="text-[9px] text-muted-foreground/50 mt-1">{new Date(r.created_at).toLocaleString('ar')}</p>
+          </button>
+        ))}
+      </div>
+
+      {open && (
+        <div className="fixed inset-0 z-[70] bg-background/85 backdrop-blur-sm flex items-end sm:items-center justify-center p-3" dir="rtl">
+          <div className="w-full max-w-md rounded-3xl border border-border/30 bg-card p-4 max-h-[88vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[12px] text-foreground">تفاصيل الخطأ</p>
+              <button onClick={() => setOpen(null)} className="w-8 h-8 rounded-full active:bg-secondary/40 flex items-center justify-center">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-[12px] text-foreground mb-2">{open.message}</p>
+            <p className="text-[9px] text-muted-foreground/60 mb-3">{new Date(open.created_at).toLocaleString('ar')}</p>
+            {open.url && (
+              <div className="mb-3">
+                <p className="text-[9px] text-muted-foreground/60 mb-1">العنوان</p>
+                <p className="text-[10px] text-foreground/80 break-all bg-secondary/30 p-2 rounded-lg">{open.url}</p>
+              </div>
+            )}
+            {open.stack && (
+              <div className="mb-3">
+                <p className="text-[9px] text-muted-foreground/60 mb-1">Stack</p>
+                <pre className="text-[9px] text-foreground/70 bg-secondary/30 p-2 rounded-lg overflow-x-auto whitespace-pre-wrap break-all leading-relaxed" dir="ltr">{open.stack}</pre>
+              </div>
+            )}
+            {open.user_agent && (
+              <div className="mb-3">
+                <p className="text-[9px] text-muted-foreground/60 mb-1">User Agent</p>
+                <p className="text-[10px] text-foreground/70 break-all bg-secondary/30 p-2 rounded-lg" dir="ltr">{open.user_agent}</p>
+              </div>
+            )}
+            <div className="flex gap-2 mt-4">
+              {!open.resolved && (
+                <button onClick={async () => { await resolve(open.id); setOpen(null); }}
+                  className="flex-1 h-10 rounded-full bg-primary text-primary-foreground text-[11px]">
+                  وضع كمُحلّ
+                </button>
+              )}
+              <button onClick={async () => { await supabase.from('error_logs').delete().eq('id', open.id); setOpen(null); void load(); }}
+                className="flex-1 h-10 rounded-full bg-destructive/15 text-destructive text-[11px]">
+                حذف
               </button>
             </div>
           </div>

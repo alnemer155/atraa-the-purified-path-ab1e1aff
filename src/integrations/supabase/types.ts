@@ -152,6 +152,63 @@ export type Database = {
         }
         Relationships: []
       }
+      error_logs: {
+        Row: {
+          context: Json | null
+          created_at: string
+          id: string
+          level: string
+          message: string
+          resolved: boolean
+          stack: string | null
+          url: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          context?: Json | null
+          created_at?: string
+          id?: string
+          level?: string
+          message: string
+          resolved?: boolean
+          stack?: string | null
+          url?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          context?: Json | null
+          created_at?: string
+          id?: string
+          level?: string
+          message?: string
+          resolved?: boolean
+          stack?: string | null
+          url?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      hidden_sections: {
+        Row: {
+          hidden: boolean
+          id: string
+          label: string
+          updated_at: string
+        }
+        Insert: {
+          hidden?: boolean
+          id: string
+          label: string
+          updated_at?: string
+        }
+        Update: {
+          hidden?: boolean
+          id?: string
+          label?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           amount_cents: number
@@ -442,6 +499,39 @@ export type Database = {
           quran_paused?: boolean
           quran_resume_at?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      subscription_codes: {
+        Row: {
+          code: string
+          created_at: string
+          duration_days: number
+          id: string
+          note: string | null
+          redeemed_at: string | null
+          redeemed_by: string | null
+          tier: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          duration_days?: number
+          id?: string
+          note?: string | null
+          redeemed_at?: string | null
+          redeemed_by?: string | null
+          tier?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          duration_days?: number
+          id?: string
+          note?: string | null
+          redeemed_at?: string | null
+          redeemed_by?: string | null
+          tier?: string
         }
         Relationships: []
       }
