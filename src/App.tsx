@@ -16,7 +16,13 @@ import { useSiteMaintenance } from "./lib/site-maintenance";
 import MaintenancePageRuntime from "./pages/MaintenancePage";
 
 const SiteMaintenanceGate = ({ children }: { children: React.ReactNode }) => {
+  // v2.10.60 — Admin panel must remain accessible during global maintenance
+  // so the developer can disable maintenance mode or hot-fix the platform.
+  const host = typeof window !== 'undefined' ? window.location.hostname : '';
+  const path = typeof window !== 'undefined' ? window.location.pathname : '';
+  const isAdmin = host === 'admin.atraa.xyz' || path.startsWith('/admin');
   const { state, loading } = useSiteMaintenance();
+  if (isAdmin) return <>{children}</>;
   if (loading) return <>{children}</>;
   if (!state.active) return <>{children}</>;
   const until = state.until ? new Date(state.until) : null;
