@@ -3,19 +3,25 @@ import { motion } from 'framer-motion';
 import {
   Lock, BookMarked, BookOpen, Image as ImageIcon, Plus, Trash2,
   Pencil, Save, X, LogOut, Upload, Sparkles, Globe, Clock, ChevronLeft,
-  Hash, Type, Play, Music, Wrench,
+  Hash, Type, Play, Music, Wrench, Fingerprint, KeyRound, AlertOctagon,
+  EyeOff, Copy, Check, ShieldCheck,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { isAdminUnlocked, unlockAdmin, lockAdmin } from '@/lib/admin-auth';
+import {
+  isAdminUnlocked, unlockAdmin, lockAdmin,
+  isBiometricAvailable, hasBiometricRegistered, registerBiometric,
+  unlockWithBiometric, unregisterBiometric,
+} from '@/lib/admin-auth';
 import ReadingThemeToggle from '@/components/ReadingThemeToggle';
 import KhatmaCreateForm from '@/components/KhatmaCreateForm';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { generateAtharId, type AtharQuote } from '@/lib/athar';
+import { listHiddenSections, setSectionHidden, invalidateHiddenSectionsCache } from '@/lib/hidden-sections';
 
 type Category = 'dua' | 'ziyara' | 'dhikr';
 type Sect = 'shia' | 'sunni';
-type Tab = 'duas' | 'wallpapers' | 'khatmas' | 'qasaid' | 'athar' | 'maintenance';
+type Tab = 'duas' | 'wallpapers' | 'khatmas' | 'qasaid' | 'athar' | 'maintenance' | 'codes' | 'errors' | 'visibility';
 
 interface DuaRow {
   id: string;
