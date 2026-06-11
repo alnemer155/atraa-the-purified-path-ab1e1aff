@@ -9,6 +9,10 @@ import { getSeasonalLogo, getSeasonalLabel } from '@/lib/seasonal-logo';
  * the header was being hidden under the notch / Dynamic Island after
  * installing as a PWA / native app. We now respect the top safe-area
  * inset and bump the minimum top padding so the logo always clears.
+ *
+ * Dark/Light mode: the default logo is white-on-black, so in light mode
+ * we invert it via Tailwind's `dark:` prefix logic — the logo renders
+ * normally in dark mode and is inverted (black-on-white) in light mode.
  */
 const AppHeader = () => {
   const logoSrc = useMemo(() => getSeasonalLogo(), []);
@@ -24,7 +28,7 @@ const AppHeader = () => {
           src={logoSrc}
           alt={label || 'Atraa'}
           title={label || undefined}
-          className="h-8 w-auto object-contain"
+          className="h-8 w-auto object-contain invert dark:invert-0"
         />
       </div>
     </header>
