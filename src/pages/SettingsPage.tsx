@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Heart, Sun, Moon, Coffee } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Heart, Sun, Coffee, Moon, Sparkles, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -25,6 +25,46 @@ const SettingsPage = () => {
   const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('atraa_city') || 'Dammam');
   const [hijriAdj, setHijriAdj] = useState(() => getHijriAdjustment());
   const [shareCopied, setShareCopied] = useState(false);
+
+  // v2.11.00 — Notifications Center (email + per-type toggles, stored locally
+  // until the Resend edge-function schedule is wired server-side).
+  const NOTIF_TYPES = [
+    { key: 'daily_athkar',   labelAr: 'الأذكار اليومية',           labelEn: 'Daily athkar' },
+    { key: 'incomplete',     labelAr: 'تذكير بالدعاء أو الزيارة',   labelEn: 'Incomplete devotions' },
+    { key: 'prayer_times',   labelAr: 'أوقات الصلاة',              labelEn: 'Prayer times' },
+    { key: 'occasions',      labelAr: 'المناسبات الإسلامية',        labelEn: 'Islamic occasions' },
+    { key: 'platform',       labelAr: 'تحديثات المنصة',            labelEn: 'Platform updates' },
+  ] as const;
+
+  const [notifEmail, setNotifEmail] = useState(() => localStorage.getItem('atraa_notif_email') ?? '');
+  const [emailSaved, setEmailSaved] = useState(false);
+  const [notifPrefs, setNotifPrefs] = useState<Record<string, boolean>>(() => {
+    try {
+      const raw = localStorage.getItem('atraa_notif_prefs_v1');
+      if (raw) return JSON.parse(raw);
+    } catch { /* ignore */ }
+    return Object.fromEntries(NOTIF_TYPES.map(n => [n.key, true]));
+  });
+
+  const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+
+  const saveEmail = () => {
+    const v = notifEmail.trim();
+    if (!isValidEmail(v)) {
+      toast.error(isAr ? 'يرجى إدخال بريد إلكتروني صحيح' : 'Please enter a valid email');
+      return;
+    }
+    localStorage.setItem('atraa_notif_email', v);
+    setEmailSaved(true);
+    toast.success(isAr ? 'تم حفظ البريد' : 'Email saved');
+    setTimeout(() => setEmailSaved(false), 1800);
+  };
+
+  const toggleNotifPref = (key: string) => {
+    const next = { ...notifPrefs, [key]: !notifPrefs[key] };
+    setNotifPrefs(next);
+    localStorage.setItem('atraa_notif_prefs_v1', JSON.stringify(next));
+  };
 
   // Reading mode (default / sepia / night) — applied app-wide.
   const [readingTheme, setReadingTheme] = useQuranTheme();
@@ -112,17 +152,19 @@ const SettingsPage = () => {
         </div>
       </motion.div>
 
-      {/* Reading mode — default / sepia / night, applies app-wide */}
+      {/* App theme — sepia / muharram / rabee / ramadan (v2.11.00) */}
       <motion.div variants={fadeUp} custom={1}>
         <p className="text-[11px] text-muted-foreground/70 px-1 mb-1.5 font-medium">
-          {isAr ? 'وضع القراءة' : 'Reading mode'}
+          {isAr ? 'الوضع' : 'Theme'}
         </p>
         <div className="bg-card rounded-2xl border border-border/40 overflow-hidden shadow-card">
           <div className="grid grid-cols-3 gap-2 p-2">
             {([
-              { id: 'default' as const, labelAr: 'افتراضي', labelEn: 'Default', Icon: Sun },
-              { id: 'sepia'   as const, labelAr: 'سيبيا',   labelEn: 'Sepia',   Icon: Coffee },
-              { id: 'night'   as const, labelAr: 'ليلي',    labelEn: 'Night',   Icon: Moon },
+              { id: 'default'  as const, labelAr: 'افتراضي', labelEn: 'Default',  Icon: Sun },
+              { id: 'sepia'    as const, labelAr: 'سيبيا',    labelEn: 'Sepia',    Icon: Coffee },
+              { id: 'muharram' as const, labelAr: 'محرم',     labelEn: 'Muharram', Icon: Moon },
+              { id: 'rabee'    as const, labelAr: 'ربيع',     labelEn: 'Rabee',    Icon: Sparkles },
+              { id: 'ramadan'  as const, labelAr: 'رمضان',    labelEn: 'Ramadan',  Icon: Moon },
             ]).map((opt) => {
               const active = readingTheme === opt.id;
               return (
@@ -142,8 +184,8 @@ const SettingsPage = () => {
           </div>
           <p className="px-3 pb-3 text-[10px] text-muted-foreground/65 font-light leading-relaxed">
             {isAr
-              ? 'يطبَّق هذا الوضع على التطبيق بالكامل وليس على القرآن فقط.'
-              : 'This mode applies to the entire app, not just the Quran.'}
+              ? 'اختر السمة الموسمية المناسبة — تُطبَّق على التطبيق بالكامل وتُحفظ تلقائياً.'
+              : 'Pick a seasonal mood — applies app-wide and is saved automatically.'}
           </p>
         </div>
       </motion.div>
@@ -151,8 +193,10 @@ const SettingsPage = () => {
       {/* v2.10.50 — madhhab toggle removed (platform is now strictly Shia). */}
 
 
-      <motion.div variants={fadeUp} custom={2}>
+      <motion.div variants={fadeUp} custom={2} className="space-y-2">
         <p className="text-[11px] text-muted-foreground/70 px-1 mb-1.5 font-medium">{t('settings.notifications')}</p>
+
+        {/* System push toggle (adhan) */}
         <div className="bg-card rounded-2xl border border-border/40 overflow-hidden shadow-card">
           <div className="flex items-center justify-between p-3.5">
             <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -164,6 +208,70 @@ const SettingsPage = () => {
             </div>
             <Toggle enabled={adhanNotif} onClick={toggleAdhan} />
           </div>
+        </div>
+
+        {/* v2.11.00 — Email (required for scheduled Resend notifications) */}
+        <div className="bg-card rounded-2xl border border-border/40 shadow-card p-3.5 space-y-2">
+          <div className="flex items-center gap-2">
+            <Mail className="w-3.5 h-3.5 text-primary" />
+            <p className="text-[12px] text-foreground font-medium">
+              {isAr ? 'البريد الإلكتروني' : 'Email address'}
+              <span className="text-destructive mr-1">*</span>
+            </p>
+          </div>
+          <p className="text-[10px] text-muted-foreground/70 leading-relaxed">
+            {isAr
+              ? 'إلزامي لاستلام إشعارات الأذكار والمناسبات وتحديثات المنصة.'
+              : 'Required to receive athkar, occasion, and platform notifications.'}
+          </p>
+          <div className="flex gap-2 pt-1">
+            <input
+              type="email"
+              value={notifEmail}
+              onChange={(e) => setNotifEmail(e.target.value)}
+              placeholder="name@example.com"
+              dir="ltr"
+              className="flex-1 h-10 px-3 rounded-xl bg-secondary/40 border border-border/40 text-[13px] text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/60 transition-colors"
+            />
+            <button
+              onClick={saveEmail}
+              className="h-10 px-4 rounded-xl bg-primary text-primary-foreground text-[12px] font-medium active:scale-95 transition-transform flex items-center gap-1"
+            >
+              {emailSaved ? <Check className="w-3.5 h-3.5" /> : null}
+              {isAr ? 'حفظ' : 'Save'}
+            </button>
+          </div>
+        </div>
+
+        {/* v2.11.00 — Notifications Center (per-type toggles) */}
+        <div className="bg-card rounded-2xl border border-border/40 shadow-card overflow-hidden">
+          <div className="px-3.5 pt-3 pb-2">
+            <p className="text-[12px] text-foreground font-medium">
+              {isAr ? 'مركز الإشعارات' : 'Notifications center'}
+            </p>
+            <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+              {isAr ? 'اختر أنواع الإشعارات التي تريد استلامها.' : 'Pick which notification types you want to receive.'}
+            </p>
+          </div>
+          <div className="divide-y divide-border/30">
+            {NOTIF_TYPES.map((n) => (
+              <div key={n.key} className="flex items-center justify-between px-3.5 py-2.5">
+                <p className="text-[12.5px] text-foreground">{isAr ? n.labelAr : n.labelEn}</p>
+                <Toggle enabled={!!notifPrefs[n.key]} onClick={() => toggleNotifPref(n.key)} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* History link (placeholder — populated by edge function once wired) */}
+        <div className="bg-card rounded-2xl border border-border/40 shadow-card">
+          <Link to="/settings/notifications-log" className="flex items-center justify-between p-3.5 active:bg-secondary/30 transition-colors">
+            <div className={isAr ? 'text-right' : 'text-left'}>
+              <p className="text-[13px] text-foreground font-medium">{isAr ? 'سجل الإشعارات' : 'Notifications log'}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{isAr ? 'الإشعارات السابقة المُرسَلة إلى بريدك.' : 'Previously sent notifications.'}</p>
+            </div>
+            <Chevron className="w-4 h-4 text-muted-foreground/40" />
+          </Link>
         </div>
       </motion.div>
 

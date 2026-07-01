@@ -381,9 +381,11 @@ const QuranQuickPanel = ({
                     <p className="text-[11px] text-muted-foreground/70 font-light mb-2">وضع القراءة</p>
                     <div className="grid grid-cols-3 gap-2">
                       {[
-                        { id: 'default' as const, label: 'افتراضي', icon: Sun },
-                        { id: 'sepia'   as const, label: 'سيبيا',   icon: Coffee },
-                        { id: 'night'   as const, label: 'ليلي',    icon: Moon },
+                        { id: 'default'  as const, label: 'افتراضي', icon: Sun },
+                        { id: 'sepia'    as const, label: 'سيبيا',   icon: Coffee },
+                        { id: 'muharram' as const, label: 'محرم',    icon: Moon },
+                        { id: 'rabee'    as const, label: 'ربيع',    icon: Coffee },
+                        { id: 'ramadan'  as const, label: 'رمضان',   icon: Moon },
                       ].map(opt => (
                         <button
                           key={opt.id}
@@ -398,7 +400,7 @@ const QuranQuickPanel = ({
                       ))}
                     </div>
                     <p className="text-[10px] text-muted-foreground/55 font-light leading-relaxed mt-2">
-                      وضع السيبيا يُقلّل إجهاد العين أثناء القراءة الطويلة، والوضع الليلي مناسب للإضاءة المنخفضة جداً.
+                      اختر السمة الموسمية المناسبة لك — تُحفظ تلقائياً وتُطبَّق على التطبيق كاملاً.
                     </p>
                   </div>
                 </div>

@@ -24,7 +24,7 @@ const ReadingThemeToggle = ({ allowNight = false, className = '' }: Props) => {
     setTheme('sepia');
   }
 
-  const Icon = theme === 'night' ? Moon : theme === 'default' ? Sun : BookOpen;
+  const Icon = theme === 'default' ? Sun : BookOpen;
 
   const handleClick = () => {
     toast({ title: 'مُقفل مؤقتاً', description: 'الوضع الحالي: سيبيا' });

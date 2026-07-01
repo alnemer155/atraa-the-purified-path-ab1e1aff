@@ -5,9 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import SplashScreen from "@/components/SplashScreen";
-import OnboardingScreen, { isOnboardingDone } from "@/components/Onboarding/OnboardingScreen";
 import { UIProvider } from "@/contexts/UIContext";
-import { QasaidPlayerProvider } from "@/contexts/QasaidPlayerContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AppLayout from "./components/AppLayout";
@@ -51,7 +49,6 @@ const KhatmaLandingPage = lazy(() => import("./pages/KhatmaLandingPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const AtharQuotePage = lazy(() => import("./pages/AtharQuotePage"));
 const AtharHomePage = lazy(() => import("./pages/AtharHomePage"));
-const MinbarHomePage = lazy(() => import("./pages/MinbarHomePage"));
 const MaintenancePage = lazy(() => import("./pages/MaintenancePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -59,8 +56,9 @@ const hostname = typeof window !== "undefined" ? window.location.hostname : "";
 const isKhatmaHost = hostname === "khatma.atraa.xyz";
 const isAdminHost = hostname === "admin.atraa.xyz";
 const isAtharHost = hostname === "athar.atraa.xyz";
-const isMinbarHost = hostname === "minbr.atraa.xyz" || hostname === "qasaid.atraa.xyz" || hostname === "audio.atraa.xyz";
-const isStandaloneHost = isKhatmaHost || isAdminHost || isAtharHost || isMinbarHost;
+// v2.11.00 — "منبر" retired. Legacy sub-domains route to a permanent maintenance notice.
+const isRetiredHost = hostname === "minbr.atraa.xyz" || hostname === "qasaid.atraa.xyz" || hostname === "audio.atraa.xyz";
+const isStandaloneHost = isKhatmaHost || isAdminHost || isAtharHost || isRetiredHost;
 
 const queryClient = new QueryClient();
 
@@ -83,8 +81,6 @@ const App = () => {
     }
   });
 
-  const [showOnboarding, setShowOnboarding] = useState(() => !isOnboardingDone());
-
   const handleSplashFinish = () => {
     try {
       sessionStorage.setItem(SPLASH_KEY, "1");
@@ -94,8 +90,6 @@ const App = () => {
     setShowSplash(false);
   };
 
-  const handleOnboardingFinish = () => setShowOnboarding(false);
-
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -103,10 +97,8 @@ const App = () => {
           <Toaster />
           <Sonner />
           {!isStandaloneHost && showSplash && <SplashScreen onFinish={handleSplashFinish} />}
-          {!isStandaloneHost && !showSplash && showOnboarding && <OnboardingScreen onFinish={handleOnboardingFinish} />}
           <BrowserRouter>
             <UIProvider>
-            <QasaidPlayerProvider>
               <Suspense fallback={<PageLoader />}>
                 <SiteMaintenanceGate>
                 {isAdminHost ? (
@@ -120,10 +112,17 @@ const App = () => {
                     <Route path="/:id" element={<AtharQuotePage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                ) : isMinbarHost ? (
+                ) : isRetiredHost ? (
                   <Routes>
-                    <Route path="/" element={<MinbarHomePage />} />
-                    <Route path="*" element={<MinbarHomePage />} />
+                    <Route
+                      path="*"
+                      element={
+                        <MaintenancePage
+                          name="منبر"
+                          message="خدمة منبر أُغلقت نهائياً ضمن تحديث v2.11.00. تصفّح باقي المنصات عبر atraa.xyz."
+                        />
+                      }
+                    />
                   </Routes>
                 ) : isKhatmaHost ? (
                   <Routes>
@@ -146,8 +145,6 @@ const App = () => {
                       <Route path="/disclaimer" element={<DisclaimerPage />} />
                       <Route path="/data" element={<DataPage />} />
                       <Route path="/about" element={<AboutPage />} />
-                      <Route path="/qasaid" element={<MinbarHomePage />} />
-                      <Route path="/minbr" element={<MinbarHomePage />} />
                       <Route path="/athar/:id" element={<AtharQuotePage />} />
                     </Route>
 
@@ -166,7 +163,7 @@ const App = () => {
                       <Route path="/:locale/quran/:slug" element={<QuranPage />} />
                       <Route path="/:locale/settings" element={<SettingsPage />} />
                       <Route path="/:locale/about" element={<AboutPage />} />
-                      {/* Locale + sect aliases: /SA-ar/Shia, /US-en/Sunni, etc. */}
+                      {/* Locale + sect aliases (legacy) */}
                       <Route path="/:locale/:sect" element={<HomePage />} />
                       <Route path="/:locale/:sect/library" element={<LibraryPage />} />
                       <Route path="/:locale/:sect/quran" element={<QuranPage />} />
@@ -179,7 +176,6 @@ const App = () => {
                 )}
                 </SiteMaintenanceGate>
               </Suspense>
-            </QasaidPlayerProvider>
             </UIProvider>
           </BrowserRouter>
           <Analytics />

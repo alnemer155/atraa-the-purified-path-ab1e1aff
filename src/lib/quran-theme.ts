@@ -1,31 +1,35 @@
 /**
- * Reading theme — applies app-wide via a `data-quran-theme` attribute on
- * the <html> element. Three options:
+ * App theme — applies via `data-quran-theme` on <html>.
  *
- *   default → inherits the global app theme tokens defined in :root
- *   sepia   → warm, low-glare paper tone
- *   night   → pure-black ink-on-paper for very dark rooms
+ * v2.11.00: night mode removed; three seasonal moods added
+ *   default  → tokens from :root
+ *   sepia    → warm paper (canonical Atraa)
+ *   muharram → deep crimson / mourning palette for Ashura season
+ *   rabee    → soft spring greens for daily use
+ *   ramadan  → nightlit indigo/gold for the blessed month
  *
- * Originally scoped to the Quran reader; now exposed globally so the user
- * can pick the mood from Settings (alongside the language switcher).
+ * Hook name kept as `useQuranTheme` for backwards compat across the app.
  */
 
 import { useEffect, useState } from 'react';
 
-export type QuranTheme = 'default' | 'sepia' | 'night';
+export type QuranTheme = 'default' | 'sepia' | 'muharram' | 'rabee' | 'ramadan';
 
 const KEY = 'atraa_quran_theme_v1';
 const SEED_KEY = 'atraa_quran_theme_seeded_v1';
 const EVENT = 'atraa:reading-theme-changed';
 
-/**
- * First-run default = sepia (warm, low-glare). Users may override at any time;
- * once a value (including 'default') has been set explicitly, we never reseed.
- */
+const VALID: QuranTheme[] = ['default', 'sepia', 'muharram', 'rabee', 'ramadan'];
+
 export const getStoredQuranTheme = (): QuranTheme => {
   try {
-    const v = localStorage.getItem(KEY);
-    if (v === 'sepia' || v === 'night' || v === 'default') return v;
+    const v = localStorage.getItem(KEY) as QuranTheme | null;
+    if (v && VALID.includes(v)) return v;
+    // migrate legacy 'night' → 'sepia'
+    if (v === ('night' as unknown as QuranTheme)) {
+      localStorage.setItem(KEY, 'sepia');
+      return 'sepia';
+    }
     const seeded = localStorage.getItem(SEED_KEY);
     if (!seeded) {
       localStorage.setItem(KEY, 'sepia');
@@ -51,7 +55,6 @@ export const setStoredQuranTheme = (t: QuranTheme): void => {
   } catch { /* ignore */ }
 };
 
-/** Reactive hook — returns [theme, setTheme]. Persists + applies globally. */
 export function useQuranTheme(): [QuranTheme, (t: QuranTheme) => void] {
   const [theme, setThemeState] = useState<QuranTheme>(getStoredQuranTheme);
 
@@ -60,7 +63,6 @@ export function useQuranTheme(): [QuranTheme, (t: QuranTheme) => void] {
     try { localStorage.setItem(KEY, theme); } catch { /* ignore */ }
   }, [theme]);
 
-  // Sync across tabs / other components
   useEffect(() => {
     const onChange = () => setThemeState(getStoredQuranTheme());
     window.addEventListener(EVENT, onChange);
