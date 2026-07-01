@@ -26,6 +26,46 @@ const SettingsPage = () => {
   const [hijriAdj, setHijriAdj] = useState(() => getHijriAdjustment());
   const [shareCopied, setShareCopied] = useState(false);
 
+  // v2.11.00 — Notifications Center (email + per-type toggles, stored locally
+  // until the Resend edge-function schedule is wired server-side).
+  const NOTIF_TYPES = [
+    { key: 'daily_athkar',   labelAr: 'الأذكار اليومية',           labelEn: 'Daily athkar' },
+    { key: 'incomplete',     labelAr: 'تذكير بالدعاء أو الزيارة',   labelEn: 'Incomplete devotions' },
+    { key: 'prayer_times',   labelAr: 'أوقات الصلاة',              labelEn: 'Prayer times' },
+    { key: 'occasions',      labelAr: 'المناسبات الإسلامية',        labelEn: 'Islamic occasions' },
+    { key: 'platform',       labelAr: 'تحديثات المنصة',            labelEn: 'Platform updates' },
+  ] as const;
+
+  const [notifEmail, setNotifEmail] = useState(() => localStorage.getItem('atraa_notif_email') ?? '');
+  const [emailSaved, setEmailSaved] = useState(false);
+  const [notifPrefs, setNotifPrefs] = useState<Record<string, boolean>>(() => {
+    try {
+      const raw = localStorage.getItem('atraa_notif_prefs_v1');
+      if (raw) return JSON.parse(raw);
+    } catch { /* ignore */ }
+    return Object.fromEntries(NOTIF_TYPES.map(n => [n.key, true]));
+  });
+
+  const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+
+  const saveEmail = () => {
+    const v = notifEmail.trim();
+    if (!isValidEmail(v)) {
+      toast.error(isAr ? 'يرجى إدخال بريد إلكتروني صحيح' : 'Please enter a valid email');
+      return;
+    }
+    localStorage.setItem('atraa_notif_email', v);
+    setEmailSaved(true);
+    toast.success(isAr ? 'تم حفظ البريد' : 'Email saved');
+    setTimeout(() => setEmailSaved(false), 1800);
+  };
+
+  const toggleNotifPref = (key: string) => {
+    const next = { ...notifPrefs, [key]: !notifPrefs[key] };
+    setNotifPrefs(next);
+    localStorage.setItem('atraa_notif_prefs_v1', JSON.stringify(next));
+  };
+
   // Reading mode (default / sepia / night) — applied app-wide.
   const [readingTheme, setReadingTheme] = useQuranTheme();
 
