@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Heart, Sun, Moon, Coffee } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Heart, Sun, Coffee, Moon, Sparkles, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -112,17 +112,19 @@ const SettingsPage = () => {
         </div>
       </motion.div>
 
-      {/* Reading mode — default / sepia / night, applies app-wide */}
+      {/* App theme — sepia / muharram / rabee / ramadan (v2.11.00) */}
       <motion.div variants={fadeUp} custom={1}>
         <p className="text-[11px] text-muted-foreground/70 px-1 mb-1.5 font-medium">
-          {isAr ? 'وضع القراءة' : 'Reading mode'}
+          {isAr ? 'الوضع' : 'Theme'}
         </p>
         <div className="bg-card rounded-2xl border border-border/40 overflow-hidden shadow-card">
           <div className="grid grid-cols-3 gap-2 p-2">
             {([
-              { id: 'default' as const, labelAr: 'افتراضي', labelEn: 'Default', Icon: Sun },
-              { id: 'sepia'   as const, labelAr: 'سيبيا',   labelEn: 'Sepia',   Icon: Coffee },
-              { id: 'night'   as const, labelAr: 'ليلي',    labelEn: 'Night',   Icon: Moon },
+              { id: 'default'  as const, labelAr: 'افتراضي', labelEn: 'Default',  Icon: Sun },
+              { id: 'sepia'    as const, labelAr: 'سيبيا',    labelEn: 'Sepia',    Icon: Coffee },
+              { id: 'muharram' as const, labelAr: 'محرم',     labelEn: 'Muharram', Icon: Moon },
+              { id: 'rabee'    as const, labelAr: 'ربيع',     labelEn: 'Rabee',    Icon: Sparkles },
+              { id: 'ramadan'  as const, labelAr: 'رمضان',    labelEn: 'Ramadan',  Icon: Moon },
             ]).map((opt) => {
               const active = readingTheme === opt.id;
               return (
@@ -142,8 +144,8 @@ const SettingsPage = () => {
           </div>
           <p className="px-3 pb-3 text-[10px] text-muted-foreground/65 font-light leading-relaxed">
             {isAr
-              ? 'يطبَّق هذا الوضع على التطبيق بالكامل وليس على القرآن فقط.'
-              : 'This mode applies to the entire app, not just the Quran.'}
+              ? 'اختر السمة الموسمية المناسبة — تُطبَّق على التطبيق بالكامل وتُحفظ تلقائياً.'
+              : 'Pick a seasonal mood — applies app-wide and is saved automatically.'}
           </p>
         </div>
       </motion.div>
