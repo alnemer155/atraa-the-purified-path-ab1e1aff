@@ -1,4 +1,44 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Amiri+Quran&family=Reem+Kufi:wght@400;500;600&family=Aref+Ruqaa:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Amiri+Quran&family=Reem+Kufi:wght@400;500;600&family=Aref+Ruqaa:wght@400;700&display=swap');
+
+/*
+ * Qomra Arabic — the platform's primary Arabic typeface (v2.11.x).
+ * Self-hosted via Lovable Assets CDN for consistency across all devices and browsers.
+ */
+@font-face {
+  font-family: 'Qomra Arabic';
+  src: url('/__l5e/assets-v1/fc8d8369-1f0d-457d-95e9-8fdb83ef5886/QomraArabic-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Qomra Arabic';
+  src: url('/__l5e/assets-v1/85af35f9-993c-4423-acd0-7b9c6abba753/QomraArabic-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Qomra Arabic';
+  src: url('/__l5e/assets-v1/cca7235a-9faf-4f25-babc-83f7cd0118dd/QomraArabic-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Qomra Arabic';
+  src: url('/__l5e/assets-v1/31824e92-de76-4419-80be-d1919c88cd36/QomraArabic-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Qomra Arabic';
+  src: url('/__l5e/assets-v1/c11a582b-5823-4cf5-92f1-96fab0a28b66/QomraArabic-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 /*
  * KFGQPC Uthmanic Hafs — the official mushaf typeface from King Fahd Glorious
@@ -167,13 +207,13 @@
   }
 
   html {
-    font-family: 'IBM Plex Sans Arabic', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    font-family: 'Qomra Arabic', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
   }
 
   html[lang='en'] {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    font-family: 'Inter', 'Qomra Arabic', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   }
 
   body {
@@ -277,7 +317,7 @@
     background: transparent;
     border: 0;
     line-height: 1;
-    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-family: 'Qomra Arabic', sans-serif;
     font-size: 0.42em;
     font-weight: 500;
   }
