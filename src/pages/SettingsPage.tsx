@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { getHijriAdjustment, setHijriAdjustment } from '@/lib/user';
 import { requestNotificationPermission, getNotificationPermission } from '@/lib/notifications';
 import { useQuranTheme, type QuranTheme } from '@/lib/quran-theme';
+import { supabase } from '@/integrations/supabase/client';
 import CityPicker from '@/components/CityPicker';
 import { toast } from 'sonner';
 
@@ -48,16 +49,57 @@ const SettingsPage = () => {
 
   const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
-  const saveEmail = () => {
+  const saveEmail = async () => {
     const v = notifEmail.trim();
     if (!isValidEmail(v)) {
       toast.error(isAr ? 'يرجى إدخال بريد إلكتروني صحيح' : 'Please enter a valid email');
       return;
     }
+    const previous = localStorage.getItem('atraa_notif_email') ?? '';
     localStorage.setItem('atraa_notif_email', v);
     setEmailSaved(true);
     toast.success(isAr ? 'تم حفظ البريد' : 'Email saved');
     setTimeout(() => setEmailSaved(false), 1800);
+
+    // Send welcome + prayer-reminder confirmation once per email (v2.11.00).
+    if (v !== previous) {
+      const html = `
+        <div dir="rtl" style="font-family:'Qomra Arabic',Tahoma,Arial,sans-serif;background:#faf7f2;padding:32px;color:#1a1a1a">
+          <div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:16px;padding:32px;border:1px solid #eee">
+            <h1 style="font-size:22px;font-weight:500;margin:0 0 16px">أهلاً بك في منصة عِتْرَة</h1>
+            <p style="line-height:1.9;font-size:15px;color:#3a3a3a;margin:0 0 12px">
+              تم تفعيل الإشعارات على بريدك بنجاح. ستصلك التذكيرات التالية بإذن الله:
+            </p>
+            <ul style="line-height:2;font-size:15px;color:#3a3a3a;padding-inline-start:20px;margin:0 0 20px">
+              <li>مواقيت الصلاة عند دخول كل وقت.</li>
+              <li>الأذكار اليومية.</li>
+              <li>المناسبات الإسلامية والحسينية.</li>
+              <li>تذكير بإكمال الأدعية والزيارات.</li>
+              <li>تحديثات المنصة والخدمات الجديدة.</li>
+            </ul>
+            <p style="font-size:13px;color:#7a7a7a;margin:24px 0 0">
+              يمكنك تعديل أنواع الإشعارات أو إيقافها من الإعدادات في أي وقت.
+            </p>
+            <hr style="border:none;border-top:1px solid #eee;margin:24px 0" />
+            <p style="font-size:12px;color:#999;margin:0;text-align:center">
+              منصة عِتْرَة الدينية · atraa.xyz
+            </p>
+          </div>
+        </div>
+      `;
+      try {
+        await supabase.functions.invoke('send-notification', {
+          body: {
+            to: v,
+            type: 'welcome',
+            subject: 'أهلاً بك في منصة عِتْرَة — تفعيل الإشعارات',
+            html,
+          },
+        });
+      } catch {
+        // Silent — the email is a courtesy, not a blocker.
+      }
+    }
   };
 
   const toggleNotifPref = (key: string) => {
