@@ -33,7 +33,7 @@ const AtharQuotePage = () => {
 
     // Quote text (center-upper area)
     ctx.fillStyle = '#2b1d10'; ctx.textAlign = 'right'; ctx.direction = 'rtl';
-    ctx.font = '300 44px "IBM Plex Sans Arabic", system-ui';
+    ctx.font = '300 44px "Qomra Arabic", system-ui';
     const words = quote.text.split(' ');
     const lines: string[] = []; let line = '';
     const maxW = W - 160;
@@ -46,7 +46,7 @@ const AtharQuotePage = () => {
     lines.forEach((ln, i) => ctx.fillText(ln, W - 80, startY + i * 60));
 
     // Sayer
-    ctx.font = '300 30px "IBM Plex Sans Arabic", system-ui';
+    ctx.font = '300 30px "Qomra Arabic", system-ui';
     ctx.fillStyle = '#6b5840';
     ctx.fillText(`— ${quote.sayer}`, W - 80, startY + lines.length * 60 + 40);
 
@@ -60,7 +60,7 @@ const AtharQuotePage = () => {
 
     // Platform name beside logo (under it)
     ctx.textAlign = 'center';
-    ctx.font = '300 22px "IBM Plex Sans Arabic", system-ui';
+    ctx.font = '300 22px "Qomra Arabic", system-ui';
     ctx.fillStyle = '#3a2c1a';
     ctx.fillText('أثر · منصة عترة الدينية', W / 2, H - 50);
 
