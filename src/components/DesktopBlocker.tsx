@@ -1,4 +1,5 @@
-import logo from '@/assets/logo-Atraa-v3.png';
+import logoAsset from '@/assets/brand/atraa-icon-dark.png.asset.json';
+const logo = logoAsset.url;
 
 const DesktopBlocker = () => {
   return (
