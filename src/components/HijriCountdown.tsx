@@ -62,11 +62,8 @@ const OCCASIONS: Occasion[] = [
     descriptionAr: 'بداية السنة الهجرية الجديدة هي بداية شهر محرم الحرام أول الأشهر القمرية الإسلامية، وقد اعتُمد التقويم الهجري إحياءً لذكرى هجرة النبي الأكرم محمد صلى الله عليه وآله من مكة المكرمة إلى المدينة المنورة، وهي محطة فاصلة في تاريخ الإسلام تذكّر المؤمنين بمعاني التضحية والصبر والثبات على الحق وبدء صفحة جديدة من الطاعة والقرب من الله تعالى.',
     descriptionEn: 'The first day of the Hijri year marks the beginning of the sacred month of Muharram, the first month in the Islamic lunar calendar. It commemorates the Prophet Muhammad’s migration from Mecca to Medina, a defining moment that reminds believers of sacrifice, patience, perseverance in truth, and the start of a renewed page of devotion to God.',
   },
-  {
-    month: 1, day: 9, ar: 'تاسوعاء الإمام الحسين (عليه السلام)', en: 'Tasua of Imam Hussain (a.s.)', type: 'event',
-    descriptionAr: 'يوم تاسوعاء هو اليوم التاسع من شهر محرم الحرام، وهو اليوم الذي حاصرت فيه جيوش يزيد بن معاوية الإمام الحسين بن علي عليه السلام وأهل بيته وأصحابه في كربلاء، ومنعوا عنهم الماء، وهو يوم مظلوميتهم وثباتهم. يحييه المؤمنون بإقامة مجالس العزاء وذكر مصائب أبي عبد الله الحسين عليه السلام تمهيداً ليوم عاشوراء الأعظم.',
-    descriptionEn: 'The ninth day of Muharram, when the armies of Yazid besieged Imam Hussain (a.s.), his family, and companions in Karbala and cut off their water. Believers commemorate this day with mourning gatherings preparing for Ashura.',
-  },
+  // v2.11.16 — «تاسوعاء الحسين» removed (not adopted as an independent day in the calendar).
+
   {
     month: 1, day: 10, ar: 'عاشوراء — استشهاد الإمام الحسين (عليه السلام)', en: 'Ashura — Martyrdom of Imam Hussain (a.s.)', type: 'martyrdom', featured: true,
     descriptionAr: 'يوم عاشوراء هو اليوم العاشر من شهر محرم الحرام، اليوم الذي استشهد فيه الإمام أبو عبد الله الحسين بن علي بن أبي طالب سبط رسول الله صلى الله عليه وآله، مع أهل بيته الكرام وثلة من خيار أصحابه في معركة كربلاء سنة إحدى وستين للهجرة، وذلك دفاعاً عن الإسلام ورفضاً للظلم وبيعة الفسق. هذا اليوم رمز خالد للتضحية والإباء والكرامة، يحييه المؤمنون بالحزن والبكاء وإقامة مجالس العزاء وتجديد العهد مع الإمام الحسين عليه السلام على نصرة الحق ورفض الباطل في كل زمان ومكان.',
@@ -548,42 +545,45 @@ const HijriCountdown = () => {
 
         {hijri ? (
           <div className="w-full">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-[22px] text-foreground leading-none font-light tabular-nums">
+            <div className="flex items-baseline gap-2.5">
+              <span className="text-[44px] text-foreground leading-none font-light tabular-nums">
                 {hijri.day}
               </span>
-              <span className="text-[12px] text-foreground/80 leading-none">
+              <span className="text-[18px] text-foreground/85 leading-none">
                 {isAr ? hijri.month : MONTH_NAMES_EN[hijri.monthNumber - 1]}
               </span>
+              <span className="text-[13px] text-muted-foreground/55 leading-none font-light tabular-nums ms-auto">
+                {hijri.year} {isAr ? 'هـ' : 'AH'}
+              </span>
             </div>
-            <p className="text-[9px] text-muted-foreground/50 mt-1 font-light tabular-nums">
-              {hijri.year} {isAr ? 'هـ' : 'AH'}
+            <p className="text-[10px] text-muted-foreground/60 mt-1.5 font-light">
+              {hijri.weekdayAr} · {hijri.gregorianDate}
             </p>
 
             {todaysOccasion ? (
-              <p className="text-[9px] text-gold/85 mt-2 font-light leading-tight line-clamp-2">
-                {renderHonored(isAr ? todaysOccasion.ar : todaysOccasion.en, 10)}
+              <p className="text-[12px] text-gold/90 mt-3 font-medium leading-snug line-clamp-2">
+                {renderHonored(isAr ? todaysOccasion.ar : todaysOccasion.en, 12)}
               </p>
             ) : (
-              <div className="mt-2.5">
-                <div className="h-[2px] rounded-full bg-secondary/30 overflow-hidden">
+              <div className="mt-3">
+                <div className="h-[3px] rounded-full bg-secondary/30 overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-foreground/20 transition-all duration-700 ease-out"
+                    className="h-full rounded-full bg-foreground/25 transition-all duration-700 ease-out"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
-                <p className="text-[7px] text-muted-foreground/40 mt-1 font-light tabular-nums">
+                <p className="text-[10px] text-muted-foreground/50 mt-1.5 font-light tabular-nums">
                   {daysRemaining > 0
-                    ? (isAr ? `${daysRemaining} يوم متبقي` : `${daysRemaining} day${daysRemaining > 1 ? 's' : ''} left`)
-                    : (isAr ? 'آخر يوم' : 'Last day')}
+                    ? (isAr ? `${daysRemaining} يوم متبقي على نهاية الشهر` : `${daysRemaining} day${daysRemaining > 1 ? 's' : ''} left this month`)
+                    : (isAr ? 'آخر يوم في الشهر' : 'Last day of the month')}
                 </p>
               </div>
             )}
           </div>
         ) : (
-          <div className="space-y-2">
-            <div className="h-4 w-20 rounded-md bg-secondary/30 animate-pulse" />
-            <div className="h-2.5 w-14 rounded-md bg-secondary/20 animate-pulse" />
+          <div className="space-y-3">
+            <div className="h-8 w-32 rounded-md bg-secondary/30 animate-pulse" />
+            <div className="h-3 w-20 rounded-md bg-secondary/20 animate-pulse" />
           </div>
         )}
       </button>

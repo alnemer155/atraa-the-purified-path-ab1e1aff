@@ -5,30 +5,21 @@ import { BookOpen, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getLastReading, getTasbihState } from '@/lib/user';
 import PrayerTimes from '@/components/PrayerTimes';
-import WeatherWidget from '@/components/WeatherWidget';
 import HijriCountdown from '@/components/HijriCountdown';
-import DailyRecommendations from '@/components/DailyRecommendations';
 import WallpapersSection from '@/components/WallpapersSection';
-import LiveChannelsSection from '@/components/LiveChannelsSection';
 import KhatmaSection from '@/components/KhatmaSection';
-
 import AtharSection from '@/components/AtharSection';
-import { useMadhhab } from '@/lib/madhhab';
 
-// Mixed devotional rotation under the greeting:
-// short ayat, salawat, and well-known du'a phrases.
-// Each item is tagged so we can render verses in Uthmani script.
+// Mixed devotional rotation next to the greeting: short ayat, salawat, du'a.
 type DevotionalItem = { text: string; type: 'ayah' | 'salawat' | 'dua' };
 
 const DEVOTIONAL_ROTATION: DevotionalItem[] = [
-  // Short ayat (Uthmani)
   { text: 'وَمَن يَتَّقِ ٱللَّهَ يَجْعَل لَّهُۥ مَخْرَجًۭا', type: 'ayah' },
   { text: 'إِنَّ مَعَ ٱلْعُسْرِ يُسْرًۭا', type: 'ayah' },
   { text: 'حَسْبُنَا ٱللَّهُ وَنِعْمَ ٱلْوَكِيلُ', type: 'ayah' },
   { text: 'وَٱصْبِرُوا۟ ۚ إِنَّ ٱللَّهَ مَعَ ٱلصَّـٰبِرِينَ', type: 'ayah' },
   { text: 'وَقُل رَّبِّ زِدْنِى عِلْمًۭا', type: 'ayah' },
   { text: 'فَٱذْكُرُونِىٓ أَذْكُرْكُمْ', type: 'ayah' },
-  // Salawat & Du'a
   { text: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَآلِ مُحَمَّد', type: 'salawat' },
   { text: 'اللَّهُمَّ عَجِّلْ لِوَلِيِّكَ الْفَرَج', type: 'salawat' },
   { text: 'اللَّهُمَّ كُنْ لِوَلِيِّكَ الْحُجَّةِ بْنِ الْحَسَن', type: 'salawat' },
@@ -56,7 +47,6 @@ const HomePage = () => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   const Chevron = isAr ? ChevronLeft : ChevronRight;
-  const madhhab = useMadhhab();
   const [devotionalIndex, setDevotionalIndex] = useState(() =>
     new Date().getDate() % DEVOTIONAL_ROTATION.length
   );
@@ -82,33 +72,37 @@ const HomePage = () => {
       animate="visible"
       className="pb-6"
     >
-      {/* Greeting */}
+      {/* Greeting — devotional line now inline beside the greeting */}
       <motion.div variants={fadeUp} className={`px-5 pt-5 pb-3 ${isAr ? 'text-right' : 'text-left'}`}>
-        <h1 className="text-[20px] text-foreground leading-snug tracking-tight font-semibold">
-          {t('home.greeting')}
-        </h1>
-        {/* Rotating ayat / salawat / du'a under the greeting */}
-        {isAr && (
-          <div className="min-h-[28px] mt-2 overflow-hidden">
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={devotionalIndex}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                className={
-                  DEVOTIONAL_ROTATION[devotionalIndex].type === 'ayah'
-                    ? 'quran-uthmani text-[15px] text-primary/85 leading-relaxed'
-                    : 'text-[13px] text-primary/75 leading-relaxed font-medium'
-                }
-                dir="rtl"
-              >
-                {DEVOTIONAL_ROTATION[devotionalIndex].text}
-              </motion.p>
-            </AnimatePresence>
-          </div>
-        )}
+        <div className={`flex items-baseline gap-2.5 flex-wrap ${isAr ? 'flex-row' : 'flex-row-reverse justify-end'}`}>
+          <h1 className="text-[20px] text-foreground leading-snug tracking-tight font-semibold whitespace-nowrap">
+            {t('home.greeting')}
+          </h1>
+          {isAr && (
+            <>
+              <span className="text-muted-foreground/25 text-[10px]">•</span>
+              <div className="min-h-[24px] overflow-hidden flex-1 min-w-0">
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={devotionalIndex}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                    className={
+                      DEVOTIONAL_ROTATION[devotionalIndex].type === 'ayah'
+                        ? 'quran-uthmani text-[13px] text-primary/80 leading-relaxed truncate'
+                        : 'text-[12px] text-primary/70 leading-relaxed font-medium truncate'
+                    }
+                    dir="rtl"
+                  >
+                    {DEVOTIONAL_ROTATION[devotionalIndex].text}
+                  </motion.p>
+                </AnimatePresence>
+              </div>
+            </>
+          )}
+        </div>
       </motion.div>
 
       <div className="px-4 space-y-3">
@@ -152,9 +146,8 @@ const HomePage = () => {
           </motion.div>
         )}
 
-        {/* Weather & Hijri */}
-        <motion.div variants={fadeUp} className="grid grid-cols-2 gap-2">
-          <WeatherWidget />
+        {/* Hijri calendar — enlarged, full-width (v2.11.16) */}
+        <motion.div variants={fadeUp}>
           <HijriCountdown />
         </motion.div>
 
@@ -173,11 +166,6 @@ const HomePage = () => {
 
         <motion.div variants={fadeUp}>
           <AtharSection />
-        </motion.div>
-
-
-        <motion.div variants={fadeUp}>
-          <DailyRecommendations />
         </motion.div>
       </div>
     </motion.div>
