@@ -5,8 +5,9 @@ import { useTranslation } from 'react-i18next';
 import DuasPage from './DuasPage';
 import TasbihPage from './TasbihPage';
 import QiblaPage from './QiblaPage';
+import MosquesPage from './MosquesPage';
 
-type Tab = 'duas' | 'tasbih' | 'qibla';
+type Tab = 'duas' | 'tasbih' | 'qibla' | 'mosques';
 
 const LibraryPage = () => {
   const { t, i18n } = useTranslation();
@@ -24,23 +25,24 @@ const LibraryPage = () => {
     { key: 'duas', label: isAr ? 'الأدعية' : 'Duas' },
     { key: 'tasbih', label: isAr ? 'التسبيح' : 'Tasbih' },
     { key: 'qibla', label: isAr ? 'القبلة' : 'Qibla' },
+    { key: 'mosques', label: isAr ? 'المساجد' : 'Mosques' },
   ];
 
   return (
     <div className="animate-fade-in">
       <div className="sticky top-[41px] z-30 bg-background/85 backdrop-blur-3xl backdrop-saturate-200">
         <div className="px-5 pt-5 pb-3">
-          {/* Title row — single line, refined hairline */}
+          {/* Title row */}
           <div className={`flex items-baseline justify-between mb-4 ${isAr ? 'flex-row' : 'flex-row-reverse'}`}>
             <span className={`text-[9px] text-muted-foreground/40 font-light tabular-nums ${isAr ? '' : 'tracking-[0.18em] uppercase'}`}>
-              {isAr ? '٠٣ أقسام' : '03 sections'}
+              {isAr ? '٠٤ أقسام' : '04 sections'}
             </span>
             <h1 className="text-[22px] text-foreground leading-none tracking-tight font-light">
               {t('library.title')}
             </h1>
           </div>
 
-          {/* Underlined segmented tabs */}
+          {/* Segmented tabs */}
           <div className="relative flex items-center justify-between border-b border-border/15">
             {tabs.map(tab => (
               <button
@@ -75,6 +77,7 @@ const LibraryPage = () => {
         {activeTab === 'duas' && <DuasPage initialItemId={(location.state as { itemId?: string } | null)?.itemId} />}
         {activeTab === 'tasbih' && <TasbihPage />}
         {activeTab === 'qibla' && <QiblaPage />}
+        {activeTab === 'mosques' && <MosquesPage />}
       </motion.div>
     </div>
   );
