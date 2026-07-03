@@ -38,7 +38,7 @@ const LibraryPage = lazy(() => import("./pages/LibraryPage"));
 const QuranPage = lazy(() => import("./pages/QuranPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const PoliciesPage = lazy(() => import("./pages/PoliciesPage"));
-const SupportPage = lazy(() => import("./pages/SupportPage"));
+
 const PrivacyPage = lazy(() => import("./pages/legal/PrivacyPage"));
 const TermsPage = lazy(() => import("./pages/legal/TermsPage"));
 const DisclaimerPage = lazy(() => import("./pages/legal/DisclaimerPage"));
@@ -139,7 +139,7 @@ const App = () => {
                       <Route path="/quran/:slug" element={<QuranPage />} />
                       <Route path="/settings" element={<SettingsPage />} />
                       <Route path="/policies" element={<PoliciesPage />} />
-                      <Route path="/support" element={<SupportPage />} />
+                      
                       <Route path="/privacy" element={<PrivacyPage />} />
                       <Route path="/terms" element={<TermsPage />} />
                       <Route path="/disclaimer" element={<DisclaimerPage />} />

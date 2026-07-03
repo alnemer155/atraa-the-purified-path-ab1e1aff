@@ -525,23 +525,24 @@ const HijriCountdown = () => {
       <button
         onClick={() => hijri && setShowDetails(true)}
         disabled={!hijri}
-        className={`group rounded-2xl bg-card border border-border/25 p-3.5 min-h-[100px] flex flex-col justify-between text-${isAr ? 'right' : 'left'} active:scale-[0.98] transition-transform relative overflow-hidden`}
+        className={`group w-full rounded-2xl bg-card border border-border/25 p-5 min-h-[140px] flex flex-col justify-between text-${isAr ? 'right' : 'left'} active:scale-[0.99] transition-transform relative overflow-hidden shadow-card`}
       >
         {/* Today indicator hairline */}
         {todaysOccasion && (
-          <span className="absolute inset-y-0 start-0 w-[2px] bg-gold/70" />
+          <span className="absolute inset-y-0 start-0 w-[3px] bg-gold/70" />
         )}
 
-        <div className="flex items-center justify-between mb-2">
-          <span className={`text-[8px] text-muted-foreground/45 font-light ${isAr ? '' : 'tracking-[0.22em] uppercase'}`}>
-            {isAr ? 'هجري' : 'Hijri'}
+        <div className="flex items-center justify-between mb-3">
+          <span className={`text-[10px] text-muted-foreground/55 font-light ${isAr ? '' : 'tracking-[0.22em] uppercase'}`}>
+            {isAr ? 'التقويم الهجري' : 'Hijri Calendar'}
           </span>
           {hijri && (
             <ChevronLeft
-              className={`w-3 h-3 text-muted-foreground/35 ${isAr ? '' : 'rotate-180'}`}
+              className={`w-3.5 h-3.5 text-muted-foreground/35 ${isAr ? '' : 'rotate-180'}`}
             />
           )}
         </div>
+
 
         {hijri ? (
           <div className="w-full">
