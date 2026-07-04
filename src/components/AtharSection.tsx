@@ -4,7 +4,6 @@
  * v2.9.20 — no sect filter, all sayings shown to everyone.
  */
 import { useEffect, useState } from 'react';
-import { ArrowUpLeft, MoreHorizontal } from 'lucide-react';
 import { fetchAthar, ATHAR_PUBLIC_BASE, type AtharQuote } from '@/lib/athar';
 import logoAthar from '@/assets/logo-athar.png';
 
