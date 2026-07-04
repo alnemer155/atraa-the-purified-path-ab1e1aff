@@ -67,60 +67,67 @@
 
 @layer base {
   :root {
-    /* Surfaces */
-    --background: 38 24% 97%;
-    --foreground: 158 32% 12%;
+    /*
+     * v2.13.15 — Apple GlassUI · Sepia palette (LOCKED)
+     * bg #f2ead9  surface #faf3e2  ink #2b1e10  ink-soft #6b5a44
+     * accent-gold #b8944b  accent-deep #6b4a2a  hairline rgba(43,30,16,0.08)
+     */
+    --background: 36 44% 90%;         /* #f2ead9 */
+    --foreground: 28 47% 12%;         /* #2b1e10 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 158 32% 12%;
+    --card: 40 60% 93%;               /* #faf3e2 */
+    --card-foreground: 28 47% 12%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 158 32% 12%;
+    --popover: 40 60% 96%;
+    --popover-foreground: 28 47% 12%;
 
-    /* Brand — Islamic emerald */
-    --primary: 158 48% 22%;
-    --primary-foreground: 38 30% 98%;
-    --primary-light: 158 30% 95%;
-    --primary-glow: 158 50% 32%;
+    /* Brand — deep sepia ink */
+    --primary: 28 47% 16%;
+    --primary-foreground: 40 60% 96%;
+    --primary-light: 40 60% 93%;
+    --primary-glow: 34 43% 30%;
 
     /* Secondary surfaces */
-    --secondary: 38 18% 93%;
-    --secondary-foreground: 158 30% 18%;
+    --secondary: 38 40% 88%;
+    --secondary-foreground: 28 45% 18%;
 
-    --muted: 38 14% 92%;
-    --muted-foreground: 158 12% 38%;
+    --muted: 36 30% 86%;
+    --muted-foreground: 28 20% 34%;   /* #6b5a44 */
 
-    /* Accent — soft gold */
-    --accent: 38 65% 52%;
-    --accent-foreground: 158 35% 14%;
+    /* Accent — antique gold */
+    --accent: 40 44% 51%;             /* #b8944b */
+    --accent-foreground: 28 47% 12%;
 
-    --gold: 38 65% 52%;
-    --gold-light: 38 60% 95%;
+    --gold: 40 44% 51%;
+    --gold-light: 40 50% 92%;
 
-    --destructive: 0 70% 52%;
+    --destructive: 0 55% 44%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 38 16% 88%;
-    --input: 38 16% 88%;
-    --ring: 158 48% 22%;
+    --border: 28 30% 82%;
+    --input: 28 30% 82%;
+    --ring: 40 44% 51%;
 
-    --radius: 1rem;
+    --radius: 1.25rem;
 
-    /* Sidebar (kept for shadcn defaults) */
-    --sidebar-background: 38 24% 97%;
-    --sidebar-foreground: 158 32% 12%;
-    --sidebar-primary: 158 48% 22%;
-    --sidebar-primary-foreground: 38 30% 98%;
-    --sidebar-accent: 38 18% 93%;
-    --sidebar-accent-foreground: 158 30% 18%;
-    --sidebar-border: 38 16% 88%;
-    --sidebar-ring: 158 48% 22%;
+    /* Sidebar — sepia-locked shadcn defaults */
+    --sidebar-background: 36 44% 90%;
+    --sidebar-foreground: 28 47% 12%;
+    --sidebar-primary: 28 47% 16%;
+    --sidebar-primary-foreground: 40 60% 96%;
+    --sidebar-accent: 38 40% 88%;
+    --sidebar-accent-foreground: 28 45% 18%;
+    --sidebar-border: 28 30% 82%;
+    --sidebar-ring: 40 44% 51%;
 
-    --gradient-islamic: linear-gradient(135deg, hsl(158 48% 22%), hsl(158 50% 32%));
-    --gradient-glow: radial-gradient(circle at 50% 50%, hsl(38 65% 52% / 0.25), transparent 70%);
-    --shadow-card: 0 1px 3px 0 hsl(158 30% 15% / 0.04);
-    --shadow-elevated: 0 8px 24px -8px hsl(158 30% 15% / 0.08);
-    --shadow-glass: 0 8px 32px hsl(158 30% 15% / 0.06);
+    /* v2.13.15 — glass tokens */
+    --glass-surface: 40 60% 93%;
+    --glass-hairline: 28 47% 12%;
+    --gradient-islamic: linear-gradient(135deg, hsl(28 47% 16%), hsl(34 43% 30%));
+    --gradient-glow: radial-gradient(circle at 50% 50%, hsl(40 44% 51% / 0.18), transparent 70%);
+    --shadow-card: 0 1px 2px 0 hsl(28 47% 12% / 0.03);
+    --shadow-elevated: 0 12px 40px -12px hsl(28 47% 12% / 0.08);
+    --shadow-glass: 0 8px 32px -4px hsl(28 47% 12% / 0.05);
   }
 
   /* === Quran reading themes (scoped via data-quran-theme on the reader root) === */
@@ -207,13 +214,13 @@
   }
 
   html {
-    font-family: 'Qomra Arabic', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    font-family: 'Qomra Arabic', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
   }
 
   html[lang='en'] {
-    font-family: 'Inter', 'Qomra Arabic', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    font-family: 'Qomra Arabic', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
   }
 
   body {
@@ -221,12 +228,20 @@
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Ambient gold glow — subtle atmospheric light on every screen */
+    background-image:
+      radial-gradient(ellipse 60% 40% at 85% 10%, hsl(40 44% 51% / 0.10), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 15% 85%, hsl(28 40% 30% / 0.06), transparent 60%);
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    font-weight: 700;
+    letter-spacing: -0.015em;
   }
+
+  /* Tabular numerals globally for prayer times, dates, counters */
+  .tabular-nums { font-variant-numeric: tabular-nums; }
 }
 
 @layer utilities {
@@ -343,15 +358,53 @@
   }
 
 
-  /* iOS 26 Liquid Glass — used for cards and surfaces */
+  /* Apple GlassUI v2.13.15 — hairline sepia glass */
   .glass-card {
-    @apply bg-card/70 backdrop-blur-xl border border-white/40 rounded-2xl;
+    background: hsl(var(--card) / 0.65);
+    backdrop-filter: blur(32px) saturate(1.6);
+    -webkit-backdrop-filter: blur(32px) saturate(1.6);
+    border: 0.5px solid hsl(var(--foreground) / 0.10);
+    border-radius: 28px;
     box-shadow: var(--shadow-glass);
   }
 
-  .glass-surface {
-    @apply bg-background/55 backdrop-blur-2xl backdrop-saturate-200;
+  .glass-card-soft {
+    background: hsl(var(--card) / 0.42);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    border: 0.5px solid hsl(var(--foreground) / 0.08);
+    border-radius: 24px;
   }
+
+  .glass-surface {
+    background: hsl(var(--background) / 0.72);
+    backdrop-filter: blur(40px) saturate(1.8);
+    -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  }
+
+  .glass-nav {
+    background: hsl(var(--card) / 0.78);
+    backdrop-filter: blur(40px) saturate(1.8);
+    -webkit-backdrop-filter: blur(40px) saturate(1.8);
+    border: 0.5px solid hsl(var(--foreground) / 0.10);
+    box-shadow:
+      0 15px 40px -8px hsl(var(--foreground) / 0.10),
+      inset 0 0.5px 0 hsl(var(--card) / 0.6);
+  }
+
+  .hairline { border-color: hsl(var(--foreground) / 0.08); }
+  .hairline-strong { border-color: hsl(var(--foreground) / 0.14); }
+  .hairline-gold { border-color: hsl(var(--gold) / 0.35); }
+
+  /* Kicker — small uppercase label above headings */
+  .kicker {
+    color: hsl(var(--gold));
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+  }
+
 
   @keyframes qibla-pulse {
     0%, 100% { opacity: 0.4; transform: scale(1); }

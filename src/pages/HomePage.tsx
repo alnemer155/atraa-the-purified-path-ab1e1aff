@@ -72,51 +72,47 @@ const HomePage = () => {
       animate="visible"
       className="pb-6"
     >
-      {/* Greeting — devotional line now inline beside the greeting */}
-      <motion.div variants={fadeUp} className={`px-5 pt-5 pb-3 ${isAr ? 'text-right' : 'text-left'}`}>
-        <div className={`flex items-baseline gap-2.5 flex-wrap ${isAr ? 'flex-row' : 'flex-row-reverse justify-end'}`}>
-          <h1 className="text-[20px] text-foreground leading-snug tracking-tight font-semibold whitespace-nowrap">
-            {t('home.greeting')}
-          </h1>
-          {isAr && (
-            <>
-              <span className="text-muted-foreground/25 text-[10px]">•</span>
-              <div className="min-h-[24px] overflow-hidden flex-1 min-w-0">
-                <AnimatePresence mode="wait">
-                  <motion.p
-                    key={devotionalIndex}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                    className={
-                      DEVOTIONAL_ROTATION[devotionalIndex].type === 'ayah'
-                        ? 'quran-uthmani text-[13px] text-primary/80 leading-relaxed truncate'
-                        : 'text-[12px] text-primary/70 leading-relaxed font-medium truncate'
-                    }
-                    dir="rtl"
-                  >
-                    {DEVOTIONAL_ROTATION[devotionalIndex].text}
-                  </motion.p>
-                </AnimatePresence>
-              </div>
-            </>
-          )}
-        </div>
+      {/* Greeting — v2.13.15 GlassUI: kicker + big heading + devotional line */}
+      <motion.div variants={fadeUp} className={`px-6 pt-6 pb-4 ${isAr ? 'text-right' : 'text-left'}`}>
+        <p className="kicker mb-2">{isAr ? 'اليوم' : 'Today'}</p>
+        <h1 className="text-[26px] text-foreground leading-tight tracking-tight font-bold">
+          {t('home.greeting')}
+        </h1>
+        {isAr && (
+          <div className="mt-2 min-h-[26px] overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={devotionalIndex}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                className={
+                  DEVOTIONAL_ROTATION[devotionalIndex].type === 'ayah'
+                    ? 'quran-uthmani text-[15px] text-muted-foreground leading-relaxed italic'
+                    : 'text-[13px] text-muted-foreground leading-relaxed'
+                }
+                dir="rtl"
+              >
+                {DEVOTIONAL_ROTATION[devotionalIndex].text}
+              </motion.p>
+            </AnimatePresence>
+          </div>
+        )}
       </motion.div>
 
-      <div className="px-4 space-y-3">
-        {/* Resume cards */}
+      <div className="px-5 space-y-6">
+        {/* Resume cards — v2.13.15 glass rows */}
         {(showTasbihResume || showLastReading) && (
-          <motion.div variants={fadeUp} className="space-y-1.5">
+          <motion.div variants={fadeUp} className="space-y-2">
             {showTasbihResume && tasbihState && (
               <button
                 onClick={() => navigate('/library')}
-                className={`w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/40 active:scale-[0.98] transition-transform shadow-card ${isAr ? 'text-right' : 'text-left'}`}
+                className={`w-full flex items-center gap-3 p-3.5 glass-card-soft active:scale-[0.98] transition-transform ${isAr ? 'text-right' : 'text-left'}`}
               >
-                <RotateCcw className="w-4 h-4 text-primary/60 flex-shrink-0" />
+                <RotateCcw className="w-4 h-4 text-gold flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12px] text-foreground font-medium">{t('library.tasbih')}</p>
+                  <p className="text-[12px] text-foreground font-bold">{t('library.tasbih')}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">
                     {tasbihState.mode === 'zahra'
                       ? `${tasbihatLabels[tasbihState.step]} · ${tasbihState.count}/${[34, 33, 33][tasbihState.step]}`
@@ -124,23 +120,23 @@ const HomePage = () => {
                     }
                   </p>
                 </div>
-                <Chevron className="w-3.5 h-3.5 text-muted-foreground/30 flex-shrink-0" />
+                <Chevron className="w-3.5 h-3.5 text-muted-foreground/40 flex-shrink-0" />
               </button>
             )}
 
             {showLastReading && lastReading && (
               <button
                 onClick={() => navigate('/library')}
-                className={`w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/40 active:scale-[0.98] transition-transform shadow-card ${isAr ? 'text-right' : 'text-left'}`}
+                className={`w-full flex items-center gap-3 p-3.5 glass-card-soft active:scale-[0.98] transition-transform ${isAr ? 'text-right' : 'text-left'}`}
               >
-                <BookOpen className="w-4 h-4 text-primary/60 flex-shrink-0" />
+                <BookOpen className="w-4 h-4 text-gold flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12px] text-foreground font-medium">{t('library.title')}</p>
+                  <p className="text-[12px] text-foreground font-bold">{t('library.title')}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
                     {lastReading.title}
                   </p>
                 </div>
-                <Chevron className="w-3.5 h-3.5 text-muted-foreground/30 flex-shrink-0" />
+                <Chevron className="w-3.5 h-3.5 text-muted-foreground/40 flex-shrink-0" />
               </button>
             )}
           </motion.div>

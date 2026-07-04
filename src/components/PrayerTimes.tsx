@@ -46,9 +46,9 @@ function toMinutes(time24: string): number {
   return h * 60 + m;
 }
 
-// On the home grid we surface only the three pillars users glance at most:
-// Fajr, Dhuhr (Dhuhrayn), Maghrib (Isha'ayn). Asr/Sunrise/Isha live in the sheet.
-const HOME_PRAYER_KEYS = ['Fajr', 'Dhuhr', 'Maghrib'];
+// v2.13.15 — Home now shows all 5 daily prayers in a hairline glass grid,
+// with the current prayer marked by a gold ring. Sunrise stays in the sheet.
+const HOME_PRAYER_KEYS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 const ALL_PRAYER_KEYS = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
 function getCurrentAndNext(timings: TimingsData, keys: string[]): { current: string | null; next: string | null } {
@@ -171,14 +171,17 @@ const PrayerTimes = () => {
 
   return (
     <>
-      <div className="rounded-2xl bg-card border border-border/40 p-4 shadow-card">
-        <div className="flex items-center justify-between mb-3.5">
-          <h2 className="text-[13px] font-semibold text-foreground">{t('home.prayerTimes')}</h2>
+      <div className="glass-card p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-1 h-1 rounded-full bg-gold" />
+            <h2 className="text-[13px] font-bold text-foreground tracking-wide">{t('home.prayerTimes')}</h2>
+          </div>
           <div className="flex items-center gap-1">
             {madhhab === 'sunni' && (
               <button
                 onClick={() => setMethodSheet(true)}
-                className="flex items-center gap-1 p-1.5 rounded-lg text-muted-foreground/55 hover:text-foreground transition-colors"
+                className="p-1.5 rounded-lg text-muted-foreground/60 hover:text-foreground transition-colors"
                 aria-label={isAr ? 'طريقة الحساب' : 'Calculation method'}
                 title={activeMethodLabel}
               >
@@ -187,47 +190,48 @@ const PrayerTimes = () => {
             )}
             <button
               onClick={() => setSheetOpen(true)}
-              className="flex items-center gap-1 p-1.5 rounded-lg text-muted-foreground/50 hover:text-foreground transition-colors"
+              className="flex items-center gap-1 p-1.5 rounded-lg text-muted-foreground/60 hover:text-foreground transition-colors"
               aria-label={isAr ? 'عرض كل المواقيت' : 'Show all times'}
             >
-              <span className="text-[10px] font-light">{isAr ? 'الكل' : 'All'}</span>
+              <span className="text-[10px] font-medium">{isAr ? 'الكل' : 'All'}</span>
               <ChevronDown className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
         {loading ? (
-          <div className="grid grid-cols-3 gap-1.5">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-[72px] rounded-xl bg-secondary/40 animate-pulse" />
+          <div className="grid grid-cols-5 gap-2">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-[58px] rounded-[18px] bg-foreground/5 animate-pulse" />
             ))}
           </div>
         ) : timings ? (
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="grid grid-cols-5 gap-2">
             {HOME_PRAYER_KEYS.map((key) => {
               const isCurrent = indicators.current === key;
               const isNext = indicators.next === key;
               return (
                 <div
                   key={key}
-                  className={`relative flex flex-col items-center gap-1 py-3 px-2 rounded-xl transition-all ${
+                  className={`relative flex flex-col items-center gap-1 py-3 px-1 rounded-[18px] border-[0.5px] transition-all ${
                     isCurrent
-                      ? 'bg-primary text-primary-foreground'
+                      ? 'bg-gold/10 hairline-gold ring-1 ring-gold/10 shadow-[0_4px_14px_-4px_hsl(var(--gold)/0.25)]'
                       : isNext
-                      ? 'bg-primary/8 border border-primary/15'
-                      : 'bg-secondary/40'
+                      ? 'bg-card/50 hairline'
+                      : 'bg-card/30 border-transparent opacity-70'
                   }`}
                 >
-                  {(isCurrent || isNext) && (
-                    <span className={`absolute -top-1.5 text-[8px] px-1.5 py-px rounded-full ${
-                      isCurrent ? 'bg-accent text-accent-foreground' : 'bg-primary/15 text-primary'
-                    }`}>
-                      {isCurrent ? t('home.now') : t('home.next')}
-                    </span>
-                  )}
-                  <span className={`text-[10px] font-medium ${isCurrent ? 'text-primary-foreground/75' : 'text-muted-foreground'}`}>
+                  <span
+                    className={`text-[10px] font-bold ${
+                      isCurrent ? 'text-gold' : 'text-muted-foreground'
+                    }`}
+                  >
                     {t(`prayers.${key}`)}
                   </span>
-                  <span className={`text-[12px] tabular-nums font-medium ${isCurrent ? 'text-primary-foreground' : 'text-foreground'}`}>
+                  <span
+                    className={`text-[11px] tabular-nums font-bold ${
+                      isCurrent ? 'text-foreground' : 'text-foreground/85'
+                    }`}
+                  >
                     {to12Hour(timings[key]?.split(' ')[0] || '', i18n.language)}
                   </span>
                 </div>

@@ -20,7 +20,7 @@ const AppHeader = () => {
 
   return (
     <header
-      className="sticky top-0 z-40 bg-background/70 backdrop-blur-2xl backdrop-saturate-150 border-b border-border/5"
+      className="sticky top-0 z-40 glass-surface border-b border-foreground/5"
       style={{ paddingTop: 'max(env(safe-area-inset-top), 0px)' }}
     >
       <div className="flex items-center justify-center px-5 py-2.5 max-w-lg mx-auto min-h-[44px]">
@@ -28,7 +28,7 @@ const AppHeader = () => {
           src={logoSrc}
           alt={label || 'Atraa'}
           title={label || undefined}
-          className="h-8 w-auto object-contain invert dark:invert-0"
+          className="h-7 w-auto object-contain invert dark:invert-0 opacity-90"
         />
       </div>
     </header>
