@@ -17,49 +17,62 @@ const AtharSection = () => {
 
   if (items.length === 0) return null;
 
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-2.5">
-        <div className="flex items-center gap-1.5">
-          <img src={logoAthar} alt="" className="h-3 w-auto opacity-70" />
-          <h2 className="text-[12px] text-foreground text-right">أثر</h2>
-        </div>
-        <span className="text-[8px] text-muted-foreground/40 font-light tabular-nums">
-          {items.length}+
-        </span>
-      </div>
+  const hero = items[0];
+  const rest = items.slice(1, 5);
 
-      <div className="grid grid-cols-3 gap-1.5" dir="rtl">
-        {items.slice(0, 5).map((q) => (
-          <a
-            key={q.id}
-            href={`${ATHAR_PUBLIC_BASE}/${q.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="aspect-square relative rounded-xl border border-border/30 bg-card p-2 flex flex-col justify-between active:bg-secondary/30 transition-colors text-right overflow-hidden"
-          >
-            <p className="text-[9px] text-foreground leading-snug line-clamp-4 font-light">
-              {q.text}
-            </p>
-            <p className="text-[7px] text-muted-foreground/70 font-light truncate mt-1">
-              {q.sayer}
-            </p>
-            <ArrowUpLeft
-              className="absolute top-1 left-1 w-2.5 h-2.5 text-muted-foreground/40"
-              strokeWidth={1.5}
-            />
-          </a>
-        ))}
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <img src={logoAthar} alt="" className="h-3 w-auto opacity-70" />
+          <h2 className="text-[13px] font-bold text-foreground">أثر</h2>
+        </div>
         <a
           href={ATHAR_PUBLIC_BASE}
           target="_blank"
           rel="noopener noreferrer"
-          className="aspect-square rounded-xl border border-dashed border-border/40 bg-card/40 flex flex-col items-center justify-center gap-1 active:bg-secondary/30 transition-colors"
+          className="text-[10px] text-muted-foreground/60 hover:text-foreground transition-colors"
         >
-          <MoreHorizontal className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
-          <span className="text-[9px] text-muted-foreground/70 font-light">المزيد</span>
+          المزيد
         </a>
       </div>
+
+      {/* Hero quote — centered, hairline dividers (v3 architecture) */}
+      <a
+        href={`${ATHAR_PUBLIC_BASE}/${hero.id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block py-6 text-center space-y-4 active:opacity-70 transition-opacity"
+      >
+        <div className="h-[0.5px] w-12 bg-gold/40 mx-auto" />
+        <p className="text-foreground text-[15px] font-medium leading-loose px-6 max-w-md mx-auto">
+          {hero.text}
+        </p>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/8 hairline-gold border-[0.5px]">
+          <span className="text-gold text-[10px] font-bold tracking-widest">— {hero.sayer}</span>
+        </div>
+      </a>
+
+      {rest.length > 0 && (
+        <div className="grid grid-cols-4 gap-2" dir="rtl">
+          {rest.map((q) => (
+            <a
+              key={q.id}
+              href={`${ATHAR_PUBLIC_BASE}/${q.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="aspect-square rounded-2xl glass-card-soft p-2.5 flex flex-col justify-between active:scale-[0.97] transition-transform text-right overflow-hidden"
+            >
+              <p className="text-[9px] text-foreground leading-snug line-clamp-4">
+                {q.text}
+              </p>
+              <p className="text-[7px] text-gold font-bold truncate mt-1">
+                {q.sayer}
+              </p>
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
