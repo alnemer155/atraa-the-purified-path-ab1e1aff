@@ -101,18 +101,18 @@ const HomePage = () => {
         )}
       </motion.div>
 
-      <div className="px-4 space-y-3">
-        {/* Resume cards */}
+      <div className="px-5 space-y-6">
+        {/* Resume cards — v2.13.15 glass rows */}
         {(showTasbihResume || showLastReading) && (
-          <motion.div variants={fadeUp} className="space-y-1.5">
+          <motion.div variants={fadeUp} className="space-y-2">
             {showTasbihResume && tasbihState && (
               <button
                 onClick={() => navigate('/library')}
-                className={`w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/40 active:scale-[0.98] transition-transform shadow-card ${isAr ? 'text-right' : 'text-left'}`}
+                className={`w-full flex items-center gap-3 p-3.5 glass-card-soft active:scale-[0.98] transition-transform ${isAr ? 'text-right' : 'text-left'}`}
               >
-                <RotateCcw className="w-4 h-4 text-primary/60 flex-shrink-0" />
+                <RotateCcw className="w-4 h-4 text-gold flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12px] text-foreground font-medium">{t('library.tasbih')}</p>
+                  <p className="text-[12px] text-foreground font-bold">{t('library.tasbih')}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">
                     {tasbihState.mode === 'zahra'
                       ? `${tasbihatLabels[tasbihState.step]} · ${tasbihState.count}/${[34, 33, 33][tasbihState.step]}`
@@ -120,23 +120,23 @@ const HomePage = () => {
                     }
                   </p>
                 </div>
-                <Chevron className="w-3.5 h-3.5 text-muted-foreground/30 flex-shrink-0" />
+                <Chevron className="w-3.5 h-3.5 text-muted-foreground/40 flex-shrink-0" />
               </button>
             )}
 
             {showLastReading && lastReading && (
               <button
                 onClick={() => navigate('/library')}
-                className={`w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/40 active:scale-[0.98] transition-transform shadow-card ${isAr ? 'text-right' : 'text-left'}`}
+                className={`w-full flex items-center gap-3 p-3.5 glass-card-soft active:scale-[0.98] transition-transform ${isAr ? 'text-right' : 'text-left'}`}
               >
-                <BookOpen className="w-4 h-4 text-primary/60 flex-shrink-0" />
+                <BookOpen className="w-4 h-4 text-gold flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12px] text-foreground font-medium">{t('library.title')}</p>
+                  <p className="text-[12px] text-foreground font-bold">{t('library.title')}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
                     {lastReading.title}
                   </p>
                 </div>
-                <Chevron className="w-3.5 h-3.5 text-muted-foreground/30 flex-shrink-0" />
+                <Chevron className="w-3.5 h-3.5 text-muted-foreground/40 flex-shrink-0" />
               </button>
             )}
           </motion.div>
