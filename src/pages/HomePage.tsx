@@ -72,37 +72,33 @@ const HomePage = () => {
       animate="visible"
       className="pb-6"
     >
-      {/* Greeting — devotional line now inline beside the greeting */}
-      <motion.div variants={fadeUp} className={`px-5 pt-5 pb-3 ${isAr ? 'text-right' : 'text-left'}`}>
-        <div className={`flex items-baseline gap-2.5 flex-wrap ${isAr ? 'flex-row' : 'flex-row-reverse justify-end'}`}>
-          <h1 className="text-[20px] text-foreground leading-snug tracking-tight font-semibold whitespace-nowrap">
-            {t('home.greeting')}
-          </h1>
-          {isAr && (
-            <>
-              <span className="text-muted-foreground/25 text-[10px]">•</span>
-              <div className="min-h-[24px] overflow-hidden flex-1 min-w-0">
-                <AnimatePresence mode="wait">
-                  <motion.p
-                    key={devotionalIndex}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                    className={
-                      DEVOTIONAL_ROTATION[devotionalIndex].type === 'ayah'
-                        ? 'quran-uthmani text-[13px] text-primary/80 leading-relaxed truncate'
-                        : 'text-[12px] text-primary/70 leading-relaxed font-medium truncate'
-                    }
-                    dir="rtl"
-                  >
-                    {DEVOTIONAL_ROTATION[devotionalIndex].text}
-                  </motion.p>
-                </AnimatePresence>
-              </div>
-            </>
-          )}
-        </div>
+      {/* Greeting — v2.13.15 GlassUI: kicker + big heading + devotional line */}
+      <motion.div variants={fadeUp} className={`px-6 pt-6 pb-4 ${isAr ? 'text-right' : 'text-left'}`}>
+        <p className="kicker mb-2">{isAr ? 'اليوم' : 'Today'}</p>
+        <h1 className="text-[26px] text-foreground leading-tight tracking-tight font-bold">
+          {t('home.greeting')}
+        </h1>
+        {isAr && (
+          <div className="mt-2 min-h-[26px] overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={devotionalIndex}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                className={
+                  DEVOTIONAL_ROTATION[devotionalIndex].type === 'ayah'
+                    ? 'quran-uthmani text-[15px] text-muted-foreground leading-relaxed italic'
+                    : 'text-[13px] text-muted-foreground leading-relaxed'
+                }
+                dir="rtl"
+              >
+                {DEVOTIONAL_ROTATION[devotionalIndex].text}
+              </motion.p>
+            </AnimatePresence>
+          </div>
+        )}
       </motion.div>
 
       <div className="px-4 space-y-3">
