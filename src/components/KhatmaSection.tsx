@@ -39,51 +39,68 @@ const KhatmaSection = () => {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-2.5">
-        <h2 className="text-[12px] text-foreground text-right">الختمات</h2>
-        <span className="text-[8px] text-muted-foreground/40 font-light tabular-nums">
+    <div className="space-y-3">
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <div className="w-1 h-1 rounded-full bg-gold" />
+          <h2 className="text-[13px] font-bold text-foreground">الختمات</h2>
+        </div>
+        <span className="text-[10px] text-muted-foreground/60 tabular-nums">
           {recent.length} منشورة
         </span>
       </div>
 
-      <div className="rounded-2xl border border-border/30 bg-card overflow-hidden">
+      <div className="glass-card p-0 overflow-hidden">
         <button
           onClick={() => setShowCreate(true)}
-          className="w-full flex items-center gap-3 p-3.5 active:bg-secondary/40 transition-colors text-right"
+          className="w-full flex items-center gap-3 p-4 active:bg-foreground/[0.03] transition-colors text-right"
         >
-          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-            <Plus className="w-4 h-4 text-primary" strokeWidth={1.5} />
+          <div className="w-10 h-10 rounded-2xl bg-gold/10 hairline-gold border-[0.5px] flex items-center justify-center flex-shrink-0">
+            <Plus className="w-4 h-4 text-gold" strokeWidth={2} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[13px] text-foreground">إنشاء ختمة جديدة</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5 font-light">
+            <p className="text-[13px] text-foreground font-bold">إنشاء ختمة جديدة</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
               سورة واحدة أو ختمة قرآن كاملة (٣٠ جزء)
             </p>
           </div>
-          <BookMarked className="w-4 h-4 text-muted-foreground/40" strokeWidth={1.5} />
+          <BookMarked className="w-4 h-4 text-muted-foreground/50" strokeWidth={1.5} />
         </button>
 
         {recent.length > 0 && (
-          <div className="border-t border-border/20">
+          <div className="border-t-[0.5px] hairline">
             {recent.map((k) => {
               const isFull = k.mode === 'full_quran';
               const Icon = isFull ? BookOpen : BookMarked;
+              const pct = isFull ? Math.round((k.completed_juz_count / 30) * 100) : null;
               const meta = isFull
-                ? `قرآن كامل · ${k.completed_juz_count}/٣٠ جزء`
+                ? `الجزء ${k.completed_juz_count}/٣٠`
                 : `سورة ${k.surah_name} · ${k.recitations_count} قراءة`;
               return (
                 <Link
                   key={k.id}
                   to={`/khatma/${k.slug}`}
-                  className="flex items-center gap-3 p-3 border-b border-border/10 last:border-b-0 active:bg-secondary/30 transition-colors"
+                  className="flex items-center gap-3 p-4 border-t-[0.5px] hairline first:border-t-0 active:bg-foreground/[0.03] transition-colors"
                 >
-                  <Icon className="w-3.5 h-3.5 text-muted-foreground/60 flex-shrink-0" strokeWidth={1.5} />
-                  <div className="flex-1 min-w-0 text-right">
-                    <p className="text-[12px] text-foreground truncate">{k.title}</p>
-                    <p className="text-[10px] text-muted-foreground/70 font-light mt-0.5 tabular-nums">
-                      {meta}
-                    </p>
+                  <Icon className="w-4 h-4 text-muted-foreground/60 flex-shrink-0" strokeWidth={1.5} />
+                  <div className="flex-1 min-w-0 text-right space-y-1.5">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <p className="text-[12px] text-foreground font-bold truncate">{k.title}</p>
+                      {pct !== null && (
+                        <span className="text-[10px] text-gold font-bold tabular-nums flex-shrink-0">{pct}٪</span>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground/70 tabular-nums">{meta}</p>
+                    {pct !== null && (
+                      <div className="h-[3px] w-full bg-foreground/[0.06] rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gold rounded-full relative transition-all"
+                          style={{ width: `${pct}%` }}
+                        >
+                          <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-background border-[1.5px] border-gold" />
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground/40 flex-shrink-0" strokeWidth={1.5} />
                 </Link>
