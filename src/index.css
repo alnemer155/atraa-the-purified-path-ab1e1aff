@@ -358,15 +358,53 @@
   }
 
 
-  /* iOS 26 Liquid Glass — used for cards and surfaces */
+  /* Apple GlassUI v2.13.15 — hairline sepia glass */
   .glass-card {
-    @apply bg-card/70 backdrop-blur-xl border border-white/40 rounded-2xl;
+    background: hsl(var(--card) / 0.65);
+    backdrop-filter: blur(32px) saturate(1.6);
+    -webkit-backdrop-filter: blur(32px) saturate(1.6);
+    border: 0.5px solid hsl(var(--foreground) / 0.10);
+    border-radius: 28px;
     box-shadow: var(--shadow-glass);
   }
 
-  .glass-surface {
-    @apply bg-background/55 backdrop-blur-2xl backdrop-saturate-200;
+  .glass-card-soft {
+    background: hsl(var(--card) / 0.42);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    border: 0.5px solid hsl(var(--foreground) / 0.08);
+    border-radius: 24px;
   }
+
+  .glass-surface {
+    background: hsl(var(--background) / 0.72);
+    backdrop-filter: blur(40px) saturate(1.8);
+    -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  }
+
+  .glass-nav {
+    background: hsl(var(--card) / 0.78);
+    backdrop-filter: blur(40px) saturate(1.8);
+    -webkit-backdrop-filter: blur(40px) saturate(1.8);
+    border: 0.5px solid hsl(var(--foreground) / 0.10);
+    box-shadow:
+      0 15px 40px -8px hsl(var(--foreground) / 0.10),
+      inset 0 0.5px 0 hsl(var(--card) / 0.6);
+  }
+
+  .hairline { border-color: hsl(var(--foreground) / 0.08); }
+  .hairline-strong { border-color: hsl(var(--foreground) / 0.14); }
+  .hairline-gold { border-color: hsl(var(--gold) / 0.35); }
+
+  /* Kicker — small uppercase label above headings */
+  .kicker {
+    color: hsl(var(--gold));
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+  }
+
 
   @keyframes qibla-pulse {
     0%, 100% { opacity: 0.4; transform: scale(1); }
