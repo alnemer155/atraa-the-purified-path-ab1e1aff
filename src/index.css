@@ -67,42 +67,46 @@
 
 @layer base {
   :root {
-    /* Surfaces */
-    --background: 38 24% 97%;
-    --foreground: 158 32% 12%;
+    /*
+     * v2.13.15 — Apple GlassUI · Sepia palette (LOCKED)
+     * bg #f2ead9  surface #faf3e2  ink #2b1e10  ink-soft #6b5a44
+     * accent-gold #b8944b  accent-deep #6b4a2a  hairline rgba(43,30,16,0.08)
+     */
+    --background: 36 44% 90%;         /* #f2ead9 */
+    --foreground: 28 47% 12%;         /* #2b1e10 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 158 32% 12%;
+    --card: 40 60% 93%;               /* #faf3e2 */
+    --card-foreground: 28 47% 12%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 158 32% 12%;
+    --popover: 40 60% 96%;
+    --popover-foreground: 28 47% 12%;
 
-    /* Brand — Islamic emerald */
-    --primary: 158 48% 22%;
-    --primary-foreground: 38 30% 98%;
-    --primary-light: 158 30% 95%;
-    --primary-glow: 158 50% 32%;
+    /* Brand — deep sepia ink */
+    --primary: 28 47% 16%;
+    --primary-foreground: 40 60% 96%;
+    --primary-light: 40 60% 93%;
+    --primary-glow: 34 43% 30%;
 
     /* Secondary surfaces */
-    --secondary: 38 18% 93%;
-    --secondary-foreground: 158 30% 18%;
+    --secondary: 38 40% 88%;
+    --secondary-foreground: 28 45% 18%;
 
-    --muted: 38 14% 92%;
-    --muted-foreground: 158 12% 38%;
+    --muted: 36 30% 86%;
+    --muted-foreground: 28 20% 34%;   /* #6b5a44 */
 
-    /* Accent — soft gold */
-    --accent: 38 65% 52%;
-    --accent-foreground: 158 35% 14%;
+    /* Accent — antique gold */
+    --accent: 40 44% 51%;             /* #b8944b */
+    --accent-foreground: 28 47% 12%;
 
-    --gold: 38 65% 52%;
-    --gold-light: 38 60% 95%;
+    --gold: 40 44% 51%;
+    --gold-light: 40 50% 92%;
 
-    --destructive: 0 70% 52%;
+    --destructive: 0 55% 44%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 38 16% 88%;
-    --input: 38 16% 88%;
-    --ring: 158 48% 22%;
+    --border: 28 30% 82%;
+    --input: 28 30% 82%;
+    --ring: 40 44% 51%;
 
     --radius: 1rem;
 
