@@ -46,7 +46,7 @@ const SplashScreen = ({ onFinish, duration = 1800 }: SplashScreenProps) => {
             <motion.img
               src={logo}
               alt="Atraa"
-              className="h-12 w-auto object-contain"
+              className="h-12 w-auto object-contain invert dark:invert-0"
               style={{ maxHeight: 48 }}
               animate={{
                 opacity: [0.85, 1, 0.85],

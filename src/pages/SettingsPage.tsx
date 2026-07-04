@@ -406,31 +406,8 @@ const SettingsPage = () => {
       </motion.div>
 
 
-      {/* Apps — sister Atraa platforms */}
-      <motion.div variants={fadeUp} custom={5}>
-        <p className="text-[11px] text-muted-foreground/70 px-1 mb-1.5 font-medium">
-          {isAr ? 'تطبيقات' : 'Apps'}
-        </p>
-        <div className="bg-card rounded-2xl border border-border/40 overflow-hidden divide-y divide-border/30 shadow-card">
-          {[
-            { url: 'https://khatma.atraa.xyz', label: isAr ? 'ختمة' : 'Khatma' },
-            { url: 'https://athar.atraa.xyz',  label: isAr ? 'أثر' : 'Athar' },
-            { url: 'https://qasaid.atraa.xyz', label: isAr ? 'قصائد حسينية' : 'Qasaid' },
-            { url: 'https://audio.atraa.xyz',  label: isAr ? 'صوتيات' : 'Audio' },
-          ].map((app) => (
-            <a
-              key={app.url}
-              href={app.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between p-3.5 active:bg-secondary/30 transition-colors"
-            >
-              <p className="text-[13px] text-foreground">{app.label}</p>
-              <Chevron className="w-4 h-4 text-muted-foreground/40" />
-            </a>
-          ))}
-        </div>
-      </motion.div>
+      {/* v2.13.20 — «تطبيقات» section fully removed. */}
+
 
       {/* Legal */}
       <motion.div variants={fadeUp} custom={6}>

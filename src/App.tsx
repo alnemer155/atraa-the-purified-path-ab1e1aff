@@ -50,6 +50,7 @@ const AdminPage = lazy(() => import("./pages/AdminPage"));
 const AtharQuotePage = lazy(() => import("./pages/AtharQuotePage"));
 const AtharHomePage = lazy(() => import("./pages/AtharHomePage"));
 const MaintenancePage = lazy(() => import("./pages/MaintenancePage"));
+const MosqueDetailPage = lazy(() => import("./pages/MosqueDetailPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const hostname = typeof window !== "undefined" ? window.location.hostname : "";
@@ -146,6 +147,7 @@ const App = () => {
                       <Route path="/data" element={<DataPage />} />
                       <Route path="/about" element={<AboutPage />} />
                       <Route path="/athar/:id" element={<AtharQuotePage />} />
+                      <Route path="/mosques/:id" element={<MosqueDetailPage />} />
                     </Route>
 
                     {/* Khatma standalone (no app shell, accessed via shared link) */}
