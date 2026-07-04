@@ -242,7 +242,7 @@
 
   /* Tabular numerals globally for prayer times, dates, counters */
   .tabular-nums { font-variant-numeric: tabular-nums; }
-
+}
 
 @layer utilities {
   .islamic-gradient {
