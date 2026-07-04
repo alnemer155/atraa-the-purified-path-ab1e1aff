@@ -46,9 +46,9 @@ function toMinutes(time24: string): number {
   return h * 60 + m;
 }
 
-// On the home grid we surface only the three pillars users glance at most:
-// Fajr, Dhuhr (Dhuhrayn), Maghrib (Isha'ayn). Asr/Sunrise/Isha live in the sheet.
-const HOME_PRAYER_KEYS = ['Fajr', 'Dhuhr', 'Maghrib'];
+// v2.13.15 — Home now shows all 5 daily prayers in a hairline glass grid,
+// with the current prayer marked by a gold ring. Sunrise stays in the sheet.
+const HOME_PRAYER_KEYS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 const ALL_PRAYER_KEYS = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
 function getCurrentAndNext(timings: TimingsData, keys: string[]): { current: string | null; next: string | null } {
