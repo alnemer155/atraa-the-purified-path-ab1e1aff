@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getSeasonalLogo } from '@/lib/seasonal-logo';
+import { getSeasonalLogo, getSeasonalLabel } from '@/lib/seasonal-logo';
+import wordmarkBlackAsset from '@/assets/brand/atraa-wordmark-black.png.asset.json';
+import wordmarkDarkAsset from '@/assets/brand/atraa-wordmark-dark.png.asset.json';
 
-const logo = getSeasonalLogo();
+const seasonalLogo = getSeasonalLogo();
+const isSeasonal = !!getSeasonalLabel();
 
 interface SplashScreenProps {
   onFinish: () => void;
@@ -44,9 +47,13 @@ const SplashScreen = ({ onFinish, duration = 1800 }: SplashScreenProps) => {
             className="relative flex flex-col items-center"
           >
             <motion.img
-              src={logo}
+              src={isSeasonal ? seasonalLogo : wordmarkBlackAsset.url}
               alt="Atraa"
-              className="h-12 w-auto object-contain invert dark:invert-0"
+              className={
+                isSeasonal
+                  ? 'h-12 w-auto object-contain invert dark:invert-0'
+                  : 'h-12 w-auto object-contain block dark:hidden'
+              }
               style={{ maxHeight: 48 }}
               animate={{
                 opacity: [0.85, 1, 0.85],
@@ -57,6 +64,16 @@ const SplashScreen = ({ onFinish, duration = 1800 }: SplashScreenProps) => {
                 ease: 'easeInOut',
               }}
             />
+            {!isSeasonal && (
+              <motion.img
+                src={wordmarkDarkAsset.url}
+                alt="Atraa"
+                className="h-12 w-auto object-contain hidden dark:block"
+                style={{ maxHeight: 48 }}
+                animate={{ opacity: [0.85, 1, 0.85] }}
+                transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+              />
+            )}
             <motion.div
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 36, opacity: 1 }}
