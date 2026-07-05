@@ -65,16 +65,18 @@ const AtharHomePage = () => {
         className="max-w-2xl mx-auto px-5"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 4rem)' }}
       >
-        {/* Hero — brand band consistent with Minbar */}
-        <section className="relative overflow-hidden -mx-5 mb-2">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_-10%,hsl(var(--primary)/0.14),transparent_60%),radial-gradient(circle_at_85%_120%,hsl(var(--gold)/0.10),transparent_55%)]" />
-          <div className="relative px-6 pt-10 pb-9 text-center">
-            <p className="text-[10px] tracking-[0.45em] text-muted-foreground/70 uppercase">ATRAA · ATHAR</p>
-            <h1 className="text-[28px] mt-3 leading-tight font-light tracking-tight text-foreground">
+        {/* Hero — brand band with refined glow */}
+        <section className="relative overflow-hidden -mx-5 mb-4">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.16),transparent_58%),radial-gradient(circle_at_85%_120%,hsl(var(--gold)/0.12),transparent_55%)]" />
+          <div className="absolute inset-x-8 bottom-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+          <div className="relative px-6 pt-14 pb-11 text-center">
+            <p className="text-[10px] tracking-[0.5em] text-muted-foreground/70 uppercase">ATRAA · ATHAR</p>
+            <h1 className="text-[34px] mt-4 leading-none font-light tracking-tight text-foreground">
               أثَر
             </h1>
-            <p className="text-[13px] mt-2 text-foreground/85 font-light leading-relaxed">
-              أقوال النبي محمد ﷺ وأهل البيت عليهم السلام
+            <div className="mx-auto mt-4 w-10 h-px bg-border/60" />
+            <p className="text-[13px] mt-4 text-foreground/85 font-light leading-relaxed">
+              أقوال النبي محمد صلى الله عليه وآله وسلم وأهل البيت عليهم السلام
             </p>
             <p className="text-[11px] mt-3 text-muted-foreground/75 font-light leading-relaxed max-w-md mx-auto">
               مكتبة منتقاة من المقولات والوصايا، بمعرّف فريد لكل مقولة لتسهيل المشاركة.
@@ -84,15 +86,15 @@ const AtharHomePage = () => {
 
 
         {/* Naming story */}
-        <section className="rounded-2xl border border-border/25 bg-card/60 p-5 mb-6 text-center">
-          <p className="text-[10px] text-muted-foreground/60 font-light tracking-[0.25em] mb-2">
+        <section className="rounded-3xl border border-border/25 bg-card/70 backdrop-blur-sm p-6 mb-6 text-center">
+          <p className="text-[9px] text-muted-foreground/60 font-light tracking-[0.35em] mb-3 uppercase">
             قصّة التسمية
           </p>
-          <p className="text-[13px] text-foreground/90 font-light leading-loose">
+          <p className="text-[13px] text-foreground/85 font-light leading-loose">
             جاءت تسمية «<span className="text-foreground">أثر</span>» بالصدفة عندما قال
             المطوّر لأحد أصدقائه:
           </p>
-          <p className="text-[14px] text-foreground font-light leading-loose mt-2">
+          <p className="text-[15px] text-foreground font-light leading-loose mt-3">
             «المقولة تبقى في الأَثَر.»
           </p>
         </section>
@@ -100,14 +102,14 @@ const AtharHomePage = () => {
         {/* Search */}
         <div className="relative mb-4">
           <Search
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60"
             strokeWidth={1.6}
           />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="ابحث في النص أو القائل…"
-            className="w-full h-11 pr-9 pl-3 rounded-2xl bg-secondary/40 border border-border/30 text-[12px] text-foreground outline-none focus:border-primary/40"
+            className="w-full h-12 pr-10 pl-4 rounded-2xl bg-card border border-border/35 text-[12px] text-foreground outline-none focus:border-primary/45 transition-colors"
           />
         </div>
 

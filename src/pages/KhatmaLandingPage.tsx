@@ -89,19 +89,25 @@ const KhatmaLandingPage = () => {
         </button>
       </div>
 
-      {/* Hero — brand band consistent with Minbar/Athar */}
+      {/* Hero — refined brand band */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_-10%,hsl(var(--primary)/0.14),transparent_60%),radial-gradient(circle_at_85%_120%,hsl(var(--gold)/0.10),transparent_55%)]" />
-        <div className="relative px-6 pt-12 pb-7 text-center">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.16),transparent_58%),radial-gradient(circle_at_85%_120%,hsl(var(--gold)/0.12),transparent_55%)]" />
+        <div className="absolute inset-x-8 bottom-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+        <div className="relative px-6 pt-14 pb-9 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-14 h-14 rounded-full bg-primary/10 border border-primary/15 flex items-center justify-center mx-auto mb-5"
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="relative w-16 h-16 mx-auto mb-6"
           >
-            <BookOpen className="w-6 h-6 text-primary" strokeWidth={1.3} />
+            <div className="absolute inset-0 rounded-full bg-primary/8 blur-xl" />
+            <div className="relative w-full h-full rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <BookOpen className="w-6 h-6 text-primary" strokeWidth={1.3} />
+            </div>
           </motion.div>
-          <p className="text-[10px] tracking-[0.45em] text-muted-foreground/70 uppercase">ATRAA · KHATMA</p>
-          <h1 className="text-[26px] text-foreground font-light mt-2 mb-3 tracking-tight">الختمات</h1>
+          <p className="text-[10px] tracking-[0.5em] text-muted-foreground/70 uppercase">ATRAA · KHATMA</p>
+          <h1 className="text-[30px] text-foreground font-light mt-3 mb-1 tracking-tight leading-none">الختمات</h1>
+          <div className="mx-auto mt-4 mb-4 w-10 h-px bg-border/60" />
           <p className="text-[12px] text-muted-foreground/85 font-light leading-relaxed max-w-sm mx-auto">
             أهدِ قراءة سورة أو ختمة قرآن كاملة لروح من تحب. شارك الرابط ليُسجّل الآخرون قراءاتهم.
           </p>

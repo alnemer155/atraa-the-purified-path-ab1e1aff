@@ -1,21 +1,7 @@
 /**
- * Reusable icon for "عليه السلام" — replaces the textual phrase
- * with a small inline image, as a visual seal of respect.
+ * Deprecated: the "عليه السلام" pictorial icon has been removed permanently.
+ * Kept as a null-render for backward compatibility with existing imports.
  */
-interface Props {
-  className?: string;
-  size?: number;
-}
-
-const PeaceBeUponHim = ({ className = '', size = 14 }: Props) => (
-  <img
-    src="https://i.ibb.co/23DQN2WC/phonto.png"
-    alt="عليه السلام"
-    aria-label="عليه السلام"
-    className={`inline-block align-middle mx-0.5 select-none ${className}`}
-    style={{ height: size, width: 'auto' }}
-    draggable={false}
-  />
-);
+const PeaceBeUponHim = (_: { className?: string; size?: number }) => null;
 
 export default PeaceBeUponHim;
