@@ -89,9 +89,10 @@ const AdminPage = () => {
     );
   }
 
-  const handleUnlock = (e: React.FormEvent) => {
+  const handleUnlock = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (unlockAdmin(secret)) {
+    const ok = await unlockAdmin(secret);
+    if (ok) {
       setUnlocked(true);
       setSecret('');
     } else {
@@ -193,7 +194,8 @@ const UnlockScreen = ({ onUnlock, textMode, setTextMode, secret, setSecret }: Un
 
   const handleUnlock = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (unlockAdmin(secret)) {
+    const unlocked = await unlockAdmin(secret);
+    if (unlocked) {
       setSecret('');
       if (biomAvail && !hasBiometricRegistered()) {
         setBusy(true);
