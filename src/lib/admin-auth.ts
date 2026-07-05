@@ -1,26 +1,15 @@
-// Lightweight client-side admin gate. Credentials are intentionally simple
-// and scoped to the admin subdomain — the data behind it is non-sensitive
-// (manually-curated supplications, ziyarat, adhkar, wallpapers, qasaid).
+// v2.13.21 — Admin gate. Credentials are validated by the `admin-unlock`
+// edge function, which reads them from server-side env vars (ADMIN_PIN /
+// ADMIN_TEXT). NO admin secret is ever embedded in the client bundle.
 //
-// Two equivalent secrets are accepted:
-//   - PIN (numeric, Arabic or Western digits): "5616"
-//   - Text: "Alnemer515"
-//
-// In addition (v2.10.60.20) we offer an optional biometric (FaceID / TouchID)
-// unlock built on top of the WebAuthn "platform authenticator" — once the
-// developer has signed in once with the PIN, they can register a passkey
-// and re-unlock with a single FaceID prompt from the same device.
+// Once verified, an unlock flag is kept in sessionStorage so the developer
+// doesn't need to re-enter the secret on every reload. Optional WebAuthn
+// biometric unlock (FaceID / TouchID) is layered on top for convenience.
 
-const PIN = '5616';
-const TEXT = 'Alnemer515';
+import { supabase } from '@/integrations/supabase/client';
+
 const KEY = 'atraa.admin.pin.ok.v1';
 const BIOM_KEY = 'atraa.admin.biom.cred.v1'; // base64url credential id
-
-// Map Arabic-Indic / Eastern-Arabic digits to Western digits for comparison.
-function normalizeDigits(input: string): string {
-  return input.replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
-              .replace(/[\u06F0-\u06F9]/g, (d) => String(d.charCodeAt(0) - 0x06F0));
-}
 
 export function isAdminHost(): boolean {
   if (typeof window === 'undefined') return false;
@@ -31,13 +20,21 @@ export function isAdminUnlocked(): boolean {
   try { return sessionStorage.getItem(KEY) === '1'; } catch { return false; }
 }
 
-export function unlockAdmin(secret: string): boolean {
+export async function unlockAdmin(secret: string): Promise<boolean> {
   const trimmed = (secret ?? '').trim();
-  const numericNormalized = normalizeDigits(trimmed);
-  const ok = numericNormalized === PIN || trimmed === TEXT;
-  if (!ok) return false;
-  try { sessionStorage.setItem(KEY, '1'); } catch { /* ignore */ }
-  return true;
+  if (!trimmed) return false;
+  try {
+    const { data, error } = await supabase.functions.invoke('admin-unlock', {
+      body: { secret: trimmed },
+    });
+    if (error) return false;
+    const ok = !!(data && (data as { ok?: boolean }).ok);
+    if (!ok) return false;
+    try { sessionStorage.setItem(KEY, '1'); } catch { /* ignore */ }
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function forceUnlock() {
