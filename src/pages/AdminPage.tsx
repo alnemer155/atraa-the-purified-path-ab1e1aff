@@ -107,8 +107,8 @@ const AdminPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-16" dir="rtl">
-      {/* Header — v2 design: cleaner chips, version badge */}
-      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/15">
+      {/* Header — refined: hairline divider, refined chips */}
+      <div className="sticky top-0 z-30 bg-background/85 backdrop-blur-2xl backdrop-saturate-200">
         <div className="px-3 py-3 flex items-center justify-between gap-2">
           <button
             onClick={() => { lockAdmin(); setUnlocked(false); }}
@@ -118,8 +118,8 @@ const AdminPage = () => {
             <LogOut className="w-4 h-4 text-foreground" strokeWidth={1.5} />
           </button>
           <div className="flex flex-col items-center leading-tight">
-            <p className="text-[13px] text-foreground">لوحة المطور</p>
-            <p className="text-[8px] text-muted-foreground/60 tracking-[0.3em] mt-0.5">v2 · ATRAA</p>
+            <p className="text-[13px] text-foreground font-light tracking-tight">لوحة المطور</p>
+            <p className="text-[8px] text-muted-foreground/55 tracking-[0.4em] mt-1 uppercase">v2 · ATRAA</p>
           </div>
           <ReadingThemeToggle allowNight={false} />
         </div>
@@ -135,21 +135,25 @@ const AdminPage = () => {
             ['codes', 'الأكواد', KeyRound],
             ['errors', 'الأخطاء', AlertOctagon],
             ['maintenance', 'الصيانة', Wrench],
-          ] as [Tab, string, typeof Lock][]).map(([k, label, Icon]) => (
-            <button
-              key={k}
-              onClick={() => setTab(k)}
-              className={`flex-shrink-0 px-3 h-9 min-w-[72px] rounded-full text-[11px] flex items-center justify-center gap-1.5 transition-all ${
-                tab === k
-                  ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/20'
-                  : 'bg-secondary/40 text-foreground border border-border/30'
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5" strokeWidth={1.5} />
-              {label}
-            </button>
-          ))}
+          ] as [Tab, string, typeof Lock][]).map(([k, label, Icon]) => {
+            const active = tab === k;
+            return (
+              <button
+                key={k}
+                onClick={() => setTab(k)}
+                className={`flex-shrink-0 px-3.5 h-9 min-w-[72px] rounded-full text-[11px] flex items-center justify-center gap-1.5 transition-all ${
+                  active
+                    ? 'bg-foreground text-background shadow-sm'
+                    : 'bg-transparent text-muted-foreground/70 border border-border/25 hover:text-foreground'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${active ? '' : 'opacity-70'}`} strokeWidth={1.5} />
+                {label}
+              </button>
+            );
+          })}
         </div>
+        <div className="h-px mx-3 bg-gradient-to-r from-transparent via-border/40 to-transparent" />
       </div>
 
       <div className="px-3 sm:px-4 pt-5">
