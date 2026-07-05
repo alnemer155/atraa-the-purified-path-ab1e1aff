@@ -17,7 +17,7 @@ export interface Mosque {
 
 export const MOSQUES: Mosque[] = [
   // ================= العراق =================
-  { id: 'iq-najaf-imam-ali', nameAr: 'حرم أمير المؤمنين علي بن أبي طالب عليه السلام', nameEn: 'Imam Ali Shrine', country: 'العراق', countryEn: 'Iraq', city: 'النجف الأشرف', cityEn: 'Najaf', area: 'وسط المدينة', lat: 31.9959, lng: 44.3147 },
+  { id: 'iq-najaf-imam-ali', nameAr: 'حرم أمير المؤمنين علي بن أبي طالب عليه السلام', nameEn: 'Imam Ali Shrine', country: 'العراق', countryEn: 'Iraq', city: 'النجف الأشرف', cityEn: 'Najaf', area: 'وسط المدينة', lat: 32.0000, lng: 44.3143 },
   { id: 'iq-karbala-hussain', nameAr: 'حرم الإمام الحسين عليه السلام', nameEn: 'Imam Hussain Shrine', country: 'العراق', countryEn: 'Iraq', city: 'كربلاء المقدسة', cityEn: 'Karbala', lat: 32.6163, lng: 44.0329 },
   { id: 'iq-karbala-abbas', nameAr: 'حرم أبي الفضل العباس عليه السلام', nameEn: 'Al-Abbas Shrine', country: 'العراق', countryEn: 'Iraq', city: 'كربلاء المقدسة', cityEn: 'Karbala', lat: 32.6180, lng: 44.0345 },
   { id: 'iq-kadhimiya', nameAr: 'حرم الإمامين الكاظمين عليه السلام', nameEn: 'Al-Kadhimiya Shrine', country: 'العراق', countryEn: 'Iraq', city: 'بغداد', cityEn: 'Baghdad', area: 'الكاظمية', lat: 33.3803, lng: 44.3378 },
