@@ -74,6 +74,7 @@ const SplashScreen = ({ onFinish, duration = 1800 }: SplashScreenProps) => {
                 transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
               />
             )}
+            <motion.div
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 36, opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.6 }}

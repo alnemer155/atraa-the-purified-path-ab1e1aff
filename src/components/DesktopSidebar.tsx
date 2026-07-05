@@ -3,7 +3,8 @@ import { Home, Settings, BookText, Info, Shield } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import BookAlt from './icons/BookAlt';
 import { useQuranPause } from '@/lib/quran-paused';
-import logoAsset from '@/assets/brand/atraa-icon-dark.png.asset.json';
+import logoBlackAsset from '@/assets/brand/atraa-icon-black.png.asset.json';
+import logoDarkAsset from '@/assets/brand/atraa-icon-dark.png.asset.json';
 import {
   Sidebar,
   SidebarContent,
@@ -45,7 +46,8 @@ const DesktopSidebar = () => {
     <Sidebar collapsible="icon" side={isAr ? 'right' : 'left'}>
       <SidebarHeader className="border-b border-border/30">
         <div className="flex items-center gap-2 px-2 py-3">
-          <img src={logoAsset.url} alt="عِتْرَة" className="w-8 h-8 rounded-lg flex-shrink-0 invert dark:invert-0" />
+          <img src={logoBlackAsset.url} alt="عِتْرَة" className="w-8 h-8 rounded-lg flex-shrink-0 block dark:hidden" />
+          <img src={logoDarkAsset.url} alt="عِتْرَة" className="w-8 h-8 rounded-lg flex-shrink-0 hidden dark:block" />
           {!collapsed && (
             <div className="min-w-0">
               <p className="text-[14px] text-foreground font-semibold leading-tight">عِتْرَة</p>
