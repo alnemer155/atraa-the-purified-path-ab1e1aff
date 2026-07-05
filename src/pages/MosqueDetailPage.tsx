@@ -43,9 +43,14 @@ const MosqueDetailPage = () => {
   const addressLine = [name, mosque.area, city, country].filter(Boolean).join('، ');
   const distanceKm = userLoc ? haversineKm(userLoc, mosque) : null;
 
-  const gmaps = `https://www.google.com/maps/search/?api=1&query=${mosque.lat},${mosque.lng}`;
-  const amaps = `https://maps.apple.com/?ll=${mosque.lat},${mosque.lng}&q=${encodeURIComponent(name)}`;
-  const wazee = `https://waze.com/ul?ll=${mosque.lat},${mosque.lng}&navigate=yes`;
+  // Search by full place name so map providers resolve to the actual venue,
+  // not a raw coordinate that may be slightly off. Include coords as a bias.
+  const searchQuery = [mosque.nameAr, mosque.city, mosque.country].filter(Boolean).join(' ');
+  const enQuery = [mosque.nameEn, mosque.cityEn, mosque.countryEn].filter(Boolean).join(', ');
+  const q = encodeURIComponent(isAr ? searchQuery : enQuery);
+  const gmaps = `https://www.google.com/maps/search/?api=1&query=${q}`;
+  const amaps = `https://maps.apple.com/?q=${q}&sll=${mosque.lat},${mosque.lng}`;
+  const wazee = `https://waze.com/ul?ll=${mosque.lat},${mosque.lng}&navigate=yes&q=${q}`;
 
   const copyAddress = async () => {
     try {
