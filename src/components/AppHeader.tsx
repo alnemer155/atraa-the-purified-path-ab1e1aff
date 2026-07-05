@@ -1,22 +1,22 @@
 import { useMemo } from 'react';
 import { getSeasonalLogo, getSeasonalLabel } from '@/lib/seasonal-logo';
+import wordmarkBlackAsset from '@/assets/brand/atraa-wordmark-black.png.asset.json';
+import wordmarkDarkAsset from '@/assets/brand/atraa-wordmark-dark.png.asset.json';
 
 /**
  * Sticky app header.
  *
- * iOS 26.5 PWA fix: when `apple-mobile-web-app-status-bar-style` is
- * `black-translucent`, the system status bar overlays the web view, so
- * the header was being hidden under the notch / Dynamic Island after
- * installing as a PWA / native app. We now respect the top safe-area
- * inset and bump the minimum top padding so the logo always clears.
+ * iOS 26.5 PWA fix: respects the top safe-area inset so the logo always
+ * clears the notch / Dynamic Island in PWA/native installs.
  *
- * Dark/Light mode: the default logo is white-on-black, so in light mode
- * we invert it via Tailwind's `dark:` prefix logic — the logo renders
- * normally in dark mode and is inverted (black-on-white) in light mode.
+ * Dark/Light mode: we ship a native BLACK wordmark for light mode and the
+ * white wordmark for dark mode — no CSS invert. Seasonal logos are single
+ * dark-on-transparent PNGs, so they still use `invert dark:invert-0`.
  */
 const AppHeader = () => {
-  const logoSrc = useMemo(() => getSeasonalLogo(), []);
+  const seasonalSrc = useMemo(() => getSeasonalLogo(), []);
   const label = useMemo(() => getSeasonalLabel(), []);
+  const isSeasonal = !!label;
 
   return (
     <header
@@ -24,12 +24,27 @@ const AppHeader = () => {
       style={{ paddingTop: 'max(env(safe-area-inset-top), 0px)' }}
     >
       <div className="flex items-center justify-center px-5 py-2.5 max-w-lg mx-auto min-h-[44px]">
-        <img
-          src={logoSrc}
-          alt={label || 'Atraa'}
-          title={label || undefined}
-          className="h-7 w-auto object-contain invert dark:invert-0 opacity-90"
-        />
+        {isSeasonal ? (
+          <img
+            src={seasonalSrc}
+            alt={label || 'Atraa'}
+            title={label || undefined}
+            className="h-7 w-auto object-contain invert dark:invert-0 opacity-90"
+          />
+        ) : (
+          <>
+            <img
+              src={wordmarkBlackAsset.url}
+              alt="Atraa"
+              className="h-7 w-auto object-contain opacity-90 block dark:hidden"
+            />
+            <img
+              src={wordmarkDarkAsset.url}
+              alt="Atraa"
+              className="h-7 w-auto object-contain opacity-90 hidden dark:block"
+            />
+          </>
+        )}
       </div>
     </header>
   );
