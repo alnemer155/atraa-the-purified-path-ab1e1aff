@@ -128,7 +128,16 @@ const MosquesPage = () => {
                   >
                     <MapPin className="w-3.5 h-3.5 text-primary/70 flex-shrink-0" strokeWidth={1.6} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[12px] text-foreground truncate">{isAr ? m.nameAr : m.nameEn}</p>
+                      <p className="text-[12px] text-foreground truncate flex items-center gap-1">
+                        <span className="truncate">{isAr ? m.nameAr : m.nameEn}</span>
+                        {isHighTraffic(m) && (
+                          <BadgeCheck
+                            className="w-3.5 h-3.5 text-sky-500 flex-shrink-0"
+                            strokeWidth={2}
+                            aria-label={isAr ? 'موثّق — زيارات عالية' : 'Verified · high traffic'}
+                          />
+                        )}
+                      </p>
                       <p className="text-[10px] text-muted-foreground truncate">
                         {isAr ? m.city : m.cityEn} · {isAr ? m.country : m.countryEn}
                       </p>
