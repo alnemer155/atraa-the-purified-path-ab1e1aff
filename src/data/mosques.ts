@@ -13,7 +13,18 @@ export interface Mosque {
   area?: string;        // District / neighborhood
   lat: number;
   lng: number;
+  /**
+   * Estimated annual visitors (pilgrims + regular attendees).
+   * Sourced from public reports for major shrines; leave undefined for
+   * smaller mosques. Values ≥ 4200 render the blue verified badge next to
+   * the mosque name (v2.13.31).
+   */
+  annualVisits?: number;
 }
+
+/** Threshold above which a mosque is considered a high-traffic destination. */
+export const HIGH_TRAFFIC_THRESHOLD = 4200;
+export const isHighTraffic = (m: Mosque) => (m.annualVisits ?? 0) >= HIGH_TRAFFIC_THRESHOLD;
 
 export const MOSQUES: Mosque[] = [
   // ================= العراق =================
