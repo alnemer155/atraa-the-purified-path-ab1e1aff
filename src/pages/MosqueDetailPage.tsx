@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight, MapPin, Navigation, Copy, Check, ExternalLink, Compass } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MapPin, Navigation, Copy, Check, ExternalLink, Compass, BadgeCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { MOSQUES, haversineKm } from '@/data/mosques';
+import { MOSQUES, haversineKm, isHighTraffic } from '@/data/mosques';
 
 const MosqueDetailPage = () => {
   const { id } = useParams();
