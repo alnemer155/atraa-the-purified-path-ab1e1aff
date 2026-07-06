@@ -27,6 +27,7 @@ const SettingsPage = () => {
   const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('atraa_city') || 'Dammam');
   const [hijriAdj, setHijriAdj] = useState(() => getHijriAdjustment());
   const [shareCopied, setShareCopied] = useState(false);
+  const [expoOpen, setExpoOpen] = useState(false);
 
   // v2.11.00 — Notifications Center (email + per-type toggles, stored locally
   // until the Resend edge-function schedule is wired server-side).
