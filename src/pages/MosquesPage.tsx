@@ -1,9 +1,9 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { MapPin, Navigation, Search, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, Navigation, Search, Loader2, ChevronLeft, ChevronRight, BadgeCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MOSQUES, countriesList, haversineKm, type Mosque } from '@/data/mosques';
+import { MOSQUES, countriesList, haversineKm, isHighTraffic, type Mosque } from '@/data/mosques';
 
 const MosquesPage = () => {
   const { i18n } = useTranslation();
@@ -128,7 +128,16 @@ const MosquesPage = () => {
                   >
                     <MapPin className="w-3.5 h-3.5 text-primary/70 flex-shrink-0" strokeWidth={1.6} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[12px] text-foreground truncate">{isAr ? m.nameAr : m.nameEn}</p>
+                      <p className="text-[12px] text-foreground truncate flex items-center gap-1">
+                        <span className="truncate">{isAr ? m.nameAr : m.nameEn}</span>
+                        {isHighTraffic(m) && (
+                          <BadgeCheck
+                            className="w-3.5 h-3.5 text-sky-500 flex-shrink-0"
+                            strokeWidth={2}
+                            aria-label={isAr ? 'موثّق — زيارات عالية' : 'Verified · high traffic'}
+                          />
+                        )}
+                      </p>
                       <p className="text-[10px] text-muted-foreground truncate">
                         {isAr ? m.city : m.cityEn} · {isAr ? m.country : m.countryEn}
                       </p>
@@ -200,9 +209,18 @@ const MosquesPage = () => {
                 <MapPin className="w-4 h-4 text-primary/80" strokeWidth={1.6} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] text-foreground font-medium truncate">
-                  {isAr ? m.nameAr : m.nameEn}
-                </p>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-[13px] text-foreground font-medium truncate">
+                    {isAr ? m.nameAr : m.nameEn}
+                  </p>
+                  {isHighTraffic(m) && (
+                    <BadgeCheck
+                      className="w-4 h-4 text-sky-500 flex-shrink-0"
+                      strokeWidth={2}
+                      aria-label={isAr ? 'موثّق — زيارات عالية' : 'Verified · high traffic'}
+                    />
+                  )}
+                </div>
                 <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
                   {isAr ? m.city : m.cityEn}
                   {m.area ? ` · ${m.area}` : ''}
