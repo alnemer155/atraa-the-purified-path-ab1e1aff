@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Sun, Coffee, Moon, Sparkles, Mail } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Share2, Bell, BellOff, Sun, Coffee, Moon, Sparkles, Mail, Smartphone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -8,6 +8,7 @@ import { requestNotificationPermission, getNotificationPermission } from '@/lib/
 import { useQuranTheme, type QuranTheme } from '@/lib/quran-theme';
 import { supabase } from '@/integrations/supabase/client';
 import CityPicker from '@/components/CityPicker';
+import ExpoGoDialog, { EXPO_PREVIEW } from '@/components/ExpoGoDialog';
 import { toast } from 'sonner';
 
 const fadeUp = {
