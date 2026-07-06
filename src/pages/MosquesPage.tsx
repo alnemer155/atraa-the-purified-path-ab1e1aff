@@ -1,9 +1,9 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { MapPin, Navigation, Search, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, Navigation, Search, Loader2, ChevronLeft, ChevronRight, BadgeCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MOSQUES, countriesList, haversineKm, type Mosque } from '@/data/mosques';
+import { MOSQUES, countriesList, haversineKm, isHighTraffic, type Mosque } from '@/data/mosques';
 
 const MosquesPage = () => {
   const { i18n } = useTranslation();
