@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 export const EXPO_PREVIEW = {
   expUrl: 'exp://u.expo.dev/update/atraa-preview',
   webUrl: 'https://expo.dev/preview/atraa',
-  version: 'v2.13.30',
-  build: '398',
+  version: 'v2.13.32',
+  build: '400',
   updatedAt: '2026-07-06',
 };
 
