@@ -39,7 +39,7 @@ const AboutPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">الإصدار</h2>
-            <p className="tabular-nums">v2.13.20 · بناء 392</p>
+            <p className="tabular-nums">v2.13.30 · بناء 398</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">قناة التطبيق على واتساب</h2>
@@ -99,7 +99,7 @@ const AboutPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">Version</h2>
-            <p className="tabular-nums">v2.13.20 · build 392</p>
+            <p className="tabular-nums">v2.13.30 · build 398</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">WhatsApp Channel</h2>
