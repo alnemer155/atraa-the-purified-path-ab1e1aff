@@ -408,7 +408,31 @@ const SettingsPage = () => {
       </motion.div>
 
 
-      {/* v2.13.20 — «تطبيقات» section fully removed. */}
+      {/* v2.13.30 — Expo Go preview launcher */}
+      <motion.div variants={fadeUp} custom={5}>
+        <p className="text-[11px] text-muted-foreground/70 px-1 mb-1.5 font-medium">
+          {isAr ? 'التطوير والتجربة' : 'Development & Preview'}
+        </p>
+        <div className="bg-card rounded-2xl border border-border/40 overflow-hidden shadow-card">
+          <button onClick={() => setExpoOpen(true)} className="w-full flex items-center justify-between p-3.5 active:bg-secondary/30 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Smartphone className="w-4 h-4 text-primary" strokeWidth={1.6} />
+              </div>
+              <div className={isAr ? 'text-right' : 'text-left'}>
+                <p className="text-[13px] text-foreground font-medium">{isAr ? 'تطبيق Expo Go' : 'Expo Go App'}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {isAr ? `تشغيل النسخة التجريبية · ${EXPO_PREVIEW.version}` : `Launch preview · ${EXPO_PREVIEW.version}`}
+                </p>
+              </div>
+            </div>
+            <Chevron className="w-4 h-4 text-muted-foreground/40" />
+          </button>
+        </div>
+      </motion.div>
+
+      <ExpoGoDialog open={expoOpen} onClose={() => setExpoOpen(false)} />
+
 
 
       {/* Legal */}
