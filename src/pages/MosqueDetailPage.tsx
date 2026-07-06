@@ -86,7 +86,23 @@ const MosqueDetailPage = () => {
               <MapPin className="w-5 h-5 text-primary/80" strokeWidth={1.6} />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-[16px] text-foreground font-semibold leading-snug">{name}</h1>
+              <h1 className="text-[16px] text-foreground font-semibold leading-snug flex items-center gap-1.5 flex-wrap">
+                <span>{name}</span>
+                {isHighTraffic(mosque) && (
+                  <BadgeCheck
+                    className="w-4 h-4 text-sky-500 flex-shrink-0"
+                    strokeWidth={2}
+                    aria-label={isAr ? 'موثّق — زيارات عالية' : 'Verified · high traffic'}
+                  />
+                )}
+              </h1>
+              {mosque.annualVisits && mosque.annualVisits >= 4200 && (
+                <p className="text-[10px] text-sky-600 dark:text-sky-400 mt-1 tabular-nums">
+                  {isAr
+                    ? `أكثر من ${mosque.annualVisits.toLocaleString('ar-EG')} زيارة سنوياً`
+                    : `${mosque.annualVisits.toLocaleString('en-US')}+ annual visits`}
+                </p>
+              )}
               <p className="text-[11px] text-muted-foreground mt-1">
                 {city}{mosque.area ? ` · ${mosque.area}` : ''} · {country}
               </p>
