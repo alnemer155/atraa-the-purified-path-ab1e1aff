@@ -78,6 +78,57 @@ function getStoredCoords(): CityCoords {
   return { lat: 26.5196, lng: 50.0115 };
 }
 
+/* ---------------- v2.13.40 — accuracy & DST helpers ------------------- */
+
+/** Device IANA timezone (falls back to Riyadh for the platform's core audience). */
+function deviceTimeZone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Riyadh';
+  } catch {
+    return 'Asia/Riyadh';
+  }
+}
+
+/** Local calendar day as DD-MM-YYYY (AlAdhan format) — never UTC-shifted. */
+function localDateKey(d: Date = new Date()): string {
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${p(d.getDate())}-${p(d.getMonth() + 1)}-${d.getFullYear()}`;
+}
+
+/** Strip AlAdhan's " (+03)" timezone suffix and pad to HH:MM. */
+function normalizeTimings(raw: Record<string, string>): TimingsData {
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(raw)) {
+    const clean = String(v).split(' ')[0];
+    const [h, m] = clean.split(':');
+    out[k] = h !== undefined && m !== undefined
+      ? `${String(Number(h)).padStart(2, '0')}:${m.padStart(2, '0')}`
+      : clean;
+  }
+  return out as unknown as TimingsData;
+}
+
+function readCache(key: string): TimingsData | null {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as TimingsData) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(key: string, value: TimingsData) {
+  try {
+    // Keep only today's entry to avoid unbounded growth.
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('atraa_timings_') && k !== key) localStorage.removeItem(k);
+    }
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch { /* quota — ignore */ }
+}
+
+
 const PrayerTimes = () => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
