@@ -35,11 +35,11 @@ const AboutPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">المصادر</h2>
-            <p>أوقات الصلاة: Aladhan API. القرآن الكريم: مجمع الملك فهد لطباعة المصحف الشريف عبر AlQuran.cloud. الطقس: wttr.in. النصوص الدينية مأخوذة من المراجع التراثية المعتمدة (حقيبة المؤمن وغيرها).</p>
+            <p>أوقات الصلاة: Aladhan API. القرآن الكريم: مجمع الملك فهد لطباعة المصحف الشريف عبر AlQuran.cloud. المواقع الجغرافية: OpenStreetMap/Nominatim. النصوص الدينية مأخوذة من المراجع التراثية المعتمدة (حقيبة المؤمن وغيرها).</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">الإصدار</h2>
-            <p className="tabular-nums">v2.13.32 · بناء 400</p>
+            <p className="tabular-nums">v2.13.40 · بناء 410</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">قناة التطبيق على واتساب</h2>
@@ -95,11 +95,11 @@ const AboutPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">Sources</h2>
-            <p>Prayer times: Aladhan API. Quran: King Fahd Glorious Quran Printing Complex via AlQuran.cloud. Weather: wttr.in. Religious texts are sourced from established heritage references.</p>
+            <p>Prayer times: Aladhan API. Quran: King Fahd Glorious Quran Printing Complex via AlQuran.cloud. Geocoding: OpenStreetMap/Nominatim. Religious texts are sourced from established heritage references.</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">Version</h2>
-            <p className="tabular-nums">v2.13.32 · build 400</p>
+            <p className="tabular-nums">v2.13.40 · build 410</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">WhatsApp Channel</h2>

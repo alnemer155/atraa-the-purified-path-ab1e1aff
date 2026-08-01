@@ -3,8 +3,8 @@ import LegalLayout from '@/components/legal/LegalLayout';
 
 /**
  * Terms of Use — Atraa.
- * Rewritten for v2.9.20 to cover Khatma, Athar, Qasaid, Lovable Cloud,
- * the Atraa subdomain network, the trial site (demo.atraa.xyz), and the
+ * Rewritten for v2.13.40 to cover Khatma, Athar, cloud sync,
+ * the Atraa subdomain network (khatma / athar) and the
  * Sepia-locked theme system.
  */
 const TermsPage = () => {
@@ -14,7 +14,7 @@ const TermsPage = () => {
   return (
     <LegalLayout
       title={isAr ? 'شروط الاستخدام' : 'Terms of Use'}
-      updated={isAr ? 'آخر تحديث: 2026-05-13 — v2.9.20' : 'Last updated: 2026-05-13 — v2.9.20'}
+      updated={isAr ? 'آخر تحديث: 2026-07-20 — v2.13.40' : 'Last updated: 2026-07-20 — v2.13.40'}
     >
       {isAr ? (
         <>
@@ -24,10 +24,7 @@ const TermsPage = () => {
               والموقع الرئيسي <span className="font-semibold">atraa.xyz</span> وجميع المواقع الفرعية التابعة:
               <span className="font-semibold"> khatma.atraa.xyz</span>،
               <span className="font-semibold"> athar.atraa.xyz</span>،
-              <span className="font-semibold"> qasaid.atraa.xyz</span>،
-              <span className="font-semibold"> audio.atraa.xyz</span>،
-              <span className="font-semibold"> demo.atraa.xyz</span>. باستخدامك أي من هذه المواقع أو
-              التطبيقات الأصلية على iOS و Android فإنّك تُقرّ بقراءة هذه الشروط وقبولها.
+              إضافةً إلى التطبيقات الأصلية على iOS و Android. وباستخدامك أيّاً منها فإنّك تُقرّ بقراءة هذه الشروط وقبولها.
             </p>
           </section>
 
@@ -46,26 +43,22 @@ const TermsPage = () => {
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li><span className="font-semibold">القرآن الكريم</span> بالرسم العثماني (KFGQPC) مع قُرّاء متعدّدين وتفسير.</li>
               <li>أوقات الصلاة (الجعفرية)، اتجاه القبلة، التاريخ الهجري، التسبيح الرقمي.</li>
-              <li>مكتبة الأدعية والزيارات والأذكار للمذهبَين الشيعي والسنّي.</li>
+              <li>مكتبة الأدعية والزيارات والأذكار وفق مذهب أهل البيت عليهم السلام.</li>
               <li><span className="font-semibold">الختمات</span> الجماعية على <span className="font-semibold">khatma.atraa.xyz</span>.</li>
               <li><span className="font-semibold">أثر</span> — مكتبة أقوال النبي ﷺ والأئمّة (ع) على <span className="font-semibold">athar.atraa.xyz</span>.</li>
-              <li><span className="font-semibold">القصائد الحسينية والبودكاست</span> على <span className="font-semibold">qasaid.atraa.xyz</span>.</li>
-              <li>خدمات قادمة: <span className="font-semibold">صوتيات</span> على <span className="font-semibold">audio.atraa.xyz</span>.</li>
-              <li><span className="font-semibold">نسخة تجريبية</span> للزوار على <span className="font-semibold">demo.atraa.xyz</span> بميزات محدودة.</li>
             </ul>
             <p className="mt-2">جميع الخدمات <span className="font-semibold">مجانية</span> ولا تتطلّب اشتراكاً ولا تسجيل دخول للوصول إلى المحتوى الديني الأساسي.</p>
           </section>
 
           <section>
-            <h2 className="text-[15px] font-semibold mb-2">3. النسخة التجريبية (demo.atraa.xyz)</h2>
+            <h2 className="text-[15px] font-semibold mb-2">3. دقّة المواقيت واتجاه القبلة</h2>
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
-              <li>القرآن الكريم والمقترحات لا تظهر — متاحة فقط في النسخة الأصلية.</li>
-              <li>الأدعية / الزيارات / الأذكار: محدودة بـ ١٥ عنصراً لكل قسم.</li>
-              <li>القصائد الحسينية تُعرض دون إمكانية التشغيل.</li>
-              <li>الخلفيات تُعرض دون إمكانية التحميل.</li>
-              <li>الإعدادات الكاملة وشاشة الإعداد الأوّلي مغلقة.</li>
+              <li>تُحسب المواقيت بطريقة <span className="font-semibold">الجعفرية (جامعة طهران)</span> على إحداثيات المدينة التي تختارها.</li>
+              <li>يُراعى فرق التوقيت والتوقيت الصيفي للمدينة تلقائياً، لا موقع جهازك.</li>
+              <li>اتجاه القبلة يُقاس بمستشعرات الجهاز وقد يتأثّر بالتشويش المغناطيسي؛ أعِد المعايرة عند الحاجة.</li>
+              <li>عند اختلاف النتيجة عن توقيت المسجد المحلي أو رأي مرجعك، فالمرجع مقدَّم.</li>
             </ul>
-            <p className="mt-2">النسخة التجريبية لأغراض الاستعراض فقط ولا تمنحك حقّ الاستخدام الإنتاجي.</p>
+            <p className="mt-2">تبقى المواقيت والاتجاه أدوات مساعدة، ولا نتحمّل مسؤولية أيّ خطأ ناتج عن بيانات المزوّد أو مستشعرات الجهاز.</p>
           </section>
 
           <section>
@@ -90,7 +83,6 @@ const TermsPage = () => {
             <h2 className="text-[15px] font-semibold mb-2">6. المحتوى الذي يُنشئه المستخدمون</h2>
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li><span className="font-semibold">الختمات</span>: العنوان والإهداء واسم القارئ يُمرّر على فحص AI تلقائي لرفض الإساءات وانتحال أسماء المعصومين.</li>
-              <li><span className="font-semibold">تعليقات القصائد</span>: تخضع لنفس الشروط؛ يحقّ لنا حذف أيّ تعليق دون إشعار.</li>
               <li>أنت وحدك مسؤول عن كل ما تنشره؛ الإدارة تحتفظ بحق الإزالة الفورية.</li>
             </ul>
           </section>
@@ -106,7 +98,7 @@ const TermsPage = () => {
 
           <section>
             <h2 className="text-[15px] font-semibold mb-2">8. مستوى الخدمة</h2>
-            <p>نسعى لإبقاء الخدمات متاحة، لكنّنا <span className="font-semibold">لا نضمن</span> الاستمرارية الكاملة، خصوصاً للمواقع الفرعية تحت التطوير، أو خدمات الطرف الثالث (AlAdhan، AlQuran.cloud، wttr.in، Nominatim، Lovable Cloud، Lovable AI Gateway).</p>
+            <p>نسعى لإبقاء الخدمات متاحة، لكنّنا <span className="font-semibold">لا نضمن</span> الاستمرارية الكاملة، خصوصاً للمواقع الفرعية تحت التطوير، أو خدمات الطرف الثالث (AlAdhan، AlQuran.cloud، Nominatim، Atraa Cloud، Atraa AI).</p>
           </section>
 
           <section>
@@ -138,7 +130,6 @@ const TermsPage = () => {
         <>
           <section>
             <p className="text-[12px] text-muted-foreground/80 leading-relaxed">
-              These Terms govern your use of <span className="font-semibold">Atraa</span> (Atraa Religious Platform) and all of its sites: <span className="font-semibold">atraa.xyz</span>, <span className="font-semibold">khatma.atraa.xyz</span>, <span className="font-semibold">athar.atraa.xyz</span>, <span className="font-semibold">qasaid.atraa.xyz</span>, <span className="font-semibold">audio.atraa.xyz</span>, <span className="font-semibold">demo.atraa.xyz</span>, and the native iOS / Android apps. By using any of them you confirm that you have read and accepted these Terms.
             </p>
           </section>
 
@@ -153,12 +144,12 @@ const TermsPage = () => {
 
           <section>
             <h2 className="text-[15px] font-semibold mb-2">2. Service Description</h2>
-            <p>Atraa provides Quran (Uthmani / KFGQPC) with multiple reciters, prayer times (Ja'fari), Qibla, Hijri calendar, digital tasbih, supplications/ziyarat/adhkar (Shia & Sunni), group Khatmas (khatma.atraa.xyz), the Athar quotes library (athar.atraa.xyz), Husayni qasaid & podcasts (qasaid.atraa.xyz), upcoming Audio service (audio.atraa.xyz), and a public Demo (demo.atraa.xyz). All services are <span className="font-semibold">free</span>; no account required for core religious content.</p>
+            <p>Atraa provides the Quran (Uthmani / KFGQPC) with multiple reciters, prayer times (Ja'fari), the Qibla compass, the Hijri calendar, a digital tasbih, a supplications / ziyarat / adhkar library following the school of Ahl al-Bayt (peace be upon them), a worldwide Shia mosques &amp; shrines directory, group Khatmas (khatma.atraa.xyz) and the Athar quotes library (athar.atraa.xyz). All services are <span className="font-semibold">free</span>; no account is required for the core religious content.</p>
           </section>
 
           <section>
-            <h2 className="text-[15px] font-semibold mb-2">3. Demo Site</h2>
-            <p>The Demo site is preview-only. The Quran, recommendations, full duas/ziyarat library, qasaid playback, wallpaper downloads, full settings, and onboarding are restricted. Use the original site for full features.</p>
+            <h2 className="text-[15px] font-semibold mb-2">3. Accuracy of Times &amp; Direction</h2>
+            <p>Prayer times are calculated with the Ja‘fari (University of Tehran) method for the city you select, including its UTC offset and daylight-saving rule. The Qibla uses your device sensors. Both are aids: where they differ from your local mosque or a scholarly ruling, the latter prevails.</p>
           </section>
 
           <section>
@@ -193,7 +184,7 @@ const TermsPage = () => {
 
           <section>
             <h2 className="text-[15px] font-semibold mb-2">8. Service Level</h2>
-            <p>We strive for availability but do not guarantee uninterrupted service, especially for subdomains under active development, or for third-party services (AlAdhan, AlQuran.cloud, wttr.in, Nominatim, Lovable Cloud, Lovable AI Gateway).</p>
+            <p>We strive for availability but do not guarantee uninterrupted service, especially for subdomains under active development, or for third-party services (AlAdhan, AlQuran.cloud, Nominatim, Atraa Cloud, Atraa AI).</p>
           </section>
 
           <section>

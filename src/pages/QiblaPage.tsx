@@ -157,6 +157,7 @@ const QiblaPage = () => {
   const [isAligned, setIsAligned] = useState(false);
   const [deviation, setDeviation] = useState<number | null>(null);
   const [heading, setHeading] = useState<number | null>(null);
+  const [needsCalibration, setNeedsCalibration] = useState(false);
 
   // Refs — direct DOM mutations to avoid re-renders
   const headingRef = useRef(0);
@@ -174,6 +175,8 @@ const QiblaPage = () => {
   const lastDevUpdateTs = useRef<number>(0);
   const lastHeadingReportedRef = useRef<number>(-1);
   const lastHeadingUpdateTs = useRef<number>(0);
+  const needsCalibrationRef = useRef(false);
+  const outlierRef = useRef(0);
 
   /* ---------- GPS — single fast call, fallback to cache ---------------- */
   useEffect(() => {
@@ -211,7 +214,14 @@ const QiblaPage = () => {
   }, [isAr]);
 
   /* ---------- Smooth animation loop ----------------------------------- */
-  const SMOOTHING = 0.2;
+  // v2.13.40 — adaptive smoothing: snap fast on large turns, glide when close.
+  const smoothingFor = (absDiff: number) => {
+    if (absDiff > 60) return 0.45;
+    if (absDiff > 20) return 0.28;
+    if (absDiff > 5) return 0.18;
+    return 0.1;
+  };
+
 
   const tick = useCallback(() => {
     rafRef.current = requestAnimationFrame(tick);
@@ -221,7 +231,7 @@ const QiblaPage = () => {
     let diff = targetHeadingRef.current - headingRef.current;
     if (diff > 180) diff -= 360;
     if (diff < -180) diff += 360;
-    headingRef.current = (headingRef.current + diff * SMOOTHING + 360) % 360;
+    headingRef.current = (headingRef.current + diff * smoothingFor(Math.abs(diff)) + 360) % 360;
 
     let rotation = q - headingRef.current;
     rotation = ((rotation % 360) + 360) % 360;
@@ -267,20 +277,59 @@ const QiblaPage = () => {
   }, []);
 
   /* ---------- Sensor handler ------------------------------------------ */
-  const SAMPLE_SIZE = 6;
+  // v2.13.40 — wider circular-mean window + outlier rejection + screen-rotation
+  // compensation on iOS as well (webkitCompassHeading is device-frame based).
+  const SAMPLE_SIZE = 10;
+  const screenAngle = () => {
+    if (typeof window === 'undefined') return 0;
+    const so = window.screen?.orientation?.angle;
+    if (typeof so === 'number') return so;
+    // Legacy Safari fallback.
+    const legacy = (window as unknown as { orientation?: number }).orientation;
+    return typeof legacy === 'number' ? (legacy + 360) % 360 : 0;
+  };
+
   const handleOrientation = useCallback((e: DeviceOrientationEvent) => {
-    let alpha = e.alpha;
-    if (alpha === null) return;
-    // @ts-ignore
-    if (typeof e.webkitCompassHeading === 'number') {
-      // @ts-ignore
-      alpha = e.webkitCompassHeading;
+    const raw = e.alpha;
+    // @ts-ignore — iOS-only true-north heading.
+    const webkitHeading = e.webkitCompassHeading;
+    // @ts-ignore — iOS-only accuracy in degrees (-1 while uncalibrated).
+    const webkitAccuracy = e.webkitCompassAccuracy;
+
+    let alpha: number;
+    if (typeof webkitHeading === 'number' && !Number.isNaN(webkitHeading)) {
+      alpha = (webkitHeading + screenAngle()) % 360;
+      const acc = typeof webkitAccuracy === 'number' ? webkitAccuracy : null;
+      const poor = acc === null ? false : acc < 0 || acc > 20;
+      if (poor !== needsCalibrationRef.current) {
+        needsCalibrationRef.current = poor;
+        setNeedsCalibration(poor);
+      }
+    } else if (raw !== null) {
+      alpha = (360 - raw + screenAngle()) % 360;
+      // Non-absolute readings drift; flag calibration until absolute data arrives.
+      if (!e.absolute && !needsCalibrationRef.current) {
+        needsCalibrationRef.current = true;
+        setNeedsCalibration(true);
+      }
     } else {
-      const screenAngle = (typeof window !== 'undefined' && window.screen?.orientation?.angle) || 0;
-      alpha = (360 - alpha + screenAngle) % 360;
+      return;
     }
 
     const arr = samplesRef.current;
+    // Reject a single wild jump (magnetic interference) unless it repeats.
+    if (arr.length) {
+      const prev = arr[arr.length - 1];
+      let d = Math.abs(((alpha - prev + 540) % 360) - 180);
+      if (d > 70) {
+        outlierRef.current += 1;
+        if (outlierRef.current < 3) return;
+        arr.length = 0; // sustained change → the user really turned.
+      } else {
+        outlierRef.current = 0;
+      }
+    }
+
     arr.push(alpha);
     if (arr.length > SAMPLE_SIZE) arr.shift();
 
@@ -315,10 +364,16 @@ const QiblaPage = () => {
       setNeedsPermission(true);
       return;
     }
-    const evt = 'ondeviceorientationabsolute' in window ? 'deviceorientationabsolute' : 'deviceorientation';
-    window.addEventListener(evt, handleOrientation as EventListener, true);
-    return () => window.removeEventListener(evt, handleOrientation as EventListener, true);
+    // Prefer the absolute (true/magnetic north referenced) stream, but also
+    // listen to the relative one as a fallback for devices without it.
+    const hasAbsolute = 'ondeviceorientationabsolute' in window;
+    const listeners: string[] = hasAbsolute
+      ? ['deviceorientationabsolute', 'deviceorientation']
+      : ['deviceorientation'];
+    listeners.forEach(evt => window.addEventListener(evt, handleOrientation as EventListener, true));
+    return () => listeners.forEach(evt => window.removeEventListener(evt, handleOrientation as EventListener, true));
   }, [handleOrientation]);
+
 
   const requestPermission = async () => {
     try {
@@ -447,6 +502,17 @@ const QiblaPage = () => {
                 <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
                 <span className="text-[11.5px] tracking-wide">
                   {isAr ? 'أنت تواجه القبلة' : 'Facing the Qibla'}
+                </span>
+              </motion.div>
+            ) : compassActive && needsCalibration ? (
+              <motion.div
+                key="calib"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="flex items-center gap-2 text-muted-foreground/75"
+              >
+                <span className="w-1 h-1 rounded-full bg-foreground/30" />
+                <span className="text-[10.5px] font-light">
+                  {isAr ? 'حرّك الجهاز على شكل ٨ لمعايرة الحساس' : 'Move the device in a figure-8 to calibrate'}
                 </span>
               </motion.div>
             ) : compassActive && deviation !== null ? (

@@ -4,7 +4,7 @@ import LegalLayout from '@/components/legal/LegalLayout';
 /**
  * Disclaimer — Atraa.
  * Rewritten for v2.9.20 to cover the full Atraa service network
- * (Khatma, Athar, Qasaid, Audio), AI features (title/name verification,
+ * (Khatma, Athar), AI features (title/name verification,
  * Atraa AI personas), and the Sepia-locked theme system.
  */
 const DisclaimerPage = () => {
@@ -14,7 +14,7 @@ const DisclaimerPage = () => {
   return (
     <LegalLayout
       title={isAr ? 'إخلاء المسؤولية' : 'Disclaimer'}
-      updated={isAr ? 'آخر تحديث: 2026-05-13 — v2.9.20' : 'Last updated: 2026-05-13 — v2.9.20'}
+      updated={isAr ? 'آخر تحديث: 2026-07-20 — v2.13.40' : 'Last updated: 2026-07-20 — v2.13.40'}
     >
       {isAr ? (
         <>
@@ -23,16 +23,13 @@ const DisclaimerPage = () => {
               يرجى قراءة هذا الإخلاء بعناية قبل استخدام أيّ من خدمات <span className="font-semibold">منصة عترة الدينية</span>: التطبيق الأصلي،
               <span className="font-semibold"> atraa.xyz</span>،
               <span className="font-semibold"> khatma.atraa.xyz</span>،
-              <span className="font-semibold"> athar.atraa.xyz</span>،
-              <span className="font-semibold"> qasaid.atraa.xyz</span>،
-              <span className="font-semibold"> audio.atraa.xyz</span>،
-              <span className="font-semibold"> demo.atraa.xyz</span>.
+              <span className="font-semibold"> athar.atraa.xyz</span>.
             </p>
           </section>
 
           <section>
             <h2 className="text-[15px] font-semibold mb-2">1. طبيعة المحتوى الديني</h2>
-            <p className="mb-2">يُقدَّم المحتوى (أدعية، زيارات، أذكار، أوقات صلاة، اتجاه القبلة، التاريخ الهجري، نصوص قرآنية، أقوال «أثر»، قصائد حسينية) لأغراض <span className="font-semibold">تعليمية وتذكيرية وتعبدية شخصية</span> فقط.</p>
+            <p className="mb-2">يُقدَّم المحتوى (أدعية، زيارات، أذكار، أوقات صلاة، اتجاه القبلة، التاريخ الهجري، نصوص قرآنية، أقوال «أثر») لأغراض <span className="font-semibold">تعليمية وتذكيرية وتعبدية شخصية</span> فقط.</p>
             <p>المحتوى ليس فتوى شرعية مُلزِمة، ولا بديلاً عن الرجوع إلى مكتب مرجع التقليد في المسائل التكليفية، ولا إجماعاً علمياً في المسائل الخلافية.</p>
           </section>
 
@@ -78,8 +75,8 @@ const DisclaimerPage = () => {
           </section>
 
           <section>
-            <h2 className="text-[15px] font-semibold mb-2">8. القصائد الحسينية والبودكاست (qasaid.atraa.xyz)</h2>
-            <p>القصائد محتوى ديني عاطفي مرتبط بأهل البيت (ع)؛ ليست موسيقى. ميزات التشغيل (التكرار، التقديم/الإرجاع، النشر، الفيديو) أدوات تيسير فقط. حقوق التلاوات تعود لأصحابها وقُيِّدت بإذن العرض.</p>
+            <h2 className="text-[15px] font-semibold mb-2">8. دقّة المواقيت واتجاه القبلة</h2>
+            <p>تُحسب المواقيت وفق مذهب أهل البيت عليهم السلام (جامعة طهران) مع مراعاة المنطقة الزمنية والتوقيت الصيفي للمدينة المختارة، ويُحدَّد اتجاه القبلة عبر مستشعرات الجهاز. قد تتأثر النتائج بدقّة الموقع أو بتشويش مغناطيسي، ويظلّ التحقّق الميداني والرجوع لتوقيت المسجد المحلي هو المرجع عند الاختلاف.</p>
           </section>
 
           <section>
@@ -89,12 +86,12 @@ const DisclaimerPage = () => {
 
           <section>
             <h2 className="text-[15px] font-semibold mb-2">10. خدمات الطرف الثالث</h2>
-            <p>يستعلم التطبيق عن AlAdhan (المواقيت)، AlQuran.cloud (القرآن)، wttr.in (الطقس)، Nominatim/OpenStreetMap (الجغرافيا)، Lovable Cloud (الختمات/أثر/القصائد)، Lovable AI Gateway (التحقّق من العنوان والاسم). نحن غير مسؤولين عن انقطاعها أو دقّة بياناتها لحظة الاستعلام.</p>
+            <p>يستعلم التطبيق عن AlAdhan (المواقيت)، AlQuran.cloud (القرآن)، Nominatim/OpenStreetMap (الجغرافيا)، Atraa Cloud (الختمات/أثر)، Atraa AI (التحقّق من العنوان والاسم). نحن غير مسؤولين عن انقطاعها أو دقّة بياناتها لحظة الاستعلام.</p>
           </section>
 
           <section>
-            <h2 className="text-[15px] font-semibold mb-2">11. المحتوى السنّي</h2>
-            <p>عند اختيار المذهب <span className="font-semibold">السنّي</span>، يعرض التطبيق مجموعة مختصرة من الأذكار والأدعية من المصادر المعتمدة لدى أهل السنّة (صحيح البخاري، صحيح مسلم، حصن المسلم، رياض الصالحين، الأذكار النووية، سنن الترمذي وأبي داود). هي مكتبة بدئية يجري توسيعها بعد المراجعة، وليست بديلاً عن الرجوع إلى أهل العلم في بلدك.</p>
+            <h2 className="text-[15px] font-semibold mb-2">11. مصادر المحتوى</h2>
+            <p>محتوى المنصة مأخوذ من مصادر مذهب أهل البيت عليهم السلام المعتمدة (مفاتيح الجنان، حقيبة المؤمن، بحار الأنوار، نهج البلاغة وغيرها) مع مراجعة نصّية مستمرّة. ما يُعرض هنا تذكيرٌ وتيسيرٌ للعبادة، وليس بديلاً عن الرجوع إلى المرجع أو أهل العلم في بلدك.</p>
           </section>
 
           <section>
@@ -111,7 +108,7 @@ const DisclaimerPage = () => {
         <>
           <section>
             <p className="text-[12px] text-muted-foreground/80 leading-relaxed">
-              Please read carefully before using any Atraa service: the native app, atraa.xyz, khatma.atraa.xyz, athar.atraa.xyz, qasaid.atraa.xyz, audio.atraa.xyz, demo.atraa.xyz.
+              Please read carefully before using any Atraa service: the native app, atraa.xyz, khatma.atraa.xyz and athar.atraa.xyz.
             </p>
           </section>
           <section>
@@ -131,12 +128,12 @@ const DisclaimerPage = () => {
             <p>Uthmani script from the King Fahd Glorious Quran Printing Complex via AlQuran.cloud. Report typos to support@atraa.xyz.</p>
           </section>
           <section>
-            <h2 className="text-[15px] font-semibold mb-2">5. Khatmas, Athar, Qasaid</h2>
-            <p>User submissions are AI-filtered for offensiveness and impersonation. The Athar library is for personal sharing; verify with original sources for scholarly use. Qasaid are religious recitations, not music.</p>
+            <h2 className="text-[15px] font-semibold mb-2">5. Khatmas & Athar</h2>
+            <p>User submissions are AI-filtered for offensiveness and impersonation. The Athar library is for personal sharing; verify with original sources for scholarly use.</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">6. Third-Party Services</h2>
-            <p>AlAdhan, AlQuran.cloud, wttr.in, Nominatim, Lovable Cloud, Lovable AI Gateway. We are not responsible for outages or data accuracy.</p>
+            <p>AlAdhan, AlQuran.cloud, Nominatim, Atraa Cloud, Atraa AI. We are not responsible for outages or data accuracy.</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">7. No Warranty</h2>

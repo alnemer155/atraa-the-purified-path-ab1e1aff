@@ -78,6 +78,57 @@ function getStoredCoords(): CityCoords {
   return { lat: 26.5196, lng: 50.0115 };
 }
 
+/* ---------------- v2.13.40 — accuracy & DST helpers ------------------- */
+
+/** Device IANA timezone (falls back to Riyadh for the platform's core audience). */
+function deviceTimeZone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Riyadh';
+  } catch {
+    return 'Asia/Riyadh';
+  }
+}
+
+/** Local calendar day as DD-MM-YYYY (AlAdhan format) — never UTC-shifted. */
+function localDateKey(d: Date = new Date()): string {
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${p(d.getDate())}-${p(d.getMonth() + 1)}-${d.getFullYear()}`;
+}
+
+/** Strip AlAdhan's " (+03)" timezone suffix and pad to HH:MM. */
+function normalizeTimings(raw: Record<string, string>): TimingsData {
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(raw)) {
+    const clean = String(v).split(' ')[0];
+    const [h, m] = clean.split(':');
+    out[k] = h !== undefined && m !== undefined
+      ? `${String(Number(h)).padStart(2, '0')}:${m.padStart(2, '0')}`
+      : clean;
+  }
+  return out as unknown as TimingsData;
+}
+
+function readCache(key: string): TimingsData | null {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as TimingsData) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(key: string, value: TimingsData) {
+  try {
+    // Keep only today's entry to avoid unbounded growth.
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('atraa_timings_') && k !== key) localStorage.removeItem(k);
+    }
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch { /* quota — ignore */ }
+}
+
+
 const PrayerTimes = () => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
@@ -91,26 +142,52 @@ const PrayerTimes = () => {
   const [storedMethod, setStoredMethodState] = useState<StoredMethod>(getStoredMethod);
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchTimings = (c: CityCoords) => {
       // Pick calculation method based on madhhab + user preference.
       // Shia → always 7 (Ja'fari, University of Tehran). Sunni → user choice / 'auto'.
       const method = resolveMethod(madhhab);
-      const url = `https://api.aladhan.com/v1/timings?latitude=${c.lat}&longitude=${c.lng}&method=${method}&school=0`;
+      // v2.13.40 — request an explicit calendar date and let AlAdhan resolve
+      // the UTC offset + DST rule from the city coordinates (never from the
+      // request IP), so a user abroad still sees the selected city's times.
+      const date = localDateKey();
+      const tz = deviceTimeZone();
+      const url =
+        `https://api.aladhan.com/v1/timings/${date}` +
+        `?latitude=${c.lat}&longitude=${c.lng}&method=${method}&school=0` +
+        `&latitudeAdjustmentMethod=3&midnightMode=${madhhab === 'shia' ? 1 : 0}` +
+        `&iso8601=false`;
+
+      const apply = (tt: TimingsData, fromCache: boolean) => {
+        if (cancelled) return;
+        setTimings(tt);
+        setIndicators(getCurrentAndNext(tt, ALL_PRAYER_KEYS));
+        setLoading(false);
+        if (fromCache) return;
+        // Schedule native iOS/Android adhan reminders (no-op on web).
+        if (localStorage.getItem('atraa_notif_adhan') === 'true') {
+          import('@/lib/notifications-ios').then(({ scheduleIosAdhanNotifications }) => {
+            scheduleIosAdhanNotifications(tt, { lang: i18n.language === 'en' ? 'en' : 'ar' }).catch(() => {});
+          }).catch(() => {});
+        }
+      };
+
+      // Instant paint from today's cache (same city + method), then revalidate.
+      const cacheKey = `atraa_timings_${date}_${method}_${c.lat.toFixed(3)}_${c.lng.toFixed(3)}_${tz}`;
+      const cached = readCache(cacheKey);
+      if (cached) apply(cached, true);
+
       fetch(url)
         .then(res => res.json())
         .then(data => {
-          const tt = data.data.timings as TimingsData;
-          setTimings(tt);
-          setIndicators(getCurrentAndNext(tt, ALL_PRAYER_KEYS));
-          setLoading(false);
-          // Schedule native iOS/Android adhan reminders (no-op on web).
-          if (localStorage.getItem('atraa_notif_adhan') === 'true') {
-            import('@/lib/notifications-ios').then(({ scheduleIosAdhanNotifications }) => {
-              scheduleIosAdhanNotifications(tt, { lang: i18n.language === 'en' ? 'en' : 'ar' }).catch(() => {});
-            }).catch(() => {});
-          }
+          const raw = data?.data?.timings;
+          if (!raw) throw new Error('bad payload');
+          const tt = normalizeTimings(raw);
+          writeCache(cacheKey, tt);
+          apply(tt, false);
         })
-        .catch(() => setLoading(false));
+        .catch(() => { if (!cancelled && !cached) setLoading(false); });
     };
 
     fetchTimings(coords);
@@ -130,13 +207,28 @@ const PrayerTimes = () => {
       setLoading(true);
       fetchTimings(coords);
     };
+    // Re-fetch when the app returns to the foreground on a new local day
+    // (also covers a DST transition that happened while backgrounded).
+    let lastDay = localDateKey();
+    const handleVisibility = () => {
+      if (document.visibilityState !== 'visible') return;
+      const today = localDateKey();
+      if (today !== lastDay) {
+        lastDay = today;
+        setLoading(true);
+      }
+      fetchTimings(coords);
+    };
     window.addEventListener('storage', handleStorage);
     window.addEventListener(CALC_METHOD_EVENT, handleMethodChange);
     window.addEventListener('atraa:madhhab-changed', handleMethodChange);
+    document.addEventListener('visibilitychange', handleVisibility);
     return () => {
+      cancelled = true;
       window.removeEventListener('storage', handleStorage);
       window.removeEventListener(CALC_METHOD_EVENT, handleMethodChange);
       window.removeEventListener('atraa:madhhab-changed', handleMethodChange);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [madhhab]);
@@ -145,9 +237,10 @@ const PrayerTimes = () => {
     if (!timings) return;
     const interval = setInterval(() => {
       setIndicators(getCurrentAndNext(timings, ALL_PRAYER_KEYS));
-    }, 60000);
+    }, 20000);
     return () => clearInterval(interval);
   }, [timings]);
+
 
   const handlePickMethod = (id: StoredMethod) => {
     setStoredMethod(id);
