@@ -13,7 +13,7 @@ const DataPage = () => {
   return (
     <LegalLayout
       title={isAr ? 'جمع البيانات' : 'Data Collection'}
-      updated={isAr ? 'آخر تحديث: 2026-05-13 — v2.9.20' : 'Last updated: 2026-05-13 — v2.9.20'}
+      updated={isAr ? 'آخر تحديث: 2026-07-20 — v2.13.40' : 'Last updated: 2026-07-20 — v2.13.40'}
     >
       {isAr ? (
         <>
@@ -153,7 +153,7 @@ const DataPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">5. External Requests</h2>
-            <p>AlAdhan, AlQuran.cloud, wttr.in, Nominatim/OpenStreetMap, Atraa Cloud, Atraa AI, i.ibb.co, Vercel Analytics.</p>
+            <p>AlAdhan, AlQuran.cloud, Nominatim/OpenStreetMap, Atraa Cloud, Atraa AI, i.ibb.co, Vercel Analytics.</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">6. Permissions</h2>

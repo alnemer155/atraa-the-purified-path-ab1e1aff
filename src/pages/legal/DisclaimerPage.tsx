@@ -14,7 +14,7 @@ const DisclaimerPage = () => {
   return (
     <LegalLayout
       title={isAr ? 'إخلاء المسؤولية' : 'Disclaimer'}
-      updated={isAr ? 'آخر تحديث: 2026-05-13 — v2.9.20' : 'Last updated: 2026-05-13 — v2.9.20'}
+      updated={isAr ? 'آخر تحديث: 2026-07-20 — v2.13.40' : 'Last updated: 2026-07-20 — v2.13.40'}
     >
       {isAr ? (
         <>
@@ -89,7 +89,7 @@ const DisclaimerPage = () => {
 
           <section>
             <h2 className="text-[15px] font-semibold mb-2">10. خدمات الطرف الثالث</h2>
-            <p>يستعلم التطبيق عن AlAdhan (المواقيت)، AlQuran.cloud (القرآن)، wttr.in (الطقس)، Nominatim/OpenStreetMap (الجغرافيا)، Atraa Cloud (الختمات/أثر/القصائد)، Atraa AI (التحقّق من العنوان والاسم). نحن غير مسؤولين عن انقطاعها أو دقّة بياناتها لحظة الاستعلام.</p>
+            <p>يستعلم التطبيق عن AlAdhan (المواقيت)، AlQuran.cloud (القرآن)، Nominatim/OpenStreetMap (الجغرافيا)، Atraa Cloud (الختمات/أثر/القصائد)، Atraa AI (التحقّق من العنوان والاسم). نحن غير مسؤولين عن انقطاعها أو دقّة بياناتها لحظة الاستعلام.</p>
           </section>
 
           <section>
@@ -136,7 +136,7 @@ const DisclaimerPage = () => {
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">6. Third-Party Services</h2>
-            <p>AlAdhan, AlQuran.cloud, wttr.in, Nominatim, Atraa Cloud, Atraa AI. We are not responsible for outages or data accuracy.</p>
+            <p>AlAdhan, AlQuran.cloud, Nominatim, Atraa Cloud, Atraa AI. We are not responsible for outages or data accuracy.</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">7. No Warranty</h2>

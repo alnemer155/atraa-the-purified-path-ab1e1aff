@@ -14,7 +14,7 @@ const TermsPage = () => {
   return (
     <LegalLayout
       title={isAr ? 'شروط الاستخدام' : 'Terms of Use'}
-      updated={isAr ? 'آخر تحديث: 2026-05-13 — v2.9.20' : 'Last updated: 2026-05-13 — v2.9.20'}
+      updated={isAr ? 'آخر تحديث: 2026-07-20 — v2.13.40' : 'Last updated: 2026-07-20 — v2.13.40'}
     >
       {isAr ? (
         <>
@@ -106,7 +106,7 @@ const TermsPage = () => {
 
           <section>
             <h2 className="text-[15px] font-semibold mb-2">8. مستوى الخدمة</h2>
-            <p>نسعى لإبقاء الخدمات متاحة، لكنّنا <span className="font-semibold">لا نضمن</span> الاستمرارية الكاملة، خصوصاً للمواقع الفرعية تحت التطوير، أو خدمات الطرف الثالث (AlAdhan، AlQuran.cloud، wttr.in، Nominatim، Atraa Cloud، Atraa AI).</p>
+            <p>نسعى لإبقاء الخدمات متاحة، لكنّنا <span className="font-semibold">لا نضمن</span> الاستمرارية الكاملة، خصوصاً للمواقع الفرعية تحت التطوير، أو خدمات الطرف الثالث (AlAdhan، AlQuran.cloud، Nominatim، Atraa Cloud، Atraa AI).</p>
           </section>
 
           <section>
@@ -193,7 +193,7 @@ const TermsPage = () => {
 
           <section>
             <h2 className="text-[15px] font-semibold mb-2">8. Service Level</h2>
-            <p>We strive for availability but do not guarantee uninterrupted service, especially for subdomains under active development, or for third-party services (AlAdhan, AlQuran.cloud, wttr.in, Nominatim, Atraa Cloud, Atraa AI).</p>
+            <p>We strive for availability but do not guarantee uninterrupted service, especially for subdomains under active development, or for third-party services (AlAdhan, AlQuran.cloud, Nominatim, Atraa Cloud, Atraa AI).</p>
           </section>
 
           <section>
