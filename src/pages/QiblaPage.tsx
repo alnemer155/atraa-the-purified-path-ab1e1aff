@@ -228,7 +228,7 @@ const QiblaPage = () => {
     let diff = targetHeadingRef.current - headingRef.current;
     if (diff > 180) diff -= 360;
     if (diff < -180) diff += 360;
-    headingRef.current = (headingRef.current + diff * SMOOTHING + 360) % 360;
+    headingRef.current = (headingRef.current + diff * smoothingFor(Math.abs(diff)) + 360) % 360;
 
     let rotation = q - headingRef.current;
     rotation = ((rotation % 360) + 360) % 360;
