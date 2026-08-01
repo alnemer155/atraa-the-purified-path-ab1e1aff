@@ -32,7 +32,6 @@ const PrivacyPage = () => {
               <li>لا حساب، لا تسجيل دخول، لا بريد إلكتروني، لا رقم هاتف.</li>
               <li>لا تتبّع إعلاني، ولا أدوات تحليل تعرّف عن المستخدم.</li>
               <li>التفضيلات تُحفظ <span className="font-semibold">محلياً على جهازك</span> (localStorage).</li>
-              <li>الميزات الاجتماعية (الختمات، تعليقات القصائد، أثر) تستخدم <span className="font-semibold">رمزاً مجهولاً</span> يُولَّد على الجهاز ولا يربطك بهويتك الحقيقية.</li>
             </ul>
           </section>
 
@@ -44,7 +43,6 @@ const PrivacyPage = () => {
               <li>آخر دعاء/زيارة/ذكر، آخر سورة/صفحة قرآن، علامات قراءة القرآن.</li>
               <li>تفعيل إشعارات الأذان، الأوضاع المُكمَلة من «اقتراحات اليوم».</li>
               <li>الكلمات المُلوَّنة بالنقر المزدوج في الأدعية.</li>
-              <li>حالة مشغّل القصائد (التكرار، آخر قصيدة).</li>
               <li>رمز المنشئ للختمات الخاصة، ورمز قارئ مجهول لتسجيل القراءة.</li>
             </ul>
           </section>
@@ -55,7 +53,6 @@ const PrivacyPage = () => {
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li><span className="font-semibold">الختمات</span>: العنوان والإهداء، نوع الختمة، عدد القراءات، رمز قارئ مجهول، اسم اختياري ثلاثي إذا اخترت الإفصاح، رمز منشئ مجهول.</li>
               <li><span className="font-semibold">أثر</span>: مقولات عامة يُديرها فريق التطبيق فقط — لا بيانات مستخدم.</li>
-              <li><span className="font-semibold">القصائد والبودكاست</span>: قائمة عامة + تعليقات وإعجابات اختيارية مع رمز مجهول.</li>
             </ul>
             <p className="mt-2">الاسم الثلاثي يُتحقَّق منه عبر AI (Atraa AI) لرفض الإساءات وأسماء المعصومين، ولا يُحفَظ نص الطلب بعد التحقّق.</p>
           </section>
@@ -65,7 +62,6 @@ const PrivacyPage = () => {
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li><span className="font-semibold">AlAdhan API</span> — أوقات الصلاة (الجعفرية).</li>
               <li><span className="font-semibold">AlQuran.cloud</span> — نص القرآن بالرسم العثماني / KFGQPC.</li>
-              <li><span className="font-semibold">wttr.in</span> — الطقس بإحداثيات المدينة فقط.</li>
               <li><span className="font-semibold">Nominatim (OpenStreetMap)</span> — بحث المدن.</li>
               <li><span className="font-semibold">Atraa AI</span> — التحقّق من العنوان والاسم في الختمات.</li>
               <li><span className="font-semibold">Vercel Analytics</span> — قياسات أداء مجهولة بدون معرّف مستخدم.</li>
@@ -78,7 +74,6 @@ const PrivacyPage = () => {
               <li><span className="font-semibold">الموقع (GPS)</span> — اختياري لتحديد المدينة والقبلة.</li>
               <li><span className="font-semibold">مستشعرات الحركة</span> — اختياري لبوصلة القبلة.</li>
               <li><span className="font-semibold">الإشعارات</span> — اختياري للأذان (محلية على الجهاز).</li>
-              <li><span className="font-semibold">التشغيل في الخلفية</span> — للقصائد والبودكاست عبر Media Session.</li>
             </ul>
           </section>
 
@@ -149,7 +144,6 @@ const PrivacyPage = () => {
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li><span className="font-semibold">AlAdhan API</span> — prayer times.</li>
               <li><span className="font-semibold">AlQuran.cloud</span> — Uthmani-script Quran text.</li>
-              <li><span className="font-semibold">wttr.in</span> — weather based on approximate city location.</li>
               <li><span className="font-semibold">Nominatim (OpenStreetMap)</span> — city search.</li>
             </ul>
           </section>

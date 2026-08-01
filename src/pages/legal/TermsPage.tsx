@@ -49,7 +49,6 @@ const TermsPage = () => {
               <li>مكتبة الأدعية والزيارات والأذكار للمذهبَين الشيعي والسنّي.</li>
               <li><span className="font-semibold">الختمات</span> الجماعية على <span className="font-semibold">khatma.atraa.xyz</span>.</li>
               <li><span className="font-semibold">أثر</span> — مكتبة أقوال النبي ﷺ والأئمّة (ع) على <span className="font-semibold">athar.atraa.xyz</span>.</li>
-              <li><span className="font-semibold">القصائد الحسينية والبودكاست</span> على <span className="font-semibold">qasaid.atraa.xyz</span>.</li>
               <li>خدمات قادمة: <span className="font-semibold">صوتيات</span> على <span className="font-semibold">audio.atraa.xyz</span>.</li>
               <li><span className="font-semibold">نسخة تجريبية</span> للزوار على <span className="font-semibold">demo.atraa.xyz</span> بميزات محدودة.</li>
             </ul>
@@ -61,7 +60,6 @@ const TermsPage = () => {
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li>القرآن الكريم والمقترحات لا تظهر — متاحة فقط في النسخة الأصلية.</li>
               <li>الأدعية / الزيارات / الأذكار: محدودة بـ ١٥ عنصراً لكل قسم.</li>
-              <li>القصائد الحسينية تُعرض دون إمكانية التشغيل.</li>
               <li>الخلفيات تُعرض دون إمكانية التحميل.</li>
               <li>الإعدادات الكاملة وشاشة الإعداد الأوّلي مغلقة.</li>
             </ul>
@@ -90,7 +88,6 @@ const TermsPage = () => {
             <h2 className="text-[15px] font-semibold mb-2">6. المحتوى الذي يُنشئه المستخدمون</h2>
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li><span className="font-semibold">الختمات</span>: العنوان والإهداء واسم القارئ يُمرّر على فحص AI تلقائي لرفض الإساءات وانتحال أسماء المعصومين.</li>
-              <li><span className="font-semibold">تعليقات القصائد</span>: تخضع لنفس الشروط؛ يحقّ لنا حذف أيّ تعليق دون إشعار.</li>
               <li>أنت وحدك مسؤول عن كل ما تنشره؛ الإدارة تحتفظ بحق الإزالة الفورية.</li>
             </ul>
           </section>

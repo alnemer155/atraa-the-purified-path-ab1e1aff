@@ -30,7 +30,6 @@ const DataPage = () => {
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li><span className="font-semibold">بيانات شخصية تعريفية:</span> لا شيء (لا حساب، لا بريد، لا رقم هاتف).</li>
               <li><span className="font-semibold">بيانات يتم ربطها بالمستخدم:</span> لا شيء.</li>
-              <li><span className="font-semibold">بيانات مجهولة الهوية على Atraa Cloud:</span> محتوى الختمات / تعليقات القصائد فقط، مرتبطة برموز مجهولة مولّدة على الجهاز.</li>
               <li><span className="font-semibold">تحليلات أداء مجهولة:</span> Vercel Analytics بدون معرّف مستخدم.</li>
               <li><span className="font-semibold">محلياً على جهازك:</span> تفضيلات الاستخدام والقراءة.</li>
             </ul>
@@ -57,7 +56,6 @@ const DataPage = () => {
               <li>علامات قراءة القرآن وألوان الآيات المُختارة.</li>
               <li>تفعيل إشعارات الأذان وحالة «اقتراحات اليوم».</li>
               <li>الكلمات المُلوَّنة بالنقر المزدوج في الأدعية.</li>
-              <li>حالة مشغّل القصائد (التكرار، آخر قصيدة).</li>
               <li>رمز المنشئ للختمات الخاصة، ورمز قارئ مجهول.</li>
               <li>كاش الـ PWA / Service Worker للعمل دون اتصال (واجهات، صفحات قرآن، ملفات أذان).</li>
             </ul>
@@ -70,7 +68,6 @@ const DataPage = () => {
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li><span className="font-semibold">الختمات</span>: العنوان والإهداء، نوع الختمة، عدد القراءات، رمز قارئ مجهول، اسم اختياري ثلاثي إذا اخترت الإفصاح، رمز منشئ مجهول، حالة النشر.</li>
               <li><span className="font-semibold">أثر</span>: قاعدة مقولات عامّة يُديرها فريق المنصة فقط — لا بيانات مستخدم.</li>
-              <li><span className="font-semibold">القصائد والبودكاست</span>: قائمة عامّة + تعليقات وإعجابات اختيارية مع رمز مجهول.</li>
               <li><span className="font-semibold">الخلفيات</span>: قائمة عامّة فقط — لا بيانات مستخدم.</li>
             </ul>
             <p className="mt-2">الاسم الثلاثي للقارئ وعنوان الختمة يُتحقَّق منهما عبر <span className="font-semibold">Atraa AI</span> لرفض الإساءات وأسماء المعصومين، ولا يُحفَظ نص الطلب بعد التحقّق.</p>
@@ -81,9 +78,7 @@ const DataPage = () => {
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li>AlAdhan API — أوقات الصلاة (الجعفرية).</li>
               <li>AlQuran.cloud — قائمة السور والآيات.</li>
-              <li>wttr.in — الطقس بإحداثيات المدينة فقط.</li>
               <li>Nominatim / OpenStreetMap — الجغرافيا العكسية عند استخدام GPS.</li>
-              <li>Atraa Cloud — قاعدة بيانات الختمات/أثر/القصائد/الخلفيات.</li>
               <li>Atraa AI — التحقّق من العناوين والأسماء.</li>
               <li>i.ibb.co — استضافة بعض الشعارات والأيقونات.</li>
               <li>Vercel Analytics — قياسات أداء مجهولة بدون معرّف مستخدم.</li>
@@ -97,7 +92,6 @@ const DataPage = () => {
               <li><span className="font-semibold">الموقع (GPS)</span> — اختياري لتحديد المدينة والقبلة.</li>
               <li><span className="font-semibold">مستشعرات الحركة</span> — اختياري لبوصلة القبلة.</li>
               <li><span className="font-semibold">الإشعارات</span> — اختياري للأذان (محلّية على الجهاز).</li>
-              <li><span className="font-semibold">التشغيل في الخلفية</span> — للقصائد والبودكاست عبر Media Session.</li>
             </ul>
           </section>
 
@@ -106,7 +100,6 @@ const DataPage = () => {
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li>مسح بيانات التطبيق أو الموقع من إعدادات الجهاز.</li>
               <li>إلغاء تثبيت التطبيق.</li>
-              <li>طلب حذف ختمة أنشأتها برمز المنشئ، أو تعليق قصيدة برمز الزائر.</li>
               <li>راسلنا على <span className="font-semibold">support@atraa.xyz</span> — نلتزم بالردّ خلال 30 يوماً.</li>
             </ul>
           </section>
@@ -134,7 +127,6 @@ const DataPage = () => {
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li>Personally identifiable info: <span className="font-semibold">none</span>.</li>
               <li>Data linked to user: <span className="font-semibold">none</span>.</li>
-              <li>Anonymous data on Atraa Cloud: Khatma content, Qasida likes/comments — tied to anonymous device tokens only.</li>
               <li>Anonymous performance: Vercel Analytics, no user identifier.</li>
               <li>Local on your device: usage and reading preferences.</li>
             </ul>
