@@ -51,13 +51,13 @@ const PrivacyPage = () => {
 
           <section>
             <h2 className="text-[15px] font-semibold mb-2">3. الميزات السحابية (الختمات / أثر / القصائد)</h2>
-            <p className="mb-2">عند مشاركتك في إحدى الميزات الاجتماعية، يُحفظ على خادم Lovable Cloud:</p>
+            <p className="mb-2">عند مشاركتك في إحدى الميزات الاجتماعية، يُحفظ على خادم Atraa Cloud:</p>
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li><span className="font-semibold">الختمات</span>: العنوان والإهداء، نوع الختمة، عدد القراءات، رمز قارئ مجهول، اسم اختياري ثلاثي إذا اخترت الإفصاح، رمز منشئ مجهول.</li>
               <li><span className="font-semibold">أثر</span>: مقولات عامة يُديرها فريق التطبيق فقط — لا بيانات مستخدم.</li>
               <li><span className="font-semibold">القصائد والبودكاست</span>: قائمة عامة + تعليقات وإعجابات اختيارية مع رمز مجهول.</li>
             </ul>
-            <p className="mt-2">الاسم الثلاثي يُتحقَّق منه عبر AI (Lovable AI Gateway) لرفض الإساءات وأسماء المعصومين، ولا يُحفَظ نص الطلب بعد التحقّق.</p>
+            <p className="mt-2">الاسم الثلاثي يُتحقَّق منه عبر AI (Atraa AI) لرفض الإساءات وأسماء المعصومين، ولا يُحفَظ نص الطلب بعد التحقّق.</p>
           </section>
 
           <section>
@@ -67,7 +67,7 @@ const PrivacyPage = () => {
               <li><span className="font-semibold">AlQuran.cloud</span> — نص القرآن بالرسم العثماني / KFGQPC.</li>
               <li><span className="font-semibold">wttr.in</span> — الطقس بإحداثيات المدينة فقط.</li>
               <li><span className="font-semibold">Nominatim (OpenStreetMap)</span> — بحث المدن.</li>
-              <li><span className="font-semibold">Lovable AI Gateway</span> — التحقّق من العنوان والاسم في الختمات.</li>
+              <li><span className="font-semibold">Atraa AI</span> — التحقّق من العنوان والاسم في الختمات.</li>
               <li><span className="font-semibold">Vercel Analytics</span> — قياسات أداء مجهولة بدون معرّف مستخدم.</li>
             </ul>
           </section>

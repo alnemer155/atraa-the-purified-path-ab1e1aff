@@ -3,7 +3,7 @@ import LegalLayout from '@/components/legal/LegalLayout';
 
 /**
  * Data Collection — Atraa.
- * Rewritten for v2.9.20 to cover Lovable Cloud-stored data for the
+ * Rewritten for v2.9.20 to cover Atraa Cloud-stored data for the
  * Khatma / Athar / Qasaid features and the AI verification pipelines.
  */
 const DataPage = () => {
@@ -30,7 +30,7 @@ const DataPage = () => {
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li><span className="font-semibold">بيانات شخصية تعريفية:</span> لا شيء (لا حساب، لا بريد، لا رقم هاتف).</li>
               <li><span className="font-semibold">بيانات يتم ربطها بالمستخدم:</span> لا شيء.</li>
-              <li><span className="font-semibold">بيانات مجهولة الهوية على Lovable Cloud:</span> محتوى الختمات / تعليقات القصائد فقط، مرتبطة برموز مجهولة مولّدة على الجهاز.</li>
+              <li><span className="font-semibold">بيانات مجهولة الهوية على Atraa Cloud:</span> محتوى الختمات / تعليقات القصائد فقط، مرتبطة برموز مجهولة مولّدة على الجهاز.</li>
               <li><span className="font-semibold">تحليلات أداء مجهولة:</span> Vercel Analytics بدون معرّف مستخدم.</li>
               <li><span className="font-semibold">محلياً على جهازك:</span> تفضيلات الاستخدام والقراءة.</li>
             </ul>
@@ -65,7 +65,7 @@ const DataPage = () => {
           </section>
 
           <section>
-            <h2 className="text-[15px] font-semibold mb-2">4. ما يُحفَظ على Lovable Cloud</h2>
+            <h2 className="text-[15px] font-semibold mb-2">4. ما يُحفَظ على Atraa Cloud</h2>
             <p className="mb-2">عند مشاركتك في الميزات الاجتماعية فقط، يُحفظ على الخادم:</p>
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li><span className="font-semibold">الختمات</span>: العنوان والإهداء، نوع الختمة، عدد القراءات، رمز قارئ مجهول، اسم اختياري ثلاثي إذا اخترت الإفصاح، رمز منشئ مجهول، حالة النشر.</li>
@@ -73,7 +73,7 @@ const DataPage = () => {
               <li><span className="font-semibold">القصائد والبودكاست</span>: قائمة عامّة + تعليقات وإعجابات اختيارية مع رمز مجهول.</li>
               <li><span className="font-semibold">الخلفيات</span>: قائمة عامّة فقط — لا بيانات مستخدم.</li>
             </ul>
-            <p className="mt-2">الاسم الثلاثي للقارئ وعنوان الختمة يُتحقَّق منهما عبر <span className="font-semibold">Lovable AI Gateway</span> لرفض الإساءات وأسماء المعصومين، ولا يُحفَظ نص الطلب بعد التحقّق.</p>
+            <p className="mt-2">الاسم الثلاثي للقارئ وعنوان الختمة يُتحقَّق منهما عبر <span className="font-semibold">Atraa AI</span> لرفض الإساءات وأسماء المعصومين، ولا يُحفَظ نص الطلب بعد التحقّق.</p>
           </section>
 
           <section>
@@ -83,8 +83,8 @@ const DataPage = () => {
               <li>AlQuran.cloud — قائمة السور والآيات.</li>
               <li>wttr.in — الطقس بإحداثيات المدينة فقط.</li>
               <li>Nominatim / OpenStreetMap — الجغرافيا العكسية عند استخدام GPS.</li>
-              <li>Lovable Cloud — قاعدة بيانات الختمات/أثر/القصائد/الخلفيات.</li>
-              <li>Lovable AI Gateway — التحقّق من العناوين والأسماء.</li>
+              <li>Atraa Cloud — قاعدة بيانات الختمات/أثر/القصائد/الخلفيات.</li>
+              <li>Atraa AI — التحقّق من العناوين والأسماء.</li>
               <li>i.ibb.co — استضافة بعض الشعارات والأيقونات.</li>
               <li>Vercel Analytics — قياسات أداء مجهولة بدون معرّف مستخدم.</li>
             </ul>
@@ -134,7 +134,7 @@ const DataPage = () => {
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li>Personally identifiable info: <span className="font-semibold">none</span>.</li>
               <li>Data linked to user: <span className="font-semibold">none</span>.</li>
-              <li>Anonymous data on Lovable Cloud: Khatma content, Qasida likes/comments — tied to anonymous device tokens only.</li>
+              <li>Anonymous data on Atraa Cloud: Khatma content, Qasida likes/comments — tied to anonymous device tokens only.</li>
               <li>Anonymous performance: Vercel Analytics, no user identifier.</li>
               <li>Local on your device: usage and reading preferences.</li>
             </ul>
@@ -148,12 +148,12 @@ const DataPage = () => {
             <p>City coordinates, Hijri offset, language, madhhab, tasbih state, last reading positions, ayah colors, notification toggle, qasida player state, anonymous creator/reader tokens, PWA offline cache.</p>
           </section>
           <section>
-            <h2 className="text-[15px] font-semibold mb-2">4. Lovable Cloud Storage</h2>
+            <h2 className="text-[15px] font-semibold mb-2">4. Atraa Cloud Storage</h2>
             <p>Khatma title/dedication/mode, juz claims, qasida likes/comments — all linked to anonymous device tokens. Athar quotes are an editorial public collection, no user data.</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">5. External Requests</h2>
-            <p>AlAdhan, AlQuran.cloud, wttr.in, Nominatim/OpenStreetMap, Lovable Cloud, Lovable AI Gateway, i.ibb.co, Vercel Analytics.</p>
+            <p>AlAdhan, AlQuran.cloud, wttr.in, Nominatim/OpenStreetMap, Atraa Cloud, Atraa AI, i.ibb.co, Vercel Analytics.</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">6. Permissions</h2>

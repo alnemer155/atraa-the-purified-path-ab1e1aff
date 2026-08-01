@@ -3,7 +3,7 @@ import LegalLayout from '@/components/legal/LegalLayout';
 
 /**
  * Terms of Use — Atraa.
- * Rewritten for v2.9.20 to cover Khatma, Athar, Qasaid, Lovable Cloud,
+ * Rewritten for v2.9.20 to cover Khatma, Athar, Qasaid, Atraa Cloud,
  * the Atraa subdomain network, the trial site (demo.atraa.xyz), and the
  * Sepia-locked theme system.
  */
@@ -106,7 +106,7 @@ const TermsPage = () => {
 
           <section>
             <h2 className="text-[15px] font-semibold mb-2">8. مستوى الخدمة</h2>
-            <p>نسعى لإبقاء الخدمات متاحة، لكنّنا <span className="font-semibold">لا نضمن</span> الاستمرارية الكاملة، خصوصاً للمواقع الفرعية تحت التطوير، أو خدمات الطرف الثالث (AlAdhan، AlQuran.cloud، wttr.in، Nominatim، Lovable Cloud، Lovable AI Gateway).</p>
+            <p>نسعى لإبقاء الخدمات متاحة، لكنّنا <span className="font-semibold">لا نضمن</span> الاستمرارية الكاملة، خصوصاً للمواقع الفرعية تحت التطوير، أو خدمات الطرف الثالث (AlAdhan، AlQuran.cloud، wttr.in، Nominatim، Atraa Cloud، Atraa AI).</p>
           </section>
 
           <section>
@@ -193,7 +193,7 @@ const TermsPage = () => {
 
           <section>
             <h2 className="text-[15px] font-semibold mb-2">8. Service Level</h2>
-            <p>We strive for availability but do not guarantee uninterrupted service, especially for subdomains under active development, or for third-party services (AlAdhan, AlQuran.cloud, wttr.in, Nominatim, Lovable Cloud, Lovable AI Gateway).</p>
+            <p>We strive for availability but do not guarantee uninterrupted service, especially for subdomains under active development, or for third-party services (AlAdhan, AlQuran.cloud, wttr.in, Nominatim, Atraa Cloud, Atraa AI).</p>
           </section>
 
           <section>
