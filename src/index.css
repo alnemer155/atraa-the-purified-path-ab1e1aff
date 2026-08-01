@@ -450,3 +450,36 @@
     animation: light-orbit 12s linear infinite;
   }
 }
+
+/* ============================================================
+ * v2.13.40 — Installed PWA polish (standalone / fullscreen).
+ * Removes browser rubber-banding and text-selection artifacts so
+ * the installed app behaves like a native shell.
+ * ========================================================== */
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  html,
+  body {
+    overscroll-behavior-y: none;
+    touch-action: manipulation;
+  }
+
+  body {
+    /* Paint the sepia canvas behind the status bar / home indicator. */
+    background-color: hsl(var(--background));
+    min-height: 100dvh;
+  }
+
+  /* Native-feeling: no accidental long-press selection outside readers. */
+  body :not(input):not(textarea):not([contenteditable]):not(.selectable) {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Readers & Quran text stay selectable for copying. */
+  .quran-uthmani,
+  .selectable,
+  .selectable * {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
