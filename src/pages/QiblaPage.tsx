@@ -157,6 +157,7 @@ const QiblaPage = () => {
   const [isAligned, setIsAligned] = useState(false);
   const [deviation, setDeviation] = useState<number | null>(null);
   const [heading, setHeading] = useState<number | null>(null);
+  const [needsCalibration, setNeedsCalibration] = useState(false);
 
   // Refs — direct DOM mutations to avoid re-renders
   const headingRef = useRef(0);
