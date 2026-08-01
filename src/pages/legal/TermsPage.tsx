@@ -3,7 +3,7 @@ import LegalLayout from '@/components/legal/LegalLayout';
 
 /**
  * Terms of Use — Atraa.
- * Rewritten for v2.9.20 to cover Khatma, Athar, Qasaid, Atraa Cloud,
+ * Rewritten for v2.13.40 to cover Khatma, Athar, cloud sync,
  * the Atraa subdomain network, the trial site (demo.atraa.xyz), and the
  * Sepia-locked theme system.
  */

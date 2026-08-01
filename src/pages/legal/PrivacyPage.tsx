@@ -48,7 +48,7 @@ const PrivacyPage = () => {
           </section>
 
           <section>
-            <h2 className="text-[15px] font-semibold mb-2">3. الميزات السحابية (الختمات / أثر / القصائد)</h2>
+            <h2 className="text-[15px] font-semibold mb-2">3. الميزات السحابية (الختمات / أثر)</h2>
             <p className="mb-2">عند مشاركتك في إحدى الميزات الاجتماعية، يُحفظ على خادم Atraa Cloud:</p>
             <ul className="list-disc ps-5 space-y-1 text-foreground/85">
               <li><span className="font-semibold">الختمات</span>: العنوان والإهداء، نوع الختمة، عدد القراءات، رمز قارئ مجهول، اسم اختياري ثلاثي إذا اخترت الإفصاح، رمز منشئ مجهول.</li>

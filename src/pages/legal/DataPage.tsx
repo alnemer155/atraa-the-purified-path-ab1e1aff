@@ -4,7 +4,7 @@ import LegalLayout from '@/components/legal/LegalLayout';
 /**
  * Data Collection — Atraa.
  * Rewritten for v2.9.20 to cover Atraa Cloud-stored data for the
- * Khatma / Athar / Qasaid features and the AI verification pipelines.
+ * Khatma / Athar features and the AI verification pipelines.
  */
 const DataPage = () => {
   const { i18n } = useTranslation();

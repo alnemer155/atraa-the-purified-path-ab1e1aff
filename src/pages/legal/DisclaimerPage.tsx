@@ -4,7 +4,7 @@ import LegalLayout from '@/components/legal/LegalLayout';
 /**
  * Disclaimer — Atraa.
  * Rewritten for v2.9.20 to cover the full Atraa service network
- * (Khatma, Athar, Qasaid, Audio), AI features (title/name verification,
+ * (Khatma, Athar), AI features (title/name verification,
  * Atraa AI personas), and the Sepia-locked theme system.
  */
 const DisclaimerPage = () => {
@@ -32,7 +32,7 @@ const DisclaimerPage = () => {
 
           <section>
             <h2 className="text-[15px] font-semibold mb-2">1. طبيعة المحتوى الديني</h2>
-            <p className="mb-2">يُقدَّم المحتوى (أدعية، زيارات، أذكار، أوقات صلاة، اتجاه القبلة، التاريخ الهجري، نصوص قرآنية، أقوال «أثر»، قصائد حسينية) لأغراض <span className="font-semibold">تعليمية وتذكيرية وتعبدية شخصية</span> فقط.</p>
+            <p className="mb-2">يُقدَّم المحتوى (أدعية، زيارات، أذكار، أوقات صلاة، اتجاه القبلة، التاريخ الهجري، نصوص قرآنية، أقوال «أثر») لأغراض <span className="font-semibold">تعليمية وتذكيرية وتعبدية شخصية</span> فقط.</p>
             <p>المحتوى ليس فتوى شرعية مُلزِمة، ولا بديلاً عن الرجوع إلى مكتب مرجع التقليد في المسائل التكليفية، ولا إجماعاً علمياً في المسائل الخلافية.</p>
           </section>
 
@@ -78,8 +78,8 @@ const DisclaimerPage = () => {
           </section>
 
           <section>
-            <h2 className="text-[15px] font-semibold mb-2">8. القصائد الحسينية والبودكاست (qasaid.atraa.xyz)</h2>
-            <p>القصائد محتوى ديني عاطفي مرتبط بأهل البيت (ع)؛ ليست موسيقى. ميزات التشغيل (التكرار، التقديم/الإرجاع، النشر، الفيديو) أدوات تيسير فقط. حقوق التلاوات تعود لأصحابها وقُيِّدت بإذن العرض.</p>
+            <h2 className="text-[15px] font-semibold mb-2">8. دقّة المواقيت واتجاه القبلة</h2>
+            <p>تُحسب المواقيت وفق مذهب أهل البيت عليهم السلام (جامعة طهران) مع مراعاة المنطقة الزمنية والتوقيت الصيفي للمدينة المختارة، ويُحدَّد اتجاه القبلة عبر مستشعرات الجهاز. قد تتأثر النتائج بدقّة الموقع أو بتشويش مغناطيسي، ويظلّ التحقّق الميداني والرجوع لتوقيت المسجد المحلي هو المرجع عند الاختلاف.</p>
           </section>
 
           <section>
@@ -89,7 +89,7 @@ const DisclaimerPage = () => {
 
           <section>
             <h2 className="text-[15px] font-semibold mb-2">10. خدمات الطرف الثالث</h2>
-            <p>يستعلم التطبيق عن AlAdhan (المواقيت)، AlQuran.cloud (القرآن)، Nominatim/OpenStreetMap (الجغرافيا)، Atraa Cloud (الختمات/أثر/القصائد)، Atraa AI (التحقّق من العنوان والاسم). نحن غير مسؤولين عن انقطاعها أو دقّة بياناتها لحظة الاستعلام.</p>
+            <p>يستعلم التطبيق عن AlAdhan (المواقيت)، AlQuran.cloud (القرآن)، Nominatim/OpenStreetMap (الجغرافيا)، Atraa Cloud (الختمات/أثر)، Atraa AI (التحقّق من العنوان والاسم). نحن غير مسؤولين عن انقطاعها أو دقّة بياناتها لحظة الاستعلام.</p>
           </section>
 
           <section>
@@ -131,8 +131,8 @@ const DisclaimerPage = () => {
             <p>Uthmani script from the King Fahd Glorious Quran Printing Complex via AlQuran.cloud. Report typos to support@atraa.xyz.</p>
           </section>
           <section>
-            <h2 className="text-[15px] font-semibold mb-2">5. Khatmas, Athar, Qasaid</h2>
-            <p>User submissions are AI-filtered for offensiveness and impersonation. The Athar library is for personal sharing; verify with original sources for scholarly use. Qasaid are religious recitations, not music.</p>
+            <h2 className="text-[15px] font-semibold mb-2">5. Khatmas & Athar</h2>
+            <p>User submissions are AI-filtered for offensiveness and impersonation. The Athar library is for personal sharing; verify with original sources for scholarly use.</p>
           </section>
           <section>
             <h2 className="text-[15px] font-semibold mb-2">6. Third-Party Services</h2>
