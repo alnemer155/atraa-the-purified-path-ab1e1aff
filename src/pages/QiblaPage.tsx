@@ -504,6 +504,17 @@ const QiblaPage = () => {
                   {isAr ? 'أنت تواجه القبلة' : 'Facing the Qibla'}
                 </span>
               </motion.div>
+            ) : compassActive && needsCalibration ? (
+              <motion.div
+                key="calib"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="flex items-center gap-2 text-muted-foreground/75"
+              >
+                <span className="w-1 h-1 rounded-full bg-foreground/30" />
+                <span className="text-[10.5px] font-light">
+                  {isAr ? 'حرّك الجهاز على شكل ٨ لمعايرة الحساس' : 'Move the device in a figure-8 to calibrate'}
+                </span>
+              </motion.div>
             ) : compassActive && deviation !== null ? (
               <motion.div
                 key="dev"
