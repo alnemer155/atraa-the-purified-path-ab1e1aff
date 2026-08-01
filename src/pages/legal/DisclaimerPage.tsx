@@ -23,7 +23,7 @@ const DisclaimerPage = () => {
               يرجى قراءة هذا الإخلاء بعناية قبل استخدام أيّ من خدمات <span className="font-semibold">منصة عترة الدينية</span>: التطبيق الأصلي،
               <span className="font-semibold"> atraa.xyz</span>،
               <span className="font-semibold"> khatma.atraa.xyz</span>،
-              <span className="font-semibold"> athar.atraa.xyz</span>،
+              <span className="font-semibold"> athar.atraa.xyz</span>.
             </p>
           </section>
 
