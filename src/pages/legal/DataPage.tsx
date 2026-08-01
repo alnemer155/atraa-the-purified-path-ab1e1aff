@@ -119,7 +119,7 @@ const DataPage = () => {
         <>
           <section>
             <p className="text-[12px] text-muted-foreground/80 leading-relaxed">
-              This page details, in a categorised format, what data is collected or processed across all Atraa services (atraa.xyz, khatma.atraa.xyz, athar.atraa.xyz, qasaid.atraa.xyz, audio.atraa.xyz, demo.atraa.xyz, and the native apps), in line with App Store Privacy Nutrition Labels, Google Play Data Safety, and GDPR.
+              This page details, in a categorised format, what data is collected or processed across all Atraa services (atraa.xyz, khatma.atraa.xyz, athar.atraa.xyz, and the native apps), in line with App Store Privacy Nutrition Labels, Google Play Data Safety, and GDPR.
             </p>
           </section>
           <section>

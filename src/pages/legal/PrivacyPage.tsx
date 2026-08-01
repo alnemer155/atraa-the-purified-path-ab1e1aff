@@ -19,7 +19,7 @@ const PrivacyPage = () => {
         <>
           <section>
             <p className="text-[12px] text-muted-foreground/80 leading-relaxed">
-              تطبيق <span className="font-semibold">منصة عترة الدينية</span> (Atraa) يلتزم بمبدأ <span className="font-semibold">الخصوصية أولاً</span>. لا حساب مستخدم في النواة الدينية، ولا تُجمع أي بيانات شخصية تعريفية. تُغطّي هذه السياسة المنصة الرئيسية والمواقع الفرعية: <span className="font-semibold">khatma.atraa.xyz</span>، <span className="font-semibold">athar.atraa.xyz</span>، <span className="font-semibold">qasaid.atraa.xyz</span>، <span className="font-semibold">audio.atraa.xyz</span>.
+              تطبيق <span className="font-semibold">منصة عترة الدينية</span> (Atraa) يلتزم بمبدأ <span className="font-semibold">الخصوصية أولاً</span>. لا حساب مستخدم في النواة الدينية، ولا تُجمع أي بيانات شخصية تعريفية. تُغطّي هذه السياسة المنصة الرئيسية والمواقع الفرعية: <span className="font-semibold">khatma.atraa.xyz</span> و<span className="font-semibold">athar.atraa.xyz</span>.
             </p>
             <p className="text-[12px] text-muted-foreground/80 leading-relaxed mt-2">
               المتحكّم بالبيانات: <span className="font-semibold">Bin Jaafar</span> · <span className="font-semibold">support@atraa.xyz</span>.

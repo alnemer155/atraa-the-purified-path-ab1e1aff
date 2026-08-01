@@ -24,9 +24,6 @@ const DisclaimerPage = () => {
               <span className="font-semibold"> atraa.xyz</span>،
               <span className="font-semibold"> khatma.atraa.xyz</span>،
               <span className="font-semibold"> athar.atraa.xyz</span>،
-              <span className="font-semibold"> qasaid.atraa.xyz</span>،
-              <span className="font-semibold"> audio.atraa.xyz</span>،
-              <span className="font-semibold"> demo.atraa.xyz</span>.
             </p>
           </section>
 
@@ -93,8 +90,8 @@ const DisclaimerPage = () => {
           </section>
 
           <section>
-            <h2 className="text-[15px] font-semibold mb-2">11. المحتوى السنّي</h2>
-            <p>عند اختيار المذهب <span className="font-semibold">السنّي</span>، يعرض التطبيق مجموعة مختصرة من الأذكار والأدعية من المصادر المعتمدة لدى أهل السنّة (صحيح البخاري، صحيح مسلم، حصن المسلم، رياض الصالحين، الأذكار النووية، سنن الترمذي وأبي داود). هي مكتبة بدئية يجري توسيعها بعد المراجعة، وليست بديلاً عن الرجوع إلى أهل العلم في بلدك.</p>
+            <h2 className="text-[15px] font-semibold mb-2">11. مصادر المحتوى</h2>
+            <p>محتوى المنصة مأخوذ من مصادر مذهب أهل البيت عليهم السلام المعتمدة (مفاتيح الجنان، حقيبة المؤمن، بحار الأنوار، نهج البلاغة وغيرها) مع مراجعة نصّية مستمرّة. ما يُعرض هنا تذكيرٌ وتيسيرٌ للعبادة، وليس بديلاً عن الرجوع إلى المرجع أو أهل العلم في بلدك.</p>
           </section>
 
           <section>
@@ -111,7 +108,7 @@ const DisclaimerPage = () => {
         <>
           <section>
             <p className="text-[12px] text-muted-foreground/80 leading-relaxed">
-              Please read carefully before using any Atraa service: the native app, atraa.xyz, khatma.atraa.xyz, athar.atraa.xyz, qasaid.atraa.xyz, audio.atraa.xyz, demo.atraa.xyz.
+              Please read carefully before using any Atraa service: the native app, atraa.xyz, khatma.atraa.xyz and athar.atraa.xyz.
             </p>
           </section>
           <section>
