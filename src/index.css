@@ -217,6 +217,11 @@
     font-family: 'Qomra Arabic', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
+    /* v2.13.40 — Arabic shaping: keep required ligatures & contextual joining on. */
+    font-variant-ligatures: common-ligatures contextual;
+    font-feature-settings: 'liga' 1, 'clig' 1, 'calt' 1, 'rlig' 1, 'mark' 1, 'mkmk' 1, 'curs' 1;
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
   }
 
   html[lang='en'] {
@@ -238,6 +243,27 @@
   h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
     letter-spacing: -0.015em;
+  }
+
+  /*
+   * v2.13.40 — letter-spacing (Tailwind `tracking-*`) visually breaks Arabic
+   * letter joining (e.g. "اليوم" rendered as "الـ ـيـ ـو م").
+   * Force natural spacing for every Arabic/RTL node; Latin-only utilities
+   * keep working under html[lang='en'].
+   */
+  html[dir='rtl'] *,
+  html[lang='ar'] *,
+  [lang='ar'],
+  [lang='ar'] * {
+    letter-spacing: normal !important;
+    word-spacing: normal;
+    font-variant-ligatures: common-ligatures contextual;
+    font-feature-settings: 'liga' 1, 'clig' 1, 'calt' 1, 'rlig' 1, 'mark' 1, 'mkmk' 1, 'curs' 1;
+  }
+
+  /* Never let transforms/synthetic styles distort Arabic glyph joining. */
+  html[dir='rtl'] {
+    font-synthesis: none;
   }
 
   /* Tabular numerals globally for prayer times, dates, counters */
