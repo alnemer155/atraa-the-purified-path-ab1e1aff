@@ -148,16 +148,16 @@ const PrayerTimes = () => {
       // Pick calculation method based on madhhab + user preference.
       // Shia → always 7 (Ja'fari, University of Tehran). Sunni → user choice / 'auto'.
       const method = resolveMethod(madhhab);
-      // v2.13.40 — request an explicit local date + IANA timezone so the API
-      // applies the correct UTC offset *and* DST rule for the selected city
-      // instead of inferring it from the request IP.
+      // v2.13.40 — request an explicit calendar date and let AlAdhan resolve
+      // the UTC offset + DST rule from the city coordinates (never from the
+      // request IP), so a user abroad still sees the selected city's times.
       const date = localDateKey();
       const tz = deviceTimeZone();
       const url =
         `https://api.aladhan.com/v1/timings/${date}` +
         `?latitude=${c.lat}&longitude=${c.lng}&method=${method}&school=0` +
         `&latitudeAdjustmentMethod=3&midnightMode=${madhhab === 'shia' ? 1 : 0}` +
-        `&timezonestring=${encodeURIComponent(tz)}&iso8601=false`;
+        `&iso8601=false`;
 
       const apply = (tt: TimingsData, fromCache: boolean) => {
         if (cancelled) return;
