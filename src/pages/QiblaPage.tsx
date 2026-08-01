@@ -211,7 +211,14 @@ const QiblaPage = () => {
   }, [isAr]);
 
   /* ---------- Smooth animation loop ----------------------------------- */
-  const SMOOTHING = 0.2;
+  // v2.13.40 — adaptive smoothing: snap fast on large turns, glide when close.
+  const smoothingFor = (absDiff: number) => {
+    if (absDiff > 60) return 0.45;
+    if (absDiff > 20) return 0.28;
+    if (absDiff > 5) return 0.18;
+    return 0.1;
+  };
+
 
   const tick = useCallback(() => {
     rafRef.current = requestAnimationFrame(tick);
