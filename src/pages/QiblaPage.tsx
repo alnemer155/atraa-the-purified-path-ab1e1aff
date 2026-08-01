@@ -175,6 +175,8 @@ const QiblaPage = () => {
   const lastDevUpdateTs = useRef<number>(0);
   const lastHeadingReportedRef = useRef<number>(-1);
   const lastHeadingUpdateTs = useRef<number>(0);
+  const needsCalibrationRef = useRef(false);
+  const outlierRef = useRef(0);
 
   /* ---------- GPS — single fast call, fallback to cache ---------------- */
   useEffect(() => {
