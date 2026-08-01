@@ -2,11 +2,11 @@
   "name": "منصة عترة الدينية - Atraa",
   "short_name": "منصة عترة الدينية",
   "description": "منصة عترة الدينية — منصة إسلامية شاملة: أوقات الصلاة، اتجاه القبلة، التاريخ الهجري، الأدعية، الزيارات، الأذكار، التسبيح الرقمي، القرآن الكريم بالرسم العثماني، والقصائد الحسينية. مجانية بالكامل بلا حساب ولا اشتراك.",
-  "start_url": "/",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#fafafa",
-  "theme_color": "#1a3a2a",
+  "background_color": "#f2ead9",
+  "theme_color": "#f2ead9",
   "orientation": "portrait",
   "lang": "ar",
   "dir": "rtl",
@@ -22,12 +22,50 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "categories": ["lifestyle", "utilities", "education"],
-  "shortcuts": [
-    { "name": "المكتبة", "url": "/library" },
-    { "name": "القبلة", "url": "/qibla" }
+  "categories": [
+    "lifestyle",
+    "utilities",
+    "education"
   ],
-  "prefer_related_applications": false
+  "shortcuts": [
+    {
+      "name": "المكتبة",
+      "short_name": "المكتبة",
+      "url": "/library"
+    },
+    {
+      "name": "القبلة",
+      "short_name": "القبلة",
+      "url": "/qibla"
+    },
+    {
+      "name": "المساجد",
+      "short_name": "المساجد",
+      "url": "/mosques"
+    }
+  ],
+  "prefer_related_applications": false,
+  "id": "/",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
 }
