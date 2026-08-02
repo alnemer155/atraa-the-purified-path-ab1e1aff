@@ -1,11 +1,9 @@
 /**
  * Athar (أثر) — quotes/sayings of the Prophet ﷺ and the Imams (a.s.).
- * 7-character alphanumeric public IDs, hosted externally at
- * https://athar.atraa.xyz/{id} for sharing & rich detail pages.
  *
- * v2.9.20: sect filtering removed. All quotes are visible to everyone
- * regardless of madhhab. The `sect` column is kept in the DB for historical
- * reasons but ignored on the client.
+ * v2.12.47: Athar is merged into the main platform. The canonical route is
+ * now the internal `/athar` page (`/athar/:id` for details). The legacy
+ * subdomain still resolves for old shared links.
  */
 import { supabase } from '@/integrations/supabase/client';
 
@@ -20,7 +18,17 @@ export interface AtharQuote {
   created_at: string;
 }
 
+/** Legacy standalone host — kept only for backwards-compatible links. */
 export const ATHAR_PUBLIC_BASE = 'https://athar.atraa.xyz';
+
+/** Canonical in-app base path (v2.12.47). */
+export const ATHAR_PATH = '/athar';
+
+/** Absolute share URL for a quote on the main platform. */
+export const atharShareUrl = (id: string): string => {
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://atraa.xyz';
+  return `${origin}${ATHAR_PATH}/${id}`;
+};
 
 export const generateAtharId = (): string => {
   const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -57,4 +65,24 @@ export const fetchAtharById = async (id: string): Promise<AtharQuote | null> => 
     .eq('id', id)
     .maybeSingle();
   return (data as AtharQuote) ?? null;
+};
+
+/* ---------------- Saved quotes (local, per device) ---------------- */
+
+const SAVED_KEY = 'atraa_athar_saved_v1';
+
+export const getSavedAthar = (): string[] => {
+  try {
+    const raw = localStorage.getItem(SAVED_KEY);
+    return raw ? (JSON.parse(raw) as string[]) : [];
+  } catch { return []; }
+};
+
+export const isAtharSaved = (id: string): boolean => getSavedAthar().includes(id);
+
+export const toggleAtharSaved = (id: string): boolean => {
+  const list = getSavedAthar();
+  const next = list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
+  try { localStorage.setItem(SAVED_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+  return next.includes(id);
 };
