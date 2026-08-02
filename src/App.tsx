@@ -49,6 +49,8 @@ const KhatmaLandingPage = lazy(() => import("./pages/KhatmaLandingPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const AtharQuotePage = lazy(() => import("./pages/AtharQuotePage"));
 const AtharHomePage = lazy(() => import("./pages/AtharHomePage"));
+const AtharPage = lazy(() => import("./pages/AtharPage"));
+
 const MaintenancePage = lazy(() => import("./pages/MaintenancePage"));
 const MosqueDetailPage = lazy(() => import("./pages/MosqueDetailPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
