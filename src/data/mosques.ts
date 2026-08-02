@@ -94,6 +94,46 @@ export const MOSQUES: Mosque[] = [
 
   // ================= ألمانيا =================
   { id: 'de-hamburg-imam-ali', nameAr: 'مركز الإمام علي عليه السلام (Blaue Moschee)', nameEn: 'Imam Ali Center (Blue Mosque)', country: 'ألمانيا', countryEn: 'Germany', city: 'هامبورغ', cityEn: 'Hamburg', lat: 53.5827, lng: 10.0106 },
+
+  // ============ إضافات v2.12.47 — مساجد وحسينيات جعفرية ============
+  // العراق
+  { id: 'iq-basra-imam-ali', nameAr: 'جامع الإمام علي عليه السلام', nameEn: 'Imam Ali Mosque', country: 'العراق', countryEn: 'Iraq', city: 'البصرة', cityEn: 'Basra', lat: 30.5089, lng: 47.7830 },
+  { id: 'iq-najaf-hannana', nameAr: 'مسجد الحنّانة', nameEn: 'Al-Hannana Mosque', country: 'العراق', countryEn: 'Iraq', city: 'النجف الأشرف', cityEn: 'Najaf', lat: 32.0225, lng: 44.3441, annualVisits: 300_000 },
+  { id: 'iq-karbala-mukhayam', nameAr: 'مقام المخيّم الحسيني', nameEn: 'Al-Mukhayam Shrine', country: 'العراق', countryEn: 'Iraq', city: 'كربلاء المقدسة', cityEn: 'Karbala', lat: 32.6132, lng: 44.0245, annualVisits: 3_000_000 },
+  { id: 'iq-hilla-qasim', nameAr: 'مقام القاسم بن الإمام موسى الكاظم عليه السلام', nameEn: 'Al-Qasim Shrine', country: 'العراق', countryEn: 'Iraq', city: 'بابل', cityEn: 'Babil', lat: 32.3096, lng: 44.6350, annualVisits: 1_500_000 },
+  { id: 'iq-baghdad-buratha', nameAr: 'جامع براثا', nameEn: 'Buratha Mosque', country: 'العراق', countryEn: 'Iraq', city: 'بغداد', cityEn: 'Baghdad', lat: 33.3345, lng: 44.3630, annualVisits: 800_000 },
+  // إيران
+  { id: 'ir-mashhad-goharshad', nameAr: 'مسجد گوهرشاد', nameEn: 'Goharshad Mosque', country: 'إيران', countryEn: 'Iran', city: 'مشهد المقدسة', cityEn: 'Mashhad', lat: 36.2872, lng: 59.6167, annualVisits: 5_000_000 },
+  { id: 'ir-qom-azam', nameAr: 'المسجد الأعظم', nameEn: 'Masjid A\'zam', country: 'إيران', countryEn: 'Iran', city: 'قم المقدسة', cityEn: 'Qom', lat: 34.6419, lng: 50.8781, annualVisits: 2_000_000 },
+  { id: 'ir-kashan-agha-bozorg', nameAr: 'مسجد آقا بزرگ', nameEn: 'Agha Bozorg Mosque', country: 'إيران', countryEn: 'Iran', city: 'كاشان', cityEn: 'Kashan', lat: 33.9797, lng: 51.4467 },
+  // سوريا
+  { id: 'sy-damascus-sayyida-ruqayya', nameAr: 'مقام السيدة رقية عليها السلام', nameEn: 'Sayyida Ruqayya Shrine', country: 'سوريا', countryEn: 'Syria', city: 'دمشق', cityEn: 'Damascus', lat: 33.5127, lng: 36.3067, annualVisits: 1_000_000 },
+  { id: 'sy-damascus-sayyida-zainab', nameAr: 'مقام السيدة زينب عليها السلام', nameEn: 'Sayyida Zainab Shrine', country: 'سوريا', countryEn: 'Syria', city: 'دمشق', cityEn: 'Damascus', lat: 33.4419, lng: 36.3411, annualVisits: 4_000_000 },
+  // السعودية
+  { id: 'sa-qatif-imam-hussain', nameAr: 'حسينية الإمام الحسين عليه السلام', nameEn: 'Imam Hussain Husseiniya', country: 'السعودية', countryEn: 'Saudi Arabia', city: 'القطيف', cityEn: 'Qatif', lat: 26.5650, lng: 50.0088, annualVisits: 120_000 },
+  { id: 'sa-ahsa-imam-ali', nameAr: 'مسجد الإمام علي عليه السلام', nameEn: 'Imam Ali Mosque', country: 'السعودية', countryEn: 'Saudi Arabia', city: 'الأحساء', cityEn: 'Al-Ahsa', lat: 25.3833, lng: 49.5872, annualVisits: 90_000 },
+  { id: 'sa-madina-quba', nameAr: 'مسجد قباء', nameEn: 'Quba Mosque', country: 'السعودية', countryEn: 'Saudi Arabia', city: 'المدينة المنورة', cityEn: 'Madinah', lat: 24.4392, lng: 39.6172, annualVisits: 6_000_000 },
+  // الكويت والبحرين وعُمان
+  { id: 'kw-kuwait-imam-hassan', nameAr: 'مسجد الإمام الحسن عليه السلام', nameEn: 'Imam Hassan Mosque', country: 'الكويت', countryEn: 'Kuwait', city: 'الكويت', cityEn: 'Kuwait City', lat: 29.3759, lng: 47.9774, annualVisits: 60_000 },
+  { id: 'bh-manama-imam-sadiq', nameAr: 'مسجد الإمام الصادق عليه السلام', nameEn: 'Imam Sadiq Mosque', country: 'البحرين', countryEn: 'Bahrain', city: 'المنامة', cityEn: 'Manama', lat: 26.2285, lng: 50.5860, annualVisits: 80_000 },
+  { id: 'om-muscat-imam-ali', nameAr: 'مسجد الإمام علي عليه السلام', nameEn: 'Imam Ali Mosque', country: 'عُمان', countryEn: 'Oman', city: 'مسقط', cityEn: 'Muscat', lat: 23.6100, lng: 58.5400 },
+  // لبنان
+  { id: 'lb-beirut-imam-hussein', nameAr: 'مجمع الإمام الحسين عليه السلام', nameEn: 'Imam Hussein Complex', country: 'لبنان', countryEn: 'Lebanon', city: 'بيروت', cityEn: 'Beirut', lat: 33.8380, lng: 35.5000, annualVisits: 100_000 },
+  { id: 'lb-baalbek-khawla', nameAr: 'مقام السيدة خولة عليها السلام', nameEn: 'Sayyida Khawla Shrine', country: 'لبنان', countryEn: 'Lebanon', city: 'بعلبك', cityEn: 'Baalbek', lat: 34.0058, lng: 36.2181, annualVisits: 250_000 },
+  // آسيا
+  { id: 'pk-karachi-jaffaria', nameAr: 'مسجد الجعفرية', nameEn: 'Jaffaria Mosque', country: 'باكستان', countryEn: 'Pakistan', city: 'كراتشي', cityEn: 'Karachi', lat: 24.8607, lng: 67.0011 },
+  { id: 'in-lucknow-asafi', nameAr: 'مسجد آصفي (بارا إمامباره)', nameEn: 'Asafi Mosque (Bara Imambara)', country: 'الهند', countryEn: 'India', city: 'لكناو', cityEn: 'Lucknow', lat: 26.8693, lng: 80.9120, annualVisits: 700_000 },
+  { id: 'az-baku-bibi-heybat', nameAr: 'مسجد بيبي هيبت', nameEn: 'Bibi-Heybat Mosque', country: 'أذربيجان', countryEn: 'Azerbaijan', city: 'باكو', cityEn: 'Baku', lat: 40.3167, lng: 49.7936, annualVisits: 400_000 },
+  // أوروبا وأمريكا الشمالية
+  { id: 'gb-london-islamic-centre', nameAr: 'المركز الإسلامي في إنجلترا', nameEn: 'Islamic Centre of England', country: 'بريطانيا', countryEn: 'United Kingdom', city: 'لندن', cityEn: 'London', lat: 51.5352, lng: -0.1970 },
+  { id: 'gb-birmingham-imam-hussain', nameAr: 'مركز الإمام الحسين عليه السلام', nameEn: 'Imam Hussain Centre', country: 'بريطانيا', countryEn: 'United Kingdom', city: 'برمنغهام', cityEn: 'Birmingham', lat: 52.4862, lng: -1.8904 },
+  { id: 'se-stockholm-imam-ali', nameAr: 'مركز الإمام علي عليه السلام', nameEn: 'Imam Ali Islamic Center', country: 'السويد', countryEn: 'Sweden', city: 'ستوكهولم', cityEn: 'Stockholm', lat: 59.3293, lng: 18.0686 },
+  { id: 'nl-amsterdam-ahlulbayt', nameAr: 'مركز أهل البيت عليهم السلام', nameEn: 'Ahlulbayt Center', country: 'هولندا', countryEn: 'Netherlands', city: 'أمستردام', cityEn: 'Amsterdam', lat: 52.3676, lng: 4.9041 },
+  { id: 'us-dearborn-karbalaa', nameAr: 'المركز الإسلامي كربلاء', nameEn: 'Karbalaa Islamic Center', country: 'أمريكا', countryEn: 'United States', city: 'ديربورن', cityEn: 'Dearborn', lat: 42.3223, lng: -83.1763 },
+  { id: 'us-los-angeles-imam-mahdi', nameAr: 'مركز الإمام المهدي عليه السلام', nameEn: 'Imam Mahdi Center', country: 'أمريكا', countryEn: 'United States', city: 'لوس أنجلوس', cityEn: 'Los Angeles', lat: 34.0522, lng: -118.2437 },
+  { id: 'ca-vancouver-masumeen', nameAr: 'مركز المعصومين عليهم السلام', nameEn: 'Masumeen Islamic Centre', country: 'كندا', countryEn: 'Canada', city: 'فانكوفر', cityEn: 'Vancouver', lat: 49.2827, lng: -123.1207 },
+  { id: 'au-melbourne-ahlulbayt', nameAr: 'مسجد أهل البيت عليهم السلام', nameEn: 'Ahlulbayt Mosque', country: 'أستراليا', countryEn: 'Australia', city: 'ملبورن', cityEn: 'Melbourne', lat: -37.8136, lng: 144.9631 },
+
 ];
 
 export const countriesList = (mosques: Mosque[] = MOSQUES) =>
