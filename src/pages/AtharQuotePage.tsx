@@ -1,11 +1,17 @@
 /**
- * Athar quote detail page — shown at /athar/:id and on athar.atraa.xyz/:id.
- * Includes a "share as image" feature with a translucent platform watermark.
+ * Athar quote detail page — /athar/:id (and legacy athar.atraa.xyz/:id).
+ * v2.12.47 — redesigned: copy, share, save, and image export.
  */
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Loader2, Share2, Download } from 'lucide-react';
-import { fetchAtharById, type AtharQuote } from '@/lib/athar';
+import { useParams, Link } from 'react-router-dom';
+import { Loader2, Share2, Download, Copy, Bookmark, ChevronRight } from 'lucide-react';
+import {
+  fetchAtharById,
+  atharShareUrl,
+  isAtharSaved,
+  toggleAtharSaved,
+  type AtharQuote,
+} from '@/lib/athar';
 import logoAthar from '@/assets/logo-athar.png';
 import { toast } from '@/hooks/use-toast';
 
@@ -13,12 +19,14 @@ const AtharQuotePage = () => {
   const { id } = useParams();
   const [quote, setQuote] = useState<AtharQuote | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saved, setSaved] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     void (async () => {
       if (!id) return;
       setQuote(await fetchAtharById(id));
+      setSaved(isAtharSaved(id));
       setLoading(false);
     })();
   }, [id]);
@@ -31,7 +39,6 @@ const AtharQuotePage = () => {
     const ctx = canvas.getContext('2d')!;
     ctx.fillStyle = '#f5efe6'; ctx.fillRect(0, 0, W, H);
 
-    // Quote text (center-upper area)
     ctx.fillStyle = '#2b1d10'; ctx.textAlign = 'right'; ctx.direction = 'rtl';
     ctx.font = '300 44px "Qomra Arabic", system-ui';
     const words = quote.text.split(' ');
@@ -45,12 +52,10 @@ const AtharQuotePage = () => {
     const startY = H / 2 - (lines.length * 60) / 2 - 40;
     lines.forEach((ln, i) => ctx.fillText(ln, W - 80, startY + i * 60));
 
-    // Sayer
     ctx.font = '300 30px "Qomra Arabic", system-ui';
     ctx.fillStyle = '#6b5840';
     ctx.fillText(`— ${quote.sayer}`, W - 80, startY + lines.length * 60 + 40);
 
-    // Small logo at bottom-center (per spec: نقل الشعار إلى الأسفل و تصغيره)
     const img = new Image(); img.crossOrigin = 'anonymous'; img.src = logoAthar;
     await new Promise((r) => { img.onload = r; img.onerror = r; });
     const wmSize = 110;
@@ -58,7 +63,6 @@ const AtharQuotePage = () => {
     ctx.drawImage(img, (W - wmSize) / 2, H - wmSize - 90, wmSize, wmSize);
     ctx.globalAlpha = 1;
 
-    // Platform name beside logo (under it)
     ctx.textAlign = 'center';
     ctx.font = '300 22px "Qomra Arabic", system-ui';
     ctx.fillStyle = '#3a2c1a';
@@ -78,17 +82,33 @@ const AtharQuotePage = () => {
       a.href = url; a.download = `athar-${quote.id}.png`; a.click();
       URL.revokeObjectURL(url);
       toast({ title: 'تم تحميل الصورة' });
-    } catch (e) {
-      console.error(e);
+    } catch {
       toast({ title: 'تعذّر إنشاء الصورة', variant: 'destructive' });
     }
   };
 
+  const copyText = async () => {
+    if (!quote) return;
+    const body = `${quote.text}\n— ${quote.sayer}${quote.source ? `\nالمصدر: ${quote.source}` : ''}\n${atharShareUrl(quote.id)}`;
+    try {
+      await navigator.clipboard.writeText(body);
+      toast({ title: 'تم نسخ المقولة' });
+    } catch {
+      toast({ title: 'تعذّر النسخ', variant: 'destructive' });
+    }
+  };
+
+  const handleSave = () => {
+    if (!quote) return;
+    const now = toggleAtharSaved(quote.id);
+    setSaved(now);
+    toast({ title: now ? 'أُضيفت للمحفوظات' : 'أُزيلت من المحفوظات' });
+  };
+
   const shareLink = async () => {
     if (!quote) return;
-    const url = `https://athar.atraa.xyz/${quote.id}`;
+    const url = atharShareUrl(quote.id);
     try {
-      // Per spec: النشر يكون معه صوره — attach the generated image when supported.
       const blob = await buildImageBlob();
       const file = blob ? new File([blob], `athar-${quote.id}.png`, { type: 'image/png' }) : null;
       const navAny = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
@@ -104,29 +124,41 @@ const AtharQuotePage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-[60vh] flex items-center justify-center bg-background">
         <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
   if (!quote) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background px-6 text-center" dir="rtl">
+      <div className="min-h-[60vh] flex flex-col items-center justify-center bg-background px-6 text-center gap-4" dir="rtl">
         <p className="text-[13px] text-muted-foreground font-light">
           لم يُعثر على هذه المقولة. تحقق من الرابط.
         </p>
+        <Link to="/athar" className="text-[12px] text-foreground underline-offset-4 underline">
+          العودة إلى أثر
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background px-5 py-10 max-w-xl mx-auto" dir="rtl">
-      <div className="flex items-center gap-2 mb-6">
-        <img src={logoAthar} alt="أثر" className="h-6 w-auto" />
-        <p className="text-[14px] text-foreground">أثر · منصة عترة الدينية</p>
+    <div className="bg-background px-5 py-7 max-w-xl mx-auto animate-fade-in" dir="rtl">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <img src={logoAthar} alt="" className="h-5 w-auto opacity-80" />
+          <p className="text-[12px] text-foreground/85 font-light">أثر · منصة عترة</p>
+        </div>
+        <Link
+          to="/athar"
+          className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/70"
+        >
+          كل المقولات <ChevronRight className="w-3 h-3" strokeWidth={1.6} />
+        </Link>
       </div>
 
-      <div ref={cardRef} className="rounded-3xl border border-border/30 bg-card p-6 mb-4">
+      <div ref={cardRef} className="rounded-3xl glass-card-soft border border-border/25 p-6 mb-3">
+        <div className="h-[0.5px] w-10 bg-gold/50 mb-5" />
         <p className="text-[16px] text-foreground leading-loose font-light text-right">
           {quote.text}
         </p>
@@ -149,10 +181,17 @@ const AtharQuotePage = () => {
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <button onClick={shareLink} className="h-12 rounded-full bg-primary text-primary-foreground text-[12px] flex items-center justify-center gap-1.5">
-          <Share2 className="w-4 h-4" strokeWidth={1.5} /> نشر
+        <button onClick={shareLink} className="h-12 rounded-2xl bg-primary text-primary-foreground text-[12px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform">
+          <Share2 className="w-4 h-4" strokeWidth={1.5} /> مشاركة
         </button>
-        <button onClick={downloadAsImage} className="h-12 rounded-full bg-secondary/40 border border-border/30 text-foreground text-[12px] flex items-center justify-center gap-1.5">
+        <button onClick={copyText} className="h-12 rounded-2xl bg-secondary/40 border border-border/25 text-foreground text-[12px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform">
+          <Copy className="w-4 h-4" strokeWidth={1.5} /> نسخ
+        </button>
+        <button onClick={handleSave} className="h-12 rounded-2xl bg-secondary/40 border border-border/25 text-foreground text-[12px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform">
+          <Bookmark className={`w-4 h-4 ${saved ? 'text-gold fill-current' : ''}`} strokeWidth={1.5} />
+          {saved ? 'محفوظة' : 'حفظ'}
+        </button>
+        <button onClick={downloadAsImage} className="h-12 rounded-2xl bg-secondary/40 border border-border/25 text-foreground text-[12px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform">
           <Download className="w-4 h-4" strokeWidth={1.5} /> صورة
         </button>
       </div>
