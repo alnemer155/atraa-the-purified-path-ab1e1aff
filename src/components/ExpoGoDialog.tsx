@@ -9,7 +9,7 @@ export const EXPO_PREVIEW = {
   expUrl: 'exp://u.expo.dev/update/atraa-preview?channel-name=preview&runtime-version=exposdk:52.0.0',
   webUrl: 'https://expo.dev/preview/atraa',
   version: 'v2.12.47',
-  build: '410',
+  build: '417',
   updatedAt: '2026-07-20',
 };
 
