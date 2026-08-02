@@ -148,8 +148,11 @@ const App = () => {
                       <Route path="/disclaimer" element={<DisclaimerPage />} />
                       <Route path="/data" element={<DataPage />} />
                       <Route path="/about" element={<AboutPage />} />
+                      {/* أثر — merged into the main platform (v2.12.47) */}
+                      <Route path="/athar" element={<AtharPage />} />
                       <Route path="/athar/:id" element={<AtharQuotePage />} />
                       <Route path="/mosques/:id" element={<MosqueDetailPage />} />
+
                     </Route>
 
                     {/* Khatma standalone (no app shell, accessed via shared link) */}

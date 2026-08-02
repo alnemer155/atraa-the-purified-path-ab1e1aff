@@ -3,12 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Smartphone, ExternalLink, Copy, Check, RefreshCw, AlertTriangle, Apple } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-// v2.13.40 — Expo Go preview launcher (OTA channel).
+// v2.12.47 — Expo Go preview launcher (OTA channel).
 // Update these values whenever a new preview build is published.
 export const EXPO_PREVIEW = {
   expUrl: 'exp://u.expo.dev/update/atraa-preview?channel-name=preview&runtime-version=exposdk:52.0.0',
   webUrl: 'https://expo.dev/preview/atraa',
-  version: 'v2.13.40',
+  version: 'v2.12.47',
   build: '410',
   updatedAt: '2026-07-20',
 };
