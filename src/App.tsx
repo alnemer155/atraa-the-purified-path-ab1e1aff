@@ -49,6 +49,8 @@ const KhatmaLandingPage = lazy(() => import("./pages/KhatmaLandingPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const AtharQuotePage = lazy(() => import("./pages/AtharQuotePage"));
 const AtharHomePage = lazy(() => import("./pages/AtharHomePage"));
+const AtharPage = lazy(() => import("./pages/AtharPage"));
+
 const MaintenancePage = lazy(() => import("./pages/MaintenancePage"));
 const MosqueDetailPage = lazy(() => import("./pages/MosqueDetailPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -146,8 +148,11 @@ const App = () => {
                       <Route path="/disclaimer" element={<DisclaimerPage />} />
                       <Route path="/data" element={<DataPage />} />
                       <Route path="/about" element={<AboutPage />} />
+                      {/* أثر — merged into the main platform (v2.12.47) */}
+                      <Route path="/athar" element={<AtharPage />} />
                       <Route path="/athar/:id" element={<AtharQuotePage />} />
                       <Route path="/mosques/:id" element={<MosqueDetailPage />} />
+
                     </Route>
 
                     {/* Khatma standalone (no app shell, accessed via shared link) */}

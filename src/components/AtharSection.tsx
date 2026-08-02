@@ -1,10 +1,10 @@
 /**
  * Athar (أثر) home-page section.
- * Shows up to 5 quote tiles + a 6th "more" tile linking to athar.atraa.xyz.
- * v2.9.20 — no sect filter, all sayings shown to everyone.
+ * v2.12.47 — links to the internal /athar page (platform merge).
  */
 import { useEffect, useState } from 'react';
-import { fetchAthar, ATHAR_PUBLIC_BASE, type AtharQuote } from '@/lib/athar';
+import { Link } from 'react-router-dom';
+import { fetchAthar, type AtharQuote } from '@/lib/athar';
 import logoAthar from '@/assets/logo-athar.png';
 
 const AtharSection = () => {
@@ -26,21 +26,17 @@ const AtharSection = () => {
           <img src={logoAthar} alt="" className="h-3 w-auto opacity-70" />
           <h2 className="text-[13px] font-bold text-foreground">أثر</h2>
         </div>
-        <a
-          href={ATHAR_PUBLIC_BASE}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          to="/athar"
           className="text-[10px] text-muted-foreground/60 hover:text-foreground transition-colors"
         >
           المزيد
-        </a>
+        </Link>
       </div>
 
-      {/* Hero quote — centered, hairline dividers (v3 architecture) */}
-      <a
-        href={`${ATHAR_PUBLIC_BASE}/${hero.id}`}
-        target="_blank"
-        rel="noopener noreferrer"
+      {/* Hero quote — centered, hairline dividers */}
+      <Link
+        to={`/athar/${hero.id}`}
         className="block py-6 text-center space-y-4 active:opacity-70 transition-opacity"
       >
         <div className="h-[0.5px] w-12 bg-gold/40 mx-auto" />
@@ -50,16 +46,14 @@ const AtharSection = () => {
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/8 hairline-gold border-[0.5px]">
           <span className="text-gold text-[10px] font-bold tracking-widest">— {hero.sayer}</span>
         </div>
-      </a>
+      </Link>
 
       {rest.length > 0 && (
         <div className="grid grid-cols-4 gap-2" dir="rtl">
           {rest.map((q) => (
-            <a
+            <Link
               key={q.id}
-              href={`${ATHAR_PUBLIC_BASE}/${q.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
+              to={`/athar/${q.id}`}
               className="aspect-square rounded-2xl glass-card-soft p-2.5 flex flex-col justify-between active:scale-[0.97] transition-transform text-right overflow-hidden"
             >
               <p className="text-[9px] text-foreground leading-snug line-clamp-4">
@@ -68,7 +62,7 @@ const AtharSection = () => {
               <p className="text-[7px] text-gold font-bold truncate mt-1">
                 {q.sayer}
               </p>
-            </a>
+            </Link>
           ))}
         </div>
       )}

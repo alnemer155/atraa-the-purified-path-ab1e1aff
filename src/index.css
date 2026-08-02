@@ -130,25 +130,9 @@
     --shadow-glass: 0 8px 32px -4px hsl(28 47% 12% / 0.05);
   }
 
-  /* === Quran reading themes (scoped via data-quran-theme on the reader root) === */
-  /* Sepia — warm, low-glare reading mode inspired by aged mushaf paper. */
-  [data-quran-theme='sepia'] {
-    --background: 38 38% 90%;
-    --foreground: 28 38% 18%;
-    --card: 38 42% 93%;
-    --card-foreground: 28 38% 18%;
-    --secondary: 36 28% 84%;
-    --secondary-foreground: 28 38% 22%;
-    --muted: 36 24% 82%;
-    --muted-foreground: 28 18% 38%;
-    --border: 32 24% 76%;
-    --input: 32 24% 76%;
-    --primary: 28 48% 28%;
-    --primary-foreground: 38 42% 96%;
-    --accent: 32 60% 42%;
-    --gold: 32 60% 42%;
-    --ring: 28 48% 28%;
-  }
+  /* === Seasonal themes (scoped via data-quran-theme on <html>) === */
+  /* v2.12.47 — «sepia» removed; :root (default) is the primary mode. */
+
 
   /* Muharram — deep crimson mourning palette (Ashura season). */
   [data-quran-theme='muharram'] {

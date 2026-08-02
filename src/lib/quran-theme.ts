@@ -1,9 +1,8 @@
 /**
  * App theme — applies via `data-quran-theme` on <html>.
  *
- * v2.11.00: night mode removed; three seasonal moods added
- *   default  → tokens from :root
- *   sepia    → warm paper (canonical Atraa)
+ * v2.12.47: «sepia» removed permanently. «default» is now the primary mode.
+ *   default  → tokens from :root (main Atraa identity)
  *   muharram → deep crimson / mourning palette for Ashura season
  *   rabee    → soft spring greens for daily use
  *   ramadan  → nightlit indigo/gold for the blessed month
@@ -13,31 +12,21 @@
 
 import { useEffect, useState } from 'react';
 
-export type QuranTheme = 'default' | 'sepia' | 'muharram' | 'rabee' | 'ramadan';
+export type QuranTheme = 'default' | 'muharram' | 'rabee' | 'ramadan';
 
 const KEY = 'atraa_quran_theme_v1';
-const SEED_KEY = 'atraa_quran_theme_seeded_v1';
 const EVENT = 'atraa:reading-theme-changed';
 
-const VALID: QuranTheme[] = ['default', 'sepia', 'muharram', 'rabee', 'ramadan'];
+const VALID: QuranTheme[] = ['default', 'muharram', 'rabee', 'ramadan'];
 
 export const getStoredQuranTheme = (): QuranTheme => {
   try {
     const v = localStorage.getItem(KEY) as QuranTheme | null;
     if (v && VALID.includes(v)) return v;
-    // migrate legacy 'night' → 'sepia'
-    if (v === ('night' as unknown as QuranTheme)) {
-      localStorage.setItem(KEY, 'sepia');
-      return 'sepia';
-    }
-    const seeded = localStorage.getItem(SEED_KEY);
-    if (!seeded) {
-      localStorage.setItem(KEY, 'sepia');
-      localStorage.setItem(SEED_KEY, '1');
-      return 'sepia';
-    }
+    // migrate legacy 'night' / 'sepia' → 'default'
+    if (v) localStorage.setItem(KEY, 'default');
     return 'default';
-  } catch { return 'sepia'; }
+  } catch { return 'default'; }
 };
 
 export const applyThemeToDocument = (t: QuranTheme): void => {

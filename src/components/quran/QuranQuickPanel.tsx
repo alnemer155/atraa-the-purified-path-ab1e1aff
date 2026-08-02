@@ -382,7 +382,7 @@ const QuranQuickPanel = ({
                     <div className="grid grid-cols-3 gap-2">
                       {[
                         { id: 'default'  as const, label: 'افتراضي', icon: Sun },
-                        { id: 'sepia'    as const, label: 'سيبيا',   icon: Coffee },
+                        
                         { id: 'muharram' as const, label: 'محرم',    icon: Moon },
                         { id: 'rabee'    as const, label: 'ربيع',    icon: Coffee },
                         { id: 'ramadan'  as const, label: 'رمضان',   icon: Moon },

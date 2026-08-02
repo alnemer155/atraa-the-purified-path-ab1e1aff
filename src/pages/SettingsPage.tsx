@@ -205,7 +205,7 @@ const SettingsPage = () => {
           <div className="grid grid-cols-3 gap-2 p-2">
             {([
               { id: 'default'  as const, labelAr: 'افتراضي', labelEn: 'Default',  Icon: Sun },
-              { id: 'sepia'    as const, labelAr: 'سيبيا',    labelEn: 'Sepia',    Icon: Coffee },
+              
               { id: 'muharram' as const, labelAr: 'محرم',     labelEn: 'Muharram', Icon: Moon },
               { id: 'rabee'    as const, labelAr: 'ربيع',     labelEn: 'Rabee',    Icon: Sparkles },
               { id: 'ramadan'  as const, labelAr: 'رمضان',    labelEn: 'Ramadan',  Icon: Moon },
